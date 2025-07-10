@@ -1,0 +1,129 @@
+# beenvoice - AI Assistant Guidelines
+
+## Project Overview
+beenvoice is a modern invoicing application built with the T3 stack (Next.js 15, tRPC, Drizzle/LibSQL, NextAuth.js) and shadcn/ui components. The app allows users to create and manage clients and invoices with a professional, clean interface.
+
+## Tech Stack & Architecture
+
+### Core Technologies
+- **Frontend**: Next.js 15 with App Router
+- **Backend**: tRPC for type-safe API calls
+- **Database**: Drizzle ORM with LibSQL (SQLite)
+- **Authentication**: NextAuth.js with email/password (Credentials provider)
+- **UI**: shadcn/ui components with Tailwind CSS
+- **Styling**: Geist font family for professional typography
+- **Package Manager**: Bun (with npm fallback)
+
+### Project Structure
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── api/               # API routes (NextAuth, tRPC)
+│   ├── auth/              # Authentication pages
+│   ├── clients/           # Client management pages
+│   ├── invoices/          # Invoice management pages
+│   └── _components/       # Page-specific components
+├── components/            # Shared UI components
+├── server/               # Server-side code
+│   ├── api/              # tRPC routers
+│   ├── auth/             # NextAuth configuration
+│   └── db/               # Database schema and connection
+├── styles/               # Global styles
+└── trpc/                 # tRPC client configuration
+```
+
+## Development Guidelines
+
+### Code Style & Conventions
+- Use TypeScript for all new code
+- Follow the existing component patterns with shadcn/ui
+- Use the `cn()` utility for conditional className merging
+- Implement proper error handling with toast notifications
+- Use tRPC for all API calls (no direct fetch calls)
+
+### Database Schema
+The app uses three main tables:
+- **users**: User accounts with email/password authentication
+- **clients**: Client information (name, email, phone, address)
+- **invoices**: Invoice headers with client relationships
+- **invoice_items**: Individual line items with dates, descriptions, hours, rates
+
+### Authentication Flow
+- Email/password registration and sign-in
+- Password hashing with bcrypt
+- Session management via NextAuth.js
+- Protected routes require authentication
+
+### UI/UX Principles
+- Clean, professional design suitable for business use
+- Responsive design that works on all devices
+- Consistent spacing and typography using Geist font
+- Green color scheme (#16a34a) for branding
+- Toast notifications for user feedback
+- Modal dialogs for forms and confirmations
+
+### Component Guidelines
+- Use shadcn/ui components as the foundation
+- Create reusable components in `src/components/`
+- Page-specific components go in `src/app/_components/`
+- Follow the existing Logo component pattern for branding
+
+### API Development
+- All API logic goes through tRPC routers
+- Use Zod for input validation
+- Implement proper error handling
+- Follow the existing router patterns in `src/server/api/routers/`
+
+### Database Operations
+- Use Drizzle ORM for all database operations
+- Follow the existing schema patterns
+- Implement proper relationships between tables
+- Use transactions for multi-table operations
+
+## Common Tasks & Patterns
+
+### Adding New Features
+1. Create tRPC router procedures
+2. Add validation with Zod schemas
+3. Create UI components using shadcn/ui
+4. Add proper error handling and user feedback
+5. Update navigation if needed
+
+### Styling Guidelines
+- Use Tailwind CSS classes
+- Follow the existing color scheme
+- Use Geist font family
+- Maintain consistent spacing (4px grid system)
+- Use the existing component patterns
+
+### Error Handling
+- Use toast notifications for user feedback
+- Implement proper form validation
+- Handle API errors gracefully
+- Provide clear error messages
+
+## File Naming Conventions
+- Components: PascalCase (e.g., `ClientList.tsx`)
+- Pages: kebab-case (e.g., `new-client.tsx`)
+- Utilities: camelCase (e.g., `formatCurrency.ts`)
+- Constants: UPPER_SNAKE_CASE
+
+## Testing Considerations
+- Ensure all forms have proper validation
+- Test responsive design on different screen sizes
+- Verify authentication flows work correctly
+- Test database operations with proper error handling
+
+## Performance Guidelines
+- Use Next.js Image component for images
+- Implement proper loading states
+- Optimize database queries
+- Use React.memo for expensive components when needed
+
+## Security Considerations
+- Always validate user input
+- Use proper authentication checks
+- Sanitize data before database operations
+- Follow NextAuth.js security best practices
+
+Remember: This is a business application, so prioritize reliability, security, and professional user experience over flashy features. 
