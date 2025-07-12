@@ -9,6 +9,7 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { FormSkeleton } from "~/components/ui/skeleton";
 import { api } from "~/trpc/react";
 
 interface ClientFormProps {
@@ -129,17 +130,9 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
 
   if (mode === "edit" && isLoadingClient) {
     return (
-      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle>Loading client...</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="h-10 bg-muted rounded animate-pulse" />
-            <div className="h-10 bg-muted rounded animate-pulse" />
-            <div className="h-10 bg-muted rounded animate-pulse" />
-            <div className="h-20 bg-muted rounded animate-pulse" />
-          </div>
+      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm w-full my-8 px-0">
+        <CardContent className="p-8">
+          <FormSkeleton />
         </CardContent>
       </Card>
     );
@@ -147,25 +140,6 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
 
   return (
     <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm w-full my-8 px-0">
-      {/* <CardHeader className="text-center pb-8"> */}
-        {/* <div className="flex items-center justify-center space-x-4 mb-4"> */}
-          {/* <Link href="/dashboard/clients">
-            <Button variant="ghost" size="sm" className="hover:bg-white/50">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Clients
-            </Button>
-          </Link> */}
-        {/* </div> */}
-        {/* <CardTitle className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
-          {mode === "create" ? "Add New Client" : "Edit Client"}
-        </CardTitle> */}
-        {/* <p className="text-muted-foreground mt-2">
-          {mode === "create" 
-            ? "Create a new client profile with complete contact information" 
-            : "Update your client's information"
-          }
-        </p> */}
-      {/* </CardHeader> */}
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information Section */}
@@ -250,7 +224,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                   id="addressLine1"
                   value={formData.addressLine1}
                   onChange={(e) => handleInputChange("addressLine1", e.target.value)}
-                  placeholder="Street address, P.O. box, company name"
+                  placeholder="123 Main Street"
                   className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                 />
               </div>
@@ -262,10 +236,12 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                   id="addressLine2"
                   value={formData.addressLine2}
                   onChange={(e) => handleInputChange("addressLine2", e.target.value)}
-                  placeholder="Apartment, suite, unit, building, floor, etc."
+                  placeholder="Suite 100"
                   className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="city" className="text-sm font-medium text-gray-700">
                   City
@@ -274,23 +250,24 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                   id="city"
                   value={formData.city}
                   onChange={(e) => handleInputChange("city", e.target.value)}
-                  placeholder="City or town"
+                  placeholder="New York"
                   className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="state" className="text-sm font-medium text-gray-700">
-                  State
+                  State / Province
                 </Label>
                 <select
                   id="state"
                   value={formData.state}
-                  onChange={e => handleInputChange("state", e.target.value)}
-                  className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-gray-700 focus:border-emerald-500 focus:ring-emerald-500"
+                  onChange={(e) => handleInputChange("state", e.target.value)}
+                  className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
-                  <option value="">Select a state</option>
-                  {US_STATES.filter(s => s).map(state => (
-                    <option key={state} value={state}>{state}</option>
+                  {US_STATES.map((state) => (
+                    <option key={state} value={state}>
+                      {state || "Select State"}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -302,9 +279,10 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                   id="postalCode"
                   value={formData.postalCode}
                   onChange={(e) => handleInputChange("postalCode", e.target.value)}
-                  placeholder="ZIP or postal code"
+                  placeholder="12345"
                   className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
                 />
+              </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="country" className="text-sm font-medium text-gray-700">
@@ -313,41 +291,55 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                 <select
                   id="country"
                   value={formData.country}
-                  onChange={e => handleInputChange("country", e.target.value)}
-                  className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-gray-700 focus:border-emerald-500 focus:ring-emerald-500"
+                onChange={(e) => handleInputChange("country", e.target.value)}
+                className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
                 >
-                  <option value="">Select a country</option>
-                  {MOST_USED_COUNTRIES.map(country => (
-                    <option key={country} value={country}>{country}</option>
+                <option value="">Select Country</option>
+                <optgroup label="Most Used">
+                  {MOST_USED_COUNTRIES.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
                   ))}
-                  <option disabled>──────────</option>
-                  {OTHER_COUNTRIES.map(country => (
-                    <option key={country} value={country}>{country}</option>
+                </optgroup>
+                <optgroup label="All Countries">
+                  {OTHER_COUNTRIES.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
                   ))}
+                </optgroup>
                 </select>
-              </div>
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-6 border-t border-gray-200">
+          {/* Submit Button */}
+          <div className="flex gap-3 pt-6">
             <Button 
               type="submit" 
               disabled={loading}
-              className="flex-1 h-12 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
             >
+              {loading ? (
+                <>
+                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  {mode === "create" ? "Creating..." : "Updating..."}
+                </>
+              ) : (
+                <>
               <Save className="mr-2 h-4 w-4" />
-              {loading ? "Saving..." : mode === "create" ? "Create Client" : "Update Client"}
+                  {mode === "create" ? "Create Client" : "Update Client"}
+                </>
+              )}
             </Button>
-            <Link href="/dashboard/clients" className="flex-1">
               <Button 
                 type="button" 
                 variant="outline"
-                className="w-full h-12 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
+              onClick={() => router.push("/dashboard/clients")}
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
               >
                 Cancel
               </Button>
-            </Link>
           </div>
         </form>
       </CardContent>

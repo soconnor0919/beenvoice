@@ -1,36 +1,16 @@
-import Link from "next/link";
-import { auth } from "~/server/auth";
-import { api, HydrateClient } from "~/trpc/server";
-import { Button } from "~/components/ui/button";
+import { HydrateClient } from "~/trpc/server";
 import { CSVImportPage } from "~/components/csv-import-page";
 
 export default async function ImportPage() {
-  const session = await auth();
-
-  if (!session?.user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50">
-        <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Access Denied</h1>
-          <p className="text-muted-foreground mb-8">Please sign in to import invoices</p>
-          <Link href="/api/auth/signin">
-            <Button 
-              size="lg"
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              Sign In
-            </Button>
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">Import Invoices</h1>
-        <p className="text-gray-600 mt-1 text-lg">Upload CSV files to create invoices in batch.</p>
+        <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent">
+          Import Invoices
+        </h1>
+        <p className="mt-1 text-lg text-gray-600">
+          Upload CSV files to create invoices in batch.
+        </p>
       </div>
 
       <HydrateClient>
@@ -38,4 +18,4 @@ export default async function ImportPage() {
       </HydrateClient>
     </div>
   );
-} 
+}

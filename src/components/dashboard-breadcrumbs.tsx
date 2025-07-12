@@ -6,6 +6,8 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { api } from "~/trpc/react";
+import { format } from "date-fns";
+import { Skeleton } from "~/components/ui/skeleton";
 
 function isUUID(str: string) {
   return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(str);
@@ -20,9 +22,19 @@ export function DashboardBreadcrumbs() {
   if (segments[1] === "clients" && segments[2] && isUUID(segments[2])) {
     clientId = segments[2];
   }
-  const { data: client } = api.clients.getById.useQuery(
+  const { data: client, isLoading: clientLoading } = api.clients.getById.useQuery(
     { id: clientId ?? "" },
     { enabled: !!clientId }
+  );
+
+  // Find invoiceId if present
+  let invoiceId: string | undefined = undefined;
+  if (segments[1] === "invoices" && segments[2] && isUUID(segments[2])) {
+    invoiceId = segments[2];
+  }
+  const { data: invoice, isLoading: invoiceLoading } = api.invoices.getById.useQuery(
+    { id: invoiceId ?? "" },
+    { enabled: !!invoiceId }
   );
 
   // Generate breadcrumb items based on pathname
@@ -32,9 +44,16 @@ export function DashboardBreadcrumbs() {
       const segment = segments[i];
       const path = `/${segments.slice(0, i + 1).join('/')}`;
       if (segment === 'dashboard') continue;
-      let label = segment;
+      
+      let label: string | React.ReactElement = segment ?? "";
       if (segment === 'clients') label = 'Clients';
-      if (isUUID(segment ?? "") && client) label = client.name ?? "";
+      if (isUUID(segment ?? "") && clientLoading) label = <Skeleton className="h-5 w-24 inline-block align-middle" />;
+      else if (isUUID(segment ?? "") && client) label = client.name ?? "";
+      if (isUUID(segment ?? "") && invoiceLoading) label = <Skeleton className="h-5 w-24 inline-block align-middle" />;
+      else if (isUUID(segment ?? "") && invoice) {
+        const issueDate = new Date(invoice.issueDate);
+        label = format(issueDate, "MMM dd, yyyy");
+      }
       if (segment === 'invoices') label = 'Invoices';
       if (segment === 'new') label = 'New';
       // Only show 'Edit' if not the last segment
@@ -49,29 +68,29 @@ export function DashboardBreadcrumbs() {
       });
     }
     return items;
-  }, [segments, client]);
+  }, [segments, client, invoice, clientLoading, invoiceLoading]);
 
   if (breadcrumbs.length === 0) return null;
 
   return (
-    <Breadcrumb className="mb-6">
-      <BreadcrumbList>
+    <Breadcrumb className="mb-4 sm:mb-6">
+      <BreadcrumbList className="flex-wrap">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/dashboard" className="text-sm sm:text-base">Dashboard</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {breadcrumbs.map((crumb) => (
           <React.Fragment key={crumb.href}>
             <BreadcrumbSeparator>
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               {crumb.isLast ? (
-                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                <BreadcrumbPage className="text-sm sm:text-base">{crumb.label}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link href={crumb.href}>{crumb.label}</Link>
+                  <Link href={crumb.href} className="text-sm sm:text-base">{crumb.label}</Link>
                 </BreadcrumbLink>
               )}
             </BreadcrumbItem>

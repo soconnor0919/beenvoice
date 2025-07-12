@@ -7,6 +7,7 @@ export default {
   dialect: "sqlite",
   dbCredentials: {
     url: env.DATABASE_URL,
+    authToken: env.DATABASE_AUTH_TOKEN,
   },
   tablesFilter: ["beenvoice_*"],
 } satisfies Config;

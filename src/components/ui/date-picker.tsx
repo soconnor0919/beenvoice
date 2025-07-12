@@ -52,7 +52,7 @@ export function DatePicker({
             id={id}
             disabled={disabled}
             className={cn(
-              "w-full justify-between font-normal h-9 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 text-sm",
+              "w-full justify-between font-normal h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 text-sm",
               !date && "text-gray-500"
             )}
           >

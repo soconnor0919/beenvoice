@@ -53,6 +53,9 @@ export const authConfig = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
+        if (typeof credentials.email !== 'string' || typeof credentials.password !== 'string') {
+          return null;
+        }
 
         const user = await db.query.users.findFirst({
           where: eq(users.email, credentials.email),
