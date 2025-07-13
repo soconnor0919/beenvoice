@@ -646,39 +646,39 @@ export function UniversalTable({ resource }: UniversalTableProps) {
       return Array.from({ length: skeletonCount }).map((_, index) => (
         <TableRow key={`skeleton-${index}`}>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-4 w-4" />
+            <Skeleton className="h-4 w-4 dark:bg-gray-600" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-4 w-32 dark:bg-gray-600" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-4 w-40" />
+            <Skeleton className="h-4 w-40 dark:bg-gray-600" />
           </TableCell>
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-4 w-28 dark:bg-gray-600" />
           </TableCell>
           {resource === "invoices" && (
             <>
               <TableCell className="px-4 py-4">
-                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-20 dark:bg-gray-600" />
               </TableCell>
               <TableCell className="px-4 py-4">
-                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-24 dark:bg-gray-600" />
               </TableCell>
             </>
           )}
           {resource === "businesses" && (
             <>
               <TableCell className="px-4 py-4">
-                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-4 w-28 dark:bg-gray-600" />
               </TableCell>
               <TableCell className="px-4 py-4">
-                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-4 w-16 dark:bg-gray-600" />
               </TableCell>
             </>
           )}
           <TableCell className="px-4 py-4">
-            <Skeleton className="h-8 w-8 rounded" />
+            <Skeleton className="h-8 w-8 rounded dark:bg-gray-600" />
           </TableCell>
         </TableRow>
       ));
@@ -1258,9 +1258,9 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 key={`skeleton-card-${index}`}
                 className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800/90"
               >
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-4 w-40" />
-                <Skeleton className="h-4 w-28" />
+                <Skeleton className="h-6 w-32 dark:bg-gray-600" />
+                <Skeleton className="h-4 w-40 dark:bg-gray-600" />
+                <Skeleton className="h-4 w-28 dark:bg-gray-600" />
               </div>
             ))
           ) : filteredAndSortedData.length === 0 ? (

@@ -10,10 +10,10 @@ export default async function BusinessesPage() {
     <div>
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent">
+          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent dark:from-emerald-400 dark:to-teal-400">
             Businesses
           </h1>
-          <p className="mt-1 text-lg text-gray-600">
+          <p className="mt-1 text-lg text-gray-600 dark:text-gray-300">
             Manage your businesses and their information.
           </p>
         </div>

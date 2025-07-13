@@ -232,28 +232,32 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-4xl font-bold text-transparent">
+        <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-4xl font-bold text-transparent dark:from-emerald-400 dark:to-teal-400">
           Settings
         </h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
           Manage your account and data preferences
         </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
         {/* Profile Section */}
-        <Card>
+        <Card className="dark:border-gray-700 dark:bg-gray-800/80">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 dark:text-white">
+              <User className="h-5 w-5 dark:text-emerald-400" />
               Profile
             </CardTitle>
-            <CardDescription>Update your personal information</CardDescription>
+            <CardDescription className="dark:text-gray-300">
+              Update your personal information
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <form onSubmit={handleUpdateProfile} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name" className="dark:text-gray-300">
+                  Name
+                </Label>
                 <Input
                   id="name"
                   value={name}
@@ -262,14 +266,18 @@ export default function SettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="dark:text-gray-300">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   value={session?.user?.email ?? ""}
                   disabled
-                  className="bg-gray-50"
+                  className="bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
                 />
-                <p className="text-sm text-gray-500">Email cannot be changed</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Email cannot be changed
+                </p>
               </div>
               <Button
                 type="submit"
@@ -285,33 +293,41 @@ export default function SettingsPage() {
         </Card>
 
         {/* Data Statistics */}
-        <Card>
+        <Card className="dark:border-gray-700 dark:bg-gray-800/80">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 dark:text-white">
+              <Database className="h-5 w-5 dark:text-emerald-400" />
               Your Data
             </CardTitle>
-            <CardDescription>Overview of your account data</CardDescription>
+            <CardDescription className="dark:text-gray-300">
+              Overview of your account data
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <div className="text-2xl font-bold text-emerald-600">
+                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {dataStats?.clients ?? 0}
                 </div>
-                <div className="text-sm text-gray-500">Clients</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Clients
+                </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-emerald-600">
+                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {dataStats?.businesses ?? 0}
                 </div>
-                <div className="text-sm text-gray-500">Businesses</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Businesses
+                </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-emerald-600">
+                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                   {dataStats?.invoices ?? 0}
                 </div>
-                <div className="text-sm text-gray-500">Invoices</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Invoices
+                </div>
               </div>
             </div>
           </CardContent>
@@ -319,13 +335,13 @@ export default function SettingsPage() {
       </div>
 
       {/* Backup & Restore Section */}
-      <Card>
+      <Card className="dark:border-gray-700 dark:bg-gray-800/80">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 dark:text-white">
+            <Shield className="h-5 w-5 dark:text-emerald-400" />
             Backup & Restore
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="dark:text-gray-300">
             Export your data for backup or import from a previous backup
           </CardDescription>
         </CardHeader>
@@ -333,8 +349,8 @@ export default function SettingsPage() {
           <div className="grid gap-4 md:grid-cols-2">
             {/* Export Data */}
             <div className="space-y-3">
-              <h3 className="font-semibold">Export Data</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold dark:text-white">Export Data</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Download all your clients, businesses, and invoices as a JSON
                 backup file.
               </p>
@@ -351,8 +367,8 @@ export default function SettingsPage() {
 
             {/* Import Data */}
             <div className="space-y-3">
-              <h3 className="font-semibold">Import Data</h3>
-              <p className="text-sm text-gray-600">
+              <h3 className="font-semibold dark:text-white">Import Data</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
                 Restore your data from a previous backup file.
               </p>
               <Dialog
@@ -365,10 +381,12 @@ export default function SettingsPage() {
                     Import Data
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl dark:border-gray-700 dark:bg-gray-800">
                   <DialogHeader>
-                    <DialogTitle>Import Backup Data</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="dark:text-white">
+                      Import Backup Data
+                    </DialogTitle>
+                    <DialogDescription className="dark:text-gray-300">
                       Paste the contents of your backup JSON file below. This
                       will add the data to your existing account.
                     </DialogDescription>
@@ -406,9 +424,11 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="rounded-lg bg-blue-50 p-4">
-            <h4 className="font-medium text-blue-900">Backup Tips</h4>
-            <ul className="mt-2 space-y-1 text-sm text-blue-800">
+          <div className="rounded-lg bg-blue-50 p-4 dark:border dark:border-blue-800/30 dark:bg-blue-900/20">
+            <h4 className="font-medium text-blue-900 dark:text-blue-300">
+              Backup Tips
+            </h4>
+            <ul className="mt-2 space-y-1 text-sm text-blue-800 dark:text-blue-200">
               <li>• Regular backups help protect your data</li>
               <li>
                 • Backup files contain all your business data in JSON format
@@ -423,21 +443,23 @@ export default function SettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border-red-200">
+      <Card className="border-red-200 dark:border-red-800/50 dark:bg-gray-800/80">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-red-600">
+          <CardTitle className="flex items-center gap-2 text-red-600 dark:text-red-400">
             <AlertTriangle className="h-5 w-5" />
             Danger Zone
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="dark:text-gray-300">
             Irreversible actions for your account data
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="rounded-lg bg-red-50 p-4">
-              <h4 className="font-medium text-red-900">Delete All Data</h4>
-              <p className="mt-1 text-sm text-red-800">
+            <div className="rounded-lg bg-red-50 p-4 dark:border dark:border-red-800/30 dark:bg-red-900/20">
+              <h4 className="font-medium text-red-900 dark:text-red-300">
+                Delete All Data
+              </h4>
+              <p className="mt-1 text-sm text-red-800 dark:text-red-200">
                 This will permanently delete all your clients, businesses,
                 invoices, and related data. This action cannot be undone.
               </p>
@@ -447,10 +469,12 @@ export default function SettingsPage() {
               <AlertDialogTrigger asChild>
                 <Button variant="destructive">Delete All Data</Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
+              <AlertDialogContent className="dark:border-gray-700 dark:bg-gray-800">
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription className="space-y-2">
+                  <AlertDialogTitle className="dark:text-white">
+                    Are you absolutely sure?
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="space-y-2 dark:text-gray-300">
                     <p>
                       This action cannot be undone. This will permanently delete
                       all your:
@@ -463,7 +487,7 @@ export default function SettingsPage() {
                     </ul>
                     <p className="font-medium">
                       Type{" "}
-                      <span className="rounded bg-gray-100 px-1 font-mono">
+                      <span className="rounded bg-gray-100 px-1 font-mono dark:bg-gray-700 dark:text-gray-200">
                         DELETE ALL DATA
                       </span>{" "}
                       to confirm:
