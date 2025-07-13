@@ -49,23 +49,25 @@ function RegisterForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4 dark:from-gray-900 dark:to-gray-800">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and Welcome */}
         <div className="space-y-4 text-center">
           <Logo size="lg" className="mx-auto" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Join beenvoice</h1>
-            <p className="mt-2 text-gray-600">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Join beenvoice
+            </h1>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">
               Create your account to get started
             </p>
           </div>
         </div>
 
         {/* Registration Form */}
-        <Card className="border-0 shadow-xl">
+        <Card className="border-0 shadow-xl dark:bg-gray-800">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-center text-xl">
+            <CardTitle className="text-center text-xl dark:text-white">
               Create Account
             </CardTitle>
           </CardHeader>
@@ -75,7 +77,7 @@ function RegisterForm() {
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <div className="relative">
-                    <User className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                    <User className="absolute top-3 left-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <Input
                       id="firstName"
                       type="text"
@@ -91,7 +93,7 @@ function RegisterForm() {
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
                   <div className="relative">
-                    <User className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                    <User className="absolute top-3 left-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                     <Input
                       id="lastName"
                       type="text"
@@ -107,7 +109,7 @@ function RegisterForm() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute top-3 left-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="email"
                     type="email"
@@ -122,7 +124,7 @@ function RegisterForm() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400" />
+                  <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
                   <Input
                     id="password"
                     type="password"
@@ -134,7 +136,7 @@ function RegisterForm() {
                     placeholder="Create a password"
                   />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Must be at least 6 characters
                 </p>
               </div>
@@ -150,10 +152,12 @@ function RegisterForm() {
               </Button>
             </form>
             <div className="mt-6 text-center text-sm">
-              <span className="text-gray-600">Already have an account? </span>
+              <span className="text-gray-600 dark:text-gray-300">
+                Already have an account?{" "}
+              </span>
               <Link
                 href="/auth/signin"
-                className="font-medium text-green-600 hover:text-green-700"
+                className="font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
               >
                 Sign in here
               </Link>
@@ -163,8 +167,10 @@ function RegisterForm() {
 
         {/* Features */}
         <div className="space-y-4 text-center">
-          <p className="text-sm text-gray-500">Start invoicing like a pro</p>
-          <div className="flex justify-center space-x-6 text-xs text-gray-400">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Start invoicing like a pro
+          </p>
+          <div className="flex justify-center space-x-6 text-xs text-gray-400 dark:text-gray-500">
             <span>✓ Free to start</span>
             <span>✓ No credit card</span>
             <span>✓ Cancel anytime</span>
@@ -179,15 +185,17 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4 dark:from-gray-900 dark:to-gray-800">
           <div className="w-full max-w-md space-y-8">
             <div className="space-y-4 text-center">
               <Logo size="lg" className="mx-auto" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
                   Join beenvoice
                 </h1>
-                <p className="mt-2 text-gray-600">Loading...</p>
+                <p className="mt-2 text-gray-600 dark:text-gray-300">
+                  Loading...
+                </p>
               </div>
             </div>
           </div>

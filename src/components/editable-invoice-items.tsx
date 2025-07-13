@@ -17,9 +17,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import {
-  useSortable,
-} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
@@ -47,15 +45,19 @@ interface EditableInvoiceItemsProps {
   onRemoveItem: (index: number) => void;
 }
 
-function SortableItem({ 
-  item, 
-  index, 
-  onItemChange, 
-  onRemove 
-}: { 
-  item: InvoiceItem; 
-  index: number; 
-  onItemChange: (index: number, field: string, value: any) => void;
+function SortableItem({
+  item,
+  index,
+  onItemChange,
+  onRemove,
+}: {
+  item: InvoiceItem;
+  index: number;
+  onItemChange: (
+    index: number,
+    field: string,
+    value: string | number | Date,
+  ) => void;
   onRemove: (index: number) => void;
 }) {
   const {
@@ -72,7 +74,7 @@ function SortableItem({
     transition,
   };
 
-  const handleItemChange = (field: string, value: any) => {
+  const handleItemChange = (field: string, value: string | number | Date) => {
     onItemChange(index, field, value);
   };
 
@@ -80,17 +82,17 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`grid grid-cols-12 gap-2 items-center p-4 border border-gray-200 rounded-lg hover:border-emerald-300 transition-colors ${
+      className={`grid grid-cols-12 items-center gap-2 rounded-lg border border-gray-200 p-4 transition-colors hover:border-emerald-300 dark:border-gray-700 dark:hover:border-emerald-500 ${
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
     >
       {/* Drag Handle */}
-      <div className="col-span-1 flex items-center justify-center h-10">
+      <div className="col-span-1 flex h-10 items-center justify-center">
         <button
           type="button"
           {...attributes}
           {...listeners}
-          className="p-2 text-gray-400 hover:text-gray-600 cursor-grab active:cursor-grabbing rounded hover:bg-gray-100 transition-colors"
+          className="cursor-grab rounded p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 active:cursor-grabbing dark:text-gray-500 dark:hover:bg-gray-800 dark:hover:text-gray-400"
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -102,10 +104,10 @@ function SortableItem({
           <PopoverTrigger asChild>
             <Button
               variant="outline"
-              className="w-full justify-between font-normal h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 text-sm"
+              className="h-10 w-full justify-between border-gray-200 text-sm font-normal focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
             >
               {item.date ? format(item.date, "MMM dd") : "Date"}
-              <CalendarIcon className="h-4 w-4 text-gray-400" />
+              <CalendarIcon className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto overflow-hidden p-0" align="start">
@@ -114,23 +116,23 @@ function SortableItem({
               selected={item.date}
               captionLayout="dropdown"
               onSelect={(selectedDate: Date | undefined) => {
-                handleItemChange("date", selectedDate || new Date())
+                handleItemChange("date", selectedDate ?? new Date());
               }}
             />
           </PopoverContent>
         </Popover>
       </div>
-      
+
       {/* Description */}
       <div className="col-span-4">
         <Input
           value={item.description}
-          onChange={e => handleItemChange("description", e.target.value)}
+          onChange={(e) => handleItemChange("description", e.target.value)}
           placeholder="Work description"
-          className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+          className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
       </div>
-      
+
       {/* Hours */}
       <div className="col-span-1">
         <Input
@@ -138,12 +140,12 @@ function SortableItem({
           step="0.25"
           min="0"
           value={item.hours}
-          onChange={e => handleItemChange("hours", e.target.value)}
+          onChange={(e) => handleItemChange("hours", e.target.value)}
           placeholder="0"
-          className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+          className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
       </div>
-      
+
       {/* Rate */}
       <div className="col-span-2">
         <Input
@@ -151,19 +153,19 @@ function SortableItem({
           step="0.01"
           min="0"
           value={item.rate}
-          onChange={e => handleItemChange("rate", e.target.value)}
+          onChange={(e) => handleItemChange("rate", e.target.value)}
           placeholder="0.00"
-          className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+          className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
         />
       </div>
-      
+
       {/* Amount */}
       <div className="col-span-1">
-        <div className="h-10 flex items-center px-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700 font-medium">
+        <div className="flex h-10 items-center rounded-md border border-gray-200 bg-gray-50 px-3 font-medium text-gray-700 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300">
           ${item.amount.toFixed(2)}
         </div>
       </div>
-      
+
       {/* Remove Button */}
       <div className="col-span-1">
         <Button
@@ -171,7 +173,7 @@ function SortableItem({
           onClick={() => onRemove(index)}
           variant="outline"
           size="sm"
-          className="h-10 w-10 p-0 border-red-200 text-red-700 hover:bg-red-50"
+          className="h-10 w-10 border-red-200 p-0 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
         >
           <Trash2 className="h-4 w-4" />
         </Button>
@@ -180,7 +182,11 @@ function SortableItem({
   );
 }
 
-export function EditableInvoiceItems({ items, onItemsChange, onRemoveItem }: EditableInvoiceItemsProps) {
+export function EditableInvoiceItems({
+  items,
+  onItemsChange,
+  onRemoveItem,
+}: EditableInvoiceItemsProps) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -191,35 +197,48 @@ export function EditableInvoiceItems({ items, onItemsChange, onRemoveItem }: Edi
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (active.id !== over?.id) {
-      const oldIndex = items.findIndex(item => item.id === active.id);
-      const newIndex = items.findIndex(item => item.id === over?.id);
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over?.id);
 
       const newItems = arrayMove(items, oldIndex, newIndex);
       onItemsChange(newItems);
     }
   };
 
-  const handleItemChange = (index: number, field: string, value: any) => {
+  const handleItemChange = (
+    index: number,
+    field: string,
+    value: string | number | Date,
+  ) => {
     const newItems = [...items];
     if (field === "hours" || field === "rate") {
       if (newItems[index]) {
-        newItems[index][field as "hours" | "rate"] = parseFloat(value) || 0;
+        const numValue =
+          typeof value === "string"
+            ? parseFloat(value)
+            : typeof value === "number"
+              ? value
+              : 0;
+        newItems[index][field] = numValue || 0;
         newItems[index].amount = newItems[index].hours * newItems[index].rate;
       }
     } else if (field === "date") {
       if (newItems[index]) {
-        newItems[index][field as "date"] = value;
+        const dateValue =
+          value instanceof Date ? value : new Date(String(value));
+        newItems[index].date = dateValue;
       }
     } else {
       if (newItems[index]) {
-        newItems[index][field as "description"] = value;
+        const stringValue = typeof value === "string" ? value : String(value);
+        newItems[index].description = stringValue;
       }
     }
     onItemsChange(newItems);
@@ -229,28 +248,31 @@ export function EditableInvoiceItems({ items, onItemsChange, onRemoveItem }: Edi
   if (!isClient) {
     return (
       <div className="space-y-3">
-        {items.map((item, index) => (
-          <div key={item.id} className="grid grid-cols-12 gap-2 items-center p-4 border border-gray-200 rounded-lg animate-pulse">
-            <div className="col-span-1 flex items-center justify-center h-10">
-              <div className="w-4 h-4 bg-gray-300 rounded"></div>
+        {items.map((item, _index) => (
+          <div
+            key={item.id}
+            className="grid animate-pulse grid-cols-12 items-center gap-2 rounded-lg border border-gray-200 p-4"
+          >
+            <div className="col-span-1 flex h-10 items-center justify-center">
+              <div className="h-4 w-4 rounded bg-gray-300"></div>
             </div>
             <div className="col-span-2">
-              <div className="h-10 bg-gray-300 rounded"></div>
+              <div className="h-10 rounded bg-gray-300"></div>
             </div>
             <div className="col-span-4">
-              <div className="h-10 bg-gray-300 rounded"></div>
+              <div className="h-10 rounded bg-gray-300"></div>
             </div>
             <div className="col-span-1">
-              <div className="h-10 bg-gray-300 rounded"></div>
+              <div className="h-10 rounded bg-gray-300"></div>
             </div>
             <div className="col-span-2">
-              <div className="h-10 bg-gray-300 rounded"></div>
+              <div className="h-10 rounded bg-gray-300"></div>
             </div>
             <div className="col-span-1">
-              <div className="h-10 bg-gray-300 rounded"></div>
+              <div className="h-10 rounded bg-gray-300"></div>
             </div>
             <div className="col-span-1">
-              <div className="h-10 w-10 bg-gray-300 rounded"></div>
+              <div className="h-10 w-10 rounded bg-gray-300"></div>
             </div>
           </div>
         ))}
@@ -264,7 +286,10 @@ export function EditableInvoiceItems({ items, onItemsChange, onRemoveItem }: Edi
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={items.map(item => item.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext
+        items={items.map((item) => item.id)}
+        strategy={verticalListSortingStrategy}
+      >
         <div className="space-y-3">
           {items.map((item, index) => (
             <SortableItem
@@ -279,4 +304,4 @@ export function EditableInvoiceItems({ items, onItemsChange, onRemoveItem }: Edi
       </SortableContext>
     </DndContext>
   );
-} 
+}

@@ -16,7 +16,7 @@ export default async function DashboardPage() {
         <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-4xl font-bold text-transparent">
           Welcome back, {session?.user?.name?.split(" ")[0] ?? "User"}!
         </h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <p className="mt-2 text-lg text-gray-600 dark:text-gray-300">
           Here&apos;s what&apos;s happening with your invoicing business
         </p>
       </div>

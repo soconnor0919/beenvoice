@@ -104,10 +104,10 @@ interface Business {
 }
 
 const statusColors = {
-  draft: "bg-gray-100 text-gray-800",
-  sent: "bg-blue-100 text-blue-800",
-  paid: "bg-green-100 text-green-800",
-  overdue: "bg-red-100 text-red-800",
+  draft: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+  sent: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+  paid: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  overdue: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
 } as const;
 
 const statusLabels = {
@@ -503,7 +503,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             />
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("name")}
           >
             <div className="flex items-center gap-1">
@@ -515,10 +515,10 @@ export function UniversalTable({ resource }: UniversalTableProps) {
               )}
             </div>
           </TableHead>
-          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700">
+          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700 dark:text-gray-300">
             Email
           </TableHead>
-          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700">
+          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700 dark:text-gray-300">
             Phone
           </TableHead>
           <TableHead className="w-8 px-4 py-4"></TableHead>
@@ -536,7 +536,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             />
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("invoiceNumber")}
           >
             <div className="flex items-center gap-1">
@@ -549,7 +549,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             </div>
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("client.name")}
           >
             <div className="flex items-center gap-1">
@@ -562,7 +562,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             </div>
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("status")}
           >
             <div className="flex items-center gap-1">
@@ -575,7 +575,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             </div>
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("totalAmount")}
           >
             <div className="flex items-center gap-1">
@@ -588,7 +588,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             </div>
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("dueDate")}
           >
             <div className="flex items-center gap-1">
@@ -615,21 +615,21 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             />
           </TableHead>
           <TableHead
-            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50"
+            className="cursor-pointer px-4 py-4 text-base font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800"
             onClick={() => handleSort("name")}
           >
             Name
           </TableHead>
-          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700">
+          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700 dark:text-gray-300">
             Email
           </TableHead>
-          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700">
+          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700 dark:text-gray-300">
             Phone
           </TableHead>
-          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700">
+          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700 dark:text-gray-300">
             Website
           </TableHead>
-          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700">
+          <TableHead className="px-4 py-4 text-base font-semibold text-gray-700 dark:text-gray-300">
             Default
           </TableHead>
           <TableHead className="w-8 px-4 py-4"></TableHead>
@@ -691,7 +691,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
         <TableRow>
           <TableCell
             colSpan={colSpan}
-            className="py-12 text-center text-gray-500"
+            className="py-12 text-center text-gray-500 dark:text-gray-400"
           >
             <div className="flex flex-col items-center gap-2">
               {resource === "clients" ? (
@@ -701,8 +701,10 @@ export function UniversalTable({ resource }: UniversalTableProps) {
               ) : (
                 <FileText className="mb-2 h-8 w-8 text-emerald-400" />
               )}
-              <div className="text-lg font-semibold">No {resource} found</div>
-              <div className="mb-2 text-gray-500">
+              <div className="text-lg font-semibold dark:text-gray-300">
+                No {resource} found
+              </div>
+              <div className="mb-2 text-gray-500 dark:text-gray-400">
                 Get started by adding your first{" "}
                 {getSingularResourceName(resource).toLowerCase()}.
               </div>
@@ -728,7 +730,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
           <TableRow
             key={client.id}
             data-selected={selected.includes(client.id)}
-            className="group cursor-pointer transition-colors hover:bg-emerald-50/60"
+            className="group cursor-pointer transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20"
             onClick={(e) => {
               if (
                 (e.target as HTMLElement).closest(
@@ -750,7 +752,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 className="data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
               />
             </TableCell>
-            <TableCell className="px-4 py-4 text-base font-medium text-gray-900 group-hover:text-emerald-700">
+            <TableCell className="px-4 py-4 text-base font-medium text-gray-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
               <Link
                 href={`/dashboard/clients/${client.id}/edit`}
                 className="hover:underline"
@@ -758,10 +760,10 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 {client.name}
               </Link>
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {client.email}
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {client.phone}
             </TableCell>
             <TableCell
@@ -797,7 +799,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
           <TableRow
             key={invoice.id}
             data-selected={selected.includes(invoice.id)}
-            className="group cursor-pointer transition-colors hover:bg-emerald-50/60"
+            className="group cursor-pointer transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20"
             onClick={(e) => {
               if (
                 (e.target as HTMLElement).closest(
@@ -819,7 +821,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 className="data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
               />
             </TableCell>
-            <TableCell className="px-4 py-4 text-base font-medium text-gray-900 group-hover:text-emerald-700">
+            <TableCell className="px-4 py-4 text-base font-medium text-gray-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
               <Link
                 href={`/dashboard/invoices/${invoice.id}`}
                 className="hover:underline"
@@ -827,7 +829,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 {invoice.invoiceNumber}
               </Link>
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {invoice.client?.name}
             </TableCell>
             <TableCell className="px-4 py-4">
@@ -837,10 +839,10 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 {statusLabels[invoice.status]}
               </span>
             </TableCell>
-            <TableCell className="px-4 py-4 font-medium text-gray-700">
+            <TableCell className="px-4 py-4 font-medium text-gray-700 dark:text-gray-300">
               {formatCurrency(invoice.totalAmount)}
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {formatDate(invoice.dueDate)}
             </TableCell>
             <TableCell
@@ -885,7 +887,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
           <TableRow
             key={business.id}
             data-selected={selected.includes(business.id)}
-            className="group cursor-pointer transition-colors hover:bg-emerald-50/60"
+            className="group cursor-pointer transition-colors hover:bg-emerald-50/60 dark:hover:bg-emerald-900/20"
             onClick={(e) => {
               if (
                 (e.target as HTMLElement).closest(
@@ -907,7 +909,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 className="data-[state=checked]:border-emerald-600 data-[state=checked]:bg-emerald-600"
               />
             </TableCell>
-            <TableCell className="px-4 py-4 text-base font-medium text-gray-900 group-hover:text-emerald-700">
+            <TableCell className="px-4 py-4 text-base font-medium text-gray-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
               <Link
                 href={`/dashboard/businesses/${business.id}/edit`}
                 className="hover:underline"
@@ -915,18 +917,18 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 {business.name}
               </Link>
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {business.email}
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {business.phone}
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {business.website}
             </TableCell>
-            <TableCell className="px-4 py-4 text-gray-700">
+            <TableCell className="px-4 py-4 text-gray-700 dark:text-gray-300">
               {business.isDefault ? (
-                <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800">
+                <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
                   Default
                 </span>
               ) : (
@@ -968,7 +970,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
   return (
     <div className="w-full">
       {/* Controls */}
-      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white/90 p-4 shadow-sm">
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-gray-200 bg-white/90 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/90">
         {/* Left side - View controls and filters */}
         <div className="flex items-center gap-2">
           <Button
@@ -996,7 +998,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-48">
-              <DropdownMenuItem className="font-medium text-gray-700">
+              <DropdownMenuItem className="font-medium text-gray-700 dark:text-gray-300">
                 Filters
               </DropdownMenuItem>
               {resource === "invoices" && (
@@ -1005,7 +1007,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                     onClick={() => setStatusFilter("all")}
                     className={
                       statusFilter === "all"
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                         : ""
                     }
                   >
@@ -1015,7 +1017,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                     onClick={() => setStatusFilter("draft")}
                     className={
                       statusFilter === "draft"
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                         : ""
                     }
                   >
@@ -1025,7 +1027,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                     onClick={() => setStatusFilter("sent")}
                     className={
                       statusFilter === "sent"
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                         : ""
                     }
                   >
@@ -1035,7 +1037,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                     onClick={() => setStatusFilter("paid")}
                     className={
                       statusFilter === "paid"
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                         : ""
                     }
                   >
@@ -1045,7 +1047,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                     onClick={() => setStatusFilter("overdue")}
                     className={
                       statusFilter === "overdue"
-                        ? "bg-emerald-50 text-emerald-700"
+                        ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
                         : ""
                     }
                   >
@@ -1065,7 +1067,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
               placeholder={`Search ${resource}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-48 sm:w-64"
+              className="w-48 sm:w-64 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
             <Button variant="outline" size="icon">
               <Search className="h-4 w-4" />
@@ -1075,7 +1077,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
           {/* Batch actions */}
           {selected.length > 0 && (
             <>
-              <span className="hidden text-sm text-gray-500 sm:inline">
+              <span className="hidden text-sm text-gray-500 sm:inline dark:text-gray-400">
                 {selected.length} selected
               </span>
               {resource === "invoices" && (
@@ -1124,7 +1126,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
       </div>
       {/* Table View */}
       {view === "table" && (
-        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white/90 shadow-xl">
+        <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white/90 shadow-xl dark:border-gray-700 dark:bg-gray-800/90">
           <Table className="w-full">
             <TableHeader>
               <TableRow>{renderTableHeaders()}</TableRow>
@@ -1135,9 +1137,9 @@ export function UniversalTable({ resource }: UniversalTableProps) {
       )}
       {/* Pagination Controls */}
       {view === "table" && totalPages > 1 && (
-        <div className="mt-4 mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-sm">
+        <div className="mt-4 mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/90">
           {/* Left side - Page info and items per page */}
-          <div className="flex items-center gap-3 text-sm text-gray-600">
+          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <span className="hidden sm:inline">
               Showing {startIndex + 1} to{" "}
               {Math.min(endIndex, filteredAndSortedData.length)} of{" "}
@@ -1154,7 +1156,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="h-8 w-20 rounded-md border border-gray-300 bg-white px-2 py-1 text-sm focus:border-emerald-500 focus:ring-emerald-500 sm:w-28"
+              className="h-8 w-20 rounded-md border border-gray-300 bg-white px-2 py-1 text-sm focus:border-emerald-500 focus:ring-emerald-500 sm:w-28 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -1220,7 +1222,10 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                   pageNum === currentPage + 2
                 ) {
                   return (
-                    <span key={pageNum} className="px-1 text-gray-400 sm:px-2">
+                    <span
+                      key={pageNum}
+                      className="px-1 text-gray-400 sm:px-2 dark:text-gray-500"
+                    >
                       ...
                     </span>
                   );
@@ -1251,7 +1256,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             Array.from({ length: 6 }).map((_, index) => (
               <div
                 key={`skeleton-card-${index}`}
-                className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl"
+                className="flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl dark:border-gray-700 dark:bg-gray-800/90"
               >
                 <Skeleton className="h-6 w-32" />
                 <Skeleton className="h-4 w-40" />
@@ -1259,7 +1264,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
               </div>
             ))
           ) : filteredAndSortedData.length === 0 ? (
-            <div className="col-span-full flex flex-col items-center py-16 text-gray-500">
+            <div className="col-span-full flex flex-col items-center py-16 text-gray-500 dark:text-gray-400">
               {resource === "clients" ? (
                 <UserPlus className="mb-2 h-8 w-8 text-emerald-400" />
               ) : resource === "businesses" ? (
@@ -1267,8 +1272,10 @@ export function UniversalTable({ resource }: UniversalTableProps) {
               ) : (
                 <FileText className="mb-2 h-8 w-8 text-emerald-400" />
               )}
-              <div className="text-lg font-semibold">No {resource} found</div>
-              <div className="mb-2 text-gray-500">
+              <div className="text-lg font-semibold dark:text-gray-300">
+                No {resource} found
+              </div>
+              <div className="mb-2 text-gray-500 dark:text-gray-400">
                 Get started by adding your first{" "}
                 {getSingularResourceName(resource).toLowerCase()}.
               </div>
@@ -1289,13 +1296,17 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 return (
                   <div
                     key={client.id}
-                    className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl transition-colors hover:bg-emerald-50/60"
+                    className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl transition-colors hover:bg-emerald-50/60 dark:border-gray-700 dark:bg-gray-800/90 dark:hover:bg-emerald-900/20"
                   >
-                    <div className="text-lg font-semibold text-gray-900 group-hover:text-emerald-700">
+                    <div className="text-lg font-semibold text-gray-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
                       {client.name}
                     </div>
-                    <div className="text-sm text-gray-700">{client.email}</div>
-                    <div className="text-sm text-gray-700">{client.phone}</div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                      {client.email}
+                    </div>
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
+                      {client.phone}
+                    </div>
                   </div>
                 );
               } else if (resource === "invoices") {
@@ -1303,15 +1314,15 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 return (
                   <div
                     key={invoice.id}
-                    className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl transition-colors hover:bg-emerald-50/60"
+                    className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl transition-colors hover:bg-emerald-50/60 dark:border-gray-700 dark:bg-gray-800/90 dark:hover:bg-emerald-900/20"
                   >
-                    <div className="text-lg font-semibold text-gray-900 group-hover:text-emerald-700">
+                    <div className="text-lg font-semibold text-gray-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
                       {invoice.invoiceNumber}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       {invoice.client?.name}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       {formatCurrency(invoice.totalAmount)}
                     </div>
                   </div>
@@ -1321,15 +1332,15 @@ export function UniversalTable({ resource }: UniversalTableProps) {
                 return (
                   <div
                     key={business.id}
-                    className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl transition-colors hover:bg-emerald-50/60"
+                    className="flex cursor-pointer flex-col gap-2 rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-xl transition-colors hover:bg-emerald-50/60 dark:border-gray-700 dark:bg-gray-800/90 dark:hover:bg-emerald-900/20"
                   >
-                    <div className="text-lg font-semibold text-gray-900 group-hover:text-emerald-700">
+                    <div className="text-lg font-semibold text-gray-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-emerald-400">
                       {business.name}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       {business.email}
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-sm text-gray-700 dark:text-gray-300">
                       {business.phone}
                     </div>
                   </div>
@@ -1341,15 +1352,15 @@ export function UniversalTable({ resource }: UniversalTableProps) {
       )}
       {/* Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="border-0 bg-white/95 shadow-2xl backdrop-blur-sm">
+        <DialogContent className="border-0 bg-white/95 shadow-2xl backdrop-blur-sm dark:bg-gray-800/95">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">
+            <DialogTitle className="text-xl font-bold text-gray-800 dark:text-white">
               Delete{" "}
               {resource.slice(0, -1).charAt(0).toUpperCase() +
                 resource.slice(0, -1).slice(1)}
               {itemToDelete === "batch" ? "s" : ""}
             </DialogTitle>
-            <DialogDescription className="text-gray-600">
+            <DialogDescription className="text-gray-600 dark:text-gray-300">
               {itemToDelete === "batch"
                 ? `Are you sure you want to delete the selected ${resource}? This action cannot be undone.`
                 : `Are you sure you want to delete this ${resource.slice(0, -1)}? This action cannot be undone.`}
@@ -1359,7 +1370,7 @@ export function UniversalTable({ resource }: UniversalTableProps) {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
             >
               Cancel
             </Button>

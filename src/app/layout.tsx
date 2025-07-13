@@ -8,7 +8,8 @@ import { Toaster } from "~/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "beenvoice - Invoicing Made Simple",
-  description: "Simple and efficient invoicing for freelancers and small businesses",
+  description:
+    "Simple and efficient invoicing for freelancers and small businesses",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
@@ -21,8 +22,8 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}> 
-      <body className="relative min-h-screen font-sans antialiased overflow-x-hidden bg-gradient-to-br from-emerald-100 via-white via-60% to-teal-100 before:content-[''] before:fixed before:inset-0 before:z-0 before:pointer-events-none before:bg-[radial-gradient(ellipse_at_80%_0%,rgba(16,185,129,0.10)_0%,transparent_60%)]">
+    <html lang="en" className={`${geist.variable}`}>
+      <body className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-emerald-100 via-white via-60% to-teal-100 font-sans antialiased before:pointer-events-none before:fixed before:inset-0 before:z-0 before:bg-[radial-gradient(ellipse_at_80%_0%,rgba(16,185,129,0.10)_0%,transparent_60%)] before:content-[''] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:before:bg-[radial-gradient(ellipse_at_80%_0%,rgba(34,197,94,0.15)_0%,transparent_60%)]">
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster />
       </body>

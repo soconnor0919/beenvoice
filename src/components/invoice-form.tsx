@@ -11,21 +11,27 @@ import { DatePicker } from "~/components/ui/date-picker";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { SearchableSelect } from "~/components/ui/select";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
 import { toast } from "sonner";
-import { 
-  Calendar, 
-  FileText, 
-  User, 
-  Plus, 
-  Trash2, 
-  DollarSign, 
-  Clock, 
+import {
+  Calendar,
+  FileText,
+  User,
+  Plus,
+  Trash2,
+  DollarSign,
+  Clock,
   Edit3,
   Save,
   X,
   AlertCircle,
-  Building
+  Building,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
@@ -33,10 +39,27 @@ import { FormSkeleton } from "~/components/ui/skeleton";
 import { EditableInvoiceItems } from "~/components/editable-invoice-items";
 
 const STATUS_OPTIONS = [
-  { value: "draft", label: "Draft", color: "bg-gray-100 text-gray-800" },
-  { value: "sent", label: "Sent", color: "bg-blue-100 text-blue-800" },
-  { value: "paid", label: "Paid", color: "bg-green-100 text-green-800" },
-  { value: "overdue", label: "Overdue", color: "bg-red-100 text-red-800" },
+  {
+    value: "draft",
+    label: "Draft",
+    color: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+  },
+  {
+    value: "sent",
+    label: "Sent",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+  },
+  {
+    value: "paid",
+    label: "Paid",
+    color:
+      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+  },
+  {
+    value: "overdue",
+    label: "Overdue",
+    color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
+  },
 ] as const;
 
 interface InvoiceFormProps {
@@ -46,7 +69,7 @@ interface InvoiceFormProps {
 export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Date.now().toString().slice(-6)}`,
+    invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
     businessId: "",
     clientId: "",
     issueDate: new Date(),
@@ -55,21 +78,28 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     notes: "",
     taxRate: 0,
     items: [
-      { id: crypto.randomUUID(), date: new Date(), description: "", hours: 0, rate: 0, amount: 0 },
+      {
+        id: crypto.randomUUID(),
+        date: new Date(),
+        description: "",
+        hours: 0,
+        rate: 0,
+        amount: 0,
+      },
     ],
   });
   const [loading, setLoading] = useState(false);
   const [defaultRate, setDefaultRate] = useState(0);
 
   // Fetch clients and businesses for dropdowns
-  const { data: clients, isLoading: loadingClients } = api.clients.getAll.useQuery();
-  const { data: businesses, isLoading: loadingBusinesses } = api.businesses.getAll.useQuery();
+  const { data: clients, isLoading: loadingClients } =
+    api.clients.getAll.useQuery();
+  const { data: businesses, isLoading: loadingBusinesses } =
+    api.businesses.getAll.useQuery();
 
   // Fetch existing invoice data if editing
-  const { data: existingInvoice, isLoading: loadingInvoice } = api.invoices.getById.useQuery(
-    { id: invoiceId! },
-    { enabled: !!invoiceId }
-  );
+  const { data: existingInvoice, isLoading: loadingInvoice } =
+    api.invoices.getById.useQuery({ id: invoiceId! }, { enabled: !!invoiceId });
 
   // Populate form with existing data when editing
   React.useEffect(() => {
@@ -83,16 +113,25 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: existingInvoice.status as "draft" | "sent" | "paid" | "overdue",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
-        items: existingInvoice.items?.map(item => ({
+        items: existingInvoice.items?.map((item) => ({
           id: crypto.randomUUID(),
           date: new Date(item.date),
           description: item.description,
           hours: item.hours,
           rate: item.rate,
           amount: item.amount,
-        })) || [{ id: crypto.randomUUID(), date: new Date(), description: "", hours: 0, rate: 0, amount: 0 }],
+        })) || [
+          {
+            id: crypto.randomUUID(),
+            date: new Date(),
+            description: "",
+            hours: 0,
+            rate: 0,
+            amount: 0,
+          },
+        ],
       });
-      
+
       // Set default rate from first item
       if (existingInvoice.items?.[0]) {
         setDefaultRate(existingInvoice.items[0].rate);
@@ -102,7 +141,10 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
   // Calculate totals
   const totals = React.useMemo(() => {
-    const subtotal = formData.items.reduce((sum, item) => sum + (item.hours * item.rate), 0);
+    const subtotal = formData.items.reduce(
+      (sum, item) => sum + item.hours * item.rate,
+      0,
+    );
     const taxAmount = (subtotal * formData.taxRate) / 100;
     const total = subtotal + taxAmount;
     return {
@@ -112,15 +154,20 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     };
   }, [formData.items, formData.taxRate]);
 
-
-
   // Add new item
   const addItem = () => {
     setFormData((prev) => ({
       ...prev,
       items: [
         ...prev.items,
-        { id: crypto.randomUUID(), date: new Date(), description: "", hours: 0, rate: defaultRate, amount: 0 },
+        {
+          id: crypto.randomUUID(),
+          date: new Date(),
+          description: "",
+          hours: 0,
+          rate: defaultRate,
+          amount: 0,
+        },
       ],
     }));
   };
@@ -139,7 +186,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const applyDefaultRate = () => {
     setFormData((prev) => ({
       ...prev,
-      items: prev.items.map(item => ({
+      items: prev.items.map((item) => ({
         ...item,
         rate: defaultRate,
         amount: item.hours * defaultRate,
@@ -171,29 +218,29 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate form
     if (!formData.businessId) {
       toast.error("Please select a business");
       return;
     }
-    
+
     if (!formData.clientId) {
       toast.error("Please select a client");
       return;
     }
-    
-    if (formData.items.some(item => !item.description.trim())) {
+
+    if (formData.items.some((item) => !item.description.trim())) {
       toast.error("Please fill in all item descriptions");
       return;
     }
-    
-    if (formData.items.some(item => item.hours <= 0)) {
+
+    if (formData.items.some((item) => item.hours <= 0)) {
       toast.error("Please enter valid hours for all items");
       return;
     }
-    
-    if (formData.items.some(item => item.rate <= 0)) {
+
+    if (formData.items.some((item) => item.rate <= 0)) {
       toast.error("Please enter valid rates for all items");
       return;
     }
@@ -231,16 +278,16 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     return (
       <div className="space-y-6 pb-20">
         {/* Invoice Details Card Skeleton */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
           <CardHeader>
-            <div className="h-6 bg-gray-300 rounded w-48 animate-pulse"></div>
+            <div className="h-6 w-48 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
-                  <div className="h-10 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 w-24 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
+                  <div className="h-10 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
                 </div>
               ))}
             </div>
@@ -248,27 +295,36 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         </Card>
 
         {/* Invoice Items Card Skeleton */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="h-6 bg-gray-300 rounded w-32 animate-pulse"></div>
-              <div className="h-10 bg-gray-300 rounded w-24 animate-pulse"></div>
+              <div className="h-6 w-32 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
+              <div className="h-10 w-24 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Items Table Header Skeleton */}
-            <div className="grid grid-cols-12 gap-2 px-4 py-3 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-12 gap-2 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-700">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div
+                  key={i}
+                  className="h-4 animate-pulse rounded bg-gray-300 dark:bg-gray-600"
+                ></div>
               ))}
             </div>
 
             {/* Items Skeleton */}
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="grid grid-cols-12 gap-2 items-center p-4 border border-gray-200 rounded-lg animate-pulse">
+                <div
+                  key={i}
+                  className="grid animate-pulse grid-cols-12 items-center gap-2 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                >
                   {Array.from({ length: 8 }).map((_, j) => (
-                    <div key={j} className="h-10 bg-gray-300 rounded"></div>
+                    <div
+                      key={j}
+                      className="h-10 rounded bg-gray-300 dark:bg-gray-600"
+                    ></div>
                   ))}
                 </div>
               ))}
@@ -278,12 +334,12 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
         {/* Form Controls Bar Skeleton */}
         <div className="mt-6">
-          <div className="bg-white/90 rounded-2xl border border-gray-200 shadow-sm p-4">
+          <div className="rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/90">
             <div className="flex items-center justify-between">
-              <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+              <div className="h-4 w-32 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
               <div className="flex items-center gap-3">
-                <div className="h-10 bg-gray-300 rounded w-20 animate-pulse"></div>
-                <div className="h-10 bg-gray-300 rounded w-32 animate-pulse"></div>
+                <div className="h-10 w-20 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
+                <div className="h-10 w-32 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
               </div>
             </div>
           </div>
@@ -292,24 +348,26 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     );
   }
 
-  const selectedClient = clients?.find(c => c.id === formData.clientId);
-  const selectedBusiness = businesses?.find(b => b.id === formData.businessId);
+  const selectedClient = clients?.find((c) => c.id === formData.clientId);
+  const selectedBusiness = businesses?.find(
+    (b) => b.id === formData.businessId,
+  );
 
   // Show loading state while fetching clients
   if (loadingClients) {
     return (
       <div className="space-y-6 pb-20">
         {/* Invoice Details Card Skeleton */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm">
           <CardHeader>
-            <div className="h-6 bg-gray-300 rounded w-48 animate-pulse"></div>
+            <div className="h-6 w-48 animate-pulse rounded bg-gray-300"></div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 bg-gray-300 rounded w-24 animate-pulse"></div>
-                  <div className="h-10 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-4 w-24 animate-pulse rounded bg-gray-300"></div>
+                  <div className="h-10 animate-pulse rounded bg-gray-300"></div>
                 </div>
               ))}
             </div>
@@ -317,27 +375,33 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         </Card>
 
         {/* Invoice Items Card Skeleton */}
-        <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="h-6 bg-gray-300 rounded w-32 animate-pulse"></div>
-              <div className="h-10 bg-gray-300 rounded w-24 animate-pulse"></div>
+              <div className="h-6 w-32 animate-pulse rounded bg-gray-300"></div>
+              <div className="h-10 w-24 animate-pulse rounded bg-gray-300"></div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Items Table Header Skeleton */}
-            <div className="grid grid-cols-12 gap-2 px-4 py-3 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-12 gap-2 rounded-lg bg-gray-50 px-4 py-3">
               {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div
+                  key={i}
+                  className="h-4 animate-pulse rounded bg-gray-300"
+                ></div>
               ))}
             </div>
 
             {/* Items Skeleton */}
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="grid grid-cols-12 gap-2 items-center p-4 border border-gray-200 rounded-lg animate-pulse">
+                <div
+                  key={i}
+                  className="grid animate-pulse grid-cols-12 items-center gap-2 rounded-lg border border-gray-200 p-4"
+                >
                   {Array.from({ length: 8 }).map((_, j) => (
-                    <div key={j} className="h-10 bg-gray-300 rounded"></div>
+                    <div key={j} className="h-10 rounded bg-gray-300"></div>
                   ))}
                 </div>
               ))}
@@ -347,12 +411,12 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
         {/* Form Controls Bar Skeleton */}
         <div className="mt-6">
-          <div className="bg-white/90 rounded-2xl border border-gray-200 shadow-sm p-4">
+          <div className="rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <div className="h-4 bg-gray-300 rounded w-32 animate-pulse"></div>
+              <div className="h-4 w-32 animate-pulse rounded bg-gray-300"></div>
               <div className="flex items-center gap-3">
-                <div className="h-10 bg-gray-300 rounded w-20 animate-pulse"></div>
-                <div className="h-10 bg-gray-300 rounded w-32 animate-pulse"></div>
+                <div className="h-10 w-20 animate-pulse rounded bg-gray-300"></div>
+                <div className="h-10 w-32 animate-pulse rounded bg-gray-300"></div>
               </div>
             </div>
           </div>
@@ -364,65 +428,96 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   return (
     <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6 pb-20">
       {/* Invoice Details Card */}
-      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-emerald-700">
-              <FileText className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+            <FileText className="h-5 w-5" />
             Invoice Details
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="invoiceNumber" className="text-sm font-medium text-gray-700">
-                  Invoice Number
-                </Label>
-                <Input
-                  id="invoiceNumber"
-                  value={formData.invoiceNumber}
-                  className="h-10 border-gray-200 bg-gray-50"
-                  placeholder="Auto-generated"
-                  readOnly
-                />
-              </div>
-            
-              <div className="space-y-2">
-                <Label htmlFor="businessId" className="text-sm font-medium text-gray-700">
-                Business *
-                </Label>
-                <SearchableSelect
-                  value={formData.businessId}
-                  onValueChange={(value) => setFormData(f => ({ ...f, businessId: value }))}
-                  options={businesses?.map(business => ({ value: business.id, label: business.name })) ?? []}
-                  placeholder="Select a business"
-                  searchPlaceholder="Search businesses..."
-                  disabled={loadingBusinesses}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="clientId" className="text-sm font-medium text-gray-700">
-                Client *
-                </Label>
-                <SearchableSelect
-                  value={formData.clientId}
-                  onValueChange={(value) => setFormData(f => ({ ...f, clientId: value }))}
-                  options={clients?.map(client => ({ value: client.id, label: client.name })) ?? []}
-                  placeholder="Select a client"
-                  searchPlaceholder="Search clients..."
-                  disabled={loadingClients}
-                />
-              </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
+            <div className="space-y-2">
+              <Label
+                htmlFor="invoiceNumber"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Invoice Number
+              </Label>
+              <Input
+                id="invoiceNumber"
+                value={formData.invoiceNumber}
+                className="h-10 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                placeholder="Auto-generated"
+                readOnly
+              />
+            </div>
 
             <div className="space-y-2">
-              <Label htmlFor="status" className="text-sm font-medium text-gray-700">
+              <Label
+                htmlFor="businessId"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Business *
+              </Label>
+              <SearchableSelect
+                value={formData.businessId}
+                onValueChange={(value) =>
+                  setFormData((f) => ({ ...f, businessId: value }))
+                }
+                options={
+                  businesses?.map((business) => ({
+                    value: business.id,
+                    label: business.name,
+                  })) ?? []
+                }
+                placeholder="Select a business"
+                searchPlaceholder="Search businesses..."
+                disabled={loadingBusinesses}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="clientId"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Client *
+              </Label>
+              <SearchableSelect
+                value={formData.clientId}
+                onValueChange={(value) =>
+                  setFormData((f) => ({ ...f, clientId: value }))
+                }
+                options={
+                  clients?.map((client) => ({
+                    value: client.id,
+                    label: client.name,
+                  })) ?? []
+                }
+                placeholder="Select a client"
+                searchPlaceholder="Search clients..."
+                disabled={loadingClients}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="status"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Status
               </Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => setFormData(f => ({ ...f, status: value as "draft" | "sent" | "paid" | "overdue" }))}
+                onValueChange={(value) =>
+                  setFormData((f) => ({
+                    ...f,
+                    status: value as "draft" | "sent" | "paid" | "overdue",
+                  }))
+                }
               >
-                <SelectTrigger className="h-10 border-gray-200 bg-gray-50">
+                <SelectTrigger className="h-10 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -434,90 +529,119 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               </Select>
             </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="issueDate" className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <Label
+                htmlFor="issueDate"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Issue Date *
-                </Label>
-                <DatePicker
-                  date={formData.issueDate}
-                  onDateChange={date => setFormData(f => ({ ...f, issueDate: date ?? new Date() }))}
-                  placeholder="Select issue date"
-                  required
-                />
-              </div>
+              </Label>
+              <DatePicker
+                date={formData.issueDate}
+                onDateChange={(date) =>
+                  setFormData((f) => ({ ...f, issueDate: date ?? new Date() }))
+                }
+                placeholder="Select issue date"
+                required
+              />
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="dueDate" className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <Label
+                htmlFor="dueDate"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Due Date *
-                </Label>
-                <DatePicker
-                  date={formData.dueDate}
-                  onDateChange={date => setFormData(f => ({ ...f, dueDate: date ?? new Date() }))}
-                  placeholder="Select due date"
-                  required
-                />
-              </div>
+              </Label>
+              <DatePicker
+                date={formData.dueDate}
+                onDateChange={(date) =>
+                  setFormData((f) => ({ ...f, dueDate: date ?? new Date() }))
+                }
+                placeholder="Select due date"
+                required
+              />
+            </div>
 
-              <div className="space-y-2">
-              <Label htmlFor="defaultRate" className="text-sm font-medium text-gray-700">
+            <div className="space-y-2">
+              <Label
+                htmlFor="defaultRate"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Default Rate ($/hr)
-                </Label>
+              </Label>
               <div className="flex gap-2">
                 <Input
                   id="defaultRate"
                   type="number"
                   step="0.01"
                   value={defaultRate}
-                  onChange={e => setDefaultRate(parseFloat(e.target.value) || 0)}
+                  onChange={(e) =>
+                    setDefaultRate(parseFloat(e.target.value) || 0)
+                  }
                   placeholder="0.00"
-                    className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                  className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
                 />
                 <Button
                   type="button"
                   onClick={applyDefaultRate}
                   variant="outline"
                   size="sm"
-                    className="h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                  className="h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
                 >
                   Apply
                 </Button>
               </div>
             </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="taxRate" className="text-sm font-medium text-gray-700">
-                  Tax Rate (%)
-                </Label>
-                <Input
-                  id="taxRate"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  max="100"
-                  value={formData.taxRate}
-                  onChange={e => setFormData(f => ({ ...f, taxRate: parseFloat(e.target.value) || 0 }))}
-                  placeholder="0.00"
-                  className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label
+                htmlFor="taxRate"
+                className="text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                Tax Rate (%)
+              </Label>
+              <Input
+                id="taxRate"
+                type="number"
+                step="0.01"
+                min="0"
+                max="100"
+                value={formData.taxRate}
+                onChange={(e) =>
+                  setFormData((f) => ({
+                    ...f,
+                    taxRate: parseFloat(e.target.value) || 0,
+                  }))
+                }
+                placeholder="0.00"
+                className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              />
+            </div>
           </div>
 
           {selectedBusiness && (
-            <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-              <div className="flex items-center gap-2 text-emerald-700 mb-2">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
+              <div className="mb-2 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                 <Building className="h-4 w-4" />
                 <span className="font-medium">Business Information</span>
               </div>
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 <p className="font-medium">{selectedBusiness.name}</p>
                 {selectedBusiness.email && <p>{selectedBusiness.email}</p>}
                 {selectedBusiness.phone && <p>{selectedBusiness.phone}</p>}
                 {selectedBusiness.addressLine1 && (
                   <p>{selectedBusiness.addressLine1}</p>
                 )}
-                {(selectedBusiness.city ?? selectedBusiness.state ?? selectedBusiness.postalCode) && (
+                {(selectedBusiness.city ??
+                  selectedBusiness.state ??
+                  selectedBusiness.postalCode) && (
                   <p>
-                    {[selectedBusiness.city, selectedBusiness.state, selectedBusiness.postalCode]
+                    {[
+                      selectedBusiness.city,
+                      selectedBusiness.state,
+                      selectedBusiness.postalCode,
+                    ]
                       .filter(Boolean)
                       .join(", ")}
                   </p>
@@ -527,12 +651,12 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           )}
 
           {selectedClient && (
-            <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-              <div className="flex items-center gap-2 text-emerald-700 mb-2">
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
+              <div className="mb-2 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                 <User className="h-4 w-4" />
                 <span className="font-medium">Client Information</span>
               </div>
-              <div className="text-sm text-gray-700">
+              <div className="text-sm text-gray-700 dark:text-gray-300">
                 <p className="font-medium">{selectedClient.name}</p>
                 {selectedClient.email && <p>{selectedClient.email}</p>}
                 {selectedClient.phone && <p>{selectedClient.phone}</p>}
@@ -541,25 +665,30 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="notes"
+              className="text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Notes
             </Label>
             <textarea
               id="notes"
               value={formData.notes}
-              onChange={e => setFormData(f => ({ ...f, notes: e.target.value }))}
-              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-gray-700 focus:border-emerald-500 focus:ring-emerald-500 min-h-[80px] resize-none"
+              onChange={(e) =>
+                setFormData((f) => ({ ...f, notes: e.target.value }))
+              }
+              className="min-h-[80px] w-full resize-none rounded-md border border-gray-200 bg-white px-3 py-2 text-gray-700 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
               placeholder="Additional notes, terms, or special instructions..."
-                    />
-                  </div>
+            />
+          </div>
         </CardContent>
       </Card>
 
       {/* Invoice Items Card */}
-      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-emerald-700">
+            <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
               <Clock className="h-5 w-5" />
               Invoice Items
             </CardTitle>
@@ -572,11 +701,11 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               <Plus className="mr-2 h-4 w-4" />
               Add Item
             </Button>
-                  </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Items Table Header */}
-          <div className="grid grid-cols-12 gap-2 px-4 py-3 bg-gray-50 rounded-lg font-medium text-sm text-gray-700 items-center">
+          <div className="grid grid-cols-12 items-center gap-2 rounded-lg bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
             <div className="col-span-1 text-center">⋮⋮</div>
             <div className="col-span-2">Date</div>
             <div className="col-span-4">Description</div>
@@ -584,55 +713,64 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             <div className="col-span-2">Rate ($)</div>
             <div className="col-span-1">Amount</div>
             <div className="col-span-1"></div>
-                  </div>
+          </div>
 
           {/* Items */}
           <EditableInvoiceItems
             items={formData.items}
-            onItemsChange={(newItems) => setFormData(prev => ({ ...prev, items: newItems }))}
+            onItemsChange={(newItems) =>
+              setFormData((prev) => ({ ...prev, items: newItems }))
+            }
             onRemoveItem={removeItem}
           />
 
           {/* Validation Messages */}
-          {formData.items.some(item => !item.description.trim()) && (
-            <div className="flex items-center gap-2 text-amber-600 text-sm">
+          {formData.items.some((item) => !item.description.trim()) && (
+            <div className="flex items-center gap-2 text-sm text-amber-600">
               <AlertCircle className="h-4 w-4" />
               Please fill in all item descriptions
-                  </div>
+            </div>
           )}
-          
-          {formData.items.some(item => item.hours <= 0) && (
-            <div className="flex items-center gap-2 text-amber-600 text-sm">
+
+          {formData.items.some((item) => item.hours <= 0) && (
+            <div className="flex items-center gap-2 text-sm text-amber-600">
               <AlertCircle className="h-4 w-4" />
               Please enter valid hours for all items
-                  </div>
-                    )}
-          
-          {formData.items.some(item => item.rate <= 0) && (
-            <div className="flex items-center gap-2 text-amber-600 text-sm">
+            </div>
+          )}
+
+          {formData.items.some((item) => item.rate <= 0) && (
+            <div className="flex items-center gap-2 text-sm text-amber-600">
               <AlertCircle className="h-4 w-4" />
               Please enter valid rates for all items
-                  </div>
+            </div>
           )}
 
           <Separator />
 
           {/* Totals */}
           <div className="flex justify-end">
-            <div className="text-right space-y-2">
+            <div className="space-y-2 text-right">
               <div className="space-y-1">
-                <div className="text-sm text-gray-600">Subtotal: ${totals.subtotal.toFixed(2)}</div>
+                <div className="text-sm text-gray-600">
+                  Subtotal: ${totals.subtotal.toFixed(2)}
+                </div>
                 {formData.taxRate > 0 && (
                   <div className="text-sm text-gray-600">
                     Tax ({formData.taxRate}%): ${totals.taxAmount.toFixed(2)}
                   </div>
                 )}
               </div>
-              <div className="text-lg font-medium text-gray-700">Total Amount</div>
-              <div className="text-3xl font-bold text-emerald-600">${totals.total.toFixed(2)}</div>
-              <div className="text-sm text-gray-500">
-                {formData.items.length} item{formData.items.length !== 1 ? 's' : ''}
-                </div>
+              <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
+                Total Amount
+              </div>
+              <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                ${totals.total.toFixed(2)}
+              </div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">
+                {formData.items.length} item
+                {formData.items.length !== 1 ? "s" : ""}
+              </div>
             </div>
           </div>
         </CardContent>
@@ -640,34 +778,37 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
       {/* Form Controls Bar */}
       <div className="mt-6">
-        <div className="bg-white/90 rounded-2xl border border-gray-200 shadow-sm p-4">
+        <div className="rounded-2xl border border-gray-200 bg-white/90 p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800/90">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                <div className="h-2 w-2 rounded-full bg-emerald-500"></div>
                 <span>Ready to save</span>
               </div>
               {formData.items.length > 0 && (
-                <span className="text-gray-400">•</span>
+                <span className="text-gray-400 dark:text-gray-500">•</span>
               )}
               {formData.items.length > 0 && (
-                <span>{formData.items.length} item{formData.items.length !== 1 ? 's' : ''}</span>
+                <span>
+                  {formData.items.length} item
+                  {formData.items.length !== 1 ? "s" : ""}
+                </span>
               )}
-          </div>
+            </div>
 
             <div className="flex items-center gap-3">
-            <Button 
-              type="button" 
-              variant="outline"
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => router.push("/dashboard/invoices")}
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 font-medium"
-            >
-              Cancel
-            </Button>
+                className="border-gray-300 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                Cancel
+              </Button>
               <Button
                 type="submit"
                 disabled={loading}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
               >
                 {loading ? (
                   <>
@@ -685,6 +826,6 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           </div>
         </div>
       </div>
-        </form>
+    </form>
   );
-} 
+}
