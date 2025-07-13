@@ -22,9 +22,9 @@ export function middleware(request: NextRequest) {
 
   // Check for session token in cookies (Auth.js v5 cookie names)
   const sessionToken =
-    request.cookies.get("authjs.session-token")?.value ||
-    request.cookies.get("__Secure-authjs.session-token")?.value ||
-    request.cookies.get("next-auth.session-token")?.value ||
+    request.cookies.get("authjs.session-token")?.value ??
+    request.cookies.get("__Secure-authjs.session-token")?.value ??
+    request.cookies.get("next-auth.session-token")?.value ??
     request.cookies.get("__Secure-next-auth.session-token")?.value;
 
   // If no session token, redirect to sign-in
