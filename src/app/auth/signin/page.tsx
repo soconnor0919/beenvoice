@@ -42,34 +42,30 @@ function SignInForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4 dark:from-gray-900 dark:to-gray-800">
+    <div className="bg-gradient-auth flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and Welcome */}
         <div className="space-y-4 text-center">
           <Logo size="lg" className="mx-auto" />
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              Welcome back
-            </h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
+            <h1 className="text-foreground text-2xl font-bold">Welcome back</h1>
+            <p className="text-muted-foreground mt-2">
               Sign in to your beenvoice account
             </p>
           </div>
         </div>
 
         {/* Sign In Form */}
-        <Card className="border-0 shadow-xl dark:bg-gray-800">
+        <Card className="border-0 shadow-xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-center text-xl dark:text-white">
-              Sign In
-            </CardTitle>
+            <CardTitle className="text-center text-xl">Sign In</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="absolute top-3 left-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                   <Input
                     id="email"
                     type="email"
@@ -85,7 +81,7 @@ function SignInForm() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="absolute top-3 left-3 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
                   <Input
                     id="password"
                     type="password"
@@ -109,7 +105,7 @@ function SignInForm() {
               </Button>
             </form>
             <div className="mt-6 text-center text-sm">
-              <span className="text-gray-600 dark:text-gray-300">
+              <span className="text-muted-foreground">
                 Don&apos;t have an account?{" "}
               </span>
               <Link
@@ -124,10 +120,10 @@ function SignInForm() {
 
         {/* Features */}
         <div className="space-y-4 text-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+          <p className="text-muted-foreground text-sm">
             Simple invoicing for freelancers and small businesses
           </p>
-          <div className="flex justify-center space-x-6 text-xs text-gray-400 dark:text-gray-500">
+          <div className="text-muted-foreground flex justify-center space-x-6 text-xs">
             <span>✓ Easy client management</span>
             <span>✓ Professional invoices</span>
             <span>✓ Payment tracking</span>
@@ -142,17 +138,15 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100 p-4 dark:from-gray-900 dark:to-gray-800">
+        <div className="bg-gradient-auth flex min-h-screen items-center justify-center p-4">
           <div className="w-full max-w-md space-y-8">
             <div className="space-y-4 text-center">
               <Logo size="lg" className="mx-auto" />
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-foreground text-2xl font-bold">
                   Welcome back
                 </h1>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                  Loading...
-                </p>
+                <p className="text-muted-foreground mt-2">Loading...</p>
               </div>
             </div>
           </div>

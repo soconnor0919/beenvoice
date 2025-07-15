@@ -42,7 +42,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "data-[placeholder]:text-muted-foreground flex h-10 w-full items-center justify-between gap-2 rounded-md border border-gray-200 bg-gray-50 px-3 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-emerald-500 focus-visible:ring-[3px] focus-visible:ring-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white",
+        "data-[placeholder]:text-muted-foreground border-input bg-background text-foreground focus-visible:border-ring focus-visible:ring-ring/50 flex h-10 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50",
         className,
       )}
       {...props}
@@ -66,7 +66,7 @@ function SelectContent({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md",
+          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-(--radix-select-content-available-height) min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border-0 shadow-md",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className,
@@ -210,7 +210,7 @@ function SelectContentWithSearch({
       <SelectPrimitive.Content
         data-slot="select-content"
         className={cn(
-          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-hidden rounded-md border shadow-md",
+          "bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 max-h-96 min-w-[8rem] origin-(--radix-select-content-transform-origin) overflow-hidden rounded-md border-0 shadow-md",
           position === "popper" &&
             "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
           className,
@@ -231,7 +231,7 @@ function SelectContentWithSearch({
         {...props}
       >
         {onSearchChange && (
-          <div className="border-border flex items-center border-b px-3 py-2">
+          <div className="border-border/20 flex items-center border-b px-3 py-2">
             <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
             <input
               ref={searchInputRef}
@@ -282,10 +282,21 @@ interface SearchableSelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
   placeholder?: string;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; disabled?: boolean }[];
   searchPlaceholder?: string;
   className?: string;
   disabled?: boolean;
+  renderOption?: (option: {
+    value: string;
+    label: string;
+    disabled?: boolean;
+  }) => React.ReactNode;
+  isOptionDisabled?: (option: {
+    value: string;
+    label: string;
+    disabled?: boolean;
+  }) => boolean;
+  id?: string;
 }
 
 function SearchableSelect({
@@ -296,15 +307,21 @@ function SearchableSelect({
   searchPlaceholder = "Search...",
   className,
   disabled,
+  renderOption,
+  isOptionDisabled,
+  id,
 }: SearchableSelectProps) {
   const [searchValue, setSearchValue] = React.useState("");
   const [isOpen, setIsOpen] = React.useState(false);
 
   const filteredOptions = React.useMemo(() => {
     if (!searchValue) return options;
-    return options.filter((option) =>
-      option.label.toLowerCase().includes(searchValue.toLowerCase()),
-    );
+    return options.filter((option) => {
+      // Don't filter out dividers, disabled options, or placeholder
+      if (option.value?.startsWith("divider-")) return true;
+      if (option.value === "__placeholder__") return true;
+      return option.label.toLowerCase().includes(searchValue.toLowerCase());
+    });
   }, [options, searchValue]);
 
   // Convert empty string to placeholder value for display
@@ -327,7 +344,7 @@ function SearchableSelect({
       open={isOpen}
       onOpenChange={setIsOpen}
     >
-      <SelectTrigger className={cn("w-full", className)}>
+      <SelectTrigger className={cn("w-full", className)} id={id}>
         <SelectValue
           placeholder={placeholder}
           // Always show placeholder if nothing is selected
@@ -341,11 +358,34 @@ function SearchableSelect({
         isOpen={isOpen}
         filteredOptions={filteredOptions}
       >
-        {filteredOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.label}
-          </SelectItem>
-        ))}
+        {filteredOptions.map((option) => {
+          const isDisabled = isOptionDisabled
+            ? isOptionDisabled(option)
+            : option.disabled;
+
+          if (renderOption && option.value?.startsWith("divider-")) {
+            return (
+              <div key={option.value} className="pointer-events-none">
+                {renderOption(option)}
+              </div>
+            );
+          }
+
+          // Skip rendering items with empty string values
+          if (option.value === "") {
+            return null;
+          }
+
+          return (
+            <SelectItem
+              key={option.value}
+              value={option.value}
+              disabled={isDisabled}
+            >
+              {renderOption ? renderOption(option) : option.label}
+            </SelectItem>
+          );
+        })}
       </SelectContentWithSearch>
     </Select>
   );

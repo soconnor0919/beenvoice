@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { StatusBadge, type StatusType } from "~/components/ui/status-badge";
 import { Separator } from "~/components/ui/separator";
 import {
   Dialog,
@@ -15,7 +17,6 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -41,28 +42,11 @@ interface InvoiceViewProps {
   invoiceId: string;
 }
 
-const statusConfig = {
-  draft: {
-    label: "Draft",
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
-    icon: FileText,
-  },
-  sent: {
-    label: "Sent",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-    icon: Send,
-  },
-  paid: {
-    label: "Paid",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-    icon: DollarSign,
-  },
-  overdue: {
-    label: "Overdue",
-    color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-    icon: AlertCircle,
-  },
+const statusIconConfig = {
+  draft: FileText,
+  sent: Send,
+  paid: DollarSign,
+  overdue: AlertCircle,
 } as const;
 
 export function InvoiceView({ invoiceId }: InvoiceViewProps) {
@@ -168,7 +152,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
   }
 
   const StatusIcon =
-    statusConfig[invoice.status as keyof typeof statusConfig].icon;
+    statusIconConfig[invoice.status as keyof typeof statusIconConfig];
 
   return (
     <div className="space-y-6">
@@ -227,22 +211,20 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 </div>
 
                 <div className="space-y-3 text-right">
-                  <Badge
-                    className={`${statusConfig[invoice.status as keyof typeof statusConfig].color} px-3 py-1 text-sm font-medium`}
+                  <StatusBadge
+                    status={invoice.status as StatusType}
+                    className="px-3 py-1 text-sm font-medium"
                   >
                     <StatusIcon className="mr-1 h-3 w-3" />
-                    {
-                      statusConfig[invoice.status as keyof typeof statusConfig]
-                        .label
-                    }
-                  </Badge>
+                  </StatusBadge>
                   <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
                     {formatCurrency(invoice.totalAmount)}
                   </div>
                   <Button
                     onClick={handlePDFExport}
                     disabled={isExportingPDF}
-                    className="transform-none bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg transition-shadow duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
+                    variant="brand"
+                    className="transform-none"
                   >
                     {isExportingPDF ? (
                       <>

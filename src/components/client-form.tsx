@@ -1,36 +1,72 @@
 "use client";
 
-import { Building, Mail, MapPin, Phone, Save } from "lucide-react";
+import { UserPlus, Mail, Phone, Save, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { FormSkeleton } from "~/components/ui/skeleton";
+import { AddressForm } from "~/components/ui/address-form";
+import { FloatingActionBar } from "~/components/ui/floating-action-bar";
 import { api } from "~/trpc/react";
+import {
+  formatPhoneNumber,
+  isValidEmail,
+  VALIDATION_MESSAGES,
+  PLACEHOLDERS,
+} from "~/lib/form-constants";
 
 interface ClientFormProps {
   clientId?: string;
   mode: "create" | "edit";
 }
 
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+interface FormErrors {
+  name?: string;
+  email?: string;
+  phone?: string;
+  addressLine1?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+}
+
+const initialFormData: FormData = {
+  name: "",
+  email: "",
+  phone: "",
+  addressLine1: "",
+  addressLine2: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: "United States",
+};
+
 export function ClientForm({ clientId, mode }: ClientFormProps) {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    addressLine1: "",
-    addressLine2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "",
-  });
-  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
 
   // Fetch client data if editing
   const { data: client, isLoading: isLoadingClient } =
@@ -71,14 +107,80 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         city: client.city ?? "",
         state: client.state ?? "",
         postalCode: client.postalCode ?? "",
-        country: client.country ?? "",
+        country: client.country ?? "United States",
       });
     }
   }, [client, mode]);
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setIsDirty(true);
+
+    // Clear error for this field when user starts typing
+    if (errors[field as keyof FormErrors]) {
+      setErrors((prev) => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const handlePhoneChange = (value: string) => {
+    const formatted = formatPhoneNumber(value);
+    handleInputChange("phone", formatted);
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    // Required fields
+    if (!formData.name.trim()) {
+      newErrors.name = VALIDATION_MESSAGES.required;
+    }
+
+    // Email validation
+    if (formData.email && !isValidEmail(formData.email)) {
+      newErrors.email = VALIDATION_MESSAGES.email;
+    }
+
+    // Phone validation (basic check for US format)
+    if (formData.phone) {
+      const phoneDigits = formData.phone.replace(/\D/g, "");
+      if (phoneDigits.length > 0 && phoneDigits.length < 10) {
+        newErrors.phone = VALIDATION_MESSAGES.phone;
+      }
+    }
+
+    // Address validation if any address field is filled
+    const hasAddressData =
+      formData.addressLine1 ||
+      formData.city ||
+      formData.state ||
+      formData.postalCode;
+
+    if (hasAddressData) {
+      if (!formData.addressLine1)
+        newErrors.addressLine1 = VALIDATION_MESSAGES.required;
+      if (!formData.city) newErrors.city = VALIDATION_MESSAGES.required;
+      if (!formData.country) newErrors.country = VALIDATION_MESSAGES.required;
+
+      if (formData.country === "US") {
+        if (!formData.state) newErrors.state = VALIDATION_MESSAGES.required;
+        if (!formData.postalCode)
+          newErrors.postalCode = VALIDATION_MESSAGES.required;
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+
+    if (!validateForm()) {
+      toast.error("Please correct the errors in the form");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       if (mode === "create") {
@@ -90,551 +192,233 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         });
       }
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  // Phone number formatting
-  const formatPhoneNumber = (value: string) => {
-    const phoneNumber = value.replace(/\D/g, "");
-    if (phoneNumber.length <= 3) {
-      return phoneNumber;
-    } else if (phoneNumber.length <= 6) {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3)}`;
-    } else {
-      return `(${phoneNumber.slice(0, 3)}) ${phoneNumber.slice(3, 6)}-${phoneNumber.slice(6, 10)}`;
+  const handleCancel = () => {
+    if (isDirty) {
+      const confirmed = window.confirm(
+        "You have unsaved changes. Are you sure you want to leave?",
+      );
+      if (!confirmed) return;
     }
+    router.push("/dashboard/clients");
   };
-
-  const handlePhoneChange = (value: string) => {
-    const formatted = formatPhoneNumber(value);
-    handleInputChange("phone", formatted);
-  };
-
-  const US_STATES = [
-    "",
-    "AL",
-    "AK",
-    "AZ",
-    "AR",
-    "CA",
-    "CO",
-    "CT",
-    "DE",
-    "FL",
-    "GA",
-    "HI",
-    "ID",
-    "IL",
-    "IN",
-    "IA",
-    "KS",
-    "KY",
-    "LA",
-    "ME",
-    "MD",
-    "MA",
-    "MI",
-    "MN",
-    "MS",
-    "MO",
-    "MT",
-    "NE",
-    "NV",
-    "NH",
-    "NJ",
-    "NM",
-    "NY",
-    "NC",
-    "ND",
-    "OH",
-    "OK",
-    "OR",
-    "PA",
-    "RI",
-    "SC",
-    "SD",
-    "TN",
-    "TX",
-    "UT",
-    "VT",
-    "VA",
-    "WA",
-    "WV",
-    "WI",
-    "WY",
-  ];
-
-  const MOST_USED_COUNTRIES = [
-    "United States",
-    "United Kingdom",
-    "Canada",
-    "Australia",
-    "Germany",
-    "France",
-    "India",
-  ];
-  const ALL_COUNTRIES = [
-    "Afghanistan",
-    "Albania",
-    "Algeria",
-    "Andorra",
-    "Angola",
-    "Antigua and Barbuda",
-    "Argentina",
-    "Armenia",
-    "Australia",
-    "Austria",
-    "Azerbaijan",
-    "Bahamas",
-    "Bahrain",
-    "Bangladesh",
-    "Barbados",
-    "Belarus",
-    "Belgium",
-    "Belize",
-    "Benin",
-    "Bhutan",
-    "Bolivia",
-    "Bosnia and Herzegovina",
-    "Botswana",
-    "Brazil",
-    "Brunei",
-    "Bulgaria",
-    "Burkina Faso",
-    "Burundi",
-    "Cabo Verde",
-    "Cambodia",
-    "Cameroon",
-    "Canada",
-    "Central African Republic",
-    "Chad",
-    "Chile",
-    "China",
-    "Colombia",
-    "Comoros",
-    "Congo",
-    "Costa Rica",
-    "Croatia",
-    "Cuba",
-    "Cyprus",
-    "Czech Republic",
-    "Denmark",
-    "Djibouti",
-    "Dominica",
-    "Dominican Republic",
-    "East Timor",
-    "Ecuador",
-    "Egypt",
-    "El Salvador",
-    "Equatorial Guinea",
-    "Eritrea",
-    "Estonia",
-    "Eswatini",
-    "Ethiopia",
-    "Fiji",
-    "Finland",
-    "France",
-    "Gabon",
-    "Gambia",
-    "Georgia",
-    "Germany",
-    "Ghana",
-    "Greece",
-    "Grenada",
-    "Guatemala",
-    "Guinea",
-    "Guinea-Bissau",
-    "Guyana",
-    "Haiti",
-    "Honduras",
-    "Hungary",
-    "Iceland",
-    "India",
-    "Indonesia",
-    "Iran",
-    "Iraq",
-    "Ireland",
-    "Israel",
-    "Italy",
-    "Ivory Coast",
-    "Jamaica",
-    "Japan",
-    "Jordan",
-    "Kazakhstan",
-    "Kenya",
-    "Kiribati",
-    "Kuwait",
-    "Kyrgyzstan",
-    "Laos",
-    "Latvia",
-    "Lebanon",
-    "Lesotho",
-    "Liberia",
-    "Libya",
-    "Liechtenstein",
-    "Lithuania",
-    "Luxembourg",
-    "Madagascar",
-    "Malawi",
-    "Malaysia",
-    "Maldives",
-    "Mali",
-    "Malta",
-    "Marshall Islands",
-    "Mauritania",
-    "Mauritius",
-    "Mexico",
-    "Micronesia",
-    "Moldova",
-    "Monaco",
-    "Mongolia",
-    "Montenegro",
-    "Morocco",
-    "Mozambique",
-    "Myanmar",
-    "Namibia",
-    "Nauru",
-    "Nepal",
-    "Netherlands",
-    "New Zealand",
-    "Nicaragua",
-    "Niger",
-    "Nigeria",
-    "North Korea",
-    "North Macedonia",
-    "Norway",
-    "Oman",
-    "Pakistan",
-    "Palau",
-    "Palestine",
-    "Panama",
-    "Papua New Guinea",
-    "Paraguay",
-    "Peru",
-    "Philippines",
-    "Poland",
-    "Portugal",
-    "Qatar",
-    "Romania",
-    "Russia",
-    "Rwanda",
-    "Saint Kitts and Nevis",
-    "Saint Lucia",
-    "Saint Vincent and the Grenadines",
-    "Samoa",
-    "San Marino",
-    "Sao Tome and Principe",
-    "Saudi Arabia",
-    "Senegal",
-    "Serbia",
-    "Seychelles",
-    "Sierra Leone",
-    "Singapore",
-    "Slovakia",
-    "Slovenia",
-    "Solomon Islands",
-    "Somalia",
-    "South Africa",
-    "South Korea",
-    "South Sudan",
-    "Spain",
-    "Sri Lanka",
-    "Sudan",
-    "Suriname",
-    "Sweden",
-    "Switzerland",
-    "Syria",
-    "Taiwan",
-    "Tajikistan",
-    "Tanzania",
-    "Thailand",
-    "Togo",
-    "Tonga",
-    "Trinidad and Tobago",
-    "Tunisia",
-    "Turkey",
-    "Turkmenistan",
-    "Tuvalu",
-    "Uganda",
-    "Ukraine",
-    "United Arab Emirates",
-    "United Kingdom",
-    "United States",
-    "Uruguay",
-    "Uzbekistan",
-    "Vanuatu",
-    "Vatican City",
-    "Venezuela",
-    "Vietnam",
-    "Yemen",
-    "Zambia",
-    "Zimbabwe",
-  ];
-  const OTHER_COUNTRIES = ALL_COUNTRIES.filter(
-    (c) => !MOST_USED_COUNTRIES.includes(c),
-  ).sort();
 
   if (mode === "edit" && isLoadingClient) {
-    return (
-      <Card className="my-8 w-full border-0 bg-white/80 px-0 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
-        <CardContent className="p-8">
-          <FormSkeleton />
-        </CardContent>
-      </Card>
-    );
+    return <FormSkeleton />;
   }
 
   return (
-    <Card className="my-8 w-full border-0 bg-white/80 px-0 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Basic Information Section */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400">
-              <Building className="h-5 w-5" />
-              <h3 className="text-lg font-semibold dark:text-white">
-                Business Information
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+    <div className="mx-auto max-w-6xl">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Main Form Container - styled like data table */}
+        <div className="space-y-4">
+          {/* Basic Information */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                  <UserPlus className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <CardTitle>Basic Information</CardTitle>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Enter the client's primary details
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label
-                  htmlFor="name"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Business Name / Full Name *
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Client Name<span className="text-destructive ml-1">*</span>
                 </Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
-                  required
-                  placeholder="Enter business name or full name"
-                  className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  placeholder={PLACEHOLDERS.name}
+                  className={`${errors.name ? "border-destructive" : ""}`}
+                  disabled={isSubmitting}
                 />
+                {errors.name && (
+                  <p className="text-destructive text-sm">{errors.name}</p>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="email"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Email Address
-                </Label>
-                <div className="relative">
-                  <Mail className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400 dark:text-gray-500" />
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Email
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      (Optional)
+                    </span>
+                  </Label>
                   <Input
                     id="email"
                     type="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder="business@example.com"
-                    className="h-12 border-gray-200 pl-10 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder={PLACEHOLDERS.email}
+                    className={`${errors.email ? "border-destructive" : ""}`}
+                    disabled={isSubmitting}
                   />
+                  {errors.email && (
+                    <p className="text-destructive text-sm">{errors.email}</p>
+                  )}
                 </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Contact Information Section */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400">
-              <Phone className="h-5 w-5" />
-              <h3 className="text-lg font-semibold dark:text-white">
-                Contact Information
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="phone"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Phone Number
-                </Label>
-                <div className="relative">
-                  <Phone className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-gray-400 dark:text-gray-500" />
+                <div className="space-y-2">
+                  <Label htmlFor="phone" className="text-sm font-medium">
+                    Phone
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      (Optional)
+                    </span>
+                  </Label>
                   <Input
                     id="phone"
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder="(555) 123-4567"
-                    maxLength={14}
-                    className="h-12 border-gray-200 pl-10 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                    placeholder={PLACEHOLDERS.phone}
+                    className={`${errors.phone ? "border-destructive" : ""}`}
+                    disabled={isSubmitting}
                   />
+                  {errors.phone && (
+                    <p className="text-destructive text-sm">{errors.phone}</p>
+                  )}
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Format: (555) 123-4567
-                </p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Address Section */}
-          <div className="space-y-6">
-            <div className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400">
-              <MapPin className="h-5 w-5" />
-              <h3 className="text-lg font-semibold dark:text-white">
-                Address Information
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="addressLine1"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Address Line 1
-                </Label>
-                <Input
-                  id="addressLine1"
-                  value={formData.addressLine1}
-                  onChange={(e) =>
-                    handleInputChange("addressLine1", e.target.value)
-                  }
-                  placeholder="123 Main Street"
-                  className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
+          {/* Address */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                  <svg
+                    className="h-5 w-5 text-emerald-700 dark:text-emerald-400"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                </div>
+                <div>
+                  <CardTitle>Address</CardTitle>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Client's physical location
+                  </p>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="addressLine2"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Address Line 2
-                </Label>
-                <Input
-                  id="addressLine2"
-                  value={formData.addressLine2}
-                  onChange={(e) =>
-                    handleInputChange("addressLine2", e.target.value)
-                  }
-                  placeholder="Suite 100"
-                  className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="city"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  City
-                </Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange("city", e.target.value)}
-                  placeholder="New York"
-                  className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="state"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  State / Province
-                </Label>
-                <select
-                  id="state"
-                  value={formData.state}
-                  onChange={(e) => handleInputChange("state", e.target.value)}
-                  className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                >
-                  {US_STATES.map((state) => (
-                    <option key={state} value={state}>
-                      {state || "Select State"}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label
-                  htmlFor="postalCode"
-                  className="text-sm font-medium text-gray-700 dark:text-gray-300"
-                >
-                  Postal Code
-                </Label>
-                <Input
-                  id="postalCode"
-                  value={formData.postalCode}
-                  onChange={(e) =>
-                    handleInputChange("postalCode", e.target.value)
-                  }
-                  placeholder="12345"
-                  className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label
-                htmlFor="country"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Country
-              </Label>
-              <select
-                id="country"
-                value={formData.country}
-                onChange={(e) => handleInputChange("country", e.target.value)}
-                className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-              >
-                <option value="">Select Country</option>
-                <optgroup label="Most Used">
-                  {MOST_USED_COUNTRIES.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </optgroup>
-                <optgroup label="All Countries">
-                  {OTHER_COUNTRIES.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-          </div>
+            </CardHeader>
+            <CardContent>
+              <AddressForm
+                addressLine1={formData.addressLine1}
+                addressLine2={formData.addressLine2}
+                city={formData.city}
+                state={formData.state}
+                postalCode={formData.postalCode}
+                country={formData.country}
+                onChange={handleInputChange}
+                errors={errors}
+                required={false}
+              />
+            </CardContent>
+          </Card>
+        </div>
 
-          {/* Submit Button */}
-          <div className="flex gap-3 pt-6">
+        {/* Form Actions - original position */}
+        <div
+          ref={footerRef}
+          className="border-border/40 bg-background/60 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150"
+        >
+          <p className="text-muted-foreground text-sm">
+            {mode === "create"
+              ? "Creating a new client"
+              : "Editing client details"}
+          </p>
+          <div className="flex items-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+              className="border-border/40 hover:bg-accent/50"
+            >
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Cancel
+            </Button>
             <Button
               type="submit"
-              disabled={loading}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
+              disabled={isSubmitting || !isDirty}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
             >
-              {loading ? (
+              {isSubmitting ? (
                 <>
-                  <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  {mode === "create" ? "Creating..." : "Updating..."}
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {mode === "create" ? "Creating..." : "Saving..."}
                 </>
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {mode === "create" ? "Create Client" : "Update Client"}
+                  {mode === "create" ? "Create Client" : "Save Changes"}
                 </>
               )}
             </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/dashboard/clients")}
-              className="border-gray-300 font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </Button>
           </div>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+
+      <FloatingActionBar
+        triggerRef={footerRef}
+        title={
+          mode === "create" ? "Creating a new client" : "Editing client details"
+        }
+      >
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleCancel}
+          disabled={isSubmitting}
+          className="border-border/40 hover:bg-accent/50"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={isSubmitting || !isDirty}
+          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              {mode === "create" ? "Creating..." : "Saving..."}
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              {mode === "create" ? "Create Client" : "Save Changes"}
+            </>
+          )}
+        </Button>
+      </FloatingActionBar>
+    </div>
   );
 }

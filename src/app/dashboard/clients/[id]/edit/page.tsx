@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { HydrateClient } from "~/trpc/server";
 import { ClientForm } from "~/components/client-form";
+import { PageHeader } from "~/components/page-header";
 
 interface EditClientPageProps {
   params: Promise<{ id: string }>;
@@ -10,14 +12,11 @@ export default async function EditClientPage({ params }: EditClientPageProps) {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent">
-          Edit Client
-        </h1>
-        <p className="mt-1 text-lg text-gray-600">
-          Update client information below.
-        </p>
-      </div>
+      <PageHeader
+        title="Edit Client"
+        description="Update client information below."
+        variant="gradient"
+      />
       <HydrateClient>
         <ClientForm mode="edit" clientId={id} />
       </HydrateClient>

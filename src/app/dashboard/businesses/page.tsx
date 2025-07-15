@@ -1,35 +1,30 @@
 import Link from "next/link";
-
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { BusinessesTable } from "./_components/businesses-table";
+import { PageHeader } from "~/components/page-header";
+import { PageContent, PageSection } from "~/components/ui/page-layout";
 
 export default async function BusinessesPage() {
   return (
-    <div>
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent dark:from-emerald-400 dark:to-teal-400">
-            Businesses
-          </h1>
-          <p className="mt-1 text-lg text-gray-600 dark:text-gray-300">
-            Manage your businesses and their information.
-          </p>
-        </div>
-        <Button
-          asChild
-          size="lg"
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
-        >
+    <>
+      <PageHeader
+        title="Businesses"
+        description="Manage your businesses and their information."
+        variant="gradient"
+      >
+        <Button asChild variant="brand">
           <Link href="/dashboard/businesses/new">
-            <Plus className="mr-2 h-5 w-5" /> Add Business
+            <Plus className="mr-2 h-5 w-5" />
+            <span>Add Business</span>
           </Link>
         </Button>
-      </div>
+      </PageHeader>
+
       <HydrateClient>
         <BusinessesTable />
       </HydrateClient>
-    </div>
+    </>
   );
 }

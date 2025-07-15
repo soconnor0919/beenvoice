@@ -1,35 +1,30 @@
 import Link from "next/link";
-
-import { api, HydrateClient } from "~/trpc/server";
+import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { ClientsTable } from "./_components/clients-table";
+import { PageHeader } from "~/components/page-header";
+import { PageContent, PageSection } from "~/components/ui/page-layout";
 
 export default async function ClientsPage() {
   return (
-    <div>
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent">
-            Clients
-          </h1>
-          <p className="mt-1 text-lg text-gray-600">
-            Manage your clients and their information.
-          </p>
-        </div>
-        <Button
-          asChild
-          size="lg"
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 font-medium text-white shadow-lg hover:from-emerald-700 hover:to-teal-700 hover:shadow-xl"
-        >
+    <>
+      <PageHeader
+        title="Clients"
+        description="Manage your clients and their information."
+        variant="gradient"
+      >
+        <Button asChild variant="brand">
           <Link href="/dashboard/clients/new">
-            <Plus className="mr-2 h-5 w-5" /> Add Client
+            <Plus className="mr-2 h-5 w-5" />
+            <span>Add Client</span>
           </Link>
         </Button>
-      </div>
+      </PageHeader>
+
       <HydrateClient>
         <ClientsTable />
       </HydrateClient>
-    </div>
+    </>
   );
 }

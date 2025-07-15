@@ -3,6 +3,7 @@ import { api } from "~/trpc/server";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { PageHeader } from "~/components/page-header";
 import Link from "next/link";
 import {
   Edit,
@@ -53,32 +54,27 @@ export default async function ClientDetailPage({
     client.invoices?.filter((invoice) => invoice.status === "sent").length || 0;
 
   return (
-    <div className="p-4 md:mr-4 md:ml-72 md:p-6">
+    <div>
       <div className="mx-auto max-w-4xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent">
-              {client.name}
-            </h1>
-            <p className="text-muted-foreground dark:text-gray-300">
-              Client Details
-            </p>
-          </div>
-          <Link href={`/clients/${client.id}/edit`}>
-            <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700">
+        <PageHeader
+          title={client.name}
+          description="Client Details"
+          variant="gradient"
+        >
+          <Link href={`/dashboard/clients/${client.id}/edit`}>
+            <Button variant="brand">
               <Edit className="mr-2 h-4 w-4" />
               Edit Client
             </Button>
           </Link>
-        </div>
+        </PageHeader>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Client Information Card */}
           <div className="lg:col-span-2">
-            <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="border-0 shadow-xl backdrop-blur-sm">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400">
+                <CardTitle className="flex items-center space-x-2 text-green-600">
                   <Building className="h-5 w-5" />
                   <span>Contact Information</span>
                 </CardTitle>
@@ -92,10 +88,10 @@ export default async function ClientDetailPage({
                         <Mail className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <p className="text-muted-foreground text-sm font-medium">
                           Email
                         </p>
-                        <p className="text-sm dark:text-gray-300">
+                        <p className="text-foreground text-sm">
                           {client.email}
                         </p>
                       </div>
@@ -108,10 +104,10 @@ export default async function ClientDetailPage({
                         <Phone className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <p className="text-muted-foreground text-sm font-medium">
                           Phone
                         </p>
-                        <p className="text-sm dark:text-gray-300">
+                        <p className="text-foreground text-sm">
                           {client.phone}
                         </p>
                       </div>
@@ -127,12 +123,12 @@ export default async function ClientDetailPage({
                         <MapPin className="h-4 w-4 text-emerald-600" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <p className="text-muted-foreground text-sm font-medium">
                           Address
                         </p>
                       </div>
                     </div>
-                    <div className="ml-11 space-y-1 text-sm dark:text-gray-300">
+                    <div className="text-foreground ml-11 space-y-1 text-sm">
                       {client.addressLine1 && <p>{client.addressLine1}</p>}
                       {client.addressLine2 && <p>{client.addressLine2}</p>}
                       {(client.city ?? client.state ?? client.postalCode) && (

@@ -3,27 +3,36 @@
 import { useState } from "react";
 import Link from "next/link";
 import { api } from "~/trpc/react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "~/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { StatusBadge, type StatusType } from "~/components/ui/status-badge";
 import { toast } from "sonner";
-import { FileText, Calendar, DollarSign, Edit, Trash2, Eye, Plus, User } from "lucide-react";
-
-const statusColors = {
-  draft: "bg-gray-100 text-gray-800",
-  sent: "bg-blue-100 text-blue-800",
-  paid: "bg-green-100 text-green-800",
-  overdue: "bg-red-100 text-red-800",
-};
-
-const statusLabels = {
-  draft: "Draft",
-  sent: "Sent",
-  paid: "Paid",
-  overdue: "Overdue",
-};
+import {
+  FileText,
+  Calendar,
+  DollarSign,
+  Edit,
+  Trash2,
+  Eye,
+  Plus,
+  User,
+} from "lucide-react";
 
 export function InvoiceList() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -43,10 +52,14 @@ export function InvoiceList() {
     },
   });
 
-  const filteredInvoices = invoices?.filter(invoice =>
-    invoice.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.client.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredInvoices =
+    invoices?.filter(
+      (invoice) =>
+        invoice.invoiceNumber
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        invoice.client.name.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
 
   const handleDelete = (invoiceId: string) => {
     setInvoiceToDelete(invoiceId);
@@ -64,9 +77,9 @@ export function InvoiceList() {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
@@ -76,12 +89,12 @@ export function InvoiceList() {
         {[...Array(3)].map((_, i) => (
           <Card key={i}>
             <CardHeader>
-              <div className="h-4 bg-muted rounded animate-pulse" />
+              <div className="bg-muted h-4 animate-pulse rounded" />
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="h-3 bg-muted rounded animate-pulse" />
-                <div className="h-3 bg-muted rounded w-2/3 animate-pulse" />
+                <div className="bg-muted h-3 animate-pulse rounded" />
+                <div className="bg-muted h-3 w-2/3 animate-pulse rounded" />
               </div>
             </CardContent>
           </Card>
@@ -158,26 +171,25 @@ export function InvoiceList() {
                 </div>
               </CardTitle>
               <div className="flex items-center justify-between">
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[invoice.status as keyof typeof statusColors]}`}>
-                  {statusLabels[invoice.status as keyof typeof statusLabels]}
-                </span>
+                <StatusBadge status={invoice.status as StatusType} />
                 <span className="text-lg font-bold text-green-600">
                   {formatCurrency(invoice.totalAmount)}
                 </span>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
-              <div className="flex items-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center text-sm">
                 <User className="mr-2 h-4 w-4" />
                 {invoice.client.name}
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center text-sm">
                 <Calendar className="mr-2 h-4 w-4" />
                 Due: {formatDate(invoice.dueDate)}
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
+              <div className="text-muted-foreground flex items-center text-sm">
                 <FileText className="mr-2 h-4 w-4" />
-                {invoice.items.length} item{invoice.items.length !== 1 ? 's' : ''}
+                {invoice.items.length} item
+                {invoice.items.length !== 1 ? "s" : ""}
               </div>
             </CardContent>
           </Card>
@@ -189,11 +201,15 @@ export function InvoiceList() {
           <DialogHeader>
             <DialogTitle>Delete Invoice</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this invoice? This action cannot be undone.
+              Are you sure you want to delete this invoice? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmDelete}>
@@ -204,4 +220,4 @@ export function InvoiceList() {
       </Dialog>
     </div>
   );
-} 
+}

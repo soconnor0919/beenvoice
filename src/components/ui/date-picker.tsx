@@ -1,28 +1,28 @@
-"use client"
+"use client";
 
-import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
-import * as React from "react"
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import * as React from "react";
 
-import { Button } from "~/components/ui/button"
-import { Calendar } from "~/components/ui/calendar"
-import { Label } from "~/components/ui/label"
+import { Button } from "~/components/ui/button";
+import { Calendar } from "~/components/ui/calendar";
+import { Label } from "~/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover"
-import { cn } from "~/lib/utils"
+} from "~/components/ui/popover";
+import { cn } from "~/lib/utils";
 
 interface DatePickerProps {
-  date?: Date
-  onDateChange: (date: Date | undefined) => void
-  label?: string
-  placeholder?: string
-  className?: string
-  disabled?: boolean
-  required?: boolean
-  id?: string
+  date?: Date;
+  onDateChange: (date: Date | undefined) => void;
+  label?: string;
+  placeholder?: string;
+  className?: string;
+  disabled?: boolean;
+  required?: boolean;
+  id?: string;
 }
 
 export function DatePicker({
@@ -33,16 +33,16 @@ export function DatePicker({
   className,
   disabled = false,
   required = false,
-  id
+  id,
 }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       {label && (
-        <Label htmlFor={id} className="text-sm font-medium text-gray-700">
+        <Label htmlFor={id} className="text-sm font-medium">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
       <Popover open={open} onOpenChange={setOpen}>
@@ -52,12 +52,12 @@ export function DatePicker({
             id={id}
             disabled={disabled}
             className={cn(
-              "w-full justify-between font-normal h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 text-sm",
-              !date && "text-gray-500"
+              "h-10 w-full justify-between text-sm font-normal",
+              !date && "text-muted-foreground",
             )}
           >
             {date ? format(date, "PPP") : placeholder}
-            <CalendarIcon className="h-4 w-4 text-gray-400" />
+            <CalendarIcon className="text-muted-foreground h-4 w-4" />
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto overflow-hidden p-0" align="start">
@@ -66,12 +66,12 @@ export function DatePicker({
             selected={date}
             captionLayout="dropdown"
             onSelect={(selectedDate: Date | undefined) => {
-              onDateChange(selectedDate)
-              setOpen(false)
+              onDateChange(selectedDate);
+              setOpen(false);
             }}
           />
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }

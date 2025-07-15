@@ -1,15 +1,19 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { UniversalTable } from "~/components/ui/universal-table";
-import { TableSkeleton } from "~/components/ui/skeleton";
+import { DataTableSkeleton } from "~/components/ui/data-table";
+import { BusinessesDataTable } from "./businesses-data-table";
 
 export function BusinessesTable() {
-  const { isLoading } = api.businesses.getAll.useQuery();
+  const { data: businesses, isLoading } = api.businesses.getAll.useQuery();
 
   if (isLoading) {
-    return <TableSkeleton rows={8} />;
+    return <DataTableSkeleton columns={6} rows={8} />;
   }
 
-  return <UniversalTable resource="businesses" />;
-} 
+  if (!businesses) {
+    return null;
+  }
+
+  return <BusinessesDataTable businesses={businesses} />;
+}

@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Azeret_Mono } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/toaster";
@@ -18,12 +18,18 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
+const azeretMono = Azeret_Mono({
+  subsets: ["latin"],
+  variable: "--font-azeret-mono",
+  display: "swap",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
-      <body className="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-emerald-100 via-white via-60% to-teal-100 font-sans antialiased before:pointer-events-none before:fixed before:inset-0 before:z-0 before:bg-[radial-gradient(ellipse_at_80%_0%,rgba(16,185,129,0.10)_0%,transparent_60%)] before:content-[''] dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 dark:before:bg-[radial-gradient(ellipse_at_80%_0%,rgba(34,197,94,0.15)_0%,transparent_60%)]">
+    <html lang="en" className={`${geist.variable} ${azeretMono.variable}`}>
+      <body className="bg-gradient-dashboard bg-radial-overlay relative min-h-screen overflow-x-hidden font-sans antialiased">
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster />
       </body>

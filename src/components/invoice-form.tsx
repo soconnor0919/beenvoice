@@ -42,23 +42,18 @@ const STATUS_OPTIONS = [
   {
     value: "draft",
     label: "Draft",
-    color: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
   },
   {
     value: "sent",
     label: "Sent",
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
   },
   {
     value: "paid",
     label: "Paid",
-    color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
   },
   {
     value: "overdue",
     label: "Overdue",
-    color: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
   },
 ] as const;
 
@@ -438,26 +433,20 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
             <div className="space-y-2">
-              <Label
-                htmlFor="invoiceNumber"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="invoiceNumber" className="text-sm font-medium">
                 Invoice Number
               </Label>
               <Input
                 id="invoiceNumber"
                 value={formData.invoiceNumber}
-                className="h-10 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className="bg-muted"
                 placeholder="Auto-generated"
                 readOnly
               />
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="businessId"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="businessId" className="text-sm font-medium">
                 Business *
               </Label>
               <SearchableSelect
@@ -478,10 +467,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="clientId"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="clientId" className="text-sm font-medium">
                 Client *
               </Label>
               <SearchableSelect
@@ -502,10 +488,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="status"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="status" className="text-sm font-medium">
                 Status
               </Label>
               <Select
@@ -517,7 +500,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   }))
                 }
               >
-                <SelectTrigger className="h-10 border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-700">
+                <SelectTrigger className="h-10">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -530,10 +513,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="issueDate"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="issueDate" className="text-sm font-medium">
                 Issue Date *
               </Label>
               <DatePicker
@@ -547,10 +527,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="dueDate"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="dueDate" className="text-sm font-medium">
                 Due Date *
               </Label>
               <DatePicker
@@ -564,10 +541,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="defaultRate"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="defaultRate" className="text-sm font-medium">
                 Default Rate ($/hr)
               </Label>
               <div className="flex gap-2">
@@ -580,14 +554,14 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     setDefaultRate(parseFloat(e.target.value) || 0)
                   }
                   placeholder="0.00"
-                  className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className=""
                 />
                 <Button
                   type="button"
                   onClick={applyDefaultRate}
                   variant="outline"
                   size="sm"
-                  className="h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:hover:bg-emerald-900/20"
+                  className="border-primary text-primary hover:bg-primary/10"
                 >
                   Apply
                 </Button>
@@ -595,10 +569,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-2">
-              <Label
-                htmlFor="taxRate"
-                className="text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
+              <Label htmlFor="taxRate" className="text-sm font-medium">
                 Tax Rate (%)
               </Label>
               <Input
@@ -615,18 +586,18 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   }))
                 }
                 placeholder="0.00"
-                className="h-10 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                className=""
               />
             </div>
           </div>
 
           {selectedBusiness && (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
-              <div className="mb-2 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <div className="mb-2 flex items-center gap-2 text-green-600">
                 <Building className="h-4 w-4" />
                 <span className="font-medium">Business Information</span>
               </div>
-              <div className="text-sm text-gray-700 dark:text-gray-300">
+              <div className="text-muted-foreground text-sm">
                 <p className="font-medium">{selectedBusiness.name}</p>
                 {selectedBusiness.email && <p>{selectedBusiness.email}</p>}
                 {selectedBusiness.phone && <p>{selectedBusiness.phone}</p>}
@@ -652,11 +623,11 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
           {selectedClient && (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-800 dark:bg-emerald-900/20">
-              <div className="mb-2 flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <div className="mb-2 flex items-center gap-2 text-green-600">
                 <User className="h-4 w-4" />
                 <span className="font-medium">Client Information</span>
               </div>
-              <div className="text-sm text-gray-700 dark:text-gray-300">
+              <div className="text-muted-foreground text-sm">
                 <p className="font-medium">{selectedClient.name}</p>
                 {selectedClient.email && <p>{selectedClient.email}</p>}
                 {selectedClient.phone && <p>{selectedClient.phone}</p>}
@@ -665,10 +636,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           )}
 
           <div className="space-y-2">
-            <Label
-              htmlFor="notes"
-              className="text-sm font-medium text-gray-700 dark:text-gray-300"
-            >
+            <Label htmlFor="notes" className="text-sm font-medium">
               Notes
             </Label>
             <textarea
@@ -705,7 +673,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Items Table Header */}
-          <div className="grid grid-cols-12 items-center gap-2 rounded-lg bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300">
+          <div className="bg-muted text-muted-foreground grid grid-cols-12 items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium">
             <div className="col-span-1 text-center">⋮⋮</div>
             <div className="col-span-2">Date</div>
             <div className="col-span-4">Description</div>
@@ -761,7 +729,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   </div>
                 )}
               </div>
-              <div className="text-lg font-medium text-gray-700 dark:text-gray-300">
+              <div className="text-foreground text-lg font-medium">
                 Total Amount
               </div>
               <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
@@ -801,7 +769,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                 type="button"
                 variant="outline"
                 onClick={() => router.push("/dashboard/invoices")}
-                className="border-gray-300 font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+                className="font-medium"
               >
                 Cancel
               </Button>
@@ -812,7 +780,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               >
                 {loading ? (
                   <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <div className="border-primary-foreground mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent" />
                     {invoiceId ? "Updating..." : "Creating..."}
                   </>
                 ) : (

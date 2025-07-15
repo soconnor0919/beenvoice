@@ -43,8 +43,8 @@ export const businessesRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.id, input.id),
-            eq(businesses.createdById, ctx.session.user.id)
-          )
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
         )
         .limit(1);
 
@@ -59,8 +59,8 @@ export const businessesRouter = createTRPCRouter({
       .where(
         and(
           eq(businesses.createdById, ctx.session.user.id),
-          eq(businesses.isDefault, true)
-        )
+          eq(businesses.isDefault, true),
+        ),
       )
       .limit(1);
 
@@ -96,7 +96,7 @@ export const businessesRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         ...businessSchema.shape,
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
@@ -106,12 +106,7 @@ export const businessesRouter = createTRPCRouter({
         await ctx.db
           .update(businesses)
           .set({ isDefault: false })
-          .where(
-            and(
-              eq(businesses.createdById, ctx.session.user.id),
-              eq(businesses.id, id)
-            )
-          );
+          .where(eq(businesses.createdById, ctx.session.user.id));
       }
 
       const [updatedBusiness] = await ctx.db
@@ -123,13 +118,15 @@ export const businessesRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.id, id),
-            eq(businesses.createdById, ctx.session.user.id)
-          )
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
         )
         .returning();
 
       if (!updatedBusiness) {
-        throw new Error("Business not found or you don't have permission to update it");
+        throw new Error(
+          "Business not found or you don't have permission to update it",
+        );
       }
 
       return updatedBusiness;
@@ -146,13 +143,15 @@ export const businessesRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.id, input.id),
-            eq(businesses.createdById, ctx.session.user.id)
-          )
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
         )
         .limit(1);
 
       if (!business[0]) {
-        throw new Error("Business not found or you don't have permission to delete it");
+        throw new Error(
+          "Business not found or you don't have permission to delete it",
+        );
       }
 
       // Check if this business has any invoices
@@ -162,7 +161,9 @@ export const businessesRouter = createTRPCRouter({
         .where(eq(invoices.businessId, input.id));
 
       if (invoiceCount[0] && invoiceCount[0].count > 0) {
-        throw new Error("Cannot delete business that has invoices. Please delete all invoices first.");
+        throw new Error(
+          "Cannot delete business that has invoices. Please delete all invoices first.",
+        );
       }
 
       await ctx.db
@@ -170,8 +171,8 @@ export const businessesRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.id, input.id),
-            eq(businesses.createdById, ctx.session.user.id)
-          )
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
         );
 
       return { success: true };
@@ -194,15 +195,17 @@ export const businessesRouter = createTRPCRouter({
         .where(
           and(
             eq(businesses.id, input.id),
-            eq(businesses.createdById, ctx.session.user.id)
-          )
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
         )
         .returning();
 
       if (!updatedBusiness) {
-        throw new Error("Business not found or you don't have permission to update it");
+        throw new Error(
+          "Business not found or you don't have permission to update it",
+        );
       }
 
       return updatedBusiness;
     }),
-}); 
+});
