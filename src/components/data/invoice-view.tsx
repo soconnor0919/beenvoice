@@ -6,7 +6,7 @@ import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
-import { StatusBadge, type StatusType } from "~/components/ui/status-badge";
+import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { Separator } from "~/components/ui/separator";
 import {
   Dialog,

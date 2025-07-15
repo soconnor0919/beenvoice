@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { FileUpload } from "~/components/ui/file-upload";
+import { FileUpload } from "~/components/forms/file-upload";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Progress } from "~/components/ui/progress";

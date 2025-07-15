@@ -4,8 +4,8 @@ import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
-import { Logo } from "./logo";
-import { SidebarTrigger } from "./SidebarTrigger";
+import { Logo } from "~/components/branding/logo";
+import { SidebarTrigger } from "~/components/navigation/sidebar-trigger";
 
 export function Navbar() {
   const { data: session, status } = useSession();

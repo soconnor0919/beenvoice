@@ -2,7 +2,7 @@ import Link from "next/link";
 import { auth } from "~/server/auth";
 import { api, HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
-import { ClientList } from "~/components/client-list";
+import { ClientList } from "~/components/data/client-list";
 import { Plus } from "lucide-react";
 
 export default async function ClientsPage() {
@@ -39,4 +39,4 @@ export default async function ClientsPage() {
       </div>
     </HydrateClient>
   );
-} 
+}

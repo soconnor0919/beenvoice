@@ -1,7 +1,7 @@
 "use client";
 
 import { api } from "~/trpc/react";
-import { DataTableSkeleton } from "~/components/ui/data-table";
+import { DataTableSkeleton } from "~/components/data/data-table";
 import { ClientsDataTable } from "./clients-data-table";
 
 export function ClientsTable() {

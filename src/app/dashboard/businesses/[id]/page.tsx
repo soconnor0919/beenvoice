@@ -3,7 +3,7 @@ import { api } from "~/trpc/server";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
-import { PageHeader } from "~/components/page-header";
+import { PageHeader } from "~/components/layout/page-header";
 import Link from "next/link";
 import {
   Edit,

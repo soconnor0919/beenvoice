@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { HydrateClient } from "~/trpc/server";
-import { ClientForm } from "~/components/client-form";
-import { PageHeader } from "~/components/page-header";
+import { ClientForm } from "~/components/forms/client-form";
+import { PageHeader } from "~/components/layout/page-header";
 
 interface EditClientPageProps {
   params: Promise<{ id: string }>;

@@ -36,7 +36,7 @@ import {
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { FormSkeleton } from "~/components/ui/skeleton";
-import { EditableInvoiceItems } from "~/components/editable-invoice-items";
+import { EditableInvoiceItems } from "~/components/data/editable-invoice-items";
 
 const STATUS_OPTIONS = [
   {
@@ -273,16 +273,16 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     return (
       <div className="space-y-6 pb-20">
         {/* Invoice Details Card Skeleton */}
-        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+        <Card className="shadow-lg">
           <CardHeader>
-            <div className="h-6 w-48 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
+            <div className="h-6 w-48 animate-pulse rounded bg-gray-300"></div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="space-y-2">
-                  <div className="h-4 w-24 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
-                  <div className="h-10 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
+                  <div className="h-4 w-24 animate-pulse rounded bg-gray-300"></div>
+                  <div className="h-10 animate-pulse rounded bg-gray-300"></div>
                 </div>
               ))}
             </div>
@@ -290,20 +290,20 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         </Card>
 
         {/* Invoice Items Card Skeleton */}
-        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+        <Card className="shadow-lg">
           <CardHeader>
             <div className="flex items-center justify-between">
-              <div className="h-6 w-32 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
-              <div className="h-10 w-24 animate-pulse rounded bg-gray-300 dark:bg-gray-600"></div>
+              <div className="h-6 w-32 animate-pulse rounded bg-gray-300"></div>
+              <div className="h-10 w-24 animate-pulse rounded bg-gray-300"></div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Items Table Header Skeleton */}
-            <div className="grid grid-cols-12 gap-2 rounded-lg bg-gray-50 px-4 py-3 dark:bg-gray-700">
+            <div className="grid grid-cols-12 gap-2 rounded-lg bg-gray-50 px-4 py-3">
               {Array.from({ length: 8 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-4 animate-pulse rounded bg-gray-300 dark:bg-gray-600"
+                  className="h-4 animate-pulse rounded bg-gray-300"
                 ></div>
               ))}
             </div>
@@ -313,7 +313,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="grid animate-pulse grid-cols-12 items-center gap-2 rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+                  className="grid animate-pulse grid-cols-12 items-center gap-2 rounded-lg border border-gray-200 p-4"
                 >
                   {Array.from({ length: 8 }).map((_, j) => (
                     <div
@@ -353,7 +353,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     return (
       <div className="space-y-6 pb-20">
         {/* Invoice Details Card Skeleton */}
-        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm">
+        <Card className="shadow-lg">
           <CardHeader>
             <div className="h-6 w-48 animate-pulse rounded bg-gray-300"></div>
           </CardHeader>
@@ -370,7 +370,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         </Card>
 
         {/* Invoice Items Card Skeleton */}
-        <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+        <Card className="shadow-lg">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="h-6 w-32 animate-pulse rounded bg-gray-300"></div>
@@ -423,9 +423,9 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   return (
     <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6 pb-20">
       {/* Invoice Details Card */}
-      <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+      <Card className="shadow-lg">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+          <CardTitle className="flex items-center gap-2 text-emerald-700">
             <FileText className="h-5 w-5" />
             Invoice Details
           </CardTitle>
@@ -653,10 +653,10 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       </Card>
 
       {/* Invoice Items Card */}
-      <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+      <Card className="shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+            <CardTitle className="flex items-center gap-2 text-emerald-700">
               <Clock className="h-5 w-5" />
               Invoice Items
             </CardTitle>

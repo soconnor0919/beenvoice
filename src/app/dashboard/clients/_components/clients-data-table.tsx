@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
-import { DataTable, DataTableColumnHeader } from "~/components/ui/data-table";
+import { DataTable, DataTableColumnHeader } from "~/components/data/data-table";
 import { UserPlus, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {

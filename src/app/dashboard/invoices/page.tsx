@@ -2,10 +2,10 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { api, HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
-import { PageHeader } from "~/components/page-header";
+import { PageHeader } from "~/components/layout/page-header";
 import { Plus, Upload } from "lucide-react";
 import { InvoicesDataTable } from "./_components/invoices-data-table";
-import { DataTableSkeleton } from "~/components/ui/data-table";
+import { DataTableSkeleton } from "~/components/data/data-table";
 
 // Invoices Table Component
 async function InvoicesTable() {

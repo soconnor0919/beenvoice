@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { DataTable } from "~/components/ui/data-table";
-import { PageHeader } from "~/components/page-header";
+import { DataTable } from "~/components/data/data-table";
+import { PageHeader } from "~/components/layout/page-header";
 import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import type { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "~/components/ui/data-table";
-import { DashboardBreadcrumbs } from "~/components/dashboard-breadcrumbs";
+import { DataTableColumnHeader } from "~/components/data/data-table";
+import { DashboardBreadcrumbs } from "~/components/navigation/dashboard-breadcrumbs";
 import Link from "next/link";
 
 // Sample data type

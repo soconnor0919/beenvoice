@@ -3,61 +3,28 @@
 import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
+import { api } from "~/trpc/react";
 import { generateInvoicePDF } from "~/lib/pdf-export";
 import { Download, Loader2 } from "lucide-react";
 
-interface Invoice {
-  id: string;
-  invoiceNumber: string;
-  issueDate: Date;
-  dueDate: Date;
-  status: string;
-  totalAmount: number;
-  taxRate: number;
-  notes?: string | null;
-  business?: {
-    name: string;
-    email?: string | null;
-    phone?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-    website?: string | null;
-    taxId?: string | null;
-  } | null;
-  client: {
-    name: string;
-    email?: string | null;
-    phone?: string | null;
-    addressLine1?: string | null;
-    addressLine2?: string | null;
-    city?: string | null;
-    state?: string | null;
-    postalCode?: string | null;
-    country?: string | null;
-  };
-  items: Array<{
-    date: Date;
-    description: string;
-    hours: number;
-    rate: number;
-    amount: number;
-  }>;
-}
-
 interface PDFDownloadButtonProps {
-  invoice: Invoice;
-  variant?: "button" | "menu" | "icon";
+  invoiceId: string;
+  variant?: "default" | "outline" | "ghost" | "icon";
+  className?: string;
 }
 
 export function PDFDownloadButton({
-  invoice,
-  variant = "button",
+  invoiceId,
+  variant = "outline",
+  className,
 }: PDFDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // Fetch invoice data when PDF generation is triggered
+  const { refetch: fetchInvoice } = api.invoices.getById.useQuery(
+    { id: invoiceId },
+    { enabled: false },
+  );
 
   const handleDownloadPDF = async () => {
     if (isGenerating) return;
@@ -65,22 +32,14 @@ export function PDFDownloadButton({
     setIsGenerating(true);
 
     try {
-      // Transform the invoice data to match the PDF interface
-      const pdfData = {
-        invoiceNumber: invoice.invoiceNumber,
-        issueDate: invoice.issueDate,
-        dueDate: invoice.dueDate,
-        status: invoice.status,
-        totalAmount: invoice.totalAmount,
-        taxRate: invoice.taxRate,
-        notes: invoice.notes,
-        business: invoice.business,
-        client: invoice.client,
-        items: invoice.items,
-      };
+      // Fetch fresh invoice data
+      const { data: invoiceData } = await fetchInvoice();
 
-      await generateInvoicePDF(pdfData);
+      if (!invoiceData) {
+        throw new Error("Invoice not found");
+      }
 
+      await generateInvoicePDF(invoiceData);
       toast.success("PDF downloaded successfully");
     } catch (error) {
       console.error("PDF generation error:", error);
@@ -92,23 +51,6 @@ export function PDFDownloadButton({
     }
   };
 
-  if (variant === "menu") {
-    return (
-      <button
-        onClick={handleDownloadPDF}
-        disabled={isGenerating}
-        className="hover:bg-accent flex w-full items-center gap-2 px-2 py-1.5 text-sm"
-      >
-        {isGenerating ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Download className="h-4 w-4" />
-        )}
-        {isGenerating ? "Generating..." : "Download PDF"}
-      </button>
-    );
-  }
-
   if (variant === "icon") {
     return (
       <Button
@@ -116,12 +58,12 @@ export function PDFDownloadButton({
         disabled={isGenerating}
         variant="ghost"
         size="sm"
-        className="h-8 w-8 p-0"
+        className={className}
       >
         {isGenerating ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
+          <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
         ) : (
-          <Download className="h-4 w-4" />
+          <Download className="h-3 w-3 sm:h-4 sm:w-4" />
         )}
       </Button>
     );
@@ -131,15 +73,21 @@ export function PDFDownloadButton({
     <Button
       onClick={handleDownloadPDF}
       disabled={isGenerating}
-      className="w-full justify-start"
-      variant="outline"
+      variant={variant}
+      size="default"
+      className={`w-full shadow-sm ${className}`}
     >
       {isGenerating ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <span>Generating PDF...</span>
+        </>
       ) : (
-        <Download className="mr-2 h-4 w-4" />
+        <>
+          <Download className="mr-2 h-4 w-4" />
+          <span>Download PDF</span>
+        </>
       )}
-      {isGenerating ? "Generating..." : "Download PDF"}
     </Button>
   );
 }

@@ -10,7 +10,7 @@ import { Input } from "~/components/ui/input";
 import { NumberInput } from "~/components/ui/number-input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { PageHeader } from "~/components/page-header";
+import { PageHeader } from "~/components/layout/page-header";
 import {
   Select,
   SelectContent,
@@ -32,7 +32,7 @@ import {
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { DatePicker } from "~/components/ui/date-picker";
-import { FloatingActionBar } from "~/components/ui/floating-action-bar";
+import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { toast } from "sonner";
 import {
   ArrowLeft,

@@ -4,78 +4,34 @@ import Link from "next/link";
 import { api, HydrateClient } from "~/trpc/server";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import { StatusBadge, type StatusType } from "~/components/ui/status-badge";
+import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { Separator } from "~/components/ui/separator";
-import { PageHeader } from "~/components/page-header";
+import { PageHeader } from "~/components/layout/page-header";
 import { PDFDownloadButton } from "./_components/pdf-download-button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+import { SendInvoiceButton } from "./_components/send-invoice-button";
+import { InvoiceDetailsSkeleton } from "./_components/invoice-details-skeleton";
+import { InvoiceActionsDropdown } from "./_components/invoice-actions-dropdown";
+import { InvoiceItemsTable } from "./_components/invoice-items-table";
 import {
   ArrowLeft,
-  Edit,
-  Send,
-  Copy,
-  MoreHorizontal,
-  CheckCircle,
-  Clock,
-  Calendar,
-  FileText,
   Building,
-  User,
-  DollarSign,
-  Hash,
-  MapPin,
+  Calendar,
+  Copy,
+  Edit,
+  FileText,
   Mail,
+  MapPin,
   Phone,
+  User,
+  AlertTriangle,
+  Trash2,
 } from "lucide-react";
 
 interface InvoicePageProps {
   params: Promise<{ id: string }>;
 }
 
-function InvoiceStatusBadge({
-  status,
-  dueDate,
-}: {
-  status: string;
-  dueDate: Date;
-}) {
-  const getStatus = (): "draft" | "sent" | "paid" | "overdue" => {
-    if (status === "paid") return "paid";
-    if (status === "draft") return "draft";
-    if (status === "sent") {
-      const due = new Date(dueDate);
-      return due < new Date() ? "overdue" : "sent";
-    }
-    return "draft";
-  };
-
-  const actualStatus = getStatus();
-
-  const icons = {
-    draft: FileText,
-    sent: Clock,
-    paid: CheckCircle,
-    overdue: Clock,
-  };
-
-  const Icon = icons[actualStatus];
-
-  return (
-    <StatusBadge status={actualStatus} className="flex items-center gap-1">
-      <Icon className="h-3 w-3" />
-      {actualStatus.charAt(0).toUpperCase() + actualStatus.slice(1)}
-    </StatusBadge>
-  );
-}
-
-async function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
+async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
   const invoice = await api.invoices.getById({ id: invoiceId });
 
   if (!invoice) {
@@ -97,379 +53,337 @@ async function InvoiceDetails({ invoiceId }: { invoiceId: string }) {
     }).format(amount);
   };
 
-  const subtotal =
-    invoice.items?.reduce((sum, item) => sum + item.hours * item.rate, 0) || 0;
-  const taxAmount = (subtotal * (invoice.taxRate || 0)) / 100;
-  const total = subtotal + taxAmount;
+  const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
+  const taxAmount = (subtotal * invoice.taxRate) / 100;
+  const isOverdue =
+    new Date(invoice.dueDate) < new Date() && invoice.status !== "paid";
+
+  const getStatusType = (): StatusType => {
+    if (invoice.status === "paid") return "paid";
+    if (invoice.status === "draft") return "draft";
+    if (invoice.status === "sent") {
+      return isOverdue ? "overdue" : "sent";
+    }
+    return "draft";
+  };
 
   return (
     <div className="space-y-6">
-      {/* Invoice Header */}
-      <Card className="border-0 shadow-lg">
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            {/* Invoice Info */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <div className="rounded-lg bg-emerald-100 p-3 dark:bg-emerald-900/30">
-                  <Hash className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-emerald-700 dark:text-emerald-400">
-                    {invoice.invoiceNumber}
-                  </h1>
-                  <p className="text-muted-foreground text-sm">Invoice</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-                <div className="flex items-center gap-2">
-                  <Calendar className="text-muted-foreground h-4 w-4" />
-                  <div>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      Issued
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {formatDate(invoice.issueDate)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="text-muted-foreground h-4 w-4" />
-                  <div>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      Due
-                    </p>
-                    <p className="text-sm font-semibold">
-                      {formatDate(invoice.dueDate)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <DollarSign className="text-muted-foreground h-4 w-4" />
-                  <div>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      Amount
-                    </p>
-                    <p className="text-sm font-semibold text-emerald-600">
-                      {formatCurrency(total)}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <FileText className="text-muted-foreground h-4 w-4" />
-                  <div>
-                    <p className="text-muted-foreground text-xs font-medium">
-                      Status
-                    </p>
-                    <InvoiceStatusBadge
-                      status={invoice.status}
-                      dueDate={invoice.dueDate}
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex flex-col gap-2 sm:flex-row lg:flex-col">
-              <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-                <Button className="w-full">
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Invoice
-                </Button>
-              </Link>
-              <PDFDownloadButton invoice={invoice} variant="button" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Business & Client Info */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* From Business */}
-        <Card className="border-0 shadow-md">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Building className="h-4 w-4 text-emerald-600" />
-              From
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {invoice.business ? (
-              <>
-                <div>
-                  <p className="font-semibold">{invoice.business.name}</p>
-                </div>
-                <div className="space-y-1">
-                  {invoice.business.email && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Mail className="text-muted-foreground h-3 w-3" />
-                      <span className="text-muted-foreground">
-                        {invoice.business.email}
-                      </span>
-                    </div>
-                  )}
-                  {invoice.business.phone && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Phone className="text-muted-foreground h-3 w-3" />
-                      <span className="text-muted-foreground">
-                        {invoice.business.phone}
-                      </span>
-                    </div>
-                  )}
-                  {invoice.business.addressLine1 && (
-                    <div className="flex items-start gap-2 text-sm">
-                      <MapPin className="text-muted-foreground mt-0.5 h-3 w-3" />
-                      <div className="text-muted-foreground">
-                        <p>{invoice.business.addressLine1}</p>
-                        {invoice.business.addressLine2 && (
-                          <p>{invoice.business.addressLine2}</p>
-                        )}
-                        <p>
-                          {[
-                            invoice.business.city,
-                            invoice.business.state,
-                            invoice.business.postalCode,
-                          ]
-                            .filter(Boolean)
-                            .join(", ")}
-                        </p>
-                        {invoice.business.country && (
-                          <p>{invoice.business.country}</p>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <p className="text-muted-foreground text-sm italic">
-                No business information
-              </p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* To Client */}
-        <Card className="border-0 shadow-md">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <User className="h-4 w-4 text-emerald-600" />
-              Bill To
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <p className="font-semibold">{invoice.client.name}</p>
-            </div>
-            <div className="space-y-1">
-              {invoice.client.email && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="text-muted-foreground h-3 w-3" />
-                  <span className="text-muted-foreground">
-                    {invoice.client.email}
-                  </span>
-                </div>
-              )}
-              {invoice.client.phone && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="text-muted-foreground h-3 w-3" />
-                  <span className="text-muted-foreground">
-                    {invoice.client.phone}
-                  </span>
-                </div>
-              )}
-              {invoice.client.addressLine1 && (
-                <div className="flex items-start gap-2 text-sm">
-                  <MapPin className="text-muted-foreground mt-0.5 h-3 w-3" />
-                  <div className="text-muted-foreground">
-                    <p>{invoice.client.addressLine1}</p>
-                    {invoice.client.addressLine2 && (
-                      <p>{invoice.client.addressLine2}</p>
-                    )}
-                    <p>
-                      {[
-                        invoice.client.city,
-                        invoice.client.state,
-                        invoice.client.postalCode,
-                      ]
-                        .filter(Boolean)
-                        .join(", ")}
-                    </p>
-                    {invoice.client.country && <p>{invoice.client.country}</p>}
-                  </div>
-                </div>
-              )}
+      {/* Overdue Alert */}
+      {isOverdue && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-700">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="font-medium">
+                This invoice is{" "}
+                {Math.ceil(
+                  (new Date().getTime() - new Date(invoice.dueDate).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                )}{" "}
+                days overdue
+              </span>
             </div>
           </CardContent>
         </Card>
-      </div>
+      )}
 
-      {/* Line Items */}
-      <Card className="border-0 shadow-lg">
-        <CardHeader className="border-b">
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-emerald-600" />
-            Line Items ({invoice.items?.length || 0})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            {invoice.items && invoice.items.length > 0 ? (
-              <div className="space-y-0">
-                {/* Header - Hidden on mobile */}
-                <div className="border-muted/30 bg-muted/20 hidden grid-cols-12 gap-4 border-b px-6 py-3 text-sm font-medium md:grid">
-                  <div className="col-span-2">Date</div>
-                  <div className="col-span-5">Description</div>
-                  <div className="col-span-2 text-right">Hours</div>
-                  <div className="col-span-2 text-right">Rate</div>
-                  <div className="col-span-1 text-right">Amount</div>
-                </div>
-
-                {/* Items */}
-                {invoice.items.map((item, index) => (
-                  <div
-                    key={index}
-                    className="border-muted/30 grid grid-cols-1 gap-2 border-b px-6 py-4 last:border-b-0 md:grid-cols-12 md:items-center md:gap-4"
-                  >
-                    {/* Mobile Layout */}
-                    <div className="md:hidden">
-                      <div className="mb-2 flex items-start justify-between">
-                        <p className="font-medium">{item.description}</p>
-                        <span className="font-mono text-sm font-semibold text-emerald-600">
-                          {formatCurrency(item.hours * item.rate)}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-sm">
-                        <div>
-                          <span className="text-muted-foreground text-xs">
-                            Date
-                          </span>
-                          <p>{formatDate(item.date)}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground text-xs">
-                            Hours
-                          </span>
-                          <p className="font-mono">{item.hours}</p>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground text-xs">
-                            Rate
-                          </span>
-                          <p className="font-mono">
-                            {formatCurrency(item.rate)}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Desktop Layout */}
-                    <div className="text-muted-foreground col-span-2 hidden text-sm md:block">
-                      {formatDate(item.date)}
-                    </div>
-                    <div className="col-span-5 hidden font-medium md:block">
-                      {item.description}
-                    </div>
-                    <div className="col-span-2 hidden text-right font-mono text-sm md:block">
-                      {item.hours}
-                    </div>
-                    <div className="col-span-2 hidden text-right font-mono text-sm md:block">
-                      {formatCurrency(item.rate)}
-                    </div>
-                    <div className="col-span-1 hidden text-right font-mono font-semibold text-emerald-600 md:block">
-                      {formatCurrency(item.hours * item.rate)}
-                    </div>
+      <div className="grid gap-6 lg:grid-cols-4 xl:grid-cols-3">
+        {/* Main Content */}
+        <div className="space-y-6 lg:col-span-3 xl:col-span-2">
+          {/* Invoice Header */}
+          <Card className="shadow-lg">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <h1 className="text-xl font-bold sm:text-2xl">
+                      Invoice #{invoice.invoiceNumber}
+                    </h1>
+                    <StatusBadge status={getStatusType()} />
                   </div>
-                ))}
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    Issued {formatDate(invoice.issueDate)} • Due{" "}
+                    {formatDate(invoice.dueDate)}
+                  </p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <p className="text-muted-foreground text-sm sm:text-base">
+                    Total Amount
+                  </p>
+                  <p className="text-2xl font-bold text-emerald-600 sm:text-3xl">
+                    {formatCurrency(invoice.totalAmount)}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <div className="text-muted-foreground py-12 text-center">
-                <FileText className="mx-auto mb-2 h-8 w-8" />
-                <p>No line items found</p>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Totals & Notes */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Notes */}
-        {invoice.notes && (
-          <Card className="border-0 shadow-md lg:col-span-2">
-            <CardHeader className="pb-4">
-              <CardTitle className="text-lg">Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground leading-relaxed">
-                {invoice.notes}
-              </p>
             </CardContent>
           </Card>
-        )}
 
-        {/* Totals */}
-        <Card
-          className={`border-0 shadow-md ${!invoice.notes ? "lg:col-start-3" : ""}`}
-        >
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <DollarSign className="h-4 w-4 text-emerald-600" />
-              Total
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal:</span>
-                <span className="font-mono">{formatCurrency(subtotal)}</span>
-              </div>
-              {invoice.taxRate > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Tax ({invoice.taxRate}%):
-                  </span>
-                  <span className="font-mono">{formatCurrency(taxAmount)}</span>
+          {/* Client & Business Information */}
+          <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
+            {/* Client Information */}
+            <Card className="shadow-lg">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-emerald-600">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Bill To
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3 sm:space-y-4">
+                <div>
+                  <h3 className="text-foreground text-lg font-semibold sm:text-xl">
+                    {invoice.client.name}
+                  </h3>
                 </div>
-              )}
-              <Separator />
-              <div className="flex justify-between text-lg font-bold">
-                <span>Total:</span>
-                <span className="font-mono text-emerald-600">
-                  {formatCurrency(total)}
-                </span>
-              </div>
-            </div>
 
-            {/* Status Actions */}
-            <div className="pt-2">
-              {invoice.status === "draft" && (
-                <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700">
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Invoice
-                </Button>
-              )}
+                <div className="space-y-2 sm:space-y-3">
+                  {invoice.client.email && (
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="rounded-lg bg-emerald-100 p-1.5 sm:p-2">
+                        <Mail className="h-3 w-3 text-emerald-600 sm:h-4 sm:w-4" />
+                      </div>
+                      <span className="text-sm break-all sm:text-base">
+                        {invoice.client.email}
+                      </span>
+                    </div>
+                  )}
 
-              {invoice.status === "sent" && (
-                <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">
-                  <CheckCircle className="mr-2 h-4 w-4" />
-                  Mark as Paid
-                </Button>
-              )}
+                  {invoice.client.phone && (
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <div className="rounded-lg bg-emerald-100 p-1.5 sm:p-2">
+                        <Phone className="h-3 w-3 text-emerald-600 sm:h-4 sm:w-4" />
+                      </div>
+                      <span className="text-sm sm:text-base">
+                        {invoice.client.phone}
+                      </span>
+                    </div>
+                  )}
 
-              {(invoice.status === "paid" || invoice.status === "overdue") && (
-                <div className="text-center">
-                  <InvoiceStatusBadge
-                    status={invoice.status}
-                    dueDate={invoice.dueDate}
-                  />
+                  {(invoice.client.addressLine1 ?? invoice.client.city) && (
+                    <div className="flex items-start gap-2 sm:gap-3">
+                      <div className="rounded-lg bg-emerald-100 p-1.5 sm:p-2">
+                        <MapPin className="h-3 w-3 text-emerald-600 sm:h-4 sm:w-4" />
+                      </div>
+                      <div className="text-sm sm:text-base">
+                        {invoice.client.addressLine1 && (
+                          <div>{invoice.client.addressLine1}</div>
+                        )}
+                        {invoice.client.addressLine2 && (
+                          <div>{invoice.client.addressLine2}</div>
+                        )}
+                        {(invoice.client.city ??
+                          invoice.client.state ??
+                          invoice.client.postalCode) && (
+                          <div>
+                            {[
+                              invoice.client.city,
+                              invoice.client.state,
+                              invoice.client.postalCode,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </div>
+                        )}
+                        {invoice.client.country && (
+                          <div>{invoice.client.country}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+
+            {/* Business Information */}
+            {invoice.business && (
+              <Card className="shadow-lg">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-emerald-600">
+                    <Building className="h-4 w-4 sm:h-5 sm:w-5" />
+                    From
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 sm:space-y-4">
+                  <div>
+                    <h3 className="text-foreground text-lg font-semibold sm:text-xl">
+                      {invoice.business.name}
+                    </h3>
+                  </div>
+
+                  <div className="space-y-2 sm:space-y-3">
+                    {invoice.business.email && (
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="rounded-lg bg-emerald-100 p-1.5 sm:p-2">
+                          <Mail className="h-3 w-3 text-emerald-600 sm:h-4 sm:w-4" />
+                        </div>
+                        <span className="text-sm break-all sm:text-base">
+                          {invoice.business.email}
+                        </span>
+                      </div>
+                    )}
+
+                    {invoice.business.phone && (
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="rounded-lg bg-emerald-100 p-1.5 sm:p-2">
+                          <Phone className="h-3 w-3 text-emerald-600 sm:h-4 sm:w-4" />
+                        </div>
+                        <span className="text-sm sm:text-base">
+                          {invoice.business.phone}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Invoice Items */}
+          <Card className="shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Invoice Items
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <InvoiceItemsTable items={invoice.items} />
+
+              {/* Totals */}
+              <div className="mt-6 border-t pt-4">
+                <div className="flex justify-end">
+                  <div className="w-full space-y-2 sm:max-w-64">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal:</span>
+                      <span className="font-medium">
+                        {formatCurrency(subtotal)}
+                      </span>
+                    </div>
+                    {invoice.taxRate > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
+                          Tax ({invoice.taxRate}%):
+                        </span>
+                        <span className="font-medium">
+                          {formatCurrency(taxAmount)}
+                        </span>
+                      </div>
+                    )}
+                    <Separator />
+                    <div className="flex justify-between text-base font-bold sm:text-lg">
+                      <span>Total:</span>
+                      <span className="text-emerald-600">
+                        {formatCurrency(invoice.totalAmount)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Notes */}
+          {invoice.notes && (
+            <Card className="shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Notes
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                  {invoice.notes}
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Sidebar */}
+        <div className="space-y-4 sm:space-y-6 lg:col-span-1">
+          {/* Actions */}
+          <Card className="shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base sm:text-lg">Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-3">
+              <Button
+                asChild
+                variant="outline"
+                className="w-full border-0 shadow-sm"
+                size="default"
+              >
+                <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>Edit Invoice</span>
+                </Link>
+              </Button>
+
+              <PDFDownloadButton invoiceId={invoice.id} />
+
+              <SendInvoiceButton invoiceId={invoice.id} />
+
+              <Button
+                variant="outline"
+                className="w-full border-0 shadow-sm"
+                size="default"
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                <span>Duplicate</span>
+              </Button>
+
+              <Button variant="destructive" size="default" className="w-full">
+                <Trash2 className="mr-2 h-4 w-4" />
+                <span>Delete Invoice</span>
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Invoice Details */}
+          <Card className="shadow-lg">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+                Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-muted-foreground text-sm">Invoice #</p>
+                  <p className="font-medium break-all">
+                    {invoice.invoiceNumber}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-sm">Status</p>
+                  <div className="mt-1">
+                    <StatusBadge status={getStatusType()} />
+                  </div>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-sm">Issue Date</p>
+                  <p className="font-medium">{formatDate(invoice.issueDate)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-sm">Due Date</p>
+                  <p className="font-medium">{formatDate(invoice.dueDate)}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-sm">Tax Rate</p>
+                  <p className="font-medium">{invoice.taxRate}%</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground text-sm">Total</p>
+                  <p className="font-medium text-emerald-600">
+                    {formatCurrency(invoice.totalAmount)}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
@@ -479,56 +393,35 @@ export default async function InvoicePage({ params }: InvoicePageProps) {
   const { id } = await params;
 
   return (
-    <div className="space-y-6">
+    <>
       <PageHeader
         title="Invoice Details"
         description="View and manage invoice information"
         variant="gradient"
       >
-        <div className="flex items-center gap-2">
-          <Link href="/dashboard/invoices">
-            <Button variant="outline" size="sm">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Button
+            asChild
+            variant="outline"
+            className="border-0 shadow-sm"
+            size="default"
+          >
+            <Link href="/dashboard/invoices">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Button>
-          </Link>
+              <span className="hidden sm:inline">Back to Invoices</span>
+              <span className="sm:hidden">Back</span>
+            </Link>
+          </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/dashboard/invoices/${id}/edit`}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit Invoice
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" />
-                Download PDF
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Send className="mr-2 h-4 w-4" />
-                Send Invoice
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Copy className="mr-2 h-4 w-4" />
-                Duplicate
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <InvoiceActionsDropdown invoiceId={id} />
         </div>
       </PageHeader>
 
       <HydrateClient>
-        <Suspense fallback={<div>Loading invoice details...</div>}>
-          <InvoiceDetails invoiceId={id} />
+        <Suspense fallback={<InvoiceDetailsSkeleton />}>
+          <InvoiceContent invoiceId={id} />
         </Suspense>
       </HydrateClient>
-    </div>
+    </>
   );
 }

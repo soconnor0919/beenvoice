@@ -1,6 +1,17 @@
 "use client";
 
-import { UserPlus, Mail, Phone, Save, Loader2, ArrowLeft } from "lucide-react";
+import {
+  Building,
+  Mail,
+  Phone,
+  Save,
+  Globe,
+  BadgeDollarSign,
+  Image,
+  Star,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
@@ -10,18 +21,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { FormSkeleton } from "~/components/ui/skeleton";
-import { AddressForm } from "~/components/ui/address-form";
-import { FloatingActionBar } from "~/components/ui/floating-action-bar";
+import { Switch } from "~/components/ui/switch";
+import { AddressForm } from "~/components/forms/address-form";
+import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { api } from "~/trpc/react";
 import {
   formatPhoneNumber,
+  formatWebsiteUrl,
+  formatTaxId,
   isValidEmail,
   VALIDATION_MESSAGES,
   PLACEHOLDERS,
 } from "~/lib/form-constants";
 
-interface ClientFormProps {
-  clientId?: string;
+interface BusinessFormProps {
+  businessId?: string;
   mode: "create" | "edit";
 }
 
@@ -35,6 +49,10 @@ interface FormData {
   state: string;
   postalCode: string;
   country: string;
+  website: string;
+  taxId: string;
+  logoUrl: string;
+  isDefault: boolean;
 }
 
 interface FormErrors {
@@ -46,6 +64,8 @@ interface FormErrors {
   state?: string;
   postalCode?: string;
   country?: string;
+  website?: string;
+  taxId?: string;
 }
 
 const initialFormData: FormData = {
@@ -58,9 +78,13 @@ const initialFormData: FormData = {
   state: "",
   postalCode: "",
   country: "United States",
+  website: "",
+  taxId: "",
+  logoUrl: "",
+  isDefault: false,
 };
 
-export function ClientForm({ clientId, mode }: ClientFormProps) {
+export function BusinessForm({ businessId, mode }: BusinessFormProps) {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -68,51 +92,55 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
   const [isDirty, setIsDirty] = useState(false);
   const footerRef = useRef<HTMLDivElement>(null);
 
-  // Fetch client data if editing
-  const { data: client, isLoading: isLoadingClient } =
-    api.clients.getById.useQuery(
-      { id: clientId! },
-      { enabled: mode === "edit" && !!clientId },
+  // Fetch business data if editing
+  const { data: business, isLoading: isLoadingBusiness } =
+    api.businesses.getById.useQuery(
+      { id: businessId! },
+      { enabled: mode === "edit" && !!businessId },
     );
 
-  const createClient = api.clients.create.useMutation({
+  const createBusiness = api.businesses.create.useMutation({
     onSuccess: () => {
-      toast.success("Client created successfully");
-      router.push("/dashboard/clients");
+      toast.success("Business created successfully");
+      router.push("/dashboard/businesses");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create client");
+      toast.error(error.message || "Failed to create business");
     },
   });
 
-  const updateClient = api.clients.update.useMutation({
+  const updateBusiness = api.businesses.update.useMutation({
     onSuccess: () => {
-      toast.success("Client updated successfully");
-      router.push("/dashboard/clients");
+      toast.success("Business updated successfully");
+      router.push("/dashboard/businesses");
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update client");
+      toast.error(error.message || "Failed to update business");
     },
   });
 
-  // Load client data when editing
+  // Load business data when editing
   useEffect(() => {
-    if (client && mode === "edit") {
+    if (business && mode === "edit") {
       setFormData({
-        name: client.name,
-        email: client.email ?? "",
-        phone: client.phone ?? "",
-        addressLine1: client.addressLine1 ?? "",
-        addressLine2: client.addressLine2 ?? "",
-        city: client.city ?? "",
-        state: client.state ?? "",
-        postalCode: client.postalCode ?? "",
-        country: client.country ?? "United States",
+        name: business.name,
+        email: business.email ?? "",
+        phone: business.phone ?? "",
+        addressLine1: business.addressLine1 ?? "",
+        addressLine2: business.addressLine2 ?? "",
+        city: business.city ?? "",
+        state: business.state ?? "",
+        postalCode: business.postalCode ?? "",
+        country: business.country ?? "United States",
+        website: business.website ?? "",
+        taxId: business.taxId ?? "",
+        logoUrl: business.logoUrl ?? "",
+        isDefault: business.isDefault ?? false,
       });
     }
-  }, [client, mode]);
+  }, [business, mode]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
 
@@ -125,6 +153,11 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
   const handlePhoneChange = (value: string) => {
     const formatted = formatPhoneNumber(value);
     handleInputChange("phone", formatted);
+  };
+
+  const handleTaxIdChange = (value: string) => {
+    const formatted = formatTaxId(value, "EIN");
+    handleInputChange("taxId", formatted);
   };
 
   const validateForm = (): boolean => {
@@ -161,7 +194,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
       if (!formData.city) newErrors.city = VALIDATION_MESSAGES.required;
       if (!formData.country) newErrors.country = VALIDATION_MESSAGES.required;
 
-      if (formData.country === "US") {
+      if (formData.country === "United States") {
         if (!formData.state) newErrors.state = VALIDATION_MESSAGES.required;
         if (!formData.postalCode)
           newErrors.postalCode = VALIDATION_MESSAGES.required;
@@ -183,12 +216,18 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
     setIsSubmitting(true);
 
     try {
+      // Format website URL before submission
+      const dataToSubmit = {
+        ...formData,
+        website: formData.website ? formatWebsiteUrl(formData.website) : "",
+      };
+
       if (mode === "create") {
-        await createClient.mutateAsync(formData);
+        await createBusiness.mutateAsync(dataToSubmit);
       } else {
-        await updateClient.mutateAsync({
-          id: clientId!,
-          ...formData,
+        await updateBusiness.mutateAsync({
+          id: businessId!,
+          ...dataToSubmit,
         });
       }
     } finally {
@@ -203,10 +242,10 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
       );
       if (!confirmed) return;
     }
-    router.push("/dashboard/clients");
+    router.push("/dashboard/businesses");
   };
 
-  if (mode === "edit" && isLoadingClient) {
+  if (mode === "edit" && isLoadingBusiness) {
     return <FormSkeleton />;
   }
 
@@ -220,35 +259,57 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                  <UserPlus className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  <Building className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
                 </div>
                 <div>
                   <CardTitle>Basic Information</CardTitle>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Enter the client's primary details
+                    Enter your business details
                   </p>
                 </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">
-                  Client Name<span className="text-destructive ml-1">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder={PLACEHOLDERS.name}
-                  className={`${errors.name ? "border-destructive" : ""}`}
-                  disabled={isSubmitting}
-                />
-                {errors.name && (
-                  <p className="text-destructive text-sm">{errors.name}</p>
-                )}
-              </div>
-
               <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Business Name
+                    <span className="text-destructive ml-1">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder={PLACEHOLDERS.name}
+                    className={`${errors.name ? "border-destructive" : ""}`}
+                    disabled={isSubmitting}
+                  />
+                  {errors.name && (
+                    <p className="text-destructive text-sm">{errors.name}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="taxId" className="text-sm font-medium">
+                    Tax ID (EIN)
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      (Optional)
+                    </span>
+                  </Label>
+                  <Input
+                    id="taxId"
+                    value={formData.taxId}
+                    onChange={(e) => handleTaxIdChange(e.target.value)}
+                    placeholder={PLACEHOLDERS.taxId}
+                    className={`${errors.taxId ? "border-destructive" : ""}`}
+                    disabled={isSubmitting}
+                    maxLength={10}
+                  />
+                  {errors.taxId && (
+                    <p className="text-destructive text-sm">{errors.taxId}</p>
+                  )}
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium">
                     Email
@@ -291,6 +352,26 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                   )}
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="website" className="text-sm font-medium">
+                  Website
+                  <span className="text-muted-foreground ml-1 text-xs font-normal">
+                    (Optional)
+                  </span>
+                </Label>
+                <Input
+                  id="website"
+                  value={formData.website}
+                  onChange={(e) => handleInputChange("website", e.target.value)}
+                  placeholder={PLACEHOLDERS.website}
+                  className={`${errors.website ? "border-destructive" : ""}`}
+                  disabled={isSubmitting}
+                />
+                {errors.website && (
+                  <p className="text-destructive text-sm">{errors.website}</p>
+                )}
+              </div>
             </CardContent>
           </Card>
 
@@ -320,9 +401,9 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                   </svg>
                 </div>
                 <div>
-                  <CardTitle>Address</CardTitle>
+                  <CardTitle>Business Address</CardTitle>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Client's physical location
+                    Your business location
                   </p>
                 </div>
               </div>
@@ -341,6 +422,43 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
               />
             </CardContent>
           </Card>
+
+          {/* Settings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                  <Star className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <CardTitle>Settings</CardTitle>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Configure business preferences
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="border-border/40 flex items-center justify-between rounded-xl border bg-gradient-to-r from-emerald-600/5 to-teal-600/5 p-4">
+                <div className="space-y-0.5">
+                  <Label htmlFor="isDefault" className="text-base font-medium">
+                    Default Business
+                  </Label>
+                  <p className="text-muted-foreground text-sm">
+                    Set this as your default business for new invoices
+                  </p>
+                </div>
+                <Switch
+                  id="isDefault"
+                  checked={formData.isDefault}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("isDefault", checked)
+                  }
+                  disabled={isSubmitting}
+                />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Form Actions - original position */}
@@ -350,8 +468,8 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         >
           <p className="text-muted-foreground text-sm">
             {mode === "create"
-              ? "Creating a new client"
-              : "Editing client details"}
+              ? "Creating a new business"
+              : "Editing business details"}
           </p>
           <div className="flex items-center gap-3">
             <Button
@@ -377,7 +495,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
               ) : (
                 <>
                   <Save className="mr-2 h-4 w-4" />
-                  {mode === "create" ? "Create Client" : "Save Changes"}
+                  {mode === "create" ? "Create Business" : "Save Changes"}
                 </>
               )}
             </Button>
@@ -388,7 +506,9 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
       <FloatingActionBar
         triggerRef={footerRef}
         title={
-          mode === "create" ? "Creating a new client" : "Editing client details"
+          mode === "create"
+            ? "Creating a new business"
+            : "Editing business details"
         }
       >
         <Button
@@ -414,7 +534,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {mode === "create" ? "Create Client" : "Save Changes"}
+              {mode === "create" ? "Create Business" : "Save Changes"}
             </>
           )}
         </Button>

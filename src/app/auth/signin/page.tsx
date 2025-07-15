@@ -9,7 +9,7 @@ import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 import { toast } from "sonner";
-import { Logo } from "~/components/logo";
+import { Logo } from "~/components/branding/logo";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 
 function SignInForm() {

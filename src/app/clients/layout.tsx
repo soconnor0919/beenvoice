@@ -1,5 +1,5 @@
-import { Navbar } from "~/components/Navbar";
-import { Sidebar } from "~/components/Sidebar";
+import { Navbar } from "~/components/layout/navbar";
+import { Sidebar } from "~/components/layout/sidebar";
 
 export default function ClientsLayout({
   children,
@@ -17,4 +17,4 @@ export default function ClientsLayout({
       </div>
     </>
   );
-} 
+}

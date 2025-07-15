@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { BusinessForm } from "~/components/business-form";
-import { PageHeader } from "~/components/page-header";
+import { BusinessForm } from "~/components/forms/business-form";
+import { PageHeader } from "~/components/layout/page-header";
 import { HydrateClient } from "~/trpc/server";
 
 export default function NewBusinessPage() {

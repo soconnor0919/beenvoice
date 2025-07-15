@@ -1,15 +1,27 @@
 import * as React from "react";
-import { Badge, type badgeVariants } from "./badge";
+import { Badge, type badgeVariants } from "~/components/ui/badge";
 import { type VariantProps } from "class-variance-authority";
 
-type StatusType = "draft" | "sent" | "paid" | "overdue" | "success" | "warning" | "error" | "info";
+type StatusType =
+  | "draft"
+  | "sent"
+  | "paid"
+  | "overdue"
+  | "success"
+  | "warning"
+  | "error"
+  | "info";
 
-interface StatusBadgeProps extends Omit<React.ComponentProps<typeof Badge>, "variant"> {
+interface StatusBadgeProps
+  extends Omit<React.ComponentProps<typeof Badge>, "variant"> {
   status: StatusType;
   children?: React.ReactNode;
 }
 
-const statusVariantMap: Record<StatusType, VariantProps<typeof badgeVariants>["variant"]> = {
+const statusVariantMap: Record<
+  StatusType,
+  VariantProps<typeof badgeVariants>["variant"]
+> = {
   draft: "secondary",
   sent: "info",
   paid: "success",

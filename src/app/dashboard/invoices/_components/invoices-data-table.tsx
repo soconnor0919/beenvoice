@@ -3,10 +3,10 @@
 import Link from "next/link";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
-import { StatusBadge, type StatusType } from "~/components/ui/status-badge";
+import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { PDFDownloadButton } from "~/app/dashboard/invoices/[id]/_components/pdf-download-button";
-import { DataTable, DataTableColumnHeader } from "~/components/ui/data-table";
-import { EmptyState } from "~/components/ui/page-layout";
+import { DataTable, DataTableColumnHeader } from "~/components/data/data-table";
+import { EmptyState } from "~/components/layout/page-layout";
 import { Plus, FileText, Eye, Edit } from "lucide-react";
 
 // Type for invoice data
@@ -182,38 +182,7 @@ const columns: ColumnDef<Invoice>[] = [
             </Button>
           </Link>
           {invoice.items && invoice.client && (
-            <PDFDownloadButton
-              invoice={{
-                id: invoice.id,
-                invoiceNumber: invoice.invoiceNumber,
-                issueDate: invoice.issueDate,
-                dueDate: invoice.dueDate,
-                status: invoice.status,
-                totalAmount: invoice.totalAmount,
-                taxRate: invoice.taxRate,
-                notes: invoice.notes,
-                business: invoice.business
-                  ? {
-                      name: invoice.business.name,
-                      email: invoice.business.email,
-                      phone: invoice.business.phone,
-                    }
-                  : null,
-                client: {
-                  name: invoice.client.name,
-                  email: invoice.client.email,
-                  phone: invoice.client.phone,
-                },
-                items: invoice.items.map((item) => ({
-                  date: item.date,
-                  description: item.description,
-                  hours: item.hours,
-                  rate: item.rate,
-                  amount: item.amount,
-                })),
-              }}
-              variant="icon"
-            />
+            <PDFDownloadButton invoiceId={invoice.id} variant="icon" />
           )}
         </div>
       );

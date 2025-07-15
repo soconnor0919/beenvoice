@@ -1,56 +1,53 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { useRouter, useParams } from "next/navigation";
+import {
+    ArrowLeft,
+    Building,
+    DollarSign,
+    Edit3,
+    Eye,
+    FileText,
+    Hash,
+    Loader2,
+    Plus,
+    Save,
+    Send,
+    Trash2,
+    User,
+} from "lucide-react";
 import Link from "next/link";
-import { api } from "~/trpc/react";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { NumberInput } from "~/components/ui/number-input";
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { PageHeader } from "~/components/page-header";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { FloatingActionBar } from "~/components/layout/floating-action-bar";
+import { PageHeader } from "~/components/layout/page-header";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Badge } from "~/components/ui/badge";
-import { Separator } from "~/components/ui/separator";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { DatePicker } from "~/components/ui/date-picker";
-import { FloatingActionBar } from "~/components/ui/floating-action-bar";
-import { toast } from "sonner";
+import { Label } from "~/components/ui/label";
+import { NumberInput } from "~/components/ui/number-input";
 import {
-  ArrowLeft,
-  Save,
-  Plus,
-  Trash2,
-  FileText,
-  Building,
-  User,
-  Loader2,
-  Send,
-  DollarSign,
-  Hash,
-  Edit3,
-  Eye,
-} from "lucide-react";
-
-interface EditInvoicePageProps {}
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "~/components/ui/select";
+import { Separator } from "~/components/ui/separator";
+import { Textarea } from "~/components/ui/textarea";
+import { api } from "~/trpc/react";
 
 interface InvoiceItem {
   id?: string;

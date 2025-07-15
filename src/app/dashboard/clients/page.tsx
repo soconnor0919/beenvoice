@@ -3,8 +3,8 @@ import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
 import { ClientsTable } from "./_components/clients-table";
-import { PageHeader } from "~/components/page-header";
-import { PageContent, PageSection } from "~/components/ui/page-layout";
+import { PageHeader } from "~/components/layout/page-header";
+import { PageContent, PageSection } from "~/components/layout/page-layout";
 
 export default async function ClientsPage() {
   return (

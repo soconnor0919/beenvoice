@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { BusinessForm } from "~/components/business-form";
-import { PageHeader } from "~/components/page-header";
+import { BusinessForm } from "~/components/forms/business-form";
+import { PageHeader } from "~/components/layout/page-header";
 
 export default function EditBusinessPage() {
   const params = useParams();

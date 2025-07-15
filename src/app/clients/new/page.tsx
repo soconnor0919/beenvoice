@@ -1,7 +1,7 @@
 import { auth } from "~/server/auth";
 import { HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
-import { ClientForm } from "~/components/client-form";
+import { ClientForm } from "~/components/forms/client-form";
 import Link from "next/link";
 
 export default async function NewClientPage() {
@@ -34,4 +34,4 @@ export default async function NewClientPage() {
       </div>
     </HydrateClient>
   );
-} 
+}

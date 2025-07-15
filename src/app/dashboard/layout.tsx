@@ -1,6 +1,6 @@
-import { Navbar } from "~/components/Navbar";
-import { Sidebar } from "~/components/Sidebar";
-import { DashboardBreadcrumbs } from "~/components/dashboard-breadcrumbs";
+import { Navbar } from "~/components/layout/navbar";
+import { Sidebar } from "~/components/layout/sidebar";
+import { DashboardBreadcrumbs } from "~/components/navigation/dashboard-breadcrumbs";
 
 export default function DashboardLayout({
   children,

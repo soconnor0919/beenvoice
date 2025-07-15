@@ -21,7 +21,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { StatusBadge, type StatusType } from "~/components/ui/status-badge";
+import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { toast } from "sonner";
 import {
   FileText,
