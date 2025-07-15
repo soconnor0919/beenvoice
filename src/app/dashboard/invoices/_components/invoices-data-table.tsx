@@ -128,8 +128,8 @@ const columns: ColumnDef<Invoice>[] = [
       return value.includes(status);
     },
     meta: {
-      headerClassName: "hidden xs:table-cell",
-      cellClassName: "hidden xs:table-cell",
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
     },
   },
   {
@@ -149,8 +149,8 @@ const columns: ColumnDef<Invoice>[] = [
       );
     },
     meta: {
-      headerClassName: "hidden xs:table-cell",
-      cellClassName: "hidden xs:table-cell",
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
     },
   },
   {
