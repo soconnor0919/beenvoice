@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { DataTableSkeleton } from "~/components/data/data-table";
+import { CurrentOpenInvoiceCard } from "~/components/data/current-open-invoice-card";
 import { auth } from "~/server/auth";
 import Link from "next/link";
 import {
@@ -98,39 +99,43 @@ async function DashboardStats() {
 // Quick Actions Component
 function QuickActions() {
   return (
-    <Card className="mb-6 border-0 shadow-sm">
-      <CardContent className="p-4 py-0">
-        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-          <Button
-            asChild
-            className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm hover:from-emerald-700 hover:to-teal-700"
-          >
-            <Link href="/dashboard/invoices/new">
-              <FileText className="mr-2 h-4 w-4" />
-              Create Invoice
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="flex-1 border-0 shadow-sm"
-          >
-            <Link href="/dashboard/clients/new">
-              <Users className="mr-2 h-4 w-4" />
-              Add Client
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="flex-1 border-0 shadow-sm"
-          >
-            <Link href="/dashboard/businesses/new">
-              <TrendingUp className="mr-2 h-4 w-4" />
-              Add Business
-            </Link>
-          </Button>
-        </div>
+    <Card className="border-0 shadow-sm">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Plus className="h-5 w-5 text-emerald-600" />
+          Quick Actions
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        <Button
+          asChild
+          className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm hover:from-emerald-700 hover:to-teal-700"
+        >
+          <Link href="/dashboard/invoices/new">
+            <FileText className="mr-2 h-4 w-4" />
+            Create Invoice
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="w-full border-0 shadow-sm"
+        >
+          <Link href="/dashboard/clients/new">
+            <Users className="mr-2 h-4 w-4" />
+            Add Client
+          </Link>
+        </Button>
+        <Button
+          asChild
+          variant="outline"
+          className="w-full border-0 shadow-sm"
+        >
+          <Link href="/dashboard/businesses/new">
+            <TrendingUp className="mr-2 h-4 w-4" />
+            Add Business
+          </Link>
+        </Button>
       </CardContent>
     </Card>
   );
@@ -245,10 +250,13 @@ export default async function DashboardPage() {
           </Suspense>
         </HydrateClient>
 
-        <QuickActions />
+        <div className="grid gap-6 md:grid-cols-2">
+          <CurrentOpenInvoiceCard />
+          <QuickActions />
+        </div>
 
         <HydrateClient>
-          <Suspense fallback={<DataTableSkeleton columns={1} rows={3} />}>
+          <Suspense fallback={<DataTableSkeleton columns={1} rows={5} />}>
             <RecentActivity />
           </Suspense>
         </HydrateClient>

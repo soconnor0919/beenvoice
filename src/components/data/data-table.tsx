@@ -410,11 +410,11 @@ export function DataTable<TData, TValue>({
                 </Button>
                 <div className="flex items-center gap-1 px-2">
                   <span className="text-muted-foreground text-xs sm:text-sm">
-                    Page{" "}
+                    <span className="hidden sm:inline">Page </span>
                     <span className="text-foreground font-medium">
                       {table.getState().pagination.pageIndex + 1}
-                    </span>{" "}
-                    of{" "}
+                    </span>
+                    <span className="sm:inline"> of </span>
                     <span className="text-foreground font-medium">
                       {table.getPageCount() || 1}
                     </span>

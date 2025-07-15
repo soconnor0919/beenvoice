@@ -21,6 +21,11 @@ const badgeVariants = cva(
         warning: "border-transparent bg-status-warning [a&]:hover:opacity-90",
         error: "border-transparent bg-status-error [a&]:hover:opacity-90",
         info: "border-transparent bg-status-info [a&]:hover:opacity-90",
+        // Outlined variants for status badges
+        "outline-draft": "border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-300 bg-transparent",
+        "outline-sent": "border-blue-400 text-blue-600 dark:border-blue-500 dark:text-blue-300 bg-transparent",
+        "outline-paid": "border-green-400 text-green-600 dark:border-green-500 dark:text-green-300 bg-transparent",
+        "outline-overdue": "border-red-400 text-red-600 dark:border-red-500 dark:text-red-300 bg-transparent",
       },
     },
     defaultVariants: {

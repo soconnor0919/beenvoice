@@ -397,24 +397,26 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           onClick={handleCancel}
           disabled={isSubmitting}
           className="border-border/40 hover:bg-accent/50"
+          size="sm"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Cancel
+          <ArrowLeft className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Cancel</span>
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !isDirty}
           className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          size="sm"
         >
           {isSubmitting ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {mode === "create" ? "Creating..." : "Saving..."}
+              <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+              <span className="hidden sm:inline">{mode === "create" ? "Creating..." : "Saving..."}</span>
             </>
           ) : (
             <>
-              <Save className="mr-2 h-4 w-4" />
-              {mode === "create" ? "Create Client" : "Save Changes"}
+              <Save className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{mode === "create" ? "Create Client" : "Save Changes"}</span>
             </>
           )}
         </Button>

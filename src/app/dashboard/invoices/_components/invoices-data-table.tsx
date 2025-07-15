@@ -80,28 +80,6 @@ const formatCurrency = (amount: number) => {
 
 const columns: ColumnDef<Invoice>[] = [
   {
-    accessorKey: "invoiceNumber",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Invoice" />
-    ),
-    cell: ({ row }) => {
-      const invoice = row.original;
-      return (
-        <div className="flex items-center gap-3">
-          <div className="bg-status-success-muted hidden rounded-lg p-2 sm:flex">
-            <FileText className="text-status-success h-4 w-4" />
-          </div>
-          <div className="min-w-0">
-            <p className="truncate font-medium">{invoice.invoiceNumber}</p>
-            <p className="text-muted-foreground truncate text-sm">
-              {invoice.items?.length || 0} items
-            </p>
-          </div>
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "client.name",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Client" />
@@ -109,10 +87,10 @@ const columns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => {
       const invoice = row.original;
       return (
-        <div className="min-w-0">
-          <p className="truncate font-medium">{invoice.client?.name || "—"}</p>
-          <p className="text-muted-foreground truncate text-sm">
-            {invoice.client?.email || "—"}
+        <div className="min-w-0 max-w-[80px] sm:max-w-[200px] lg:max-w-[300px]">
+          <p className="truncate font-medium">{invoice.client?.name ?? "—"}</p>
+          <p className="text-muted-foreground truncate text-xs sm:text-sm">
+            {invoice.invoiceNumber}
           </p>
         </div>
       );
@@ -121,33 +99,18 @@ const columns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "issueDate",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Issue Date" />
-    ),
-    cell: ({ row }) => formatDate(row.getValue("issueDate")),
-    meta: {
-      headerClassName: "hidden md:table-cell",
-      cellClassName: "hidden md:table-cell",
-    },
-  },
-  {
-    accessorKey: "dueDate",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Due Date" />
-    ),
-    cell: ({ row }) => formatDate(row.getValue("dueDate")),
-    meta: {
-      headerClassName: "hidden lg:table-cell",
-      cellClassName: "hidden lg:table-cell",
-    },
-  },
-  {
-    accessorKey: "totalAmount",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Amount" />
+      <DataTableColumnHeader column={column} title="Date" />
     ),
     cell: ({ row }) => {
-      const amount = row.getValue("totalAmount") as number;
-      return <p className="font-semibold">{formatCurrency(amount)}</p>;
+      const date = row.getValue("issueDate") as Date;
+      return (
+        <div className="min-w-0">
+          <p className="truncate text-sm">{formatDate(date)}</p>
+          <p className="text-muted-foreground truncate text-xs">
+            Due {formatDate(new Date(row.original.dueDate))}
+          </p>
+        </div>
+      );
     },
   },
   {
@@ -163,6 +126,31 @@ const columns: ColumnDef<Invoice>[] = [
       const invoice = row.original;
       const status = getStatusType(invoice);
       return value.includes(status);
+    },
+    meta: {
+      headerClassName: "hidden xs:table-cell",
+      cellClassName: "hidden xs:table-cell",
+    },
+  },
+  {
+    accessorKey: "totalAmount",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Amount" />
+    ),
+    cell: ({ row }) => {
+      const amount = row.getValue("totalAmount") as number;
+      return (
+        <div className="text-right">
+          <p className="font-semibold text-sm">{formatCurrency(amount)}</p>
+          <p className="text-muted-foreground text-xs">
+            {row.original.items?.length ?? 0} items
+          </p>
+        </div>
+      );
+    },
+    meta: {
+      headerClassName: "hidden xs:table-cell",
+      cellClassName: "hidden xs:table-cell",
     },
   },
   {

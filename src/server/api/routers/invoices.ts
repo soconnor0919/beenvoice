@@ -58,6 +58,36 @@ export const invoicesRouter = createTRPCRouter({
     }
   }),
 
+  getCurrentOpen: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      // Get the most recent draft invoice
+      const currentInvoice = await ctx.db.query.invoices.findFirst({
+        where: eq(invoices.createdById, ctx.session.user.id),
+        with: {
+          business: true,
+          client: true,
+          items: {
+            orderBy: (items, { asc }) => [asc(items.position)],
+          },
+        },
+        orderBy: (invoices, { desc }) => [desc(invoices.createdAt)],
+      });
+
+      // Return null if no draft invoice exists
+      if (!currentInvoice || currentInvoice.status !== "draft") {
+        return null;
+      }
+
+      return currentInvoice;
+    } catch (error) {
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Failed to fetch current open invoice",
+        cause: error,
+      });
+    }
+  }),
+
   getById: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ ctx, input }) => {

@@ -722,9 +722,10 @@ function InvoiceEditor({ invoiceId }: { invoiceId: string }) {
             variant="outline"
             disabled={isLoading}
             className="border-border/40 hover:bg-accent/50"
+            size="sm"
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Cancel
+            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Cancel</span>
           </Button>
         </Link>
         <Button
@@ -732,25 +733,27 @@ function InvoiceEditor({ invoiceId }: { invoiceId: string }) {
           disabled={isLoading || !isFormValid()}
           variant="outline"
           className="border-border/40 hover:bg-accent/50"
+          size="sm"
         >
           {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
           ) : (
-            <Save className="mr-2 h-4 w-4" />
+            <Save className="h-4 w-4 sm:mr-2" />
           )}
-          Save Draft
+          <span className="hidden sm:inline">Save Draft</span>
         </Button>
         <Button
           onClick={handleUpdateInvoice}
           disabled={isLoading || !isFormValid()}
           className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          size="sm"
         >
           {isLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
           ) : (
-            <Send className="mr-2 h-4 w-4" />
+            <Send className="h-4 w-4 sm:mr-2" />
           )}
-          Update Invoice
+          <span className="hidden sm:inline">Update Invoice</span>
         </Button>
       </FloatingActionBar>
     </div>

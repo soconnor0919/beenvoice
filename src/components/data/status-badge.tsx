@@ -22,10 +22,10 @@ const statusVariantMap: Record<
   StatusType,
   VariantProps<typeof badgeVariants>["variant"]
 > = {
-  draft: "secondary",
-  sent: "info",
-  paid: "success",
-  overdue: "error",
+  draft: "outline-draft",
+  sent: "outline-sent",
+  paid: "outline-paid",
+  overdue: "outline-overdue",
   success: "success",
   warning: "warning",
   error: "error",

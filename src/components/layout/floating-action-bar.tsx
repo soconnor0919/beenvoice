@@ -99,7 +99,9 @@ export function FloatingActionBar({
       )}
     >
       <p className="text-muted-foreground text-sm">{title}</p>
-      <div className="flex items-center gap-3">{children}</div>
+      <div className="flex items-center gap-2 sm:gap-3">
+        {children}
+      </div>
     </div>
   );
 }

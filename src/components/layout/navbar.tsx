@@ -6,10 +6,15 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Logo } from "~/components/branding/logo";
 import { SidebarTrigger } from "~/components/navigation/sidebar-trigger";
+import { api } from "~/trpc/react";
+import { FileText, Edit } from "lucide-react";
 
 export function Navbar() {
   const { data: session, status } = useSession();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  
+  // Get current open invoice for quick access
+  const { data: currentInvoice } = api.invoices.getCurrentOpen.useQuery();
 
   return (
     <header className="fixed top-2 right-2 left-2 z-30 md:top-3 md:right-3 md:left-3">
@@ -25,6 +30,22 @@ export function Navbar() {
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
+            {/* Quick access to current open invoice */}
+            {session?.user && currentInvoice && (
+              <Button
+                asChild
+                size="sm"
+                variant="outline"
+                className="hidden border-border/40 hover:bg-accent/50 text-xs md:flex md:text-sm"
+              >
+                <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
+                  <FileText className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />
+                  <span className="hidden lg:inline">Continue Invoice</span>
+                  <span className="lg:hidden">Continue</span>
+                </Link>
+              </Button>
+            )}
+            
             {status === "loading" ? (
               <>
                 <Skeleton className="bg-muted/20 hidden h-5 w-20 sm:inline" />

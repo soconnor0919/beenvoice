@@ -107,19 +107,19 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.145 0.02 160);
+    --background: oklch(0 0 0);
     --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0.02 160);
+    --card: oklch(0.25 0.08 170);
     --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0.02 160);
+    --popover: oklch(0.25 0.08 170);
     --popover-foreground: oklch(0.985 0 0);
     --primary: oklch(0.922 0 0);
     --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0.015 160);
+    --secondary: oklch(0.30 0.05 170);
     --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0.015 160);
+    --muted: oklch(0.30 0.05 170);
     --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0.015 160);
+    --accent: oklch(0.30 0.05 170);
     --accent-foreground: oklch(0.985 0 0);
     --destructive: oklch(0.704 0.191 22.216);
     --destructive-foreground: oklch(0.985 0 0);
@@ -133,7 +133,7 @@
     --chart-5: oklch(0.645 0.246 16.439);
     --sidebar: oklch(0.205 0.02 160);
     --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary: oklch(0.696 0.17 162.48);
     --sidebar-primary-foreground: oklch(0.985 0 0);
     --sidebar-accent: oklch(0.269 0.015 160);
     --sidebar-accent-foreground: oklch(0.985 0 0);
@@ -376,8 +376,8 @@
     .bg-gradient-auth {
       background: linear-gradient(
         135deg,
-        oklch(0.145 0 0) 0%,
-        oklch(0.185 0 0) 100%
+        oklch(0.12 0.05 280) 0%,
+        oklch(0.16 0.03 260) 100%
       );
     }
   }
@@ -390,9 +390,11 @@
     .bg-gradient-dashboard {
       background: linear-gradient(
         135deg,
-        oklch(0.145 0 0) 0%,
-        oklch(0.185 0 0) 40%,
-        oklch(0.205 0 0) 100%
+        oklch(0.15 0.06 175) 0%,
+        oklch(0.18 0.08 180) 25%,
+        oklch(0.22 0.10 185) 50%,
+        oklch(0.26 0.12 190) 75%,
+        oklch(0.30 0.14 195) 100%
       );
     }
   }
@@ -414,12 +416,83 @@
     );
   }
 
+  /* New colorful background patterns for dark mode */
+  .bg-cosmic-gradient {
+    background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 50%, #d1fae5 100%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bg-cosmic-gradient {
+      background: linear-gradient(
+        135deg,
+        oklch(0.18 0.07 170) 0%,
+        oklch(0.22 0.09 175) 20%,
+        oklch(0.26 0.11 180) 40%,
+        oklch(0.30 0.13 185) 60%,
+        oklch(0.34 0.15 190) 80%,
+        oklch(0.38 0.17 195) 100%
+      );
+    }
+  }
+
+  .bg-aurora-gradient {
+    background: linear-gradient(45deg, #f0fdf4 0%, #ecfdf5 100%);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bg-aurora-gradient {
+      background: linear-gradient(
+        45deg,
+        oklch(0.12 0.06 300) 0%,
+        oklch(0.14 0.05 270) 25%,
+        oklch(0.16 0.04 240) 50%,
+        oklch(0.15 0.03 210) 75%,
+        oklch(0.13 0.04 280) 100%
+      );
+    }
+  }
+
+  .bg-nebula-overlay::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: transparent;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .bg-nebula-overlay::before {
+      background:
+        radial-gradient(
+          circle at 20% 20%,
+          oklch(0.25 0.08 300 / 0.15) 0%,
+          transparent 50%
+        ),
+        radial-gradient(
+          circle at 80% 80%,
+          oklch(0.22 0.06 240 / 0.12) 0%,
+          transparent 50%
+        ),
+        radial-gradient(
+          circle at 60% 10%,
+          oklch(0.18 0.04 270 / 0.08) 0%,
+          transparent 40%
+        );
+    }
+  }
+
   @media (prefers-color-scheme: dark) {
     .bg-radial-overlay::before {
       background: radial-gradient(
         ellipse at 80% 0%,
-        oklch(0.696 0.17 162.48 / 0.15) 0%,
-        transparent 60%
+        oklch(0.5 0.12 185 / 0.12) 0%,
+        oklch(0.4 0.10 190 / 0.08) 30%,
+        oklch(0.3 0.08 195 / 0.04) 60%,
+        transparent 80%
       );
     }
   }
