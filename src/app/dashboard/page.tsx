@@ -1,26 +1,44 @@
 import { Suspense } from "react";
 import { HydrateClient, api } from "~/trpc/server";
-import { PageHeader } from "~/components/layout/page-header";
-import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-
-import { StatusBadge, type StatusType } from "~/components/data/status-badge";
-import { DataTableSkeleton } from "~/components/data/data-table";
-import { CurrentOpenInvoiceCard } from "~/components/data/current-open-invoice-card";
+import { Button } from "~/components/ui/button";
+import { Badge } from "~/components/ui/badge";
+import { Skeleton } from "~/components/ui/skeleton";
 import { auth } from "~/server/auth";
 import Link from "next/link";
 import {
   Users,
   FileText,
-  TrendingUp,
   DollarSign,
+  TrendingUp,
   Plus,
-  Eye,
-  Calendar,
   ArrowUpRight,
+  Calendar,
+  Clock,
+  Eye,
+  Edit,
+  Activity,
+  BarChart3,
 } from "lucide-react";
 
-// Stats Cards Component
+// Modern gradient background component
+function DashboardHero({ firstName }: { firstName: string }) {
+  return (
+    <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-green-500 via-green-600 to-green-700 p-8 text-white">
+      <div className="absolute inset-0 bg-black/10" />
+      <div className="relative z-10">
+        <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
+        <p className="text-lg text-green-100">
+          Ready to manage your invoicing business
+        </p>
+      </div>
+      <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10" />
+      <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/5" />
+    </div>
+  );
+}
+
+// Enhanced stats cards with better visual hierarchy
 async function DashboardStats() {
   const [clients, invoices] = await Promise.all([
     api.clients.getAll(),
@@ -29,129 +47,178 @@ async function DashboardStats() {
 
   const totalClients = clients.length;
   const totalInvoices = invoices.length;
-  const totalRevenue = invoices.reduce(
-    (sum, invoice) => sum + invoice.totalAmount,
-    0,
-  );
-  const pendingInvoices = invoices.filter(
-    (invoice) => invoice.status === "sent" || invoice.status === "draft",
-  ).length;
+  const totalRevenue = invoices
+    .filter((invoice) => invoice.status === "paid")
+    .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
+  const pendingAmount = invoices
+    .filter((invoice) => invoice.status === "sent")
+    .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
 
   const stats = [
     {
-      title: "Total Clients",
+      title: "Total Revenue",
+      value: `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      change: "+12.5%",
+      icon: DollarSign,
+      color: "",
+      bgColor: "bg-green-50",
+      changeColor: "",
+    },
+    {
+      title: "Pending Amount",
+      value: `$${pendingAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      change: "+8.2%",
+      icon: Clock,
+      color: "",
+      bgColor: "bg-amber-50",
+      changeColor: "",
+    },
+    {
+      title: "Active Clients",
       value: totalClients.toString(),
+      change: "+3",
       icon: Users,
-      color: "text-icon-blue",
-      bgColor: "bg-brand-muted-blue",
+      color: "",
+      bgColor: "bg-blue-50",
+      changeColor: "",
     },
     {
       title: "Total Invoices",
       value: totalInvoices.toString(),
+      change: "+15",
       icon: FileText,
-      color: "text-icon-emerald",
-      bgColor: "bg-brand-muted",
-    },
-    {
-      title: "Total Revenue",
-      value: `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      icon: DollarSign,
-      color: "text-icon-teal",
-      bgColor: "bg-brand-muted-teal",
-    },
-    {
-      title: "Pending Invoices",
-      value: pendingInvoices.toString(),
-      icon: Calendar,
-      color: "text-icon-amber",
-      bgColor: "bg-brand-muted-amber",
+      color: "",
+      bgColor: "bg-purple-50",
+      changeColor: "",
     },
   ];
 
   return (
-    <Card className="card-primary mb-4">
-      <CardContent className="p-4 py-0">
-        <div className="stats-grid">
-          {stats.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <div key={stat.title} className="stats-item">
-                <div className={`icon-bg-small ${stat.bgColor}`}>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
+    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {stats.map((stat) => {
+        const Icon = stat.icon;
+        return (
+          <Card
+            key={stat.title}
+            className="border-0 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <CardContent className="p-4 lg:p-6">
+              <div className="mb-3 flex items-center justify-between lg:mb-4">
+                <div className={`rounded-lg p-2 ${stat.bgColor}`}>
+                  <Icon className="h-4 w-4 text-gray-700 lg:h-5 lg:w-5 dark:text-gray-800" />
                 </div>
-                <div className="min-w-0">
-                  <p className="stats-label">{stat.title}</p>
-                  <p className={`stats-value ${stat.color}`}>{stat.value}</p>
-                </div>
+                <span className="text-xs font-medium text-green-600 lg:text-sm dark:text-green-400">
+                  {stat.change}
+                </span>
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+              <div>
+                <p className="mb-1 text-xl font-bold text-gray-900 lg:text-2xl dark:text-gray-100">
+                  {stat.value}
+                </p>
+                <p className="text-xs text-gray-600 lg:text-sm dark:text-gray-300">
+                  {stat.title}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
   );
 }
 
-// Quick Actions Component
+// Quick Actions with better visual design
 function QuickActions() {
+  const actions = [
+    {
+      title: "Create Invoice",
+      description: "Start a new invoice",
+      href: "/dashboard/invoices/new",
+      icon: FileText,
+      primary: true,
+    },
+    {
+      title: "Add Client",
+      description: "Add a new client",
+      href: "/dashboard/clients/new",
+      icon: Users,
+      primary: false,
+    },
+    {
+      title: "View Reports",
+      description: "Business analytics",
+      href: "/dashboard/reports",
+      icon: BarChart3,
+      primary: false,
+    },
+  ];
+
   return (
-    <Card className="card-secondary">
+    <Card className="border-0 shadow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="quick-action-title">
-          <Plus className="quick-action-icon" />
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Plus className="h-5 w-5 text-green-600 dark:text-green-400" />
           Quick Actions
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
-        <Button asChild className="btn-brand-primary w-full shadow-sm">
-          <Link href="/dashboard/invoices/new">
-            <FileText className="mr-2 h-4 w-4" />
-            Create Invoice
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="w-full shadow-sm">
-          <Link href="/dashboard/clients/new">
-            <Users className="mr-2 h-4 w-4" />
-            Add Client
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="w-full shadow-sm">
-          <Link href="/dashboard/businesses/new">
-            <TrendingUp className="mr-2 h-4 w-4" />
-            Add Business
-          </Link>
-        </Button>
+      <CardContent className="space-y-2">
+        {actions.map((action) => {
+          const Icon = action.icon;
+          return (
+            <Button
+              key={action.title}
+              asChild
+              variant={action.primary ? "default" : "outline"}
+              className={`h-12 w-full justify-start px-3 ${
+                action.primary
+                  ? "bg-green-600 text-white hover:bg-green-700"
+                  : "border-gray-200 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+              }`}
+            >
+              <Link href={action.href}>
+                <div className="flex items-center gap-3">
+                  <Icon
+                    className={`h-4 w-4 ${action.primary ? "text-white" : "text-gray-600 dark:text-gray-300"}`}
+                  />
+                  <span
+                    className={`font-medium ${action.primary ? "text-white" : "text-gray-900 dark:text-gray-100"}`}
+                  >
+                    {action.title}
+                  </span>
+                </div>
+              </Link>
+            </Button>
+          );
+        })}
       </CardContent>
     </Card>
   );
 }
 
-// Recent Activity Component
-async function RecentActivity() {
+// Current work in progress
+async function CurrentWork() {
   const invoices = await api.invoices.getAll();
-  const recentInvoices = invoices
-    .sort(
-      (a, b) =>
-        new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime(),
-    )
-    .slice(0, 5);
+  const draftInvoices = invoices.filter(
+    (invoice) => invoice.status === "draft",
+  );
+  const currentInvoice = draftInvoices[0];
 
-  if (recentInvoices.length === 0) {
+  if (!currentInvoice) {
     return (
-      <Card className="card-primary">
+      <Card className="border-0 shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Recent Activity
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            Current Work
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="recent-activity-empty">
-            <FileText className="recent-activity-icon" />
-            <p className="recent-activity-text">
-              No invoices yet. Create your first invoice to get started!
+          <div className="py-8 text-center">
+            <FileText className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+            <p className="mb-4 text-gray-600 dark:text-gray-300">
+              No draft invoices found
             </p>
-            <Button asChild className="btn-brand-primary mt-4">
+            <Button asChild className="bg-green-600 hover:bg-green-700">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Invoice
@@ -163,52 +230,195 @@ async function RecentActivity() {
     );
   }
 
+  const totalHours =
+    currentInvoice.items?.reduce((sum, item) => sum + item.hours, 0) ?? 0;
+
   return (
-    <Card className="card-primary">
+    <Card className="border-0 shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="text-muted h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          Current Work
+        </CardTitle>
+        <Badge variant="secondary">In Progress</Badge>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-lg font-semibold">
+                #{currentInvoice.invoiceNumber}
+              </p>
+              <p className="text-gray-600 dark:text-gray-300">
+                {currentInvoice.client?.name}
+              </p>
+            </div>
+            <div className="text-right">
+              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                ${currentInvoice.totalAmount.toFixed(2)}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {totalHours.toFixed(1)} hours
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm" className="flex-1">
+              <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
+                <Eye className="mr-2 h-3 w-3" />
+                View
+              </Link>
+            </Button>
+            <Button
+              asChild
+              size="sm"
+              className="flex-1 bg-green-600 hover:bg-green-700"
+            >
+              <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
+                <Edit className="mr-2 h-3 w-3" />
+                Continue
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Recent activity with enhanced design
+async function RecentActivity() {
+  const invoices = await api.invoices.getAll();
+  const recentInvoices = invoices
+    .sort(
+      (a, b) =>
+        new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime(),
+    )
+    .slice(0, 5);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "paid":
+        return "bg-green-50 border-green-200";
+      case "sent":
+        return "bg-blue-50 border-blue-200";
+      case "overdue":
+        return "bg-red-50 border-red-200";
+      default:
+        return "bg-gray-50 border-gray-200";
+    }
+  };
+
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
           Recent Activity
         </CardTitle>
-        <Button variant="outline" size="sm" asChild>
+        <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/invoices">
             View All
-            <ArrowUpRight className="ml-2 h-4 w-4" />
+            <ArrowUpRight className="ml-1 h-4 w-4" />
           </Link>
         </Button>
       </CardHeader>
       <CardContent>
+        {recentInvoices.length === 0 ? (
+          <div className="py-8 text-center">
+            <FileText className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
+            <p className="mb-4 text-gray-600 dark:text-gray-300">
+              No invoices yet
+            </p>
+            <Button asChild className="bg-green-600 hover:bg-green-700">
+              <Link href="/dashboard/invoices/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Invoice
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {recentInvoices.map((invoice) => (
+              <Link
+                key={invoice.id}
+                href={`/dashboard/invoices/${invoice.id}`}
+                className="block"
+              >
+                <Card className="card-secondary transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
+                          <FileText className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 dark:text-gray-100">
+                            #{invoice.invoiceNumber}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            {invoice.client?.name} •{" "}
+                            {new Date(invoice.issueDate).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Badge
+                          className={`border ${getStatusColor(invoice.status)}`}
+                        >
+                          {invoice.status}
+                        </Badge>
+                        <p className="font-semibold text-gray-900 dark:text-gray-100">
+                          ${invoice.totalAmount.toFixed(2)}
+                        </p>
+                        <div className="rounded-lg p-1 transition-colors hover:bg-gray-300/50 dark:hover:bg-gray-600/50">
+                          <Eye className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// Loading skeletons
+function StatsSkeleton() {
+  return (
+    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Card key={i} className="border-0 shadow-sm">
+          <CardContent className="p-6">
+            <div className="mb-4 flex items-center justify-between">
+              <Skeleton className="h-9 w-9 rounded-lg" />
+              <Skeleton className="h-4 w-12" />
+            </div>
+            <Skeleton className="mb-2 h-8 w-20" />
+            <Skeleton className="h-4 w-24" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <Card className="border-0 shadow-sm">
+      <CardHeader>
+        <Skeleton className="h-6 w-32" />
+      </CardHeader>
+      <CardContent>
         <div className="space-y-3">
-          {recentInvoices.map((invoice) => (
-            <Card key={invoice.id} className="card-secondary">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="activity-icon">
-                      <FileText className="text-icon-emerald h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className="font-medium">
-                        Invoice #{invoice.invoiceNumber}
-                      </p>
-                      <p className="text-muted text-sm">
-                        {invoice.client?.name} • $
-                        {invoice.totalAmount.toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <StatusBadge status={invoice.status as StatusType} />
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link href={`/dashboard/invoices/${invoice.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
         </div>
       </CardContent>
     </Card>
@@ -220,31 +430,30 @@ export default async function DashboardPage() {
   const firstName = session?.user?.name?.split(" ")[0] ?? "User";
 
   return (
-    <>
-      <PageHeader
-        title={`Welcome back, ${firstName}!`}
-        description="Here's an overview of your invoicing business"
-        variant="gradient"
-      />
+    <div className="space-y-8">
+      <DashboardHero firstName={firstName} />
 
-      <div className="space-y-6">
+      <HydrateClient>
+        <Suspense fallback={<StatsSkeleton />}>
+          <DashboardStats />
+        </Suspense>
+      </HydrateClient>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <HydrateClient>
-          <Suspense fallback={<DataTableSkeleton columns={4} rows={1} />}>
-            <DashboardStats />
+          <Suspense fallback={<CardSkeleton />}>
+            <CurrentWork />
           </Suspense>
         </HydrateClient>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <CurrentOpenInvoiceCard />
-          <QuickActions />
-        </div>
-
-        <HydrateClient>
-          <Suspense fallback={<DataTableSkeleton columns={1} rows={5} />}>
-            <RecentActivity />
-          </Suspense>
-        </HydrateClient>
+        <QuickActions />
       </div>
-    </>
+
+      <HydrateClient>
+        <Suspense fallback={<CardSkeleton />}>
+          <RecentActivity />
+        </Suspense>
+      </HydrateClient>
+    </div>
   );
 }

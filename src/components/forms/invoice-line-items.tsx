@@ -206,7 +206,7 @@ function MobileLineItem({
       </div>
 
       {/* Bottom section with controls, item name, and total */}
-      <div className="flex items-center justify-between rounded-b-lg border-t border-slate-400/60 bg-slate-200/30 px-4 py-2 dark:border-slate-500/60 dark:bg-slate-700/30">
+      <div className="flex items-center justify-between rounded-b-lg border-t border-gray-400/60 bg-gray-200/30 px-4 py-2 dark:border-gray-500/60 dark:bg-gray-600/40">
         <div className="flex items-center gap-2">
           <Button
             type="button"

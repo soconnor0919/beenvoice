@@ -765,11 +765,51 @@
   }
 
   .card-primary {
-    @apply border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-emerald-600/60 dark:bg-emerald-900/90 dark:text-emerald-50;
+    @apply border border-gray-200 bg-white text-gray-900 shadow-sm dark:border-gray-600/60 dark:bg-gray-700/80 dark:text-gray-50;
   }
 
   .card-secondary {
-    @apply border border-gray-300/60 bg-gray-100/70 text-gray-800 shadow-lg backdrop-blur-sm dark:border-emerald-500/50 dark:bg-emerald-800/60 dark:text-emerald-50;
+    @apply border border-gray-300/60 bg-gray-100/70 text-gray-800 shadow-lg backdrop-blur-sm dark:border-gray-500/50 dark:bg-gray-600/60 dark:text-gray-50;
+  }
+
+  /* Modern Dark Theme Styling */
+  @media (prefers-color-scheme: dark) {
+    /* Page background - rich dark base */
+    .floating-orbs {
+      background-color: hsl(210 11% 8%) !important; /* Rich dark background */
+    }
+
+    /* All cards - warm neutral with subtle transparency */
+    [data-slot="card"] {
+      background-color: hsl(210 9% 13% / 0.9) !important; /* Warm dark cards */
+      border-color: hsl(210 9% 20%) !important; /* Subtle borders */
+    }
+
+    /* Secondary cards - slightly lighter for hierarchy */
+    [data-slot="card"].card-secondary,
+    .card-secondary {
+      background-color: hsl(
+        210 8% 16% / 0.85
+      ) !important; /* Lighter secondary */
+      border-color: hsl(210 8% 24%) !important; /* Softer borders */
+    }
+
+    /* Navigation elements - cohesive with cards */
+    .nav-sticky,
+    aside.bg-background\/60,
+    header .bg-background\/60 {
+      background-color: hsl(210 10% 12% / 0.95) !important; /* Navigation bg */
+      border-color: hsl(210 10% 20%) !important; /* Consistent borders */
+    }
+
+    /* Invoice line item mobile styling */
+    .dark .bg-gray-200\/30 {
+      background-color: hsl(210 8% 18% / 0.4) !important;
+    }
+
+    .dark .border-gray-400\/60 {
+      border-color: hsl(210 8% 25% / 0.6) !important;
+    }
   }
 
   /* Navigation Utility Classes */
