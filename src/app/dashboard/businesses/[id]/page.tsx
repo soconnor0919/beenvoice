@@ -49,7 +49,7 @@ export default async function BusinessDetailPage({
           variant="gradient"
         >
           <Link href={`/dashboard/businesses/${business.id}/edit`}>
-            <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700">
+            <Button variant="brand">
               <Edit className="mr-2 h-4 w-4" />
               Edit Business
             </Button>
@@ -59,9 +59,9 @@ export default async function BusinessDetailPage({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Business Information Card */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-xl backdrop-blur-sm">
+            <Card className="card-primary">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-green-600">
+                <CardTitle className="card-title-success">
                   <Building className="h-5 w-5" />
                   <span>Business Information</span>
                 </CardTitle>
@@ -71,50 +71,42 @@ export default async function BusinessDetailPage({
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {business.email && (
                     <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <Mail className="h-4 w-4 text-emerald-600" />
+                      <div className="icon-bg-emerald">
+                        <Mail className="text-icon-emerald h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Email
-                        </p>
-                        <p className="text-foreground text-sm">
-                          {business.email}
-                        </p>
+                        <p className="text-muted text-sm font-medium">Email</p>
+                        <p className="text-accent text-sm">{business.email}</p>
                       </div>
                     </div>
                   )}
 
                   {business.phone && (
                     <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <Phone className="h-4 w-4 text-emerald-600" />
+                      <div className="icon-bg-emerald">
+                        <Phone className="text-icon-emerald h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Phone
-                        </p>
-                        <p className="text-foreground text-sm">
-                          {business.phone}
-                        </p>
+                        <p className="text-muted text-sm font-medium">Phone</p>
+                        <p className="text-accent text-sm">{business.phone}</p>
                       </div>
                     </div>
                   )}
 
                   {business.website && (
                     <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <Globe className="h-4 w-4 text-emerald-600" />
+                      <div className="icon-bg-emerald">
+                        <Globe className="text-icon-emerald h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
+                        <p className="text-muted text-sm font-medium">
                           Website
                         </p>
                         <a
                           href={business.website}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-foreground text-sm hover:text-emerald-600 hover:underline"
+                          className="link-primary text-sm"
                         >
                           {business.website}
                         </a>
@@ -124,16 +116,12 @@ export default async function BusinessDetailPage({
 
                   {business.taxId && (
                     <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <Hash className="h-4 w-4 text-emerald-600" />
+                      <div className="icon-bg-emerald">
+                        <Hash className="text-icon-emerald h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Tax ID
-                        </p>
-                        <p className="text-foreground text-sm">
-                          {business.taxId}
-                        </p>
+                        <p className="text-muted text-sm font-medium">Tax ID</p>
+                        <p className="text-accent text-sm">{business.taxId}</p>
                       </div>
                     </div>
                   )}
@@ -143,19 +131,21 @@ export default async function BusinessDetailPage({
                 {(business.addressLine1 ?? business.city ?? business.state) && (
                   <div className="space-y-4">
                     <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <MapPin className="h-4 w-4 text-emerald-600" />
+                      <div className="icon-bg-emerald">
+                        <MapPin className="text-icon-emerald h-4 w-4" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
+                        <p className="text-muted text-sm font-medium">
                           Address
                         </p>
                       </div>
                     </div>
-                    <div className="text-foreground ml-11 space-y-1 text-sm">
+                    <div className="text-accent ml-11 space-y-1 text-sm">
                       {business.addressLine1 && <p>{business.addressLine1}</p>}
                       {business.addressLine2 && <p>{business.addressLine2}</p>}
-                      {(business.city ?? business.state ?? business.postalCode) && (
+                      {(business.city ??
+                        business.state ??
+                        business.postalCode) && (
                         <p>
                           {[business.city, business.state, business.postalCode]
                             .filter(Boolean)
@@ -169,14 +159,14 @@ export default async function BusinessDetailPage({
 
                 {/* Business Since */}
                 <div className="flex items-center space-x-3">
-                  <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                    <Calendar className="h-4 w-4 text-emerald-600" />
+                  <div className="icon-bg-emerald">
+                    <Calendar className="text-icon-emerald h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    <p className="text-muted text-sm font-medium">
                       Business Added
                     </p>
-                    <p className="text-sm dark:text-gray-300">
+                    <p className="text-secondary text-sm">
                       {formatDate(business.createdAt)}
                     </p>
                   </div>
@@ -185,16 +175,12 @@ export default async function BusinessDetailPage({
                 {/* Default Business Badge */}
                 {business.isDefault && (
                   <div className="flex items-center space-x-3">
-                    <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                      <Building className="h-4 w-4 text-emerald-600" />
+                    <div className="icon-bg-emerald">
+                      <Building className="text-icon-emerald h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                        Status
-                      </p>
-                      <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400">
-                        Default Business
-                      </Badge>
+                      <p className="text-muted text-sm font-medium">Status</p>
+                      <Badge className="badge-success">Default Business</Badge>
                     </div>
                   </div>
                 )}
@@ -204,23 +190,19 @@ export default async function BusinessDetailPage({
 
           {/* Settings & Actions Card */}
           <div className="space-y-6">
-            <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="card-secondary">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400">
+                <CardTitle className="card-title-primary">
                   <Building className="h-5 w-5" />
                   <span>Business Settings</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Default Business
-                  </p>
+                  <p className="text-muted text-sm">Default Business</p>
                   <p className="text-lg font-semibold">
                     {business.isDefault ? (
-                      <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400">
-                        Yes
-                      </Badge>
+                      <Badge className="badge-success">Yes</Badge>
                     ) : (
                       <Badge variant="outline">No</Badge>
                     )}
@@ -228,7 +210,7 @@ export default async function BusinessDetailPage({
                 </div>
 
                 <div className="space-y-3">
-                  <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  <p className="text-muted text-sm font-medium">
                     Quick Actions
                   </p>
                   <div className="space-y-2">
@@ -258,20 +240,20 @@ export default async function BusinessDetailPage({
             </Card>
 
             {/* Information Card */}
-            <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="card-secondary">
               <CardHeader>
-                <CardTitle className="text-lg dark:text-white">
+                <CardTitle className="text-accent text-lg">
                   About This Business
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3 text-sm text-gray-600 dark:text-gray-300">
+                <div className="text-secondary space-y-3 text-sm">
                   <p>
                     This business profile is used for generating invoices and
                     represents your company information to clients.
                   </p>
                   {business.isDefault && (
-                    <p className="text-emerald-600 dark:text-emerald-400">
+                    <p className="text-icon-emerald">
                       This is your default business and will be automatically
                       selected when creating new invoices.
                     </p>

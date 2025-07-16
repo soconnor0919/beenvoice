@@ -71,12 +71,12 @@ export function NumberInput({
     onChange(Math.max(min, (value || 0) - step));
   };
 
-  const widthClass = width === "full" ? "w-full" : "w-24";
+  const widthClass = width === "full" ? "w-full" : "w-24 min-w-24";
 
   return (
     <div
       className={cn(
-        "border-input bg-background ring-offset-background flex h-9 items-center justify-center rounded-md border px-2 text-sm",
+        "bg-background flex h-9 items-center justify-center rounded-md text-sm shadow-none",
         widthClass,
         disabled && "cursor-not-allowed opacity-50",
         className,
@@ -103,7 +103,7 @@ export function NumberInput({
           onBlur={handleBlur}
           placeholder={placeholder}
           disabled={disabled}
-          className="w-16 border-0 bg-transparent text-center outline-none focus-visible:ring-0"
+          className="number-input-field w-full border-0 bg-transparent text-center ring-0 outline-none focus:border-transparent focus:ring-0 focus:outline-none focus-visible:ring-0"
         />
         {suffix && (
           <span className="text-muted-foreground text-xs">{suffix}</span>

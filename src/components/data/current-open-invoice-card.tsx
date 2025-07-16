@@ -6,19 +6,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
 import { Skeleton } from "~/components/ui/skeleton";
-import { 
-  FileText, 
-  Clock, 
-  Plus, 
-  Edit, 
+import {
+  FileText,
+  Clock,
+  Plus,
+  Edit,
   Eye,
   DollarSign,
   User,
-  Calendar
+  Calendar,
 } from "lucide-react";
 
 export function CurrentOpenInvoiceCard() {
-  const { data: currentInvoice, isLoading } = api.invoices.getCurrentOpen.useQuery();
+  const { data: currentInvoice, isLoading } =
+    api.invoices.getCurrentOpen.useQuery();
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -36,10 +37,10 @@ export function CurrentOpenInvoiceCard() {
 
   if (isLoading) {
     return (
-      <Card className="border-0 shadow-sm">
+      <Card className="card-primary">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileText className="h-5 w-5 text-emerald-600" />
+          <CardTitle className="card-title-secondary">
+            <FileText className="text-icon-emerald h-5 w-5" />
             Current Open Invoice
           </CardTitle>
         </CardHeader>
@@ -57,20 +58,21 @@ export function CurrentOpenInvoiceCard() {
 
   if (!currentInvoice) {
     return (
-      <Card className="border-0 shadow-sm">
+      <Card className="card-primary">
         <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileText className="h-5 w-5 text-emerald-600" />
+          <CardTitle className="card-title-secondary">
+            <FileText className="text-icon-emerald h-5 w-5" />
             Current Open Invoice
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="text-center py-6">
-            <FileText className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-            <p className="text-muted-foreground text-sm mb-4">
-              No open invoice found. Create a new invoice to start tracking your time.
+          <div className="py-6 text-center">
+            <FileText className="text-muted-foreground mx-auto mb-3 h-8 w-8" />
+            <p className="text-muted-foreground mb-4 text-sm">
+              No open invoice found. Create a new invoice to start tracking your
+              time.
             </p>
-            <Button asChild className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700">
+            <Button asChild variant="brand">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create New Invoice
@@ -82,14 +84,15 @@ export function CurrentOpenInvoiceCard() {
     );
   }
 
-  const totalHours = currentInvoice.items?.reduce((sum, item) => sum + item.hours, 0) ?? 0;
+  const totalHours =
+    currentInvoice.items?.reduce((sum, item) => sum + item.hours, 0) ?? 0;
   const totalAmount = currentInvoice.totalAmount;
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="card-primary">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <FileText className="h-5 w-5 text-emerald-600" />
+        <CardTitle className="card-title-secondary">
+          <FileText className="text-icon-emerald h-5 w-5" />
           Current Open Invoice
         </CardTitle>
       </CardHeader>
@@ -97,15 +100,13 @@ export function CurrentOpenInvoiceCard() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
+              <Badge className="badge-secondary text-xs">
                 {currentInvoice.invoiceNumber}
               </Badge>
-              <Badge variant="outline" className="text-xs">
-                Draft
-              </Badge>
+              <Badge className="badge-outline text-xs">Draft</Badge>
             </div>
             <div className="text-right">
-              <p className="text-sm font-medium text-emerald-600">
+              <p className="text-icon-emerald text-sm font-medium">
                 {formatCurrency(totalAmount)}
               </p>
             </div>
@@ -113,19 +114,21 @@ export function CurrentOpenInvoiceCard() {
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm">
-              <User className="h-3 w-3 text-muted-foreground" />
+              <User className="text-muted-foreground h-3 w-3" />
               <span className="text-muted-foreground">Client:</span>
               <span className="font-medium">{currentInvoice.client?.name}</span>
             </div>
-            
+
             <div className="flex items-center gap-2 text-sm">
-              <Calendar className="h-3 w-3 text-muted-foreground" />
+              <Calendar className="text-muted-foreground h-3 w-3" />
               <span className="text-muted-foreground">Due:</span>
-              <span className="font-medium">{formatDate(currentInvoice.dueDate)}</span>
+              <span className="font-medium">
+                {formatDate(currentInvoice.dueDate)}
+              </span>
             </div>
 
             <div className="flex items-center gap-2 text-sm">
-              <Clock className="h-3 w-3 text-muted-foreground" />
+              <Clock className="text-muted-foreground h-3 w-3" />
               <span className="text-muted-foreground">Hours:</span>
               <span className="font-medium">{totalHours.toFixed(1)}h</span>
             </div>
@@ -139,7 +142,7 @@ export function CurrentOpenInvoiceCard() {
               View
             </Link>
           </Button>
-          <Button asChild size="sm" className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700">
+          <Button asChild variant="brand" size="sm" className="flex-1">
             <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
               <Edit className="mr-2 h-3 w-3" />
               Continue
@@ -149,4 +152,4 @@ export function CurrentOpenInvoiceCard() {
       </CardContent>
     </Card>
   );
-} 
+}

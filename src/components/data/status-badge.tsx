@@ -1,6 +1,6 @@
 import * as React from "react";
-import { Badge, type badgeVariants } from "~/components/ui/badge";
-import { type VariantProps } from "class-variance-authority";
+import { Badge } from "~/components/ui/badge";
+import { cn } from "~/lib/utils";
 
 type StatusType =
   | "draft"
@@ -18,18 +18,15 @@ interface StatusBadgeProps
   children?: React.ReactNode;
 }
 
-const statusVariantMap: Record<
-  StatusType,
-  VariantProps<typeof badgeVariants>["variant"]
-> = {
-  draft: "outline-draft",
-  sent: "outline-sent",
-  paid: "outline-paid",
-  overdue: "outline-overdue",
-  success: "success",
-  warning: "warning",
-  error: "error",
-  info: "info",
+const statusClassMap: Record<StatusType, string> = {
+  draft: "status-badge-draft",
+  sent: "status-badge-sent",
+  paid: "status-badge-paid",
+  overdue: "status-badge-overdue",
+  success: "badge-success",
+  warning: "badge-warning",
+  error: "badge-error",
+  info: "badge-features",
 };
 
 const statusLabelMap: Record<StatusType, string> = {
@@ -43,12 +40,17 @@ const statusLabelMap: Record<StatusType, string> = {
   info: "Info",
 };
 
-export function StatusBadge({ status, children, ...props }: StatusBadgeProps) {
-  const variant = statusVariantMap[status];
+export function StatusBadge({
+  status,
+  children,
+  className,
+  ...props
+}: StatusBadgeProps) {
+  const statusClass = statusClassMap[status];
   const label = children || statusLabelMap[status];
 
   return (
-    <Badge variant={variant} {...props}>
+    <Badge className={cn(statusClass, className)} {...props}>
       {label}
     </Badge>
   );

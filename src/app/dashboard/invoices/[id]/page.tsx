@@ -85,7 +85,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
         {/* Left Column */}
         <div className="space-y-6 lg:col-span-2">
           {/* Invoice Header */}
-          <Card className="shadow-sm">
+          <Card className="card-primary">
             <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-6">
@@ -120,7 +120,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
 
           {/* Overdue Alert */}
           {isOverdue && (
-            <Card className="border-destructive/20 bg-destructive/5 shadow-sm">
+            <Card className="border-destructive/20 bg-destructive/5 card-secondary">
               <CardContent className="p-4">
                 <div className="text-destructive flex items-center gap-3">
                   <AlertTriangle className="h-5 w-5 flex-shrink-0" />
@@ -143,7 +143,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
           {/* Client & Business Info */}
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Client Information */}
-            <Card className="shadow-sm">
+            <Card className="card-primary">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
@@ -215,7 +215,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
 
             {/* Business Information */}
             {invoice.business && (
-              <Card className="shadow-sm">
+              <Card className="card-primary">
                 <CardHeader className="pb-3">
                   <CardTitle className="flex items-center gap-2">
                     <Building className="h-5 w-5" />
@@ -258,7 +258,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
           </div>
 
           {/* Invoice Items */}
-          <Card className="shadow-sm">
+          <Card className="card-primary">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5" />
@@ -267,31 +267,34 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {invoice.items.map((item) => (
-                <div key={item.id} className="space-y-3 rounded-lg border p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-foreground mb-2 text-base font-medium">
-                        {item.description}
-                      </p>
-                      <div className="text-muted-foreground space-y-1 text-sm sm:space-y-0">
-                        <span className="sm:inline">
-                          {formatDate(item.date)}
-                        </span>
-                        <span className="block sm:inline sm:before:content-['_•_']">
-                          {item.hours} hours
-                        </span>
-                        <span className="block sm:inline sm:before:content-['_•_']">
-                          @ ${item.rate}/hr
-                        </span>
+                <Card key={item.id} className="card-secondary">
+                  <CardContent className="py-2">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-foreground mb-2 text-base font-medium">
+                          {item.description}
+                        </p>
+                        <div className="text-muted-foreground text-sm">
+                          <span className="inline whitespace-nowrap">
+                            {formatDate(item.date).replace(/ /g, "\u00A0")}
+                          </span>
+                          <span className="inline whitespace-nowrap before:mx-2 before:content-['_|_']">
+                            {item.hours.toString().replace(/ /g, "\u00A0")}
+                            &nbsp;hours
+                          </span>
+                          <span className="inline whitespace-nowrap before:mx-2 before:content-['_|_']">
+                            @&nbsp;${item.rate}/hr
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex-shrink-0 text-right">
+                        <p className="text-primary text-lg font-semibold">
+                          {formatCurrency(item.amount)}
+                        </p>
                       </div>
                     </div>
-                    <div className="flex-shrink-0 text-right">
-                      <p className="text-primary text-lg font-semibold">
-                        {formatCurrency(item.amount)}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
 
               {/* Totals */}
@@ -327,7 +330,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
 
           {/* Notes */}
           {invoice.notes && (
-            <Card className="shadow-sm">
+            <Card className="card-primary">
               <CardHeader>
                 <CardTitle>Notes</CardTitle>
               </CardHeader>
@@ -342,7 +345,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
 
         {/* Right Column - Actions */}
         <div className="space-y-6">
-          <Card className="sticky top-6 shadow-sm">
+          <Card className="card-primary sticky top-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Check className="h-5 w-5" />

@@ -42,50 +42,46 @@ async function DashboardStats() {
       title: "Total Clients",
       value: totalClients.toString(),
       icon: Users,
-      color: "text-blue-600 dark:text-blue-400",
-      bgColor: "bg-blue-100 dark:bg-blue-900/20",
+      color: "text-icon-blue",
+      bgColor: "bg-brand-muted-blue",
     },
     {
       title: "Total Invoices",
       value: totalInvoices.toString(),
       icon: FileText,
-      color: "text-emerald-600 dark:text-emerald-400",
-      bgColor: "bg-emerald-100 dark:bg-emerald-900/20",
+      color: "text-icon-emerald",
+      bgColor: "bg-brand-muted",
     },
     {
       title: "Total Revenue",
       value: `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
       icon: DollarSign,
-      color: "text-teal-600 dark:text-teal-400",
-      bgColor: "bg-teal-100 dark:bg-teal-900/20",
+      color: "text-icon-teal",
+      bgColor: "bg-brand-muted-teal",
     },
     {
       title: "Pending Invoices",
       value: pendingInvoices.toString(),
       icon: Calendar,
-      color: "text-amber-600 dark:text-amber-400",
-      bgColor: "bg-amber-100 dark:bg-amber-900/20",
+      color: "text-icon-amber",
+      bgColor: "bg-brand-muted-amber",
     },
   ];
 
   return (
-    <Card className="mb-4 border-0 shadow-sm">
+    <Card className="card-primary mb-4">
       <CardContent className="p-4 py-0">
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="stats-grid">
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <div key={stat.title} className="flex items-center space-x-3">
-                <div className={`rounded-lg p-2 ${stat.bgColor}`}>
+              <div key={stat.title} className="stats-item">
+                <div className={`icon-bg-small ${stat.bgColor}`}>
                   <Icon className={`h-4 w-4 ${stat.color}`} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-muted-foreground text-xs font-medium">
-                    {stat.title}
-                  </p>
-                  <p className={`text-lg font-bold ${stat.color}`}>
-                    {stat.value}
-                  </p>
+                  <p className="stats-label">{stat.title}</p>
+                  <p className={`stats-value ${stat.color}`}>{stat.value}</p>
                 </div>
               </div>
             );
@@ -99,38 +95,27 @@ async function DashboardStats() {
 // Quick Actions Component
 function QuickActions() {
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="card-secondary">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Plus className="h-5 w-5 text-emerald-600" />
+        <CardTitle className="quick-action-title">
+          <Plus className="quick-action-icon" />
           Quick Actions
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <Button
-          asChild
-          className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm hover:from-emerald-700 hover:to-teal-700"
-        >
+        <Button asChild className="btn-brand-primary w-full shadow-sm">
           <Link href="/dashboard/invoices/new">
             <FileText className="mr-2 h-4 w-4" />
             Create Invoice
           </Link>
         </Button>
-        <Button
-          asChild
-          variant="outline"
-          className="w-full border-0 shadow-sm"
-        >
+        <Button asChild variant="outline" className="w-full shadow-sm">
           <Link href="/dashboard/clients/new">
             <Users className="mr-2 h-4 w-4" />
             Add Client
           </Link>
         </Button>
-        <Button
-          asChild
-          variant="outline"
-          className="w-full border-0 shadow-sm"
-        >
+        <Button asChild variant="outline" className="w-full shadow-sm">
           <Link href="/dashboard/businesses/new">
             <TrendingUp className="mr-2 h-4 w-4" />
             Add Business
@@ -153,7 +138,7 @@ async function RecentActivity() {
 
   if (recentInvoices.length === 0) {
     return (
-      <Card className="border-0 shadow-sm">
+      <Card className="card-primary">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
@@ -161,15 +146,12 @@ async function RecentActivity() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="py-8 text-center">
-            <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
-            <p className="text-muted-foreground">
+          <div className="recent-activity-empty">
+            <FileText className="recent-activity-icon" />
+            <p className="recent-activity-text">
               No invoices yet. Create your first invoice to get started!
             </p>
-            <Button
-              asChild
-              className="mt-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:from-emerald-700 hover:to-teal-700"
-            >
+            <Button asChild className="btn-brand-primary mt-4">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Invoice
@@ -182,10 +164,10 @@ async function RecentActivity() {
   }
 
   return (
-    <Card className="border-0 shadow-sm">
+    <Card className="card-primary">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
-          <Calendar className="text-muted-foreground h-5 w-5" />
+          <Calendar className="text-muted h-5 w-5" />
           Recent Activity
         </CardTitle>
         <Button variant="outline" size="sm" asChild>
@@ -196,34 +178,36 @@ async function RecentActivity() {
         </Button>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {recentInvoices.map((invoice) => (
-            <div
-              key={invoice.id}
-              className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-4 transition-colors"
-            >
-              <div className="flex items-center space-x-4">
-                <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/20">
-                  <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <Card key={invoice.id} className="card-secondary">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="activity-icon">
+                      <FileText className="text-icon-emerald h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className="font-medium">
+                        Invoice #{invoice.invoiceNumber}
+                      </p>
+                      <p className="text-muted text-sm">
+                        {invoice.client?.name} • $
+                        {invoice.totalAmount.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <StatusBadge status={invoice.status as StatusType} />
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`/dashboard/invoices/${invoice.id}`}>
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">
-                    Invoice #{invoice.invoiceNumber}
-                  </p>
-                  <p className="text-muted-foreground text-sm">
-                    {invoice.client?.name} • ${invoice.totalAmount.toFixed(2)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <StatusBadge status={invoice.status as StatusType} />
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href={`/dashboard/invoices/${invoice.id}`}>
-                    <Eye className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </CardContent>

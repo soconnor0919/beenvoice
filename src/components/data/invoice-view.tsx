@@ -136,11 +136,11 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
   if (!invoice) {
     return (
       <div className="py-12 text-center">
-        <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
-        <h3 className="mb-2 text-lg font-medium text-gray-900 dark:text-white">
+        <FileText className="text-muted mx-auto mb-4 h-12 w-12" />
+        <h3 className="text-accent mb-2 text-lg font-medium">
           Invoice not found
         </h3>
-        <p className="mb-4 text-gray-500 dark:text-gray-400">
+        <p className="text-muted mb-4">
           The invoice you&apos;re looking for doesn&apos;t exist or has been
           deleted.
         </p>
@@ -160,7 +160,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
       {isOverdue && (
         <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+            <div className="text-error flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
               <span className="font-medium">This invoice is overdue</span>
             </div>
@@ -172,7 +172,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
           {/* Invoice Header Card */}
-          <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+          <Card className="card-primary">
             <CardContent>
               <div className="flex items-start justify-between">
                 <div className="space-y-4">
@@ -244,7 +244,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Client Information */}
-          <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+          <Card className="card-primary">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                 <User className="h-5 w-5" />
@@ -307,7 +307,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Invoice Items */}
-          <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+          <Card className="card-primary">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
                 <Clock className="h-5 w-5" />
@@ -367,7 +367,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
 
           {/* Notes */}
           {invoice.notes && (
-            <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="card-primary">
               <CardHeader>
                 <CardTitle className="text-emerald-700 dark:text-emerald-400">
                   Notes
@@ -385,7 +385,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Status Actions */}
-          <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+          <Card className="card-primary">
             <CardHeader>
               <CardTitle className="text-emerald-700 dark:text-emerald-400">
                 Status Actions
@@ -437,7 +437,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Invoice Summary */}
-          <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+          <Card className="card-primary">
             <CardHeader>
               <CardTitle className="text-emerald-700 dark:text-emerald-400">
                 Summary
@@ -476,7 +476,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Danger Zone */}
-          <Card className="border-0 border-red-200 bg-white/80 shadow-xl backdrop-blur-sm dark:border-red-800 dark:bg-gray-800/80">
+          <Card className="card-primary border-red-200 dark:border-red-800">
             <CardHeader>
               <CardTitle className="text-red-700 dark:text-red-400">
                 Danger Zone
@@ -498,7 +498,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="border-0 bg-white/95 shadow-2xl backdrop-blur-sm dark:bg-gray-800/95">
+        <DialogContent className="card-primary">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800 dark:text-white">
               Delete Invoice

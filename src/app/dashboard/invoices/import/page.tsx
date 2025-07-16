@@ -64,7 +64,7 @@ function ImportStats() {
         return (
           <Card
             key={stat.title}
-            className="border-0 shadow-md transition-shadow hover:shadow-lg"
+            className="card-primary transition-shadow hover:shadow-lg"
           >
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -92,19 +92,19 @@ function ImportStats() {
 // File Upload Component
 function FileUploadArea() {
   return (
-    <Card className="border-0 shadow-lg">
+    <Card className="card-primary">
       <CardHeader className="border-b">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Upload className="h-5 w-5 text-emerald-600" />
+        <CardTitle className="card-title-secondary">
+          <Upload className="text-icon-emerald h-5 w-5" />
           Upload CSV File
         </CardTitle>
       </CardHeader>
       <CardContent className="p-8">
         <div className="mx-auto max-w-xl">
           {/* Drop Zone */}
-          <div className="rounded-lg border-2 border-dashed border-emerald-300 bg-emerald-50/50 p-12 text-center transition-colors hover:border-emerald-400 hover:bg-emerald-50 dark:border-emerald-700 dark:bg-emerald-900/10 dark:hover:bg-emerald-900/20">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-              <Upload className="h-8 w-8 text-emerald-600" />
+          <div className="bg-upload-zone">
+            <div className="bg-brand-muted mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full">
+              <Upload className="text-icon-emerald h-8 w-8" />
             </div>
             <h3 className="mb-2 text-lg font-semibold">
               Drop your CSV file here
@@ -112,10 +112,7 @@ function FileUploadArea() {
             <p className="text-muted-foreground mb-4">
               or click to browse and select a file
             </p>
-            <Button
-              type="button"
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-            >
+            <Button type="button" className="btn-brand-primary">
               <Upload className="mr-2 h-4 w-4" />
               Choose File
             </Button>
@@ -128,11 +125,11 @@ function FileUploadArea() {
           <div className="mt-6 hidden">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-sm font-medium">Uploading...</span>
-              <span className="text-sm text-emerald-600">75%</span>
+              <span className="text-icon-emerald text-sm">75%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+            <div className="bg-progress-track">
               <div
-                className="h-full bg-gradient-to-r from-emerald-600 to-teal-600 transition-all duration-300"
+                className="bg-brand-gradient h-full transition-all duration-300"
                 style={{ width: "75%" }}
               ></div>
             </div>
@@ -148,16 +145,16 @@ function FormatInstructions() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Required Format */}
-      <Card className="border-0 shadow-lg">
+      <Card className="card-primary">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <FileText className="h-5 w-5 text-blue-600" />
+          <CardTitle className="card-title-info">
+            <FileText className="text-icon-blue h-5 w-5" />
             Required CSV Format
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800/50">
-            <p className="font-mono text-sm text-gray-700 dark:text-gray-300">
+          <div className="bg-muted-subtle rounded-lg p-4">
+            <p className="text-secondary font-mono text-sm">
               client_name,client_email,invoice_number,issue_date,due_date,description,hours,rate,tax_rate
             </p>
           </div>
@@ -176,9 +173,7 @@ function FormatInstructions() {
                 { field: "rate", desc: "Hourly rate (decimal)" },
               ].map((col) => (
                 <div key={col.field} className="flex items-start gap-3">
-                  <Badge variant="outline" className="text-xs">
-                    {col.field}
-                  </Badge>
+                  <Badge className="badge-outline text-xs">{col.field}</Badge>
                   <span className="text-muted-foreground text-sm">
                     {col.desc}
                   </span>
@@ -190,25 +185,19 @@ function FormatInstructions() {
           <div className="pt-2">
             <h4 className="mb-2 font-semibold">Optional Columns:</h4>
             <div className="flex flex-wrap gap-2">
-              <Badge variant="secondary" className="text-xs">
-                tax_rate
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                notes
-              </Badge>
-              <Badge variant="secondary" className="text-xs">
-                client_phone
-              </Badge>
+              <Badge className="badge-secondary text-xs">tax_rate</Badge>
+              <Badge className="badge-secondary text-xs">notes</Badge>
+              <Badge className="badge-secondary text-xs">client_phone</Badge>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Sample Data & Download */}
-      <Card className="border-0 shadow-lg">
+      <Card className="card-primary">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Download className="h-5 w-5 text-green-600" />
+          <CardTitle className="card-title-secondary">
+            <Download className="text-icon-green h-5 w-5" />
             Sample Template
           </CardTitle>
         </CardHeader>
@@ -218,14 +207,12 @@ function FormatInstructions() {
             for importing invoices.
           </p>
 
-          <div className="rounded-lg bg-green-50 p-4 dark:bg-green-900/20">
+          <div className="bg-green-subtle rounded-lg p-4">
             <div className="flex items-start gap-3">
-              <Info className="mt-0.5 h-5 w-5 text-green-600" />
+              <Info className="text-icon-green mt-0.5 h-5 w-5" />
               <div>
-                <p className="text-sm font-medium text-green-800 dark:text-green-400">
-                  Pro Tip
-                </p>
-                <p className="text-sm text-green-700 dark:text-green-300">
+                <p className="text-success text-sm font-medium">Pro Tip</p>
+                <p className="text-success text-sm">
                   The template includes sample data and formatting examples to
                   help you get started quickly.
                 </p>
@@ -249,8 +236,8 @@ function FormatInstructions() {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">Sample Row:</h4>
-            <div className="rounded-lg bg-gray-50 p-3 dark:bg-gray-800/50">
-              <p className="font-mono text-xs break-all text-gray-600 dark:text-gray-400">
+            <div className="bg-muted-subtle rounded-lg p-3">
+              <p className="text-muted font-mono text-xs break-all">
                 "Acme
                 Corp","john@acme.com","INV-001","2024-01-15","2024-02-14","Web
                 development work","40","75.00","8.5"
@@ -266,10 +253,10 @@ function FormatInstructions() {
 // Important Notes Section
 function ImportantNotes() {
   return (
-    <Card className="border-0 border-l-4 border-l-amber-500 shadow-lg">
+    <Card className="card-primary border-l-4 border-l-amber-500">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <AlertCircle className="h-5 w-5 text-amber-600" />
+        <CardTitle className="card-title-warning">
+          <AlertCircle className="text-icon-amber h-5 w-5" />
           Important Notes
         </CardTitle>
       </CardHeader>
@@ -331,7 +318,7 @@ function ImportHistory() {
   const getStatusBadge = (status: string) => {
     if (status === "completed") {
       return (
-        <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+        <Badge className="badge-success">
           <CheckCircle className="mr-1 h-3 w-3" />
           Completed
         </Badge>
@@ -339,7 +326,7 @@ function ImportHistory() {
     }
     if (status === "processing") {
       return (
-        <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+        <Badge className="badge-features">
           <RefreshCw className="mr-1 h-3 w-3" />
           Processing
         </Badge>
@@ -354,10 +341,10 @@ function ImportHistory() {
   };
 
   return (
-    <Card className="border-0 shadow-lg">
+    <Card className="card-primary">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <FileText className="h-5 w-5 text-purple-600" />
+        <CardTitle className="card-title-purple">
+          <FileText className="text-icon-purple h-5 w-5" />
           Recent Imports
         </CardTitle>
       </CardHeader>
@@ -382,8 +369,8 @@ function ImportHistory() {
                 >
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-purple-100 p-2 dark:bg-purple-900/30">
-                        <FileSpreadsheet className="h-4 w-4 text-purple-600" />
+                      <div className="icon-bg-purple-muted">
+                        <FileSpreadsheet className="text-icon-purple h-4 w-4" />
                       </div>
                       <span className="font-medium">{item.filename}</span>
                     </div>
@@ -397,7 +384,7 @@ function ImportHistory() {
                   </td>
                   <td className="p-4 text-right">
                     {item.errors > 0 ? (
-                      <span className="text-red-600">{item.errors}</span>
+                      <span className="status-text-error">{item.errors}</span>
                     ) : (
                       <span className="text-muted-foreground">0</span>
                     )}
@@ -443,7 +430,7 @@ export default async function ImportPage() {
           fallback={
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {[...Array(4)].map((_, i) => (
-                <Card key={i} className="border-0 shadow-md">
+                <Card key={i} className="card-primary">
                   <CardContent className="p-6">
                     <div className="animate-pulse">
                       <div className="bg-muted mb-2 h-4 w-1/2 rounded"></div>

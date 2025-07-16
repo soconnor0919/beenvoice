@@ -59,7 +59,7 @@ function InvoiceFormSkeleton() {
           </div>
 
           {/* Invoice Details Card */}
-          <Card className="shadow-sm">
+          <Card className="card-primary">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
@@ -118,7 +118,7 @@ function InvoiceFormSkeleton() {
           </Card>
 
           {/* Invoice Items Card */}
-          <Card className="shadow-sm">
+          <Card className="card-primary">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
@@ -172,7 +172,7 @@ function InvoiceFormSkeleton() {
 
         {/* Right Column - Summary */}
         <div className="space-y-6">
-          <Card className="sticky top-6 shadow-sm">
+          <Card className="card-primary sticky top-6">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
@@ -493,7 +493,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                 </TabsList>
                 <TabsContent value="invoice-details">
                   {/* Invoice Details */}
-                  <Card className="shadow-sm">
+                  <Card className="card-primary">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5" />
@@ -554,6 +554,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                                 issueDate: date ?? new Date(),
                               }))
                             }
+                            className="w-full"
                           />
                         </div>
                         <div className="space-y-2">
@@ -566,6 +567,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                                 dueDate: date ?? new Date(),
                               }))
                             }
+                            className="w-full"
                           />
                         </div>
                       </div>
@@ -681,7 +683,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   </Card>
                 </TabsContent>
                 <TabsContent value="invoice-items">
-                  <Card className="shadow-sm">
+                  <Card className="card-primary">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <DollarSign className="h-5 w-5" />
@@ -705,7 +707,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
             {/* Right Column - Summary (Always Visible) */}
             <div className="space-y-6">
-              <Card className="sticky top-6 shadow-sm">
+              <Card className="card-primary sticky top-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Check className="h-5 w-5" />

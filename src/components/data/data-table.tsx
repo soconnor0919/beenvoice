@@ -106,10 +106,10 @@ export function DataTable<TData, TValue>({
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640); // sm breakpoint
     };
-    
+
     checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   // Create responsive columns that properly hide on mobile
@@ -118,9 +118,23 @@ export function DataTable<TData, TValue>({
       ...column,
       // Add a meta property to control responsive visibility
       meta: {
-        ...((column as ColumnDef<TData, TValue> & { meta?: { headerClassName?: string; cellClassName?: string } }).meta ?? {}),
-        headerClassName: (column as ColumnDef<TData, TValue> & { meta?: { headerClassName?: string; cellClassName?: string } }).meta?.headerClassName ?? "",
-        cellClassName: (column as ColumnDef<TData, TValue> & { meta?: { headerClassName?: string; cellClassName?: string } }).meta?.cellClassName ?? "",
+        ...((
+          column as ColumnDef<TData, TValue> & {
+            meta?: { headerClassName?: string; cellClassName?: string };
+          }
+        ).meta ?? {}),
+        headerClassName:
+          (
+            column as ColumnDef<TData, TValue> & {
+              meta?: { headerClassName?: string; cellClassName?: string };
+            }
+          ).meta?.headerClassName ?? "",
+        cellClassName:
+          (
+            column as ColumnDef<TData, TValue> & {
+              meta?: { headerClassName?: string; cellClassName?: string };
+            }
+          ).meta?.cellClassName ?? "",
       },
     }));
   }, [columns]);
@@ -163,15 +177,16 @@ export function DataTable<TData, TValue>({
   const handleRowClick = (row: TData, event: React.MouseEvent) => {
     // Don't trigger row click if clicking on action buttons or their children
     const target = event.target as HTMLElement;
-    const isActionButton = target.closest('[data-action-button="true"]') ?? 
-                          target.closest('button') ?? 
-                          target.closest('a') ??
-                          target.closest('[role="button"]');
-    
+    const isActionButton =
+      target.closest('[data-action-button="true"]') ??
+      target.closest("button") ??
+      target.closest("a") ??
+      target.closest('[role="button"]');
+
     if (isActionButton) {
       return;
     }
-    
+
     onRowClick?.(row);
   };
 
@@ -200,7 +215,7 @@ export function DataTable<TData, TValue>({
 
       {/* Filter Bar Card */}
       {(showSearch || filterableColumns.length > 0 || showColumnVisibility) && (
-        <Card className="border-0 py-2 shadow-sm">
+        <Card className="card-primary py-2">
           <CardContent className="px-3 py-0">
             <div className="flex items-center gap-2">
               {showSearch && (
@@ -300,7 +315,7 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* Table Content Card */}
-      <Card className="overflow-hidden border-0 p-0 shadow-sm">
+      <Card className="card-primary overflow-hidden p-0">
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
@@ -310,7 +325,9 @@ export function DataTable<TData, TValue>({
                   className="bg-muted/50 hover:bg-muted/50"
                 >
                   {headerGroup.headers.map((header) => {
-                    const meta = header.column.columnDef.meta as { headerClassName?: string; cellClassName?: string } | undefined;
+                    const meta = header.column.columnDef.meta as
+                      | { headerClassName?: string; cellClassName?: string }
+                      | undefined;
                     return (
                       <TableHead
                         key={header.id}
@@ -339,12 +356,16 @@ export function DataTable<TData, TValue>({
                     data-state={row.getIsSelected() && "selected"}
                     className={cn(
                       "hover:bg-muted/20 data-[state=selected]:bg-muted/50 border-b transition-colors",
-                      onRowClick && "cursor-pointer"
+                      onRowClick && "cursor-pointer",
                     )}
-                    onClick={(event) => onRowClick && handleRowClick(row.original, event)}
+                    onClick={(event) =>
+                      onRowClick && handleRowClick(row.original, event)
+                    }
                   >
                     {row.getVisibleCells().map((cell) => {
-                      const meta = cell.column.columnDef.meta as { headerClassName?: string; cellClassName?: string } | undefined;
+                      const meta = cell.column.columnDef.meta as
+                        | { headerClassName?: string; cellClassName?: string }
+                        | undefined;
                       return (
                         <TableCell
                           key={cell.id}
@@ -379,7 +400,7 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination Bar Card */}
       {showPagination && (
-        <Card className="border-0 py-2 shadow-sm">
+        <Card className="card-primary py-2">
           <CardContent className="px-3 py-0">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -540,7 +561,7 @@ export function DataTableSkeleton({
   return (
     <div className="space-y-4">
       {/* Filter bar skeleton */}
-      <Card className="border-0 py-2 shadow-sm">
+      <Card className="card-primary py-2">
         <CardContent className="px-3 py-0">
           <div className="flex items-center gap-2">
             <div className="bg-muted/30 h-9 w-full flex-1 animate-pulse rounded-md sm:max-w-sm"></div>
@@ -550,7 +571,7 @@ export function DataTableSkeleton({
       </Card>
 
       {/* Table skeleton */}
-      <Card className="overflow-hidden border-0 p-0 shadow-sm">
+      <Card className="card-primary overflow-hidden p-0">
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
@@ -562,16 +583,16 @@ export function DataTableSkeleton({
                 <TableHead className="h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
                   <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
                 </TableHead>
-                <TableHead className="hidden sm:table-cell h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                <TableHead className="hidden h-12 px-3 text-left align-middle sm:table-cell sm:h-14 sm:px-4">
                   <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
                 </TableHead>
-                <TableHead className="hidden sm:table-cell h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                <TableHead className="hidden h-12 px-3 text-left align-middle sm:table-cell sm:h-14 sm:px-4">
                   <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-20 lg:w-24"></div>
                 </TableHead>
                 <TableHead className="h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
                   <div className="bg-muted/30 h-4 w-10 animate-pulse rounded sm:w-12 lg:w-16"></div>
                 </TableHead>
-                <TableHead className="hidden lg:table-cell h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                <TableHead className="hidden h-12 px-3 text-left align-middle sm:h-14 sm:px-4 lg:table-cell">
                   <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
                 </TableHead>
               </TableRow>
@@ -588,11 +609,11 @@ export function DataTableSkeleton({
                     <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
                   </TableCell>
                   {/* Status (sm+) */}
-                  <TableCell className="hidden sm:table-cell px-3 py-3 align-middle sm:px-4 sm:py-4">
+                  <TableCell className="hidden px-3 py-3 align-middle sm:table-cell sm:px-4 sm:py-4">
                     <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
                   </TableCell>
                   {/* Amount (sm+) */}
-                  <TableCell className="hidden sm:table-cell px-3 py-3 align-middle sm:px-4 sm:py-4">
+                  <TableCell className="hidden px-3 py-3 align-middle sm:table-cell sm:px-4 sm:py-4">
                     <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-20 lg:w-24"></div>
                   </TableCell>
                   {/* Actions */}
@@ -600,7 +621,7 @@ export function DataTableSkeleton({
                     <div className="bg-muted/30 h-4 w-10 animate-pulse rounded sm:w-12 lg:w-16"></div>
                   </TableCell>
                   {/* Extra (lg+) */}
-                  <TableCell className="hidden lg:table-cell px-3 py-3 align-middle sm:px-4 sm:py-4">
+                  <TableCell className="hidden px-3 py-3 align-middle sm:px-4 sm:py-4 lg:table-cell">
                     <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
                   </TableCell>
                 </TableRow>
@@ -611,7 +632,7 @@ export function DataTableSkeleton({
       </Card>
 
       {/* Pagination skeleton */}
-      <Card className="border-0 py-2 shadow-sm">
+      <Card className="card-primary py-2">
         <CardContent className="px-3 py-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">

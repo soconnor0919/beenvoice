@@ -172,7 +172,7 @@ export function InvoiceList() {
               </CardTitle>
               <div className="flex items-center justify-between">
                 <StatusBadge status={invoice.status as StatusType} />
-                <span className="text-lg font-bold text-green-600">
+                <span className="text-icon-green text-lg font-bold">
                   {formatCurrency(invoice.totalAmount)}
                 </span>
               </div>

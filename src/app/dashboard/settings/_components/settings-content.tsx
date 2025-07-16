@@ -262,11 +262,11 @@ export function SettingsContent() {
       {/* Profile & Account Overview */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Profile Section */}
-        <Card className="shadow-lg">
+        <Card className="card-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <div className="rounded-lg bg-emerald-100 p-2">
-                <User className="h-5 w-5 text-emerald-600" />
+              <div className="icon-bg-emerald">
+                <User className="text-icon-emerald h-5 w-5" />
               </div>
               Profile Information
             </CardTitle>
@@ -301,7 +301,7 @@ export function SettingsContent() {
               <Button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
-                className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+                className="btn-brand-primary"
               >
                 {updateProfileMutation.isPending
                   ? "Updating..."
@@ -312,11 +312,11 @@ export function SettingsContent() {
         </Card>
 
         {/* Data Overview */}
-        <Card className="shadow-lg">
+        <Card className="card-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <div className="rounded-lg bg-blue-100 p-2">
-                <Database className="h-5 w-5 text-blue-600" />
+              <div className="icon-bg-info">
+                <Database className="text-icon-blue h-5 w-5" />
               </div>
               Account Data
             </CardTitle>
@@ -329,23 +329,24 @@ export function SettingsContent() {
               {dataStatItems.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <div
-                    key={item.label}
-                    className="flex items-center justify-between rounded-lg border p-3"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`rounded-lg p-2 ${item.bgColor}`}>
-                        <Icon className={`h-4 w-4 ${item.color}`} />
+                  <Card key={item.label} className="card-secondary">
+                    <CardContent className="py-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`rounded-lg p-2 ${item.bgColor}`}>
+                            <Icon className={`h-4 w-4 ${item.color}`} />
+                          </div>
+                          <span className="font-medium">{item.label}</span>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className="text-lg font-semibold"
+                        >
+                          {item.value}
+                        </Badge>
                       </div>
-                      <span className="font-medium">{item.label}</span>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="text-lg font-semibold"
-                    >
-                      {item.value}
-                    </Badge>
-                  </div>
+                    </CardContent>
+                  </Card>
                 );
               })}
             </div>
@@ -354,11 +355,11 @@ export function SettingsContent() {
       </div>
 
       {/* Data Management */}
-      <Card className="shadow-lg">
+      <Card className="card-primary">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <div className="rounded-lg bg-indigo-100 p-2">
-              <Shield className="h-5 w-5 text-indigo-600" />
+            <div className="bg-indigo-subtle rounded-lg p-2">
+              <Shield className="text-icon-indigo h-5 w-5" />
             </div>
             Data Management
           </CardTitle>
@@ -418,7 +419,7 @@ export function SettingsContent() {
                       disabled={
                         !importData.trim() || importDataMutation.isPending
                       }
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                      className="btn-brand-primary"
                     >
                       {importDataMutation.isPending
                         ? "Importing..."
@@ -444,11 +445,11 @@ export function SettingsContent() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="shadow-lg">
+      <Card className="card-primary">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <div className="rounded-lg bg-red-100 p-2">
-              <AlertTriangle className="h-5 w-5 text-red-600" />
+            <div className="icon-bg-error">
+              <AlertTriangle className="text-icon-red h-5 w-5" />
             </div>
             Data Management
           </CardTitle>
@@ -515,7 +516,7 @@ export function SettingsContent() {
                       deleteConfirmText !== "delete all my data" ||
                       deleteDataMutation.isPending
                     }
-                    className="bg-red-600 hover:bg-red-700"
+                    className="btn-danger"
                   >
                     {deleteDataMutation.isPending
                       ? "Deleting..."

@@ -56,7 +56,7 @@ function SignInForm() {
         </div>
 
         {/* Sign In Form */}
-        <Card className="border-0 shadow-xl">
+        <Card className="card-primary">
           <CardHeader className="space-y-1">
             <CardTitle className="text-center text-xl">Sign In</CardTitle>
           </CardHeader>
@@ -65,7 +65,7 @@ function SignInForm() {
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                  <Mail className="form-icon-left" />
                   <Input
                     id="email"
                     type="email"
@@ -73,7 +73,7 @@ function SignInForm() {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                     autoFocus
-                    className="pl-10"
+                    className="form-input-with-icon"
                     placeholder="Enter your email"
                   />
                 </div>
@@ -81,14 +81,14 @@ function SignInForm() {
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                  <Lock className="form-icon-left" />
                   <Input
                     id="password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="pl-10"
+                    className="form-input-with-icon"
                     placeholder="Enter your password"
                   />
                 </div>
@@ -108,10 +108,7 @@ function SignInForm() {
               <span className="text-muted-foreground">
                 Don&apos;t have an account?{" "}
               </span>
-              <Link
-                href="/auth/register"
-                className="font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-              >
+              <Link href="/auth/register" className="nav-link-brand">
                 Create one now
               </Link>
             </div>
@@ -120,10 +117,10 @@ function SignInForm() {
 
         {/* Features */}
         <div className="space-y-4 text-center">
-          <p className="text-muted-foreground text-sm">
+          <p className="welcome-description">
             Simple invoicing for freelancers and small businesses
           </p>
-          <div className="text-muted-foreground flex justify-center space-x-6 text-xs">
+          <div className="welcome-feature-list">
             <span>✓ Easy client management</span>
             <span>✓ Professional invoices</span>
             <span>✓ Payment tracking</span>

@@ -97,19 +97,11 @@ export function FloatingActionBar({
   if (!isVisible) return null;
 
   return (
-    <div
-      ref={floatingRef}
-      className={cn(
-        "border-border/40 bg-background/60 animate-in slide-in-from-bottom-4 sticky bottom-4 z-20 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150 duration-300",
-        className,
-      )}
-    >
-      <div className="flex-1">
-        {leftContent || (
-          <p className="text-muted-foreground text-sm">{title}</p>
-        )}
+    <div ref={floatingRef} className={cn("floating-action-bar", className)}>
+      <div className="floating-action-bar-content">
+        {leftContent || <p className="floating-action-bar-title">{title}</p>}
       </div>
-      <div className="flex items-center gap-2 sm:gap-3">{children}</div>
+      <div className="floating-action-bar-actions">{children}</div>
     </div>
   );
 }

@@ -10,22 +10,26 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground [a&]:hover:bg-primary/90",
+          "border-slate-300 bg-slate-200 text-slate-800 shadow-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-slate-300 bg-slate-200/80 text-slate-700 shadow-sm dark:border-slate-600 dark:bg-slate-700/80 dark:text-slate-300",
         destructive:
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
-          "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+          "border-2 border-slate-300 bg-transparent text-slate-700 dark:border-slate-600 dark:text-slate-300",
         success: "border-transparent bg-status-success [a&]:hover:opacity-90",
         warning: "border-transparent bg-status-warning [a&]:hover:opacity-90",
         error: "border-transparent bg-status-error [a&]:hover:opacity-90",
         info: "border-transparent bg-status-info [a&]:hover:opacity-90",
         // Outlined variants for status badges
-        "outline-draft": "border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-300 bg-transparent",
-        "outline-sent": "border-blue-400 text-blue-600 dark:border-blue-500 dark:text-blue-300 bg-transparent",
-        "outline-paid": "border-green-400 text-green-600 dark:border-green-500 dark:text-green-300 bg-transparent",
-        "outline-overdue": "border-red-400 text-red-600 dark:border-red-500 dark:text-red-300 bg-transparent",
+        "outline-draft":
+          "border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-300 bg-transparent",
+        "outline-sent":
+          "border-blue-400 text-blue-600 dark:border-blue-500 dark:text-blue-300 bg-transparent",
+        "outline-paid":
+          "border-green-400 text-green-600 dark:border-green-500 dark:text-green-300 bg-transparent",
+        "outline-overdue":
+          "border-red-400 text-red-600 dark:border-red-500 dark:text-red-300 bg-transparent",
       },
     },
     defaultVariants: {

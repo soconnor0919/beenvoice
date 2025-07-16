@@ -8,7 +8,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-cosmic-gradient bg-nebula-overlay relative min-h-screen">
+    <div className="floating-orbs relative min-h-screen">
       <Navbar />
       <Sidebar />
       {/* Mobile layout - no left margin */}

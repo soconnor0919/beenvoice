@@ -1,17 +1,30 @@
 "use client";
 
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
 import * as React from "react";
+import { parseDate } from "chrono-node";
+import { CalendarIcon } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
+import { Input } from "~/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
+
+function formatDate(date: Date | undefined) {
+  if (!date) {
+    return "";
+  }
+
+  return date.toLocaleDateString("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+}
 
 interface DatePickerProps {
   date?: Date;
@@ -26,13 +39,15 @@ interface DatePickerProps {
 export function DatePicker({
   date,
   onDateChange,
-  placeholder = "Select date",
+  placeholder = "Tomorrow or next week",
   className,
   disabled = false,
   id,
   size = "md",
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState(formatDate(date));
+  const [month, setMonth] = React.useState<Date | undefined>(date);
 
   const sizeClasses = {
     sm: "h-9 text-xs",
@@ -40,42 +55,68 @@ export function DatePicker({
     lg: "h-10 text-sm",
   };
 
-  const formatDate = (date: Date) => {
-    if (size === "sm") {
-      return format(date, "MMM dd");
-    }
-    return format(date, "PPP");
-  };
+  const inputWidthClass = className?.includes("w-full")
+    ? "w-full"
+    : className?.includes("w-32") ||
+        className?.includes("w-28") ||
+        className?.includes("w-36")
+      ? className
+      : "w-full md:w-32 md:min-w-32";
+
+  React.useEffect(() => {
+    setValue(formatDate(date));
+    setMonth(date);
+  }, [date]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          id={id}
-          disabled={disabled}
-          className={cn(
-            "w-full justify-between font-normal",
-            sizeClasses[size],
-            !date && "text-muted-foreground",
-            className,
-          )}
-        >
-          {date ? formatDate(date) : placeholder}
-          <CalendarIcon className="text-muted-foreground h-4 w-4" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-        <Calendar
-          mode="single"
-          selected={date}
-          captionLayout="dropdown"
-          onSelect={(selectedDate: Date | undefined) => {
-            onDateChange(selectedDate);
-            setOpen(false);
-          }}
-        />
-      </PopoverContent>
-    </Popover>
+    <div className={cn("relative flex gap-2", inputWidthClass, className)}>
+      <Input
+        id={id}
+        value={value}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={cn("bg-background pr-10", sizeClasses[size], "w-full")}
+        onChange={(e) => {
+          setValue(e.target.value);
+          const parsedDate = parseDate(e.target.value);
+          if (parsedDate) {
+            onDateChange(parsedDate);
+            setMonth(parsedDate);
+          }
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            setOpen(true);
+          }
+        }}
+      />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            disabled={disabled}
+            className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+          >
+            <CalendarIcon className="size-3.5" />
+            <span className="sr-only">Select date</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto overflow-hidden p-0" align="end">
+          <Calendar
+            mode="single"
+            selected={date}
+            captionLayout="dropdown"
+            month={month}
+            onMonthChange={setMonth}
+            onSelect={(selectedDate) => {
+              onDateChange(selectedDate);
+              setValue(formatDate(selectedDate));
+              setOpen(false);
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

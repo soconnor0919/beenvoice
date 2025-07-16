@@ -221,7 +221,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         {/* Main Form Container - styled like data table */}
         <div className="space-y-4">
           {/* Basic Information */}
-          <Card>
+          <Card className="card-primary">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
@@ -300,7 +300,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           </Card>
 
           {/* Address */}
-          <Card>
+          <Card className="card-primary">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
@@ -348,7 +348,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           </Card>
 
           {/* Billing Information */}
-          <Card>
+          <Card className="card-primary">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">

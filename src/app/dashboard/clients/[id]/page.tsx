@@ -72,9 +72,9 @@ export default async function ClientDetailPage({
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Client Information Card */}
           <div className="lg:col-span-2">
-            <Card className="border-0 shadow-xl backdrop-blur-sm">
+            <Card className="card-primary">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-green-600">
+                <CardTitle className="client-section-title">
                   <Building className="h-5 w-5" />
                   <span>Contact Information</span>
                 </CardTitle>
@@ -83,33 +83,25 @@ export default async function ClientDetailPage({
                 {/* Basic Info */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   {client.email && (
-                    <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <Mail className="h-4 w-4 text-emerald-600" />
+                    <div className="client-info-item">
+                      <div className="client-info-icon">
+                        <Mail className="client-info-icon-emerald" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Email
-                        </p>
-                        <p className="text-foreground text-sm">
-                          {client.email}
-                        </p>
+                        <p className="client-info-label">Email</p>
+                        <p className="client-info-value">{client.email}</p>
                       </div>
                     </div>
                   )}
 
                   {client.phone && (
-                    <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <Phone className="h-4 w-4 text-emerald-600" />
+                    <div className="client-info-item">
+                      <div className="client-info-icon">
+                        <Phone className="client-info-icon-emerald" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Phone
-                        </p>
-                        <p className="text-foreground text-sm">
-                          {client.phone}
-                        </p>
+                        <p className="client-info-label">Phone</p>
+                        <p className="client-info-value">{client.phone}</p>
                       </div>
                     </div>
                   )}
@@ -118,17 +110,15 @@ export default async function ClientDetailPage({
                 {/* Address */}
                 {(client.addressLine1 ?? client.city ?? client.state) && (
                   <div className="space-y-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                        <MapPin className="h-4 w-4 text-emerald-600" />
+                    <div className="client-info-item">
+                      <div className="client-info-icon">
+                        <MapPin className="client-info-icon-emerald" />
                       </div>
                       <div>
-                        <p className="text-muted-foreground text-sm font-medium">
-                          Address
-                        </p>
+                        <p className="client-info-label">Address</p>
                       </div>
                     </div>
-                    <div className="text-foreground ml-11 space-y-1 text-sm">
+                    <div className="client-address-content">
                       {client.addressLine1 && <p>{client.addressLine1}</p>}
                       {client.addressLine2 && <p>{client.addressLine2}</p>}
                       {(client.city ?? client.state ?? client.postalCode) && (
@@ -144,15 +134,13 @@ export default async function ClientDetailPage({
                 )}
 
                 {/* Client Since */}
-                <div className="flex items-center space-x-3">
-                  <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                    <Calendar className="h-4 w-4 text-emerald-600" />
+                <div className="client-info-item">
+                  <div className="client-info-icon">
+                    <Calendar className="client-info-icon-emerald" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-                      Client Since
-                    </p>
-                    <p className="text-sm dark:text-gray-300">
+                    <p className="client-info-label">Client Since</p>
+                    <p className="client-info-value">
                       {formatDate(client.createdAt)}
                     </p>
                   </div>
@@ -163,39 +151,31 @@ export default async function ClientDetailPage({
 
           {/* Stats Card */}
           <div className="space-y-6">
-            <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+            <Card className="card-primary">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-emerald-700 dark:text-emerald-400">
+                <CardTitle className="client-stats-title">
                   <DollarSign className="h-5 w-5" />
                   <span>Invoice Summary</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-emerald-600">
+                  <p className="client-total-amount">
                     {formatCurrency(totalInvoiced)}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Total Invoiced
-                  </p>
+                  <p className="client-total-label">Total Invoiced</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="client-stats-grid">
                   <div className="text-center">
-                    <p className="text-lg font-semibold text-green-600">
-                      {paidInvoices}
-                    </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Paid
-                    </p>
+                    <p className="client-stat-value-paid">{paidInvoices}</p>
+                    <p className="client-stat-label">Paid</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg font-semibold text-orange-600">
+                    <p className="client-stat-value-pending">
                       {pendingInvoices}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Pending
-                    </p>
+                    <p className="client-stat-label">Pending</p>
                   </div>
                 </div>
               </CardContent>
@@ -203,7 +183,7 @@ export default async function ClientDetailPage({
 
             {/* Recent Invoices */}
             {client.invoices && client.invoices.length > 0 && (
-              <Card className="border-0 bg-white/80 shadow-xl backdrop-blur-sm dark:bg-gray-800/80">
+              <Card className="card-primary">
                 <CardHeader>
                   <CardTitle className="text-lg dark:text-white">
                     Recent Invoices
@@ -212,20 +192,17 @@ export default async function ClientDetailPage({
                 <CardContent>
                   <div className="space-y-3">
                     {client.invoices.slice(0, 3).map((invoice) => (
-                      <div
-                        key={invoice.id}
-                        className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-gray-700"
-                      >
+                      <div key={invoice.id} className="invoice-item">
                         <div>
-                          <p className="text-sm font-medium dark:text-white">
+                          <p className="invoice-item-title">
                             {invoice.invoiceNumber}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="invoice-item-date">
                             {formatDate(invoice.issueDate)}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm font-medium dark:text-white">
+                          <p className="invoice-item-amount">
                             {formatCurrency(invoice.totalAmount)}
                           </p>
                           <Badge

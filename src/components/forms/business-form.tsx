@@ -255,11 +255,11 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
         {/* Main Form Container - styled like data table */}
         <div className="space-y-4">
           {/* Basic Information */}
-          <Card>
+          <Card className="card-primary">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                  <Building className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Building className="text-brand-light h-5 w-5" />
                 </div>
                 <div>
                   <CardTitle>Basic Information</CardTitle>
@@ -376,12 +376,12 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
           </Card>
 
           {/* Address */}
-          <Card>
+          <Card className="card-primary">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
                   <svg
-                    className="h-5 w-5 text-emerald-700 dark:text-emerald-400"
+                    className="text-brand-light h-5 w-5"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -424,11 +424,11 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
           </Card>
 
           {/* Settings */}
-          <Card>
+          <Card className="card-primary">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                  <Star className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                  <Star className="text-brand-light h-5 w-5" />
                 </div>
                 <div>
                   <CardTitle>Settings</CardTitle>
@@ -439,7 +439,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="border-border/40 flex items-center justify-between rounded-xl border bg-gradient-to-r from-emerald-600/5 to-teal-600/5 p-4">
+              <div className="bg-brand-muted border-border/40 flex items-center justify-between rounded-xl border p-4">
                 <div className="space-y-0.5">
                   <Label htmlFor="isDefault" className="text-base font-medium">
                     Default Business
@@ -485,7 +485,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             <Button
               type="submit"
               disabled={isSubmitting || !isDirty}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+              className="btn-brand-primary shadow-md"
             >
               {isSubmitting ? (
                 <>
@@ -525,18 +525,22 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !isDirty}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          className="btn-brand-primary shadow-md"
           size="sm"
         >
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
-              <span className="hidden sm:inline">{mode === "create" ? "Creating..." : "Saving..."}</span>
+              <span className="hidden sm:inline">
+                {mode === "create" ? "Creating..." : "Saving..."}
+              </span>
             </>
           ) : (
             <>
               <Save className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">{mode === "create" ? "Create Business" : "Save Changes"}</span>
+              <span className="hidden sm:inline">
+                {mode === "create" ? "Create Business" : "Save Changes"}
+              </span>
             </>
           )}
         </Button>

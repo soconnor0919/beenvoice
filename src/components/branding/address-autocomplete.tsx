@@ -10,7 +10,12 @@ interface AddressAutocompleteProps {
   placeholder?: string;
 }
 
-export function AddressAutocomplete({ value, onChange, onSelect, placeholder }: AddressAutocompleteProps) {
+export function AddressAutocomplete({
+  value,
+  onChange,
+  onSelect,
+  placeholder,
+}: AddressAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -20,7 +25,9 @@ export function AddressAutocomplete({ value, onChange, onSelect, placeholder }: 
       setSuggestions([]);
       return;
     }
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
+    );
     const data = await res.json();
     setSuggestions(data);
   };
@@ -50,12 +57,12 @@ export function AddressAutocomplete({ value, onChange, onSelect, placeholder }: 
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
       />
       {showSuggestions && suggestions.length > 0 && (
-        <Card className="absolute z-10 mt-1 w-full max-h-60 overflow-auto shadow-lg border bg-white">
+        <Card className="card-primary absolute z-10 mt-1 max-h-60 w-full overflow-auto">
           <ul>
             {suggestions.map((s, i) => (
               <li
                 key={s.place_id}
-                className="px-4 py-2 cursor-pointer hover:bg-muted text-sm"
+                className="hover:bg-muted cursor-pointer px-4 py-2 text-sm"
                 onMouseDown={() => handleSelect(s.display_name)}
               >
                 {s.display_name}
@@ -66,4 +73,4 @@ export function AddressAutocomplete({ value, onChange, onSelect, placeholder }: 
       )}
     </div>
   );
-} 
+}

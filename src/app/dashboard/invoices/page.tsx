@@ -28,10 +28,7 @@ export default async function InvoicesPage() {
             <span>Import CSV</span>
           </Link>
         </Button>
-        <Button
-          asChild
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
-        >
+        <Button asChild className="btn-brand-primary shadow-md">
           <Link href="/dashboard/invoices/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Create Invoice</span>

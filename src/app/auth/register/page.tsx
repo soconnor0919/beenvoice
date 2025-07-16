@@ -49,35 +49,29 @@ function RegisterForm() {
   }
 
   return (
-    <div className="bg-gradient-auth flex min-h-screen items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-8">
+    <div className="auth-container">
+      <div className="auth-form-container">
         {/* Logo and Welcome */}
-        <div className="space-y-4 text-center">
+        <div className="auth-header">
           <Logo size="lg" className="mx-auto" />
           <div>
-            <h1 className="text-foreground text-2xl font-bold">
-              Join beenvoice
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Create your account to get started
-            </p>
+            <h1 className="auth-title">Join beenvoice</h1>
+            <p className="auth-subtitle">Create your account to get started</p>
           </div>
         </div>
 
         {/* Registration Form */}
-        <Card className="border-0 shadow-xl">
+        <Card className="auth-card">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-center text-xl">
-              Create Account
-            </CardTitle>
+            <CardTitle className="auth-card-title">Create Account</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
+            <form onSubmit={handleRegister} className="auth-form">
+              <div className="auth-input-grid">
+                <div className="auth-input-group">
                   <Label htmlFor="firstName">First Name</Label>
                   <div className="relative">
-                    <User className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                    <User className="auth-input-icon" />
                     <Input
                       id="firstName"
                       type="text"
@@ -85,46 +79,46 @@ function RegisterForm() {
                       onChange={(e) => setFirstName(e.target.value)}
                       required
                       autoFocus
-                      className="pl-10"
+                      className="form-input-with-icon"
                       placeholder="First name"
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="auth-input-group">
                   <Label htmlFor="lastName">Last Name</Label>
                   <div className="relative">
-                    <User className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                    <User className="auth-input-icon" />
                     <Input
                       id="lastName"
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       required
-                      className="pl-10"
+                      className="form-input-with-icon"
                       placeholder="Last name"
                     />
                   </div>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="auth-input-group">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                  <Mail className="auth-input-icon" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    className="pl-10"
+                    className="form-input-with-icon"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="auth-input-group">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="text-muted-foreground absolute top-3 left-3 h-4 w-4" />
+                  <Lock className="auth-input-icon" />
                   <Input
                     id="password"
                     type="password"
@@ -132,15 +126,19 @@ function RegisterForm() {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                     minLength={6}
-                    className="pl-10"
+                    className="form-input-with-icon"
                     placeholder="Create a password"
                   />
                 </div>
-                <p className="text-muted-foreground text-xs">
+                <p className="auth-password-help">
                   Must be at least 6 characters
                 </p>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button
+                type="submit"
+                className="auth-submit-btn"
+                disabled={loading}
+              >
                 {loading ? (
                   "Creating account..."
                 ) : (
@@ -151,14 +149,11 @@ function RegisterForm() {
                 )}
               </Button>
             </form>
-            <div className="mt-6 text-center text-sm">
+            <div className="auth-footer-text">
               <span className="text-muted-foreground">
                 Already have an account?{" "}
               </span>
-              <Link
-                href="/auth/signin"
-                className="font-medium text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-              >
+              <Link href="/auth/signin" className="auth-footer-link">
                 Sign in here
               </Link>
             </div>
@@ -166,11 +161,9 @@ function RegisterForm() {
         </Card>
 
         {/* Features */}
-        <div className="space-y-4 text-center">
-          <p className="text-muted-foreground text-sm">
-            Start invoicing like a pro
-          </p>
-          <div className="text-muted-foreground flex justify-center space-x-6 text-xs">
+        <div className="auth-features">
+          <p className="welcome-description">Start invoicing like a pro</p>
+          <div className="auth-features-list">
             <span>✓ Free to start</span>
             <span>✓ No credit card</span>
             <span>✓ Cancel anytime</span>
@@ -185,15 +178,13 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-gradient-auth flex min-h-screen items-center justify-center p-4">
-          <div className="w-full max-w-md space-y-8">
-            <div className="space-y-4 text-center">
+        <div className="auth-container">
+          <div className="auth-form-container">
+            <div className="auth-header">
               <Logo size="lg" className="mx-auto" />
               <div>
-                <h1 className="text-foreground text-2xl font-bold">
-                  Join beenvoice
-                </h1>
-                <p className="text-muted-foreground mt-2">Loading...</p>
+                <h1 className="auth-title">Join beenvoice</h1>
+                <p className="auth-subtitle">Loading...</p>
               </div>
             </div>
           </div>

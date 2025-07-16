@@ -29,7 +29,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable} ${azeretMono.variable}`}>
-      <body className="bg-gradient-dashboard bg-radial-overlay relative min-h-screen overflow-x-hidden font-sans antialiased">
+      <body className="relative min-h-screen overflow-x-hidden font-sans antialiased">
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster />
       </body>

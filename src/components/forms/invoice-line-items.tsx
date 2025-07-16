@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Button } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { DatePicker } from "~/components/ui/date-picker";
@@ -62,28 +63,27 @@ function LineItemRow({
   onUpdate,
 }: LineItemRowProps) {
   return (
-    <>
-      {/* Desktop Layout - Table Row */}
-      <tr className="group hover:bg-muted/20 hidden transition-colors lg:table-row">
+    <div className="card-secondary hidden rounded-lg p-4 md:block">
+      <div className="flex items-start gap-3">
         {/* Drag Handle */}
-        <td className="w-6 p-2 text-center align-top">
-          <GripVertical className="text-muted-foreground mt-1 h-4 w-4 cursor-grab" />
-        </td>
+        <div className="mt-1 flex items-center justify-center">
+          <GripVertical className="text-muted-foreground h-4 w-4 cursor-grab" />
+        </div>
 
         {/* Main Content */}
-        <td className="p-2" colSpan={5}>
+        <div className="flex-1 space-y-3">
           {/* Description */}
-          <div className="mb-3">
+          <div>
             <Input
               value={item.description}
               onChange={(e) => onUpdate(index, "description", e.target.value)}
               placeholder="Describe the work performed..."
-              className="w-full border-0 bg-transparent py-0 pr-0 pl-2 text-sm font-medium focus-visible:ring-0"
+              className="w-full text-sm font-medium"
             />
           </div>
 
           {/* Controls Row */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Date */}
             <DatePicker
               date={item.date}
@@ -91,7 +91,7 @@ function LineItemRow({
                 onUpdate(index, "date", date ?? new Date())
               }
               size="sm"
-              className="h-9 w-28"
+              className="h-9 w-36"
             />
 
             {/* Hours */}
@@ -101,7 +101,7 @@ function LineItemRow({
               min={0}
               step={0.25}
               width="auto"
-              className="h-9 w-28"
+              className="h-9 w-32"
             />
 
             {/* Rate */}
@@ -112,7 +112,7 @@ function LineItemRow({
               step={1}
               prefix="$"
               width="auto"
-              className="h-9 w-28"
+              className="h-9 w-32"
             />
 
             {/* Amount */}
@@ -138,80 +138,9 @@ function LineItemRow({
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
-        </td>
-      </tr>
-
-      {/* Tablet Layout - Condensed Row */}
-      <tr className="group hover:bg-muted/20 hidden transition-colors md:table-row lg:hidden">
-        {/* Drag Handle */}
-        <td className="w-6 p-2 text-center align-top">
-          <GripVertical className="text-muted-foreground mt-1 h-4 w-4 cursor-grab" />
-        </td>
-
-        {/* Main Content - Description on top, inputs below */}
-        <td className="p-3" colSpan={6}>
-          {/* Description */}
-          <div className="mb-3">
-            <Input
-              value={item.description}
-              onChange={(e) => onUpdate(index, "description", e.target.value)}
-              placeholder="Describe the work performed..."
-              className="w-full pl-3 text-sm font-medium"
-            />
-          </div>
-
-          {/* Controls Row - Date/Hours/Rate break to separate rows on smaller screens */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <DatePicker
-              date={item.date}
-              onDateChange={(date) =>
-                onUpdate(index, "date", date ?? new Date())
-              }
-              size="sm"
-              className="h-9 w-full sm:w-28"
-            />
-            <NumberInput
-              value={item.hours}
-              onChange={(value) => onUpdate(index, "hours", value)}
-              min={0}
-              step={0.25}
-              width="full"
-              className="h-9 w-1/2 sm:w-28"
-            />
-            <NumberInput
-              value={item.rate}
-              onChange={(value) => onUpdate(index, "rate", value)}
-              min={0}
-              step={1}
-              prefix="$"
-              width="full"
-              className="h-9 w-1/2 sm:w-28"
-            />
-
-            {/* Amount and Actions - inline with controls on larger screens */}
-            <div className="mt-3 flex items-center justify-between sm:mt-0 sm:ml-auto sm:gap-3">
-              <span className="text-primary font-semibold">
-                ${(item.hours * item.rate).toFixed(2)}
-              </span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemove(index)}
-                className={cn(
-                  "text-muted-foreground h-8 w-8 p-0 transition-colors hover:text-red-500",
-                  !canRemove && "cursor-not-allowed opacity-50",
-                )}
-                disabled={!canRemove}
-                aria-label="Remove item"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </td>
-      </tr>
-    </>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -227,55 +156,57 @@ function MobileLineItem({
   isLast,
 }: LineItemRowProps) {
   return (
-    <div className="bg-card space-y-3 rounded-lg border p-4 md:hidden">
-      {/* Description */}
-      <div className="space-y-1">
-        <Label className="text-muted-foreground text-xs">Description</Label>
-        <Input
-          value={item.description}
-          onChange={(e) => onUpdate(index, "description", e.target.value)}
-          placeholder="Describe the work performed..."
-          className="pl-3 text-sm"
-        />
-      </div>
-
-      {/* Date */}
-      <div className="space-y-1">
-        <Label className="text-muted-foreground text-xs">Date</Label>
-        <DatePicker
-          date={item.date}
-          onDateChange={(date) => onUpdate(index, "date", date ?? new Date())}
-          size="sm"
-        />
-      </div>
-
-      {/* Hours and Rate in a row */}
-      <div className="grid grid-cols-2 gap-3">
+    <div className="card-secondary space-y-3 rounded-lg md:hidden">
+      <div className="space-y-3 p-4">
+        {/* Description */}
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">Hours</Label>
-          <NumberInput
-            value={item.hours}
-            onChange={(value) => onUpdate(index, "hours", value)}
-            min={0}
-            step={0.25}
-            width="full"
+          <Label className="text-muted-foreground text-xs">Description</Label>
+          <Input
+            value={item.description}
+            onChange={(e) => onUpdate(index, "description", e.target.value)}
+            placeholder="Describe the work performed..."
+            className="pl-3 text-sm"
           />
         </div>
+
+        {/* Date */}
         <div className="space-y-1">
-          <Label className="text-muted-foreground text-xs">Rate</Label>
-          <NumberInput
-            value={item.rate}
-            onChange={(value) => onUpdate(index, "rate", value)}
-            min={0}
-            step={1}
-            prefix="$"
-            width="full"
+          <Label className="text-muted-foreground text-xs">Date</Label>
+          <DatePicker
+            date={item.date}
+            onDateChange={(date) => onUpdate(index, "date", date ?? new Date())}
+            size="sm"
           />
+        </div>
+
+        {/* Hours and Rate in a row */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-muted-foreground text-xs">Hours</Label>
+            <NumberInput
+              value={item.hours}
+              onChange={(value) => onUpdate(index, "hours", value)}
+              min={0}
+              step={0.25}
+              width="full"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-muted-foreground text-xs">Rate</Label>
+            <NumberInput
+              value={item.rate}
+              onChange={(value) => onUpdate(index, "rate", value)}
+              min={0}
+              step={1}
+              prefix="$"
+              width="full"
+            />
+          </div>
         </div>
       </div>
 
       {/* Bottom section with controls, item name, and total */}
-      <div className="flex items-center justify-between border-t pt-2">
+      <div className="flex items-center justify-between rounded-b-lg border-t border-slate-400/60 bg-slate-200/30 px-4 py-2 dark:border-slate-500/60 dark:bg-slate-700/30">
         <div className="flex items-center gap-2">
           <Button
             type="button"
@@ -355,71 +286,36 @@ export function InvoiceLineItems({
 
   return (
     <div className={cn("space-y-2", className)}>
-      {/* Desktop and Tablet Table */}
-      <div className="hidden md:block">
-        <div className="overflow-hidden rounded-lg border">
-          <table className="w-full">
-            {/* Desktop Header */}
-            <thead className="bg-muted/30 hidden lg:table-header-group">
-              <tr>
-                <th className="w-6 p-2"></th>
-                <th
-                  className="text-muted-foreground p-2 text-left text-xs font-medium"
-                  colSpan={5}
-                >
-                  Invoice Items
-                </th>
-              </tr>
-            </thead>
-
-            {/* Tablet Header */}
-            <thead className="bg-muted/30 md:table-header-group lg:hidden">
-              <tr>
-                <th className="w-6 p-2"></th>
-                <th
-                  className="text-muted-foreground p-2 text-left text-xs font-medium"
-                  colSpan={6}
-                >
-                  Invoice Items
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y">
-              {items.map((item, index) => (
-                <LineItemRow
-                  key={item.id}
-                  item={item}
-                  index={index}
-                  canRemove={canRemoveItems}
-                  onRemove={onRemoveItem}
-                  onUpdate={onUpdateItem}
-                  onMoveUp={onMoveUp}
-                  onMoveDown={onMoveDown}
-                  isFirst={index === 0}
-                  isLast={index === items.length - 1}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Mobile Cards */}
-      <div className="space-y-2 md:hidden">
+      {/* Desktop and Mobile Cards */}
+      <div className="space-y-2">
         {items.map((item, index) => (
-          <MobileLineItem
-            key={item.id}
-            item={item}
-            index={index}
-            canRemove={canRemoveItems}
-            onRemove={onRemoveItem}
-            onUpdate={onUpdateItem}
-            onMoveUp={onMoveUp}
-            onMoveDown={onMoveDown}
-            isFirst={index === 0}
-            isLast={index === items.length - 1}
-          />
+          <React.Fragment key={item.id}>
+            {/* Desktop/Tablet Card */}
+            <LineItemRow
+              item={item}
+              index={index}
+              canRemove={canRemoveItems}
+              onRemove={onRemoveItem}
+              onUpdate={onUpdateItem}
+              onMoveUp={onMoveUp}
+              onMoveDown={onMoveDown}
+              isFirst={index === 0}
+              isLast={index === items.length - 1}
+            />
+
+            {/* Mobile Card */}
+            <MobileLineItem
+              item={item}
+              index={index}
+              canRemove={canRemoveItems}
+              onRemove={onRemoveItem}
+              onUpdate={onUpdateItem}
+              onMoveUp={onMoveUp}
+              onMoveDown={onMoveDown}
+              isFirst={index === 0}
+              isLast={index === items.length - 1}
+            />
+          </React.Fragment>
         ))}
       </div>
 

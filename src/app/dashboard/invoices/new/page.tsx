@@ -94,7 +94,7 @@ function InvoiceItemCard({
   };
 
   return (
-    <Card className="border-border/50 border p-3 shadow-sm">
+    <Card className="card-secondary">
       <div className="space-y-3">
         {/* Header with item number and delete */}
         <div className="flex items-center justify-between">
@@ -106,7 +106,7 @@ function InvoiceItemCard({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+                className="text-icon-red hover:text-error h-6 w-6 p-0"
               >
                 <Trash2 className="h-3 w-3" />
               </Button>
@@ -123,7 +123,7 @@ function InvoiceItemCard({
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => onDelete(index)}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="btn-danger"
                 >
                   Delete
                 </AlertDialogAction>
@@ -142,7 +142,7 @@ function InvoiceItemCard({
         />
 
         {/* Date, Hours, Rate, Amount in compact grid */}
-        <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 text-sm md:grid-cols-4">
           <div className="space-y-1">
             <Label className="text-xs font-medium">Date</Label>
             <DatePicker
@@ -150,7 +150,8 @@ function InvoiceItemCard({
               onDateChange={(date) =>
                 handleFieldChange("date", date ?? new Date())
               }
-              className="[&>button]:h-8 [&>button]:text-xs"
+              size="sm"
+              className="w-full"
             />
           </div>
           <div className="space-y-1">
@@ -161,7 +162,6 @@ function InvoiceItemCard({
               min={0}
               step={0.25}
               placeholder="0"
-              className="text-xs"
             />
           </div>
           <div className="space-y-1">
@@ -173,13 +173,12 @@ function InvoiceItemCard({
               step={0.25}
               placeholder="0.00"
               prefix="$"
-              className="text-xs"
             />
           </div>
           <div className="space-y-1">
             <Label className="text-xs font-medium">Amount</Label>
             <div className="bg-muted/30 flex h-8 items-center rounded-md border px-2">
-              <span className="font-mono text-xs font-medium text-emerald-600">
+              <span className="amount-primary">
                 ${(item.hours * item.rate).toFixed(2)}
               </span>
             </div>
@@ -377,9 +376,9 @@ export default function NewInvoicePage() {
           description="Loading form data..."
           variant="gradient"
         />
-        <Card className="shadow-xl">
+        <Card className="card-primary">
           <CardContent className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <Loader2 className="text-icon-emerald h-8 w-8 animate-spin" />
           </CardContent>
         </Card>
       </div>
@@ -394,25 +393,25 @@ export default function NewInvoicePage() {
         variant="gradient"
       >
         <Link href="/dashboard/invoices">
-          <Button variant="outline" size="sm" className="w-full sm:w-auto">
+          <Button variant="outline" size="sm" className="w-full md:w-auto">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            <span className="hidden sm:inline">Back to Invoices</span>
-            <span className="sm:hidden">Back</span>
+            <span className="hidden md:inline">Back to Invoices</span>
+            <span className="md:hidden">Back</span>
           </Button>
         </Link>
       </PageHeader>
 
       <div className="space-y-6">
         {/* Invoice Header */}
-        <Card className="shadow-lg">
+        <Card className="card-primary">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-emerald-600" />
+            <CardTitle className="card-title-secondary">
+              <FileText className="text-icon-emerald h-5 w-5" />
               Invoice Details
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Invoice Number</Label>
                 <div className="bg-muted/30 flex h-10 items-center rounded-md border px-3">
@@ -453,15 +452,15 @@ export default function NewInvoicePage() {
         </Card>
 
         {/* Business & Client */}
-        <Card className="shadow-lg">
+        <Card className="card-primary">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Building className="h-5 w-5 text-emerald-600" />
+            <CardTitle className="card-title-secondary">
+              <Building className="text-icon-emerald h-5 w-5" />
               Business & Client
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">From Business</Label>
                 <div className="relative">
@@ -484,7 +483,7 @@ export default function NewInvoicePage() {
                           <div className="flex items-center gap-2">
                             <span>{business.name}</span>
                             {business.isDefault && (
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge className="badge-secondary text-xs">
                                 Default
                               </Badge>
                             )}
@@ -495,11 +494,11 @@ export default function NewInvoicePage() {
                   </Select>
                 </div>
                 {(!businesses || businesses.length === 0) && (
-                  <p className="text-sm text-red-600">
+                  <p className="text-icon-red text-sm">
                     No businesses found.{" "}
                     <Link
                       href="/dashboard/businesses/new"
-                      className="underline hover:text-red-700"
+                      className="link-secondary"
                     >
                       Create one first
                     </Link>
@@ -551,7 +550,7 @@ export default function NewInvoicePage() {
         </Card>
 
         {/* Line Items */}
-        <Card className="shadow-lg">
+        <Card className="card-primary">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
@@ -565,8 +564,8 @@ export default function NewInvoicePage() {
                 size="sm"
                 className="shrink-0"
               >
-                <Plus className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline">Add Item</span>
+                <Plus className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Add Item</span>
               </Button>
             </div>
           </CardHeader>
@@ -585,7 +584,7 @@ export default function NewInvoicePage() {
         </Card>
 
         {/* Tax & Totals */}
-        <Card className="shadow-lg">
+        <Card className="card-primary">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <DollarSign className="h-5 w-5 text-emerald-600" />
@@ -595,22 +594,25 @@ export default function NewInvoicePage() {
           <CardContent className="space-y-6">
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Tax Rate (%)</Label>
-                  <NumberInput
-                    value={formData.taxRate}
-                    onChange={(value) =>
-                      setFormData({
-                        ...formData,
-                        taxRate: value,
-                      })
-                    }
-                    min={0}
-                    max={100}
-                    step={0.01}
-                    placeholder="0.00"
-                    suffix="%"
-                  />
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div className="space-y-2 md:col-span-1">
+                    <Label className="text-sm font-medium">Tax Rate (%)</Label>
+                    <NumberInput
+                      value={formData.taxRate}
+                      onChange={(value) =>
+                        setFormData({
+                          ...formData,
+                          taxRate: value,
+                        })
+                      }
+                      min={0}
+                      max={100}
+                      step={0.01}
+                      placeholder="0.00"
+                      suffix="%"
+                      width="full"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -659,21 +661,21 @@ export default function NewInvoicePage() {
             {/* Action Buttons */}
             <div
               ref={footerRef}
-              className="flex flex-col gap-3 border-t pt-6 sm:flex-row sm:justify-between"
+              className="flex flex-col gap-3 border-t pt-6 md:flex-row md:justify-between"
             >
               <Link href="/dashboard/invoices">
-                <Button variant="outline" className="w-full sm:w-auto">
+                <Button variant="outline" className="w-full md:w-auto">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Cancel
                 </Button>
               </Link>
 
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center">
                 <Button
                   onClick={handleSaveDraft}
                   disabled={isLoading || !isFormValid()}
                   variant="outline"
-                  className="w-full sm:w-auto"
+                  className="w-full md:w-auto"
                 >
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -685,7 +687,7 @@ export default function NewInvoicePage() {
                 <Button
                   onClick={handleCreateInvoice}
                   disabled={isLoading || !isFormValid()}
-                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 sm:w-auto"
+                  className="btn-brand-primary w-full md:w-auto"
                 >
                   {isLoading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -708,8 +710,8 @@ export default function NewInvoicePage() {
             className="border-border/40 hover:bg-accent/50"
             size="sm"
           >
-            <ArrowLeft className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Cancel</span>
+            <ArrowLeft className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">Cancel</span>
           </Button>
         </Link>
         <Button
@@ -720,24 +722,24 @@ export default function NewInvoicePage() {
           size="sm"
         >
           {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+            <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
           ) : (
-            <Save className="h-4 w-4 sm:mr-2" />
+            <Save className="h-4 w-4 md:mr-2" />
           )}
-          <span className="hidden sm:inline">Save Draft</span>
+          <span className="hidden md:inline">Save Draft</span>
         </Button>
         <Button
           onClick={handleCreateInvoice}
           disabled={isLoading || !isFormValid()}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          className="btn-brand-primary shadow-md"
           size="sm"
         >
           {isLoading ? (
-            <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+            <Loader2 className="h-4 w-4 animate-spin md:mr-2" />
           ) : (
-            <Send className="h-4 w-4 sm:mr-2" />
+            <Send className="h-4 w-4 md:mr-2" />
           )}
-          <span className="hidden sm:inline">Create Invoice</span>
+          <span className="hidden md:inline">Create Invoice</span>
         </Button>
       </FloatingActionBar>
     </div>

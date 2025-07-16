@@ -94,7 +94,7 @@ export function StatsCard({
 
 export function StatsCardSkeleton() {
   return (
-    <Card className="border-0 shadow-md">
+    <Card className="card-primary">
       <CardContent className="p-6">
         <div className="animate-pulse">
           <div className="bg-muted mb-2 h-4 w-1/2 rounded"></div>

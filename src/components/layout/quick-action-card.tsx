@@ -99,7 +99,7 @@ export function QuickActionCard({
 
 export function QuickActionCardSkeleton() {
   return (
-    <Card className="border-0 shadow-md">
+    <Card className="card-primary">
       <CardContent className="p-6">
         <div className="animate-pulse">
           <div className="bg-muted mx-auto mb-3 h-12 w-12 rounded-full"></div>
