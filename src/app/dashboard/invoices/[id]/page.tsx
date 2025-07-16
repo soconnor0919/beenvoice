@@ -78,7 +78,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">
+          <h1 className="text-foreground text-3xl font-bold">
             Invoice Details
           </h1>
           <p className="text-muted-foreground mt-1">
@@ -91,28 +91,35 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
       </div>
 
       {/* Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="space-y-6 lg:col-span-2">
           {/* Invoice Header */}
           <Card className="shadow-sm">
             <CardContent className="p-6">
               <div className="space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-3">
-                      <h2 className="text-2xl font-bold text-foreground">
+                <div className="flex items-start justify-between gap-6">
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+                      <h2 className="text-foreground truncate text-2xl font-bold">
                         {invoice.invoiceNumber}
                       </h2>
                       <StatusBadge status={getStatusType()} />
                     </div>
-                    <p className="text-muted-foreground">
-                      Issued {formatDate(invoice.issueDate)} • Due {formatDate(invoice.dueDate)}
-                    </p>
+                    <div className="text-muted-foreground space-y-1 text-sm sm:space-y-0">
+                      <div className="sm:inline">
+                        Issued {formatDate(invoice.issueDate)}
+                      </div>
+                      <div className="sm:inline sm:before:content-['_•_']">
+                        Due {formatDate(invoice.dueDate)}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Total Amount</p>
-                    <p className="text-3xl font-bold text-primary">
+                  <div className="flex-shrink-0 text-right">
+                    <p className="text-muted-foreground text-sm">
+                      Total Amount
+                    </p>
+                    <p className="text-primary text-3xl font-bold">
                       {formatCurrency(total)}
                     </p>
                   </div>
@@ -125,13 +132,14 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
           {isOverdue && (
             <Card className="border-destructive/20 bg-destructive/5 shadow-sm">
               <CardContent className="p-4">
-                <div className="flex items-center gap-3 text-destructive">
+                <div className="text-destructive flex items-center gap-3">
                   <AlertTriangle className="h-5 w-5 flex-shrink-0" />
                   <div>
                     <p className="font-medium">Invoice Overdue</p>
                     <p className="text-sm">
                       {Math.ceil(
-                        (new Date().getTime() - new Date(invoice.dueDate).getTime()) /
+                        (new Date().getTime() -
+                          new Date(invoice.dueDate).getTime()) /
                           (1000 * 60 * 60 * 24),
                       )}{" "}
                       days past due date
@@ -154,7 +162,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <h3 className="text-xl font-semibold text-foreground">
+                  <h3 className="text-foreground text-xl font-semibold">
                     {invoice.client.name}
                   </h3>
                 </div>
@@ -162,17 +170,19 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
                 <div className="space-y-3">
                   {invoice.client.email && (
                     <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-primary/10 p-2">
-                        <Mail className="h-4 w-4 text-primary" />
+                      <div className="bg-primary/10 rounded-lg p-2">
+                        <Mail className="text-primary h-4 w-4" />
                       </div>
-                      <span className="text-sm break-all">{invoice.client.email}</span>
+                      <span className="text-sm break-all">
+                        {invoice.client.email}
+                      </span>
                     </div>
                   )}
 
                   {invoice.client.phone && (
                     <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-primary/10 p-2">
-                        <Phone className="h-4 w-4 text-primary" />
+                      <div className="bg-primary/10 rounded-lg p-2">
+                        <Phone className="text-primary h-4 w-4" />
                       </div>
                       <span className="text-sm">{invoice.client.phone}</span>
                     </div>
@@ -180,10 +190,10 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
 
                   {(invoice.client.addressLine1 ?? invoice.client.city) && (
                     <div className="flex items-start gap-3">
-                      <div className="rounded-lg bg-primary/10 p-2">
-                        <MapPin className="h-4 w-4 text-primary" />
+                      <div className="bg-primary/10 rounded-lg p-2">
+                        <MapPin className="text-primary h-4 w-4" />
                       </div>
-                      <div className="text-sm space-y-1">
+                      <div className="space-y-1 text-sm">
                         {invoice.client.addressLine1 && (
                           <div>{invoice.client.addressLine1}</div>
                         )}
@@ -224,7 +234,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h3 className="text-xl font-semibold text-foreground">
+                    <h3 className="text-foreground text-xl font-semibold">
                       {invoice.business.name}
                     </h3>
                   </div>
@@ -232,19 +242,23 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
                   <div className="space-y-3">
                     {invoice.business.email && (
                       <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-primary/10 p-2">
-                          <Mail className="h-4 w-4 text-primary" />
+                        <div className="bg-primary/10 rounded-lg p-2">
+                          <Mail className="text-primary h-4 w-4" />
                         </div>
-                        <span className="text-sm break-all">{invoice.business.email}</span>
+                        <span className="text-sm break-all">
+                          {invoice.business.email}
+                        </span>
                       </div>
                     )}
 
                     {invoice.business.phone && (
                       <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-primary/10 p-2">
-                          <Phone className="h-4 w-4 text-primary" />
+                        <div className="bg-primary/10 rounded-lg p-2">
+                          <Phone className="text-primary h-4 w-4" />
                         </div>
-                        <span className="text-sm">{invoice.business.phone}</span>
+                        <span className="text-sm">
+                          {invoice.business.phone}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -263,20 +277,26 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {invoice.items.map((item, index) => (
-                <div key={item.id} className="border rounded-lg p-4 space-y-3">
+                <div key={item.id} className="space-y-3 rounded-lg border p-4">
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-foreground text-base font-medium mb-2">{item.description}</p>
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span>{formatDate(item.date)}</span>
-                        <span>•</span>
-                        <span>{item.hours} hours</span>
-                        <span>•</span>
-                        <span>@ ${item.rate}/hr</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-foreground mb-2 text-base font-medium">
+                        {item.description}
+                      </p>
+                      <div className="text-muted-foreground space-y-1 text-sm sm:space-y-0">
+                        <span className="sm:inline">
+                          {formatDate(item.date)}
+                        </span>
+                        <span className="block sm:inline sm:before:content-['_•_']">
+                          {item.hours} hours
+                        </span>
+                        <span className="block sm:inline sm:before:content-['_•_']">
+                          @ ${item.rate}/hr
+                        </span>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-semibold text-primary">
+                    <div className="flex-shrink-0 text-right">
+                      <p className="text-primary text-lg font-semibold">
                         {formatCurrency(item.amount)}
                       </p>
                     </div>
@@ -289,18 +309,26 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Subtotal:</span>
-                    <span className="font-medium">{formatCurrency(subtotal)}</span>
+                    <span className="font-medium">
+                      {formatCurrency(subtotal)}
+                    </span>
                   </div>
                   {invoice.taxRate > 0 && (
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Tax ({invoice.taxRate}%):</span>
-                      <span className="font-medium">{formatCurrency(taxAmount)}</span>
+                      <span className="text-muted-foreground">
+                        Tax ({invoice.taxRate}%):
+                      </span>
+                      <span className="font-medium">
+                        {formatCurrency(taxAmount)}
+                      </span>
                     </div>
                   )}
                   <Separator />
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total:</span>
-                    <span className="text-primary">{formatCurrency(total)}</span>
+                    <span className="text-primary">
+                      {formatCurrency(total)}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -314,7 +342,9 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
                 <CardTitle>Notes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-foreground whitespace-pre-wrap">{invoice.notes}</p>
+                <p className="text-foreground whitespace-pre-wrap">
+                  {invoice.notes}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -336,19 +366,13 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
                   Edit Invoice
                 </Link>
               </Button>
-              
+
               {invoice.items && invoice.client && (
-                <PDFDownloadButton 
-                  invoiceId={invoice.id} 
-                  className="w-full"
-                />
+                <PDFDownloadButton invoiceId={invoice.id} className="w-full" />
               )}
 
               {invoice.status === "draft" && (
-                <SendInvoiceButton 
-                  invoiceId={invoice.id} 
-                  className="w-full"
-                />
+                <SendInvoiceButton invoiceId={invoice.id} className="w-full" />
               )}
             </CardContent>
           </Card>
