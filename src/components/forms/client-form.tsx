@@ -1,7 +1,7 @@
 "use client";
 
-import { UserPlus, Mail, Phone, Save, Loader2, ArrowLeft } from "lucide-react";
-import Link from "next/link";
+import { UserPlus, Save, Loader2, ArrowLeft, DollarSign } from "lucide-react";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { Label } from "~/components/ui/label";
 import { FormSkeleton } from "~/components/ui/skeleton";
 import { AddressForm } from "~/components/forms/address-form";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
+import { NumberInput } from "~/components/ui/number-input";
 import { api } from "~/trpc/react";
 import {
   formatPhoneNumber,
@@ -35,6 +36,7 @@ interface FormData {
   state: string;
   postalCode: string;
   country: string;
+  defaultHourlyRate: number;
 }
 
 interface FormErrors {
@@ -46,6 +48,7 @@ interface FormErrors {
   state?: string;
   postalCode?: string;
   country?: string;
+  defaultHourlyRate?: string;
 }
 
 const initialFormData: FormData = {
@@ -58,6 +61,7 @@ const initialFormData: FormData = {
   state: "",
   postalCode: "",
   country: "United States",
+  defaultHourlyRate: 100,
 };
 
 export function ClientForm({ clientId, mode }: ClientFormProps) {
@@ -108,11 +112,12 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         state: client.state ?? "",
         postalCode: client.postalCode ?? "",
         country: client.country ?? "United States",
+        defaultHourlyRate: client.defaultHourlyRate ?? 100,
       });
     }
   }, [client, mode]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
 
@@ -225,7 +230,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                 <div>
                   <CardTitle>Basic Information</CardTitle>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Enter the client's primary details
+                    Enter the client&apos;s primary details
                   </p>
                 </div>
               </div>
@@ -322,7 +327,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                 <div>
                   <CardTitle>Address</CardTitle>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Client's physical location
+                    Client&apos;s physical location
                   </p>
                 </div>
               </div>
@@ -339,6 +344,49 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                 errors={errors}
                 required={false}
               />
+            </CardContent>
+          </Card>
+
+          {/* Billing Information */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                  <DollarSign className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <CardTitle>Billing Information</CardTitle>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Default billing rates for this client
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="defaultHourlyRate"
+                  className="text-sm font-medium"
+                >
+                  Default Hourly Rate
+                </Label>
+                <NumberInput
+                  value={formData.defaultHourlyRate}
+                  onChange={(value) =>
+                    handleInputChange("defaultHourlyRate", value)
+                  }
+                  min={0}
+                  step={1}
+                  prefix="$"
+                  width="full"
+                  disabled={isSubmitting}
+                />
+                {errors.defaultHourlyRate && (
+                  <p className="text-destructive text-sm">
+                    {errors.defaultHourlyRate}
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -411,12 +459,16 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           {isSubmitting ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
-              <span className="hidden sm:inline">{mode === "create" ? "Creating..." : "Saving..."}</span>
+              <span className="hidden sm:inline">
+                {mode === "create" ? "Creating..." : "Saving..."}
+              </span>
             </>
           ) : (
             <>
               <Save className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">{mode === "create" ? "Create Client" : "Save Changes"}</span>
+              <span className="hidden sm:inline">
+                {mode === "create" ? "Create Client" : "Save Changes"}
+              </span>
             </>
           )}
         </Button>

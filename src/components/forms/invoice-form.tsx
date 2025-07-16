@@ -281,6 +281,20 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     }
   }, [businesses, formData.businessId, invoiceId]);
 
+  // Update default hourly rate when client changes
+  React.useEffect(() => {
+    if (formData.clientId && clients) {
+      const selectedClient = clients.find((c) => c.id === formData.clientId);
+      if (selectedClient?.defaultHourlyRate) {
+        setFormData((prev) => ({
+          ...prev,
+          defaultHourlyRate: selectedClient.defaultHourlyRate,
+        }));
+      }
+    }
+     
+  }, [formData.clientId, clients]);
+
   // Calculate totals
   const totals = React.useMemo(() => {
     const subtotal = formData.items.reduce(
@@ -339,7 +353,11 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     if (idx === 0) return; // Already at top
     setFormData((prev) => {
       const newItems = [...prev.items];
-      [newItems[idx - 1], newItems[idx]] = [newItems[idx], newItems[idx - 1]];
+      if (idx > 0 && idx < newItems.length) {
+        const temp = newItems[idx - 1]!;
+        newItems[idx - 1] = newItems[idx]!;
+        newItems[idx] = temp;
+      }
       return { ...prev, items: newItems };
     });
   };
@@ -349,7 +367,11 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     if (idx === formData.items.length - 1) return; // Already at bottom
     setFormData((prev) => {
       const newItems = [...prev.items];
-      [newItems[idx], newItems[idx + 1]] = [newItems[idx + 1], newItems[idx]];
+      if (idx >= 0 && idx < newItems.length - 1) {
+        const temp = newItems[idx]!;
+        newItems[idx] = newItems[idx + 1]!;
+        newItems[idx + 1] = temp;
+      }
       return { ...prev, items: newItems };
     });
   };

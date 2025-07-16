@@ -7,13 +7,42 @@ import { TRPCError } from "@trpc/server";
 const createClientSchema = z.object({
   name: z.string().min(1, "Name is required").max(255, "Name is too long"),
   email: z.string().email("Invalid email").optional().or(z.literal("")),
-  phone: z.string().max(50, "Phone number is too long").optional().or(z.literal("")),
-  addressLine1: z.string().max(255, "Address is too long").optional().or(z.literal("")),
-  addressLine2: z.string().max(255, "Address is too long").optional().or(z.literal("")),
-  city: z.string().max(100, "City name is too long").optional().or(z.literal("")),
-  state: z.string().max(50, "State name is too long").optional().or(z.literal("")),
-  postalCode: z.string().max(20, "Postal code is too long").optional().or(z.literal("")),
-  country: z.string().max(100, "Country name is too long").optional().or(z.literal("")),
+  phone: z
+    .string()
+    .max(50, "Phone number is too long")
+    .optional()
+    .or(z.literal("")),
+  addressLine1: z
+    .string()
+    .max(255, "Address is too long")
+    .optional()
+    .or(z.literal("")),
+  addressLine2: z
+    .string()
+    .max(255, "Address is too long")
+    .optional()
+    .or(z.literal("")),
+  city: z
+    .string()
+    .max(100, "City name is too long")
+    .optional()
+    .or(z.literal("")),
+  state: z
+    .string()
+    .max(50, "State name is too long")
+    .optional()
+    .or(z.literal("")),
+  postalCode: z
+    .string()
+    .max(20, "Postal code is too long")
+    .optional()
+    .or(z.literal("")),
+  country: z
+    .string()
+    .max(100, "Country name is too long")
+    .optional()
+    .or(z.literal("")),
+  defaultHourlyRate: z.number().min(0, "Rate must be positive").default(100),
 });
 
 const updateClientSchema = createClientSchema.partial().extend({
@@ -23,10 +52,10 @@ const updateClientSchema = createClientSchema.partial().extend({
 export const clientsRouter = createTRPCRouter({
   getAll: protectedProcedure.query(async ({ ctx }) => {
     try {
-    return await ctx.db.query.clients.findMany({
-      where: eq(clients.createdById, ctx.session.user.id),
-      orderBy: (clients, { desc }) => [desc(clients.createdAt)],
-    });
+      return await ctx.db.query.clients.findMany({
+        where: eq(clients.createdById, ctx.session.user.id),
+        orderBy: (clients, { desc }) => [desc(clients.createdAt)],
+      });
     } catch (error) {
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
@@ -41,13 +70,13 @@ export const clientsRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       try {
         const client = await ctx.db.query.clients.findFirst({
-        where: eq(clients.id, input.id),
-        with: {
-          invoices: {
-            orderBy: (invoices, { desc }) => [desc(invoices.createdAt)],
+          where: eq(clients.id, input.id),
+          with: {
+            invoices: {
+              orderBy: (invoices, { desc }) => [desc(invoices.createdAt)],
+            },
           },
-        },
-      });
+        });
 
         if (!client) {
           throw new TRPCError({
@@ -84,14 +113,17 @@ export const clientsRouter = createTRPCRouter({
           Object.entries(input).map(([key, value]) => [
             key,
             value === "" ? null : value,
-          ])
+          ]),
         );
 
-        const [client] = await ctx.db.insert(clients).values({
-          name: input.name, // Ensure name is included
-          ...cleanInput,
-        createdById: ctx.session.user.id,
-        }).returning();
+        const [client] = await ctx.db
+          .insert(clients)
+          .values({
+            name: input.name, // Ensure name is included
+            ...cleanInput,
+            createdById: ctx.session.user.id,
+          })
+          .returning();
 
         if (!client) {
           throw new TRPCError({
@@ -107,7 +139,7 @@ export const clientsRouter = createTRPCRouter({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to create client",
           cause: error,
-      });
+        });
       }
     }),
 
@@ -115,7 +147,7 @@ export const clientsRouter = createTRPCRouter({
     .input(updateClientSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-      const { id, ...data } = input;
+        const { id, ...data } = input;
 
         // Verify client exists and belongs to user
         const existingClient = await ctx.db.query.clients.findFirst({
@@ -141,15 +173,15 @@ export const clientsRouter = createTRPCRouter({
           Object.entries(data).map(([key, value]) => [
             key,
             value === "" ? null : value,
-          ])
+          ]),
         );
 
         const [updatedClient] = await ctx.db
-        .update(clients)
-        .set({
+          .update(clients)
+          .set({
             ...cleanData,
-          updatedAt: new Date(),
-        })
+            updatedAt: new Date(),
+          })
           .where(eq(clients.id, id))
           .returning();
 
@@ -202,12 +234,13 @@ export const clientsRouter = createTRPCRouter({
         if (clientInvoices.length > 0) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Cannot delete client with existing invoices. Please delete or reassign the invoices first.",
+            message:
+              "Cannot delete client with existing invoices. Please delete or reassign the invoices first.",
           });
         }
 
         await ctx.db.delete(clients).where(eq(clients.id, input.id));
-        
+
         return { success: true };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
@@ -218,4 +251,4 @@ export const clientsRouter = createTRPCRouter({
         });
       }
     }),
-}); 
+});

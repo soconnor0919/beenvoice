@@ -106,6 +106,7 @@ export const clients = createTable(
     state: d.text({ length: 50 }),
     postalCode: d.text({ length: 20 }),
     country: d.text({ length: 100 }),
+    defaultHourlyRate: d.real().notNull().default(100.0),
     createdById: d
       .text({ length: 255 })
       .notNull()
@@ -124,7 +125,10 @@ export const clients = createTable(
 );
 
 export const clientsRelations = relations(clients, ({ one, many }) => ({
-  createdBy: one(users, { fields: [clients.createdById], references: [users.id] }),
+  createdBy: one(users, {
+    fields: [clients.createdById],
+    references: [users.id],
+  }),
   invoices: many(invoices),
 }));
 
@@ -168,7 +172,10 @@ export const businesses = createTable(
 );
 
 export const businessesRelations = relations(businesses, ({ one, many }) => ({
-  createdBy: one(users, { fields: [businesses.createdById], references: [users.id] }),
+  createdBy: one(users, {
+    fields: [businesses.createdById],
+    references: [users.id],
+  }),
   invoices: many(invoices),
 }));
 
@@ -181,9 +188,7 @@ export const invoices = createTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     invoiceNumber: d.text({ length: 100 }).notNull(),
-    businessId: d
-      .text({ length: 255 })
-      .references(() => businesses.id),
+    businessId: d.text({ length: 255 }).references(() => businesses.id),
     clientId: d
       .text({ length: 255 })
       .notNull()
@@ -192,7 +197,7 @@ export const invoices = createTable(
     dueDate: d.integer({ mode: "timestamp" }).notNull(),
     status: d.text({ length: 50 }).notNull().default("draft"), // draft, sent, paid, overdue
     totalAmount: d.real().notNull().default(0),
-    taxRate: d.real().notNull().default(0.00),
+    taxRate: d.real().notNull().default(0.0),
     notes: d.text({ length: 1000 }),
     createdById: d
       .text({ length: 255 })
@@ -214,9 +219,18 @@ export const invoices = createTable(
 );
 
 export const invoicesRelations = relations(invoices, ({ one, many }) => ({
-  business: one(businesses, { fields: [invoices.businessId], references: [businesses.id] }),
-  client: one(clients, { fields: [invoices.clientId], references: [clients.id] }),
-  createdBy: one(users, { fields: [invoices.createdById], references: [users.id] }),
+  business: one(businesses, {
+    fields: [invoices.businessId],
+    references: [businesses.id],
+  }),
+  client: one(clients, {
+    fields: [invoices.clientId],
+    references: [clients.id],
+  }),
+  createdBy: one(users, {
+    fields: [invoices.createdById],
+    references: [users.id],
+  }),
   items: many(invoiceItems),
 }));
 
@@ -251,5 +265,8 @@ export const invoiceItems = createTable(
 );
 
 export const invoiceItemsRelations = relations(invoiceItems, ({ one }) => ({
-  invoice: one(invoices, { fields: [invoiceItems.invoiceId], references: [invoices.id] }),
+  invoice: one(invoices, {
+    fields: [invoiceItems.invoiceId],
+    references: [invoices.id],
+  }),
 }));
