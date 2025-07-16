@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
+
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { Separator } from "~/components/ui/separator";
 import {
@@ -19,15 +19,12 @@ import {
 import { toast } from "sonner";
 import { format } from "date-fns";
 import {
-  Calendar,
   FileText,
   User,
   DollarSign,
   Trash2,
-  Edit,
   Download,
   Send,
-  ArrowLeft,
   Clock,
   MapPin,
   Mail,
@@ -36,7 +33,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { generateInvoicePDF } from "~/lib/pdf-export";
-import { InvoiceViewSkeleton } from "~/components/ui/skeleton";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface InvoiceViewProps {
   invoiceId: string;
@@ -130,7 +127,23 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
     invoice.status !== "paid";
 
   if (isLoading) {
-    return <InvoiceViewSkeleton />;
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-24" />
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!invoice) {

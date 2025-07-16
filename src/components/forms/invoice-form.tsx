@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -52,10 +52,10 @@ function InvoiceFormSkeleton() {
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column - Content with Tabs */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Tabs - Mobile stacked, desktop side-by-side */}
-          <div className="bg-muted grid w-full grid-cols-1 gap-1 rounded-lg p-1 sm:grid-cols-2">
-            <div className="bg-background h-9 rounded-md shadow-sm sm:h-10"></div>
-            <div className="bg-muted/30 h-9 rounded-md sm:h-10"></div>
+          {/* Tabs - Match actual TabsList structure */}
+          <div className="bg-muted text-muted-foreground inline-flex h-9 w-full items-center justify-center rounded-lg p-[3px]">
+            <div className="bg-background h-[calc(100%-1px)] flex-1 rounded-md shadow-sm"></div>
+            <div className="bg-muted/30 h-[calc(100%-1px)] flex-1 rounded-md"></div>
           </div>
 
           {/* Invoice Details Card */}
@@ -233,7 +233,7 @@ function InvoiceFormSkeleton() {
 
 export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
-  const footerRef = useRef<HTMLDivElement>(null);
+
   const [formData, setFormData] = useState({
     invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
     businessId: "",
@@ -406,6 +406,14 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     });
   };
 
+  // Reorder items
+  const reorderItems = (newItems: typeof formData.items) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: newItems,
+    }));
+  };
+
   // tRPC mutations
   const createInvoice = api.invoices.create.useMutation({
     onSuccess: () => {
@@ -470,14 +478,33 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-6 pb-32">
         <PageHeader
           title={invoiceId ? "Edit Invoice" : "Create Invoice"}
           description={
             invoiceId ? "Update invoice details" : "Create a new invoice"
           }
           variant="gradient"
-        />
+        >
+          <Button
+            type="submit"
+            form="invoice-form"
+            disabled={loading}
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          >
+            {loading ? (
+              <>
+                <Clock className="h-4 w-4 animate-spin sm:mr-2" />
+                <span className="hidden sm:inline">Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Save Invoice</span>
+              </>
+            )}
+          </Button>
+        </PageHeader>
 
         {/* Form Content */}
         <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6">
@@ -698,6 +725,7 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         onUpdateItem={updateItem}
                         onMoveUp={moveItemUp}
                         onMoveDown={moveItemDown}
+                        onReorderItems={reorderItems}
                       />
                     </CardContent>
                   </Card>
@@ -768,63 +796,21 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
           </div>
         </form>
-
-        {/* Footer for floating bar trigger */}
-        <div
-          ref={footerRef}
-          className="border-border/40 bg-background/60 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-              <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div>
-              <p className="font-medium">
-                {invoiceId ? "Edit Invoice" : "Create Invoice"}
-              </p>
-              <p className="text-muted-foreground text-sm">
-                {invoiceId ? "Update invoice details" : "Create a new invoice"}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              type="submit"
-              form="invoice-form"
-              disabled={loading}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
-              size="sm"
-            >
-              {loading ? (
-                <>
-                  <Clock className="h-4 w-4 animate-spin sm:mr-2" />
-                  <span className="hidden sm:inline">Saving...</span>
-                </>
-              ) : (
-                <>
-                  <Save className="h-4 w-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Save Invoice</span>
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
       </div>
 
       {/* Floating Action Bar */}
       <FloatingActionBar
-        triggerRef={footerRef}
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-              <FileText className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
+              <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
             <div>
-              <p className="font-medium">
+              <p className="font-medium text-gray-900 dark:text-gray-100">
                 {invoiceId ? "Edit Invoice" : "Create Invoice"}
               </p>
-              <p className="text-muted-foreground text-sm">
-                {invoiceId ? "Update invoice details" : "Create a new invoice"}
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Update invoice details
               </p>
             </div>
           </div>

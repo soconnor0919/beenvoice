@@ -47,7 +47,7 @@ export function StatusBadge({
   ...props
 }: StatusBadgeProps) {
   const statusClass = statusClassMap[status];
-  const label = children || statusLabelMap[status];
+  const label = children ?? statusLabelMap[status];
 
   return (
     <Badge className={cn(statusClass, className)} {...props}>

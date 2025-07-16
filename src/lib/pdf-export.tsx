@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   // Dense header (first page)
   denseHeader: {
     marginBottom: 30,
-    borderBottom: "2px solid #16a34a",
+    borderBottom: "2px solid #10b981",
     paddingBottom: 20,
   },
 
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
   businessName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: "#111827",
     marginBottom: 4,
   },
 
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
   invoiceTitle: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#16a34a",
+    color: "#10b981",
     marginBottom: 8,
   },
 
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "semibold",
     fontFamily: "AzeretMono",
-    color: "#1f2937",
+    color: "#111827",
     marginBottom: 4,
   },
 
@@ -170,8 +170,8 @@ const styles = StyleSheet.create({
   },
 
   statusPaid: {
-    backgroundColor: "#dcfce7",
-    color: "#166534",
+    backgroundColor: "#ecfdf5",
+    color: "#065f46",
   },
 
   statusUnpaid: {
@@ -194,14 +194,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: "#111827",
     marginBottom: 12,
   },
 
   clientName: {
     fontSize: 13,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: "#111827",
     marginBottom: 4,
   },
 
@@ -233,7 +233,7 @@ const styles = StyleSheet.create({
   detailValue: {
     fontSize: 10,
     fontFamily: "AzeretMono",
-    color: "#1f2937",
+    color: "#111827",
     fontWeight: "semibold",
     flex: 1,
     textAlign: "right",
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
   notesTitle: {
     fontSize: 12,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: "#111827",
     marginBottom: 6,
   },
 
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   abridgedBusinessName: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: "#111827",
   },
 
   abridgedInvoiceInfo: {
@@ -294,14 +294,14 @@ const styles = StyleSheet.create({
   abridgedInvoiceTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#16a34a",
+    color: "#10b981",
   },
 
   abridgedInvoiceNumber: {
     fontSize: 13,
     fontWeight: "semibold",
     fontFamily: "AzeretMono",
-    color: "#1f2937",
+    color: "#111827",
   },
 
   // Table styles
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
   tableHeader: {
     flexDirection: "row",
     backgroundColor: "#f3f4f6",
-    borderBottom: "2px solid #16a34a",
+    borderBottom: "2px solid #10b981",
     paddingVertical: 8,
     paddingHorizontal: 4,
   },
@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
   tableHeaderCell: {
     fontSize: 11,
     fontWeight: "bold",
-    color: "#1f2937",
+    color: "#111827",
     paddingHorizontal: 4,
   },
 
@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
 
   tableCell: {
     fontSize: 10,
-    color: "#1f2937",
+    color: "#111827",
     paddingHorizontal: 4,
     paddingVertical: 2,
   },
@@ -433,7 +433,7 @@ const styles = StyleSheet.create({
   totalAmount: {
     fontSize: 10,
     fontFamily: "AzeretMono",
-    color: "#1f2937",
+    color: "#111827",
     fontWeight: "semibold",
   },
 
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 8,
     paddingTop: 8,
-    borderTop: "2px solid #16a34a",
+    borderTop: "2px solid #10b981",
   },
 
   finalTotalLabel: {
@@ -455,7 +455,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "AzeretMono",
     fontWeight: "bold",
-    color: "#16a34a",
+    color: "#10b981",
   },
 
   itemCount: {

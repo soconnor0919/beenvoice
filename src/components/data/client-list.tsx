@@ -72,7 +72,7 @@ export function ClientList() {
   if (isLoading) {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(3)].map((_, i: number) => (
+        {Array.from({ length: 3 }, (_, i: number) => (
           <Card key={i} className="card-primary">
             <CardHeader>
               <div className="h-4 animate-pulse rounded bg-gray-200" />

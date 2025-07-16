@@ -1,107 +1,84 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "~/lib/utils";
+import { Card, CardContent } from "~/components/ui/card";
 
 interface FloatingActionBarProps {
-  /** Ref to the element that triggers visibility when scrolled out of view */
-  triggerRef: React.RefObject<HTMLElement | null>;
-  /** Title text displayed on the left (deprecated - use leftContent instead) */
-  title?: string;
-  /** Custom content to display on the left */
+  /** Content to display on the left side */
   leftContent?: React.ReactNode;
   /** Action buttons to display on the right */
   children: React.ReactNode;
   /** Additional className for styling */
   className?: string;
-  /** Whether to show the floating bar (for manual control) */
-  show?: boolean;
-  /** Callback when visibility changes */
-  onVisibilityChange?: (visible: boolean) => void;
 }
 
 export function FloatingActionBar({
-  triggerRef,
-  title,
   leftContent,
   children,
   className,
-  show,
-  onVisibilityChange,
 }: FloatingActionBarProps) {
-  const [isVisible, setIsVisible] = useState(false);
-  const floatingRef = useRef<HTMLDivElement>(null);
-  const previousVisibleRef = useRef(false);
+  const [isDocked, setIsDocked] = useState(false);
 
   useEffect(() => {
-    // If show prop is provided, use it instead of auto-detection
-    if (show !== undefined) {
-      setIsVisible(show);
-      onVisibilityChange?.(show);
-      return;
-    }
-
     const handleScroll = () => {
-      if (!triggerRef.current) return;
+      // Check if we're truly at the bottom of the page
+      const scrollHeight = document.documentElement.scrollHeight;
+      const scrollTop = document.documentElement.scrollTop;
+      const clientHeight = document.documentElement.clientHeight;
+      const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
-      const rect = triggerRef.current.getBoundingClientRect();
-      const isInView = rect.top < window.innerHeight && rect.bottom >= 0;
+      // Only dock when we're within 50px of the actual bottom AND there's content to scroll
+      const hasScrollableContent = scrollHeight > clientHeight;
+      const shouldDock = hasScrollableContent && distanceFromBottom <= 50;
 
-      // Show floating bar when trigger element is out of view
-      const shouldShow = !isInView;
+      // If content is too small, keep it at bottom of viewport
+      const contentTooSmall = scrollHeight <= clientHeight + 200;
 
-      if (shouldShow !== previousVisibleRef.current) {
-        previousVisibleRef.current = shouldShow;
-        setIsVisible(shouldShow);
-        onVisibilityChange?.(shouldShow);
-      }
+      setIsDocked(shouldDock && !contentTooSmall);
     };
 
-    // Use IntersectionObserver for better detection
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0];
-        if (entry) {
-          const shouldShow = !entry.isIntersecting;
-          if (shouldShow !== previousVisibleRef.current) {
-            previousVisibleRef.current = shouldShow;
-            setIsVisible(shouldShow);
-            onVisibilityChange?.(shouldShow);
-          }
-        }
-      },
-      {
-        // Trigger when element is completely out of view
-        threshold: 0,
-        rootMargin: "0px 0px -100% 0px",
-      },
-    );
-
-    // Start observing when trigger element is available
-    if (triggerRef.current) {
-      observer.observe(triggerRef.current);
-    }
-
-    // Also add scroll listener as fallback
     window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Check initial state
 
-    // Check initial state
-    handleScroll();
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [triggerRef, show, onVisibilityChange]);
-
-  if (!isVisible) return null;
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div ref={floatingRef} className={cn("floating-action-bar", className)}>
-      <div className="floating-action-bar-content">
-        {leftContent || <p className="floating-action-bar-title">{title}</p>}
+    <div
+      className={cn(
+        // Base positioning - always at bottom
+        "fixed right-0 left-0 z-50",
+        // Safe area and sidebar adjustments
+        "pb-safe-area-inset-bottom md:left-[276px]",
+        // Conditional centering based on dock state
+        isDocked ? "flex justify-center" : "",
+        // Dynamic bottom positioning
+        isDocked ? "bottom-4" : "bottom-0",
+        className,
+      )}
+    >
+      {/* Content container - full width when floating, content width when docked */}
+      <div
+        className={cn(
+          "w-full transition-all duration-300",
+          isDocked ? "mx-auto  px-4 mb-0" : "px-4 mb-4",
+        )}
+      >
+        <Card className="card-primary">
+          <CardContent className="flex items-center justify-between p-4">
+            {/* Left content */}
+            {leftContent && (
+              <div className="flex flex-1 items-center gap-3">
+                {leftContent}
+              </div>
+            )}
+
+            {/* Right actions */}
+            <div className="flex items-center gap-2 sm:gap-3">{children}</div>
+          </CardContent>
+        </Card>
       </div>
-      <div className="floating-action-bar-actions">{children}</div>
     </div>
   );
 }

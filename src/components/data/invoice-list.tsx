@@ -26,7 +26,6 @@ import { toast } from "sonner";
 import {
   FileText,
   Calendar,
-  DollarSign,
   Edit,
   Trash2,
   Eye,
@@ -43,12 +42,12 @@ export function InvoiceList() {
   const deleteInvoice = api.invoices.delete.useMutation({
     onSuccess: () => {
       toast.success("Invoice deleted successfully");
-      refetch();
+      void refetch();
       setDeleteDialogOpen(false);
       setInvoiceToDelete(null);
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to delete invoice");
+      toast.error(error.message ?? "Failed to delete invoice");
     },
   });
 
@@ -59,7 +58,7 @@ export function InvoiceList() {
           .toLowerCase()
           .includes(searchTerm.toLowerCase()) ||
         invoice.client.name.toLowerCase().includes(searchTerm.toLowerCase()),
-    ) || [];
+    ) ?? [];
 
   const handleDelete = (invoiceId: string) => {
     setInvoiceToDelete(invoiceId);
@@ -86,7 +85,7 @@ export function InvoiceList() {
   if (isLoading) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
+        {Array.from({ length: 3 }, (_, i) => (
           <Card key={i}>
             <CardHeader>
               <div className="bg-muted h-4 animate-pulse rounded" />

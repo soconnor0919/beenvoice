@@ -11,16 +11,17 @@ import {
   Star,
   Loader2,
   ArrowLeft,
+  FileText,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { FormSkeleton } from "~/components/ui/skeleton";
+import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
 import { AddressForm } from "~/components/forms/address-form";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
@@ -90,7 +91,6 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
-  const footerRef = useRef<HTMLDivElement>(null);
 
   // Fetch business data if editing
   const { data: business, isLoading: isLoadingBusiness } =
@@ -246,11 +246,35 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
   };
 
   if (mode === "edit" && isLoadingBusiness) {
-    return <FormSkeleton />;
+    return (
+      <div className="space-y-6 pb-32">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl pb-32">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Main Form Container - styled like data table */}
         <div className="space-y-4">
@@ -460,55 +484,27 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             </CardContent>
           </Card>
         </div>
-
-        {/* Form Actions - original position */}
-        <div
-          ref={footerRef}
-          className="border-border/40 bg-background/60 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150"
-        >
-          <p className="text-muted-foreground text-sm">
-            {mode === "create"
-              ? "Creating a new business"
-              : "Editing business details"}
-          </p>
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              className="border-border/40 hover:bg-accent/50"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isDirty}
-              className="btn-brand-primary shadow-md"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {mode === "create" ? "Creating..." : "Saving..."}
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  {mode === "create" ? "Create Business" : "Save Changes"}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
       </form>
 
       <FloatingActionBar
-        triggerRef={footerRef}
-        title={
-          mode === "create"
-            ? "Creating a new business"
-            : "Editing business details"
+        leftContent={
+          <div className="flex items-center space-x-3">
+            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                {mode === "create"
+                  ? "Creating a new business"
+                  : "Editing business details"}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {mode === "create"
+                  ? "Complete the form to create your business"
+                  : "Update your business information"}
+              </p>
+            </div>
+          </div>
         }
       >
         <Button

@@ -1,15 +1,22 @@
 "use client";
 
-import { UserPlus, Save, Loader2, ArrowLeft, DollarSign } from "lucide-react";
+import {
+  UserPlus,
+  Save,
+  Loader2,
+  ArrowLeft,
+  DollarSign,
+  FileText,
+} from "lucide-react";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { FormSkeleton } from "~/components/ui/skeleton";
+import { Skeleton } from "~/components/ui/skeleton";
 import { AddressForm } from "~/components/forms/address-form";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { NumberInput } from "~/components/ui/number-input";
@@ -70,7 +77,6 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
-  const footerRef = useRef<HTMLDivElement>(null);
 
   // Fetch client data if editing
   const { data: client, isLoading: isLoadingClient } =
@@ -212,11 +218,35 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
   };
 
   if (mode === "edit" && isLoadingClient) {
-    return <FormSkeleton />;
+    return (
+      <div className="space-y-6 pb-32">
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-32" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-16" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-6xl pb-32">
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Main Form Container - styled like data table */}
         <div className="space-y-4">
@@ -390,53 +420,27 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             </CardContent>
           </Card>
         </div>
-
-        {/* Form Actions - original position */}
-        <div
-          ref={footerRef}
-          className="border-border/40 bg-background/60 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150"
-        >
-          <p className="text-muted-foreground text-sm">
-            {mode === "create"
-              ? "Creating a new client"
-              : "Editing client details"}
-          </p>
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isSubmitting}
-              className="border-border/40 hover:bg-accent/50"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isDirty}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {mode === "create" ? "Creating..." : "Saving..."}
-                </>
-              ) : (
-                <>
-                  <Save className="mr-2 h-4 w-4" />
-                  {mode === "create" ? "Create Client" : "Save Changes"}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
       </form>
 
       <FloatingActionBar
-        triggerRef={footerRef}
-        title={
-          mode === "create" ? "Creating a new client" : "Editing client details"
+        leftContent={
+          <div className="flex items-center space-x-3">
+            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                {mode === "create"
+                  ? "Creating a new client"
+                  : "Editing client details"}
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                {mode === "create"
+                  ? "Complete the form to create your client"
+                  : "Update your client information"}
+              </p>
+            </div>
+          </div>
         }
       >
         <Button

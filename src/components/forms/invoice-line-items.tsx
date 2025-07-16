@@ -15,6 +15,23 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { cn } from "~/lib/utils";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface InvoiceItem {
   id: string;
@@ -36,6 +53,7 @@ interface InvoiceLineItemsProps {
   ) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
+  onReorderItems: (items: InvoiceItem[]) => void;
   className?: string;
 }
 
@@ -55,19 +73,100 @@ interface LineItemRowProps {
   isLast: boolean;
 }
 
-function LineItemRow({
+interface SortableLineItemProps {
+  item: InvoiceItem;
+  index: number;
+  canRemove: boolean;
+  onRemove: (index: number) => void;
+  onUpdate: (
+    index: number,
+    field: string,
+    value: string | number | Date,
+  ) => void;
+  onMoveUp: (index: number) => void;
+  onMoveDown: (index: number) => void;
+  isFirst: boolean;
+  isLast: boolean;
+}
+
+function SortableLineItem({
   item,
   index,
   canRemove,
   onRemove,
   onUpdate,
-}: LineItemRowProps) {
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast,
+}: SortableLineItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
-    <div className="card-secondary hidden rounded-lg p-4 md:block">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "card-secondary hidden rounded-lg p-4 md:block",
+        isDragging && "opacity-50",
+      )}
+    >
       <div className="flex items-start gap-3">
-        {/* Drag Handle */}
-        <div className="mt-1 flex items-center justify-center">
-          <GripVertical className="text-muted-foreground h-4 w-4 cursor-grab" />
+        {/* Drag Handle and Arrow Controls */}
+        <div className="mt-1 flex flex-col items-center gap-1">
+          <div
+            className="cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="text-muted-foreground h-4 w-4" />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onMoveUp(index)}
+              className={cn(
+                "h-6 w-6 p-0 transition-colors",
+                isFirst
+                  ? "text-muted-foreground/50 cursor-not-allowed"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+              disabled={isFirst}
+              aria-label="Move up"
+            >
+              <ChevronUp className="h-3 w-3" />
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => onMoveDown(index)}
+              className={cn(
+                "h-6 w-6 p-0 transition-colors",
+                isLast
+                  ? "text-muted-foreground/50 cursor-not-allowed"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+              disabled={isLast}
+              aria-label="Move down"
+            >
+              <ChevronDown className="h-3 w-3" />
+            </Button>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -280,44 +379,75 @@ export function InvoiceLineItems({
   onUpdateItem,
   onMoveUp,
   onMoveDown,
+  onReorderItems,
   className,
 }: InvoiceLineItemsProps) {
   const canRemoveItems = items.length > 1;
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over?.id);
+
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      onReorderItems(newItems);
+    }
+  }
+
   return (
     <div className={cn("space-y-2", className)}>
-      {/* Desktop and Mobile Cards */}
-      <div className="space-y-2">
-        {items.map((item, index) => (
-          <React.Fragment key={item.id}>
-            {/* Desktop/Tablet Card */}
-            <LineItemRow
-              item={item}
-              index={index}
-              canRemove={canRemoveItems}
-              onRemove={onRemoveItem}
-              onUpdate={onUpdateItem}
-              onMoveUp={onMoveUp}
-              onMoveDown={onMoveDown}
-              isFirst={index === 0}
-              isLast={index === items.length - 1}
-            />
+      {/* Desktop Cards with Drag and Drop */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={items.map((item) => item.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="space-y-2">
+            {items.map((item, index) => (
+              <React.Fragment key={item.id}>
+                {/* Desktop/Tablet Card with Drag and Drop */}
+                <SortableLineItem
+                  item={item}
+                  index={index}
+                  canRemove={canRemoveItems}
+                  onRemove={onRemoveItem}
+                  onUpdate={onUpdateItem}
+                  onMoveUp={onMoveUp}
+                  onMoveDown={onMoveDown}
+                  isFirst={index === 0}
+                  isLast={index === items.length - 1}
+                />
 
-            {/* Mobile Card */}
-            <MobileLineItem
-              item={item}
-              index={index}
-              canRemove={canRemoveItems}
-              onRemove={onRemoveItem}
-              onUpdate={onUpdateItem}
-              onMoveUp={onMoveUp}
-              onMoveDown={onMoveDown}
-              isFirst={index === 0}
-              isLast={index === items.length - 1}
-            />
-          </React.Fragment>
-        ))}
-      </div>
+                {/* Mobile Card */}
+                <MobileLineItem
+                  item={item}
+                  index={index}
+                  canRemove={canRemoveItems}
+                  onRemove={onRemoveItem}
+                  onUpdate={onUpdateItem}
+                  onMoveUp={onMoveUp}
+                  onMoveDown={onMoveDown}
+                  isFirst={index === 0}
+                  isLast={index === items.length - 1}
+                />
+              </React.Fragment>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
 
       {/* Add Item Button */}
       <div className="px-3 pt-3">

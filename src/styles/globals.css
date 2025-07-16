@@ -67,8 +67,8 @@
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: oklch(0.82 0.02 150);
+  --input: oklch(0.82 0.02 150);
   --ring: oklch(0.708 0 0);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -81,7 +81,7 @@
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.97 0 0);
   --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-border: oklch(0.82 0.02 150);
   --sidebar-ring: oklch(0.708 0 0);
 
   /* Brand colors */
@@ -1380,20 +1380,8 @@
   }
 
   /* Floating Action Bar Utility Classes */
-  .floating-action-bar {
-    @apply border-border/40 bg-background/60 animate-in slide-in-from-bottom-4 sticky bottom-4 z-20 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150 duration-300;
-  }
-
-  .floating-action-bar-content {
-    @apply flex-1;
-  }
-
-  .floating-action-bar-title {
-    @apply text-muted-foreground text-sm;
-  }
-
-  .floating-action-bar-actions {
-    @apply flex items-center gap-2 sm:gap-3;
+  .pb-safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
   }
 
   /* Form Action Footer Utility Classes */

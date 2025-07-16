@@ -6,7 +6,11 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
-import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import {
+  type DayButton,
+  DayPicker,
+  getDefaultClassNames,
+} from "react-day-picker";
 
 import { cn } from "~/lib/utils";
 import { Button, buttonVariants } from "~/components/ui/button";
@@ -24,7 +28,7 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "label",
   buttonVariant = "ghost",
-  formatters,
+  formatters: _formatters,
   components,
   month,
   onMonthChange,
@@ -49,8 +53,8 @@ function Calendar({
     "Dec",
   ];
 
-  const currentYear = month?.getFullYear() || new Date().getFullYear();
-  const currentMonth = month?.getMonth() || new Date().getMonth();
+  const currentYear = month?.getFullYear() ?? new Date().getFullYear();
+  const currentMonth = month?.getMonth() ?? new Date().getMonth();
 
   const years = Array.from({ length: 11 }, (_, i) => currentYear - 5 + i);
 
@@ -173,9 +177,9 @@ function Calendar({
           );
         },
         DayButton: CalendarDayButton,
-        MonthCaption: ({ calendarMonth }) => {
+        MonthCaption: ({ calendarMonth: _calendarMonth }) => {
           if (captionLayout !== "dropdown") {
-            return null;
+            return <></>;
           }
 
           return (
@@ -248,7 +252,7 @@ function CalendarDayButton({
   modifiers,
   ...props
 }: React.ComponentProps<typeof DayButton>) {
-  const defaultClassNames = getDefaultClassNames();
+  const _defaultClassNames = getDefaultClassNames();
 
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {

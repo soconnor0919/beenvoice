@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { api } from "~/trpc/react";
@@ -227,9 +227,6 @@ export default function NewInvoicePage() {
     ],
   });
 
-  // Floating action bar ref
-  const footerRef = useRef<HTMLDivElement>(null);
-
   // Queries
   const { data: clients, isLoading: clientsLoading } =
     api.clients.getAll.useQuery();
@@ -386,7 +383,7 @@ export default function NewInvoicePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-32">
       <PageHeader
         title="Create Invoice"
         description="Fill out the details below to create a new invoice"
@@ -657,52 +654,27 @@ export default function NewInvoicePage() {
                 </div>
               </div>
             </div>
-
-            {/* Action Buttons */}
-            <div
-              ref={footerRef}
-              className="flex flex-col gap-3 border-t pt-6 md:flex-row md:justify-between"
-            >
-              <Link href="/dashboard/invoices">
-                <Button variant="outline" className="w-full md:w-auto">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Cancel
-                </Button>
-              </Link>
-
-              <div className="flex flex-col gap-3 md:flex-row md:items-center">
-                <Button
-                  onClick={handleSaveDraft}
-                  disabled={isLoading || !isFormValid()}
-                  variant="outline"
-                  className="w-full md:w-auto"
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="mr-2 h-4 w-4" />
-                  )}
-                  Save Draft
-                </Button>
-                <Button
-                  onClick={handleCreateInvoice}
-                  disabled={isLoading || !isFormValid()}
-                  className="btn-brand-primary w-full md:w-auto"
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="mr-2 h-4 w-4" />
-                  )}
-                  Create Invoice
-                </Button>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>
 
-      <FloatingActionBar triggerRef={footerRef} title="Creating a new invoice">
+      <FloatingActionBar
+        leftContent={
+          <div className="flex items-center space-x-3">
+            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
+              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                Creating a new invoice
+              </p>
+              <p className="text-sm text-gray-600 dark:text-gray-300">
+                Complete the form to create your invoice
+              </p>
+            </div>
+          </div>
+        }
+      >
         <Link href="/dashboard/invoices">
           <Button
             variant="outline"

@@ -238,9 +238,10 @@ function FormatInstructions() {
             <h4 className="text-sm font-semibold">Sample Row:</h4>
             <div className="bg-muted-subtle rounded-lg p-3">
               <p className="text-muted font-mono text-xs break-all">
-                "Acme
-                Corp","john@acme.com","INV-001","2024-01-15","2024-02-14","Web
-                development work","40","75.00","8.5"
+                &quot;Acme
+                Corp&quot;,&quot;john@acme.com&quot;,&quot;INV-001&quot;,&quot;2024-01-15&quot;,&quot;2024-02-14&quot;,&quot;Web
+                development
+                work&quot;,&quot;40&quot;,&quot;75.00&quot;,&quot;8.5&quot;
               </p>
             </div>
           </div>
@@ -276,7 +277,7 @@ function ImportantNotes() {
             <ul className="text-muted-foreground space-y-1 text-sm">
               <li>• New clients will be created automatically</li>
               <li>• Existing clients will be matched by email</li>
-              <li>• Invoices will be created in "draft" status</li>
+              <li>• Invoices will be created in &quot;draft&quot; status</li>
               <li>• You can review and edit before sending</li>
             </ul>
           </div>
@@ -429,7 +430,7 @@ export default async function ImportPage() {
         <Suspense
           fallback={
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {[...Array(4)].map((_, i) => (
+              {Array.from({ length: 4 }, (_, i) => (
                 <Card key={i} className="card-primary">
                   <CardContent className="p-6">
                     <div className="animate-pulse">

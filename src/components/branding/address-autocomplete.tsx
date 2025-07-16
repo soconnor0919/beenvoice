@@ -10,13 +10,18 @@ interface AddressAutocompleteProps {
   placeholder?: string;
 }
 
+interface NominatimResult {
+  place_id: string;
+  display_name: string;
+}
+
 export function AddressAutocomplete({
   value,
   onChange,
   onSelect,
   placeholder,
 }: AddressAutocompleteProps) {
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<NominatimResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -28,7 +33,7 @@ export function AddressAutocomplete({
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`,
     );
-    const data = await res.json();
+    const data = (await res.json()) as NominatimResult[];
     setSuggestions(data);
   };
 
@@ -37,7 +42,9 @@ export function AddressAutocomplete({
     onChange(val);
     setShowSuggestions(true);
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => fetchSuggestions(val), 300);
+    timeoutRef.current = setTimeout(() => {
+      void fetchSuggestions(val);
+    }, 300);
   };
 
   const handleSelect = (address: string) => {
@@ -51,7 +58,7 @@ export function AddressAutocomplete({
       <Input
         value={value}
         onChange={handleInputChange}
-        placeholder={placeholder || "Start typing address..."}
+        placeholder={placeholder ?? "Start typing address..."}
         autoComplete="off"
         onFocus={() => value && setShowSuggestions(true)}
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
@@ -59,7 +66,7 @@ export function AddressAutocomplete({
       {showSuggestions && suggestions.length > 0 && (
         <Card className="card-primary absolute z-10 mt-1 max-h-60 w-full overflow-auto">
           <ul>
-            {suggestions.map((s, i) => (
+            {suggestions.map((s) => (
               <li
                 key={s.place_id}
                 className="hover:bg-muted cursor-pointer px-4 py-2 text-sm"
