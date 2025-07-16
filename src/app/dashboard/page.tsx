@@ -24,17 +24,17 @@ import {
 // Modern gradient background component
 function DashboardHero({ firstName }: { firstName: string }) {
   return (
-    <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 via-blue-600 to-blue-700 p-8 text-white">
-      <div className="absolute inset-0 bg-black/10" />
+    <Card className="relative mb-8 overflow-hidden p-8 border-0 shadow-sm transition-shadow hover:shadow-md">
+      <div className="absolute inset-0" />
       <div className="relative z-10">
         <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
-        <p className="text-lg text-blue-100">
+        <p className="text-lg">
           Ready to manage your invoicing business
         </p>
       </div>
       <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10" />
       <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/5" />
-    </div>
+    </Card>
   );
 }
 
