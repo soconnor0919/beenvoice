@@ -57,13 +57,12 @@ export function PDFDownloadButton({
         onClick={handleDownloadPDF}
         disabled={isGenerating}
         variant="ghost"
-        size="sm"
         className={className}
       >
         {isGenerating ? (
-          <Loader2 className="h-3 w-3 animate-spin sm:h-4 sm:w-4" />
+          <Loader2 className="h-5 w-5 animate-spin" />
         ) : (
-          <Download className="h-3 w-3 sm:h-4 sm:w-4" />
+          <Download className="h-5 w-5" />
         )}
       </Button>
     );
@@ -74,17 +73,16 @@ export function PDFDownloadButton({
       onClick={handleDownloadPDF}
       disabled={isGenerating}
       variant={variant}
-      size="default"
-      className={`w-full shadow-sm ${className}`}
+      className={`shadow-sm ${className ?? ""}`}
     >
       {isGenerating ? (
         <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin" />
           <span>Generating PDF...</span>
         </>
       ) : (
         <>
-          <Download className="mr-2 h-4 w-4" />
+          <Download className="h-5 w-5" />
           <span>Download PDF</span>
         </>
       )}

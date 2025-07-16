@@ -24,6 +24,7 @@ import { FileText, DollarSign, Clock, Save, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { InvoiceLineItems } from "~/components/forms/invoice-line-items";
+import { PageHeader } from "~/components/layout/page-header";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft" },
@@ -39,35 +40,59 @@ interface InvoiceFormProps {
 // Custom skeleton for invoice form
 function InvoiceFormSkeleton() {
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="bg-muted/30 h-9 w-64 animate-pulse rounded"></div>
-          <div className="bg-muted/30 mt-1 h-4 w-48 animate-pulse rounded"></div>
+    <div className="space-y-6 pb-24">
+      <div className="mb-8">
+        <div className="flex items-start justify-between gap-4">
+          <div className="bg-muted/30 h-8 w-48 animate-pulse rounded sm:h-9 sm:w-64"></div>
         </div>
+        <div className="bg-muted/30 mt-2 h-4 w-36 animate-pulse rounded sm:w-48"></div>
       </div>
 
       {/* Form Content */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Left Column - Content with Tabs */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Tabs */}
-          <div className="bg-muted grid w-full grid-cols-2 rounded-lg p-1">
-            <div className="bg-background h-10 rounded-md shadow-sm"></div>
-            <div className="bg-muted/30 h-10 rounded-md"></div>
+          {/* Tabs - Mobile stacked, desktop side-by-side */}
+          <div className="bg-muted grid w-full grid-cols-1 gap-1 rounded-lg p-1 sm:grid-cols-2">
+            <div className="bg-background h-9 rounded-md shadow-sm sm:h-10"></div>
+            <div className="bg-muted/30 h-9 rounded-md sm:h-10"></div>
           </div>
 
           {/* Invoice Details Card */}
           <Card className="shadow-sm">
-            <CardHeader>
+            <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
                 <div className="bg-muted/30 h-6 w-32 animate-pulse rounded"></div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              {/* First row - stacked on mobile */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
+                </div>
+              </div>
+
+              {/* Second row */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="bg-muted/30 h-4 w-18 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
+                </div>
+                <div className="space-y-2">
+                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
+                </div>
+              </div>
+
+              {/* Third row */}
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <div className="bg-muted/30 h-4 w-24 animate-pulse rounded"></div>
                   <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
@@ -77,32 +102,16 @@ function InvoiceFormSkeleton() {
                   <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
+
+              {/* Status field */}
+              <div className="space-y-2">
+                <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
+                <div className="bg-muted/30 h-10 w-full animate-pulse rounded sm:w-48"></div>
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-28 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-              </div>
+
+              {/* Notes field */}
               <div className="space-y-2">
                 <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-              </div>
-              <div className="space-y-2">
-                <div className="bg-muted/30 h-4 w-32 animate-pulse rounded"></div>
                 <div className="bg-muted/30 h-20 w-full animate-pulse rounded"></div>
               </div>
             </CardContent>
@@ -110,35 +119,43 @@ function InvoiceFormSkeleton() {
 
           {/* Invoice Items Card */}
           <Card className="shadow-sm">
-            <CardHeader>
+            <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
                 <div className="bg-muted/30 h-6 w-28 animate-pulse rounded"></div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-4 rounded-lg border p-4">
+              {/* Line item skeleton */}
+              <div className="space-y-4 rounded-lg border p-3 sm:p-4">
                 <div className="flex items-center justify-between">
-                  <div className="bg-muted/30 h-5 w-16 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-5 w-20 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-8 w-8 animate-pulse rounded"></div>
                 </div>
+
+                {/* Description */}
                 <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-24 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-15 w-full animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-16 w-full animate-pulse rounded"></div>
                 </div>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+
+                {/* Date, Hours, Rate - stacked on mobile */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                  <div className="space-y-2">
+                    <div className="bg-muted/30 h-4 w-10 animate-pulse rounded"></div>
+                    <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
+                  </div>
                   <div className="space-y-2">
                     <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
                     <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
                   </div>
                   <div className="space-y-2">
-                    <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
-                    <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
+                    <div className="bg-muted/30 h-4 w-8 animate-pulse rounded"></div>
                     <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
                   </div>
                 </div>
+
+                {/* Amount display */}
                 <div className="bg-muted/30 rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div className="bg-muted/50 h-4 w-16 animate-pulse rounded"></div>
@@ -146,6 +163,8 @@ function InvoiceFormSkeleton() {
                   </div>
                 </div>
               </div>
+
+              {/* Add item button */}
               <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
             </CardContent>
           </Card>
@@ -154,20 +173,21 @@ function InvoiceFormSkeleton() {
         {/* Right Column - Summary */}
         <div className="space-y-6">
           <Card className="sticky top-6 shadow-sm">
-            <CardHeader>
+            <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
                 <div className="bg-muted/30 h-6 w-16 animate-pulse rounded"></div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* Totals */}
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
                   <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
                 </div>
                 <div className="flex justify-between">
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
+                  <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
                   <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
                 </div>
                 <Separator />
@@ -176,23 +196,35 @@ function InvoiceFormSkeleton() {
                   <div className="bg-muted/30 h-5 w-24 animate-pulse rounded"></div>
                 </div>
               </div>
+
               <Separator />
+
+              {/* Stats */}
               <div className="space-y-2">
-                <div className="flex justify-between">
-                  <div className="bg-muted/30 h-3 w-12 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-3 w-8 animate-pulse rounded"></div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="bg-muted/30 h-3 w-12 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-3 w-20 animate-pulse rounded"></div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="bg-muted/30 h-3 w-16 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-3 w-24 animate-pulse rounded"></div>
+                <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <div className="bg-muted/30 h-3 w-12 animate-pulse rounded"></div>
+                    <div className="bg-muted/30 h-4 w-8 animate-pulse rounded"></div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="bg-muted/30 h-3 w-16 animate-pulse rounded"></div>
+                    <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
+                  </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+        </div>
+      </div>
+
+      {/* Floating Action Bar Skeleton - Mobile only */}
+      <div className="fixed right-4 bottom-6 left-4 lg:hidden">
+        <div className="bg-background rounded-lg border p-4 shadow-lg">
+          <div className="flex items-center justify-between gap-3">
+            <div className="bg-muted/30 h-9 flex-1 animate-pulse rounded"></div>
+            <div className="bg-muted/30 h-9 w-20 animate-pulse rounded"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -201,7 +233,6 @@ function InvoiceFormSkeleton() {
 
 export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
-  const headerRef = useRef<HTMLDivElement>(null);
   const footerRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
@@ -263,8 +294,8 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             date: new Date(),
             description: "",
             hours: 1,
-            rate: formData.defaultHourlyRate,
-            amount: formData.defaultHourlyRate,
+            rate: 100,
+            amount: 100,
           },
         ],
       });
@@ -292,7 +323,6 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         }));
       }
     }
-     
   }, [formData.clientId, clients]);
 
   // Calculate totals
@@ -441,17 +471,13 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   return (
     <>
       <div className="space-y-6">
-        {/* Header */}
-        <div ref={headerRef} className="flex items-center justify-between">
-          <div>
-            <h1 className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-3xl font-bold text-transparent">
-              {invoiceId ? "Edit Invoice" : "Create Invoice"}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {invoiceId ? "Update invoice details" : "Create a new invoice"}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title={invoiceId ? "Edit Invoice" : "Create Invoice"}
+          description={
+            invoiceId ? "Update invoice details" : "Create a new invoice"
+          }
+          variant="gradient"
+        />
 
         {/* Form Content */}
         <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6">

@@ -10,12 +10,9 @@ import { PageHeader } from "~/components/layout/page-header";
 import { PDFDownloadButton } from "./_components/pdf-download-button";
 import { SendInvoiceButton } from "./_components/send-invoice-button";
 import { InvoiceDetailsSkeleton } from "./_components/invoice-details-skeleton";
-import { InvoiceActionsDropdown } from "./_components/invoice-actions-dropdown";
+
 import {
-  ArrowLeft,
   Building,
-  Calendar,
-  Copy,
   Edit,
   FileText,
   Mail,
@@ -23,12 +20,6 @@ import {
   Phone,
   User,
   AlertTriangle,
-  Trash2,
-  DollarSign,
-  Clock,
-  Eye,
-  Download,
-  Send,
   Check,
 } from "lucide-react";
 
@@ -75,20 +66,19 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
 
   return (
     <div className="space-y-6 pb-24">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-foreground text-3xl font-bold">
-            Invoice Details
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            View and manage invoice information
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <InvoiceActionsDropdown invoiceId={invoice.id} />
-        </div>
-      </div>
+      <PageHeader
+        title="Invoice Details"
+        description="View and manage invoice information"
+        variant="gradient"
+      >
+        <PDFDownloadButton invoiceId={invoice.id} variant="outline" />
+        <Button asChild variant="default">
+          <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
+            <Edit className="h-5 w-5" />
+            <span>Edit</span>
+          </Link>
+        </Button>
+      </PageHeader>
 
       {/* Content */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -96,7 +86,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
         <div className="space-y-6 lg:col-span-2">
           {/* Invoice Header */}
           <Card className="shadow-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
                 <div className="flex items-start justify-between gap-6">
                   <div className="min-w-0 flex-1 space-y-2">
@@ -276,7 +266,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {invoice.items.map((item, index) => (
+              {invoice.items.map((item) => (
                 <div key={item.id} className="space-y-3 rounded-lg border p-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
