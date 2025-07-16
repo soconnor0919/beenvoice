@@ -6,8 +6,10 @@ import { cn } from "~/lib/utils";
 interface FloatingActionBarProps {
   /** Ref to the element that triggers visibility when scrolled out of view */
   triggerRef: React.RefObject<HTMLElement | null>;
-  /** Title text displayed on the left */
-  title: string;
+  /** Title text displayed on the left (deprecated - use leftContent instead) */
+  title?: string;
+  /** Custom content to display on the left */
+  leftContent?: React.ReactNode;
   /** Action buttons to display on the right */
   children: React.ReactNode;
   /** Additional className for styling */
@@ -21,6 +23,7 @@ interface FloatingActionBarProps {
 export function FloatingActionBar({
   triggerRef,
   title,
+  leftContent,
   children,
   className,
   show,
@@ -28,6 +31,7 @@ export function FloatingActionBar({
 }: FloatingActionBarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const floatingRef = useRef<HTMLDivElement>(null);
+  const previousVisibleRef = useRef(false);
 
   useEffect(() => {
     // If show prop is provided, use it instead of auto-detection
@@ -46,19 +50,21 @@ export function FloatingActionBar({
       // Show floating bar when trigger element is out of view
       const shouldShow = !isInView;
 
-      if (shouldShow !== isVisible) {
+      if (shouldShow !== previousVisibleRef.current) {
+        previousVisibleRef.current = shouldShow;
         setIsVisible(shouldShow);
         onVisibilityChange?.(shouldShow);
       }
     };
 
-    // Use ResizeObserver and IntersectionObserver for better detection
+    // Use IntersectionObserver for better detection
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (entry) {
           const shouldShow = !entry.isIntersecting;
-          if (shouldShow !== isVisible) {
+          if (shouldShow !== previousVisibleRef.current) {
+            previousVisibleRef.current = shouldShow;
             setIsVisible(shouldShow);
             onVisibilityChange?.(shouldShow);
           }
@@ -86,7 +92,7 @@ export function FloatingActionBar({
       observer.disconnect();
       window.removeEventListener("scroll", handleScroll);
     };
-  }, [triggerRef, isVisible, show, onVisibilityChange]);
+  }, [triggerRef, show, onVisibilityChange]);
 
   if (!isVisible) return null;
 
@@ -94,14 +100,16 @@ export function FloatingActionBar({
     <div
       ref={floatingRef}
       className={cn(
-        "border-border/40 bg-background/60 animate-in slide-in-from-bottom-4 fixed right-3 bottom-3 left-3 z-20 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150 duration-300 md:right-3 md:left-[279px]",
+        "border-border/40 bg-background/60 animate-in slide-in-from-bottom-4 sticky bottom-4 z-20 flex items-center justify-between rounded-2xl border p-4 shadow-lg backdrop-blur-xl backdrop-saturate-150 duration-300",
         className,
       )}
     >
-      <p className="text-muted-foreground text-sm">{title}</p>
-      <div className="flex items-center gap-2 sm:gap-3">
-        {children}
+      <div className="flex-1">
+        {leftContent || (
+          <p className="text-muted-foreground text-sm">{title}</p>
+        )}
       </div>
+      <div className="flex items-center gap-2 sm:gap-3">{children}</div>
     </div>
   );
 }

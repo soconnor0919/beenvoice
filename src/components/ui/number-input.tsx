@@ -1,10 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import { cn } from "~/lib/utils";
-import { Minus, Plus } from "lucide-react";
 
 interface NumberInputProps {
   value: number;
@@ -13,13 +10,12 @@ interface NumberInputProps {
   max?: number;
   step?: number;
   placeholder?: string;
-  disabled?: boolean;
   className?: string;
+  disabled?: boolean;
+  id?: string;
   prefix?: string;
   suffix?: string;
-  id?: string;
-  name?: string;
-  "aria-label"?: string;
+  width?: "auto" | "full";
 }
 
 export function NumberInput({
@@ -29,151 +25,98 @@ export function NumberInput({
   max,
   step = 1,
   placeholder = "0",
-  disabled = false,
   className,
+  disabled = false,
+  id,
   prefix,
   suffix,
-  id,
-  name,
-  "aria-label": ariaLabel,
+  width = "auto",
 }: NumberInputProps) {
-  const [inputValue, setInputValue] = React.useState(value.toString());
+  const [displayValue, setDisplayValue] = React.useState(
+    value ? value.toFixed(2) : "0.00",
+  );
 
-  // Update input when external value changes
   React.useEffect(() => {
-    setInputValue(value.toString());
+    setDisplayValue(value ? value.toFixed(2) : "0.00");
   }, [value]);
 
-  const handleIncrement = () => {
-    const newValue = Math.min(value + step, max ?? Infinity);
-    onChange(newValue);
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    setDisplayValue(inputValue);
 
-  const handleDecrement = () => {
-    const newValue = Math.max(value - step, min);
-    onChange(newValue);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputVal = e.target.value;
-    setInputValue(inputVal);
-
-    // Allow empty input for better UX
-    if (inputVal === "") {
+    if (inputValue === "") {
       onChange(0);
       return;
     }
-
-    const numValue = parseFloat(inputVal);
-    if (!isNaN(numValue)) {
-      const clampedValue = Math.max(min, Math.min(numValue, max ?? Infinity));
-      onChange(clampedValue);
+    const newValue = parseFloat(inputValue);
+    if (!isNaN(newValue)) {
+      onChange(Math.round(newValue * 100) / 100);
     }
   };
 
-  const handleInputBlur = () => {
-    // Ensure the input shows the actual value on blur
-    setInputValue(value.toString());
+  const handleBlur = () => {
+    const numValue = parseFloat(displayValue) || 0;
+    const formattedValue = numValue.toFixed(2);
+    setDisplayValue(formattedValue);
+    onChange(numValue);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "ArrowUp" && canIncrement) {
-      e.preventDefault();
-      handleIncrement();
-    } else if (e.key === "ArrowDown" && canDecrement) {
-      e.preventDefault();
-      handleDecrement();
-    }
+  const handleIncrement = () => {
+    if (disabled) return;
+    onChange((value || 0) + step);
   };
 
-  const canDecrement = value > min;
-  const canIncrement = !max || value < max;
+  const handleDecrement = () => {
+    if (disabled) return;
+    onChange(Math.max(min, (value || 0) - step));
+  };
+
+  const widthClass = width === "full" ? "w-full" : "w-24";
 
   return (
     <div
-      className={cn("relative flex items-center", className)}
-      role="group"
-      aria-label={
-        ariaLabel || "Number input with increment and decrement buttons"
-      }
+      className={cn(
+        "border-input bg-background ring-offset-background flex h-9 items-center justify-center rounded-md border px-2 text-sm",
+        widthClass,
+        disabled && "cursor-not-allowed opacity-50",
+        className,
+      )}
     >
-      {/* Prefix */}
-      {prefix && (
-        <div className="text-muted-foreground pointer-events-none absolute left-10 z-10 flex items-center text-sm">
-          {prefix}
-        </div>
-      )}
-
-      {/* Decrement Button */}
-      <Button
+      <button
         type="button"
-        variant="outline"
-        size="sm"
-        disabled={disabled || !canDecrement}
         onClick={handleDecrement}
-        className={cn(
-          "h-8 w-8 rounded-r-none border-r-0 p-0 transition-all duration-150",
-          "hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700",
-          "dark:hover:border-emerald-700 dark:hover:bg-emerald-900/30",
-          "focus:z-10 focus:ring-2 focus:ring-emerald-500/20",
-          !canDecrement && "cursor-not-allowed opacity-40",
-        )}
-        aria-label="Decrease value"
-        tabIndex={disabled ? -1 : 0}
+        disabled={disabled || value <= min}
+        className="text-muted-foreground hover:text-foreground flex h-6 w-6 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <Minus className="h-3 w-3" />
-      </Button>
-
-      {/* Input */}
-      <Input
-        id={id}
-        name={name}
-        type="number"
-        value={inputValue}
-        onChange={handleInputChange}
-        onBlur={handleInputBlur}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        disabled={disabled}
-        step={step}
-        min={min}
-        max={max}
-        aria-label={ariaLabel}
-        className={cn(
-          "h-8 rounded-none border-x-0 text-center font-mono focus:z-10",
-          "focus:border-emerald-300 focus:ring-2 focus:ring-emerald-500/20",
-          "dark:focus:border-emerald-600",
-          prefix && "pl-12",
-          suffix && "pr-12",
+        −
+      </button>
+      <div className="flex flex-1 items-center justify-center">
+        {prefix && (
+          <span className="text-muted-foreground text-xs">{prefix}</span>
         )}
-      />
-
-      {/* Increment Button */}
-      <Button
+        <input
+          id={id}
+          type="text"
+          inputMode="decimal"
+          value={displayValue}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder={placeholder}
+          disabled={disabled}
+          className="w-16 border-0 bg-transparent text-center outline-none focus-visible:ring-0"
+        />
+        {suffix && (
+          <span className="text-muted-foreground text-xs">{suffix}</span>
+        )}
+      </div>
+      <button
         type="button"
-        variant="outline"
-        size="sm"
-        disabled={disabled || !canIncrement}
         onClick={handleIncrement}
-        className={cn(
-          "h-8 w-8 rounded-l-none border-l-0 p-0 transition-all duration-150",
-          "hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700",
-          "dark:hover:border-emerald-700 dark:hover:bg-emerald-900/30",
-          "focus:z-10 focus:ring-2 focus:ring-emerald-500/20",
-          !canIncrement && "cursor-not-allowed opacity-40",
-        )}
-        aria-label="Increase value"
-        tabIndex={disabled ? -1 : 0}
+        disabled={disabled || (max !== undefined && value >= max)}
+        className="text-muted-foreground hover:text-foreground flex h-6 w-6 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
       >
-        <Plus className="h-3 w-3" />
-      </Button>
-
-      {/* Suffix */}
-      {suffix && (
-        <div className="text-muted-foreground pointer-events-none absolute right-10 z-10 flex items-center text-sm">
-          {suffix}
-        </div>
-      )}
+        +
+      </button>
     </div>
   );
 }

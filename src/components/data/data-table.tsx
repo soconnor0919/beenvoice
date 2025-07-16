@@ -71,6 +71,7 @@ interface DataTableProps<TData, TValue> {
     title: string;
     options: { label: string; value: string }[];
   }[];
+  onRowClick?: (row: TData) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -87,6 +88,7 @@ export function DataTable<TData, TValue>({
   description,
   actions,
   filterableColumns = [],
+  onRowClick,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -97,15 +99,28 @@ export function DataTable<TData, TValue>({
   const [rowSelection, setRowSelection] = React.useState({});
   const [globalFilter, setGlobalFilter] = React.useState("");
 
+  // Mobile detection hook
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Create responsive columns that properly hide on mobile
   const responsiveColumns = React.useMemo(() => {
     return columns.map((column) => ({
       ...column,
       // Add a meta property to control responsive visibility
       meta: {
-        ...((column as any).meta || {}),
-        headerClassName: (column as any).meta?.headerClassName || "",
-        cellClassName: (column as any).meta?.cellClassName || "",
+        ...((column as ColumnDef<TData, TValue> & { meta?: { headerClassName?: string; cellClassName?: string } }).meta ?? {}),
+        headerClassName: (column as ColumnDef<TData, TValue> & { meta?: { headerClassName?: string; cellClassName?: string } }).meta?.headerClassName ?? "",
+        cellClassName: (column as ColumnDef<TData, TValue> & { meta?: { headerClassName?: string; cellClassName?: string } }).meta?.cellClassName ?? "",
       },
     }));
   }, [columns]);
@@ -132,12 +147,33 @@ export function DataTable<TData, TValue>({
     },
     initialState: {
       pagination: {
-        pageSize: pageSize,
+        pageSize: isMobile ? 5 : pageSize,
       },
     },
   });
 
+  // Update page size when mobile state changes
+  React.useEffect(() => {
+    table.setPageSize(isMobile ? 5 : pageSize);
+  }, [isMobile, pageSize, table]);
+
   const pageSizeOptions = [5, 10, 20, 30, 50, 100];
+
+  // Handle row click
+  const handleRowClick = (row: TData, event: React.MouseEvent) => {
+    // Don't trigger row click if clicking on action buttons or their children
+    const target = event.target as HTMLElement;
+    const isActionButton = target.closest('[data-action-button="true"]') ?? 
+                          target.closest('button') ?? 
+                          target.closest('a') ??
+                          target.closest('[role="button"]');
+    
+    if (isActionButton) {
+      return;
+    }
+    
+    onRowClick?.(row);
+  };
 
   return (
     <div className={cn("space-y-4", className)}>
@@ -274,7 +310,7 @@ export function DataTable<TData, TValue>({
                   className="bg-muted/50 hover:bg-muted/50"
                 >
                   {headerGroup.headers.map((header) => {
-                    const meta = header.column.columnDef.meta as any;
+                    const meta = header.column.columnDef.meta as { headerClassName?: string; cellClassName?: string } | undefined;
                     return (
                       <TableHead
                         key={header.id}
@@ -301,10 +337,14 @@ export function DataTable<TData, TValue>({
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-muted/20 data-[state=selected]:bg-muted/50 border-b transition-colors"
+                    className={cn(
+                      "hover:bg-muted/20 data-[state=selected]:bg-muted/50 border-b transition-colors",
+                      onRowClick && "cursor-pointer"
+                    )}
+                    onClick={(event) => onRowClick && handleRowClick(row.original, event)}
                   >
                     {row.getVisibleCells().map((cell) => {
-                      const meta = cell.column.columnDef.meta as any;
+                      const meta = cell.column.columnDef.meta as { headerClassName?: string; cellClassName?: string } | undefined;
                       return (
                         <TableCell
                           key={cell.id}
@@ -455,7 +495,11 @@ export function DataTableColumnHeader<TData, TValue>({
   title,
   className,
 }: {
-  column: any;
+  column: {
+    getCanSort: () => boolean;
+    getIsSorted: () => false | "asc" | "desc";
+    toggleSorting: (isDesc: boolean) => void;
+  };
   title: string;
   className?: string;
 }) {
@@ -511,27 +555,54 @@ export function DataTableSkeleton({
           <Table>
             <TableHeader>
               <TableRow className="bg-muted/50 hover:bg-muted/50">
-                {Array.from({ length: columns }).map((_, i) => (
-                  <TableHead
-                    key={i}
-                    className="h-9 px-3 text-left align-middle sm:h-10 sm:px-4"
-                  >
-                    <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-20"></div>
-                  </TableHead>
-                ))}
+                {/* Mobile: 3 columns, sm: 5 columns, lg: 6 columns */}
+                <TableHead className="h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-24 lg:w-32"></div>
+                </TableHead>
+                <TableHead className="h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                  <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
+                </TableHead>
+                <TableHead className="hidden sm:table-cell h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                  <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
+                </TableHead>
+                <TableHead className="hidden sm:table-cell h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-20 lg:w-24"></div>
+                </TableHead>
+                <TableHead className="h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                  <div className="bg-muted/30 h-4 w-10 animate-pulse rounded sm:w-12 lg:w-16"></div>
+                </TableHead>
+                <TableHead className="hidden lg:table-cell h-12 px-3 text-left align-middle sm:h-14 sm:px-4">
+                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {Array.from({ length: rows }).map((_, i) => (
                 <TableRow key={i} className="border-b">
-                  {Array.from({ length: columns }).map((_, j) => (
-                    <TableCell
-                      key={j}
-                      className="px-3 py-1.5 align-middle sm:px-4 sm:py-2"
-                    >
-                      <div className="bg-muted/30 h-4 w-full animate-pulse rounded"></div>
-                    </TableCell>
-                  ))}
+                  {/* Client */}
+                  <TableCell className="px-3 py-3 align-middle sm:px-4 sm:py-4">
+                    <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-24 lg:w-32"></div>
+                  </TableCell>
+                  {/* Date */}
+                  <TableCell className="px-3 py-3 align-middle sm:px-4 sm:py-4">
+                    <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
+                  </TableCell>
+                  {/* Status (sm+) */}
+                  <TableCell className="hidden sm:table-cell px-3 py-3 align-middle sm:px-4 sm:py-4">
+                    <div className="bg-muted/30 h-4 w-14 animate-pulse rounded sm:w-20 lg:w-24"></div>
+                  </TableCell>
+                  {/* Amount (sm+) */}
+                  <TableCell className="hidden sm:table-cell px-3 py-3 align-middle sm:px-4 sm:py-4">
+                    <div className="bg-muted/30 h-4 w-16 animate-pulse rounded sm:w-20 lg:w-24"></div>
+                  </TableCell>
+                  {/* Actions */}
+                  <TableCell className="px-3 py-3 align-middle sm:px-4 sm:py-4">
+                    <div className="bg-muted/30 h-4 w-10 animate-pulse rounded sm:w-12 lg:w-16"></div>
+                  </TableCell>
+                  {/* Extra (lg+) */}
+                  <TableCell className="hidden lg:table-cell px-3 py-3 align-middle sm:px-4 sm:py-4">
+                    <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

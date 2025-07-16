@@ -92,10 +92,7 @@ export function DashboardBreadcrumbs() {
           if (invoiceLoading) {
             label = <Skeleton className="inline-block h-5 w-24 align-middle" />;
           } else if (invoice) {
-            // You can customize this - show invoice number or date
-            label =
-              invoice.invoiceNumber ||
-              format(new Date(invoice.issueDate), "MMM dd, yyyy");
+            label = format(new Date(invoice.issueDate), "MMM dd, yyyy");
           }
         } else if (prevSegment === "businesses") {
           if (businessLoading) {
@@ -148,12 +145,12 @@ export function DashboardBreadcrumbs() {
 
   return (
     <Breadcrumb className="mb-4 sm:mb-6">
-      <BreadcrumbList className="flex-wrap">
+      <BreadcrumbList className="flex-nowrap overflow-hidden">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
             <Link
               href="/dashboard"
-              className="text-sm sm:text-base dark:text-gray-300"
+              className="truncate text-sm sm:text-base dark:text-gray-300"
             >
               Dashboard
             </Link>
@@ -166,14 +163,14 @@ export function DashboardBreadcrumbs() {
             </BreadcrumbSeparator>
             <BreadcrumbItem>
               {crumb.isLast ? (
-                <BreadcrumbPage className="text-sm sm:text-base dark:text-white">
+                <BreadcrumbPage className="truncate text-sm sm:text-base dark:text-white">
                   {crumb.label}
                 </BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
                   <Link
                     href={crumb.href}
-                    className="text-sm sm:text-base dark:text-gray-300"
+                    className="truncate text-sm sm:text-base dark:text-gray-300"
                   >
                     {crumb.label}
                   </Link>

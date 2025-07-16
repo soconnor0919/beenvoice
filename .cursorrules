@@ -426,3 +426,9 @@ export const exampleRouter = createTRPCRouter({
 
 ## Remember
 This is a business application where reliability, security, and professional user experience are critical. Every decision should prioritize these values over development convenience or flashy features. 
+
+- Don't create demo pages unless absolutely necessary.
+- Don't create unnecessary complexity.
+- Don't run builds unless absolutely necessary, if you do, kill the dev servers.
+- Don't start new dev servers unless asked.
+- Don't start drizzle studio- you cannot do anything with it.

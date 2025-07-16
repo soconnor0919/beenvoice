@@ -30,21 +30,6 @@ export function Navbar() {
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            {/* Quick access to current open invoice */}
-            {session?.user && currentInvoice && (
-              <Button
-                asChild
-                size="sm"
-                variant="outline"
-                className="hidden border-border/40 hover:bg-accent/50 text-xs md:flex md:text-sm"
-              >
-                <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
-                  <FileText className="mr-1 h-3 w-3 md:mr-2 md:h-4 md:w-4" />
-                  <span className="hidden lg:inline">Continue Invoice</span>
-                  <span className="lg:hidden">Continue</span>
-                </Link>
-              </Button>
-            )}
             
             {status === "loading" ? (
               <>

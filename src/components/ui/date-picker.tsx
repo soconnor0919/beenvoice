@@ -6,7 +6,6 @@ import * as React from "react";
 
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
-import { Label } from "~/components/ui/label";
 import {
   Popover,
   PopoverContent,
@@ -17,61 +16,66 @@ import { cn } from "~/lib/utils";
 interface DatePickerProps {
   date?: Date;
   onDateChange: (date: Date | undefined) => void;
-  label?: string;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
-  required?: boolean;
   id?: string;
+  size?: "sm" | "md" | "lg";
 }
 
 export function DatePicker({
   date,
   onDateChange,
-  label,
   placeholder = "Select date",
   className,
   disabled = false,
-  required = false,
   id,
+  size = "md",
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false);
 
+  const sizeClasses = {
+    sm: "h-9 text-xs",
+    md: "h-9 text-sm",
+    lg: "h-10 text-sm",
+  };
+
+  const formatDate = (date: Date) => {
+    if (size === "sm") {
+      return format(date, "MMM dd");
+    }
+    return format(date, "PPP");
+  };
+
   return (
-    <div className={cn("flex flex-col gap-2", className)}>
-      {label && (
-        <Label htmlFor={id} className="text-sm font-medium">
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </Label>
-      )}
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            id={id}
-            disabled={disabled}
-            className={cn(
-              "h-10 w-full justify-between text-sm font-normal",
-              !date && "text-muted-foreground",
-            )}
-          >
-            {date ? format(date, "PPP") : placeholder}
-            <CalendarIcon className="text-muted-foreground h-4 w-4" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={date}
-            captionLayout="dropdown"
-            onSelect={(selectedDate: Date | undefined) => {
-              onDateChange(selectedDate);
-              setOpen(false);
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          id={id}
+          disabled={disabled}
+          className={cn(
+            "w-full justify-between font-normal",
+            sizeClasses[size],
+            !date && "text-muted-foreground",
+            className,
+          )}
+        >
+          {date ? formatDate(date) : placeholder}
+          <CalendarIcon className="text-muted-foreground h-4 w-4" />
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          captionLayout="dropdown"
+          onSelect={(selectedDate: Date | undefined) => {
+            onDateChange(selectedDate);
+            setOpen(false);
+          }}
+        />
+      </PopoverContent>
+    </Popover>
   );
 }

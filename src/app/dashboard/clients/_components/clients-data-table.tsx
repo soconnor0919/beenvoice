@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
 import { DataTable, DataTableColumnHeader } from "~/components/data/data-table";
@@ -52,6 +53,7 @@ const formatAddress = (client: Client) => {
 export function ClientsDataTable({
   clients: initialClients,
 }: ClientsDataTableProps) {
+  const router = useRouter();
   const [clients, setClients] = useState(initialClients);
   const [clientToDelete, setClientToDelete] = useState<Client | null>(null);
 
@@ -72,6 +74,10 @@ export function ClientsDataTable({
   const handleDelete = () => {
     if (!clientToDelete) return;
     deleteClientMutation.mutate({ id: clientToDelete.id });
+  };
+
+  const handleRowClick = (client: Client) => {
+    router.push(`/dashboard/clients/${client.id}`);
   };
 
   const columns: ColumnDef<Client>[] = [
@@ -123,12 +129,12 @@ export function ClientsDataTable({
         <DataTableColumnHeader column={column} title="Created" />
       ),
       cell: ({ row }) => {
-        const date = row.getValue("createdAt") as Date;
+        const date = row.getValue("createdAt");
         return new Intl.DateTimeFormat("en-US", {
           month: "short",
           day: "2-digit",
           year: "numeric",
-        }).format(new Date(date));
+        }).format(new Date(date as Date));
       },
       meta: {
         headerClassName: "hidden xl:table-cell",
@@ -142,7 +148,12 @@ export function ClientsDataTable({
         return (
           <div className="flex items-center justify-end gap-1">
             <Link href={`/dashboard/clients/${client.id}/edit`}>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0"
+                data-action-button="true"
+              >
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
             </Link>
@@ -150,6 +161,7 @@ export function ClientsDataTable({
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0"
+              data-action-button="true"
               onClick={() => setClientToDelete(client)}
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -167,6 +179,7 @@ export function ClientsDataTable({
         data={clients}
         searchKey="name"
         searchPlaceholder="Search clients..."
+        onRowClick={handleRowClick}
       />
 
       {/* Delete confirmation dialog */}

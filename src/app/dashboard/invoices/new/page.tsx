@@ -423,29 +423,31 @@ export default function NewInvoicePage() {
                 </div>
               </div>
 
-              <DatePicker
-                date={formData.issueDate}
-                onDateChange={(date) =>
-                  setFormData({
-                    ...formData,
-                    issueDate: date ?? new Date(),
-                  })
-                }
-                label="Issue Date"
-                required
-              />
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Issue Date *</Label>
+                <DatePicker
+                  date={formData.issueDate}
+                  onDateChange={(date) =>
+                    setFormData({
+                      ...formData,
+                      issueDate: date ?? new Date(),
+                    })
+                  }
+                />
+              </div>
 
-              <DatePicker
-                date={formData.dueDate}
-                onDateChange={(date) =>
-                  setFormData({
-                    ...formData,
-                    dueDate: date ?? new Date(),
-                  })
-                }
-                label="Due Date"
-                required
-              />
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Due Date *</Label>
+                <DatePicker
+                  date={formData.dueDate}
+                  onDateChange={(date) =>
+                    setFormData({
+                      ...formData,
+                      dueDate: date ?? new Date(),
+                    })
+                  }
+                />
+              </div>
             </div>
           </CardContent>
         </Card>

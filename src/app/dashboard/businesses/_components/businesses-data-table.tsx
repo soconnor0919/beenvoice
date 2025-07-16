@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Button } from "~/components/ui/button";
 import { DataTable, DataTableColumnHeader } from "~/components/data/data-table";
@@ -55,6 +56,7 @@ const formatAddress = (business: Business) => {
 export function BusinessesDataTable({
   businesses: initialBusinesses,
 }: BusinessesDataTableProps) {
+  const router = useRouter();
   const [businesses, setBusinesses] = useState(initialBusinesses);
   const [businessToDelete, setBusinessToDelete] = useState<Business | null>(
     null,
@@ -77,6 +79,10 @@ export function BusinessesDataTable({
   const handleDelete = () => {
     if (!businessToDelete) return;
     deleteBusinessMutation.mutate({ id: businessToDelete.id });
+  };
+
+  const handleRowClick = (business: Business) => {
+    router.push(`/dashboard/businesses/${business.id}`);
   };
 
   const columns: ColumnDef<Business>[] = [
@@ -153,6 +159,7 @@ export function BusinessesDataTable({
               target="_blank"
               rel="noopener noreferrer"
               className="text-primary hidden hover:underline sm:inline"
+              data-action-button="true"
             >
               {website}
             </a>
@@ -162,6 +169,7 @@ export function BusinessesDataTable({
               size="sm"
               className="h-8 w-8 p-0 sm:hidden"
               asChild
+              data-action-button="true"
             >
               <a href={url} target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="h-3.5 w-3.5" />
@@ -178,7 +186,12 @@ export function BusinessesDataTable({
         return (
           <div className="flex items-center justify-end gap-1">
             <Link href={`/dashboard/businesses/${business.id}/edit`}>
-              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 w-8 p-0"
+                data-action-button="true"
+              >
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
             </Link>
@@ -186,6 +199,7 @@ export function BusinessesDataTable({
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0"
+              data-action-button="true"
               onClick={() => setBusinessToDelete(business)}
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -203,6 +217,7 @@ export function BusinessesDataTable({
         data={businesses}
         searchKey="name"
         searchPlaceholder="Search businesses..."
+        onRowClick={handleRowClick}
       />
 
       {/* Delete confirmation dialog */}
@@ -215,8 +230,7 @@ export function BusinessesDataTable({
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the
-              business "{businessToDelete?.name}" and remove all associated
-              data.
+              business "{businessToDelete?.name}" and remove all associated data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
