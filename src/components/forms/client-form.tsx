@@ -19,6 +19,7 @@ import { Label } from "~/components/ui/label";
 import { Skeleton } from "~/components/ui/skeleton";
 import { AddressForm } from "~/components/forms/address-form";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
+import { PageHeader } from "~/components/layout/page-header";
 import { NumberInput } from "~/components/ui/number-input";
 import { api } from "~/trpc/react";
 import {
@@ -246,181 +247,218 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl pb-32">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Main Form Container - styled like data table */}
-        <div className="space-y-4">
-          {/* Basic Information */}
-          <Card className="card-primary">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                  <UserPlus className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+    <>
+      <div className="space-y-6 pb-32">
+        <PageHeader
+          title={mode === "edit" ? "Edit Client" : "Add Client"}
+          description={
+            mode === "edit"
+              ? "Update client information below"
+              : "Enter client details below to add a new client."
+          }
+          variant="gradient"
+        >
+          <Button
+            type="submit"
+            form="client-form"
+            disabled={isSubmitting}
+            className="btn-brand-primary shadow-md"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+                <span className="hidden sm:inline">
+                  {mode === "create" ? "Creating..." : "Saving..."}
+                </span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">
+                  {mode === "create" ? "Create Client" : "Save Changes"}
+                </span>
+              </>
+            )}
+          </Button>
+        </PageHeader>
+
+        <form id="client-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Main Form Container - styled like data table */}
+          <div className="space-y-4">
+            {/* Basic Information */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                    <UserPlus className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <CardTitle>Basic Information</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Enter the client&apos;s primary details
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle>Basic Information</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Enter the client&apos;s primary details
-                  </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Client Name<span className="text-destructive ml-1">*</span>
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange("name", e.target.value)}
+                    placeholder={PLACEHOLDERS.name}
+                    className={`${errors.name ? "border-destructive" : ""}`}
+                    disabled={isSubmitting}
+                  />
+                  {errors.name && (
+                    <p className="text-destructive text-sm">{errors.name}</p>
+                  )}
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">
-                  Client Name<span className="text-destructive ml-1">*</span>
-                </Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
-                  placeholder={PLACEHOLDERS.name}
-                  className={`${errors.name ? "border-destructive" : ""}`}
-                  disabled={isSubmitting}
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      placeholder={PLACEHOLDERS.email}
+                      className={`${errors.email ? "border-destructive" : ""}`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <p className="text-destructive text-sm">{errors.email}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium">
+                      Phone
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      placeholder={PLACEHOLDERS.phone}
+                      className={`${errors.phone ? "border-destructive" : ""}`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.phone && (
+                      <p className="text-destructive text-sm">{errors.phone}</p>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Address */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                    <svg
+                      className="h-5 w-5 text-emerald-700 dark:text-emerald-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <CardTitle>Address</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Client&apos;s physical location
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <AddressForm
+                  addressLine1={formData.addressLine1}
+                  addressLine2={formData.addressLine2}
+                  city={formData.city}
+                  state={formData.state}
+                  postalCode={formData.postalCode}
+                  country={formData.country}
+                  onChange={handleInputChange}
+                  errors={errors}
+                  required={false}
                 />
-                {errors.name && (
-                  <p className="text-destructive text-sm">{errors.name}</p>
-                )}
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Email
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (Optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder={PLACEHOLDERS.email}
-                    className={`${errors.email ? "border-destructive" : ""}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.email && (
-                    <p className="text-destructive text-sm">{errors.email}</p>
-                  )}
+            {/* Billing Information */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                    <DollarSign className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <CardTitle>Billing Information</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Default billing rates for this client
+                    </p>
+                  </div>
                 </div>
-
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium">
-                    Phone
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (Optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder={PLACEHOLDERS.phone}
-                    className={`${errors.phone ? "border-destructive" : ""}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.phone && (
-                    <p className="text-destructive text-sm">{errors.phone}</p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Address */}
-          <Card className="card-primary">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                  <svg
-                    className="h-5 w-5 text-emerald-700 dark:text-emerald-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                  <Label
+                    htmlFor="defaultHourlyRate"
+                    className="text-sm font-medium"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
+                    Default Hourly Rate
+                  </Label>
+                  <NumberInput
+                    value={formData.defaultHourlyRate}
+                    onChange={(value) =>
+                      handleInputChange("defaultHourlyRate", value)
+                    }
+                    min={0}
+                    step={1}
+                    prefix="$"
+                    width="full"
+                    disabled={isSubmitting}
+                  />
+                  {errors.defaultHourlyRate && (
+                    <p className="text-destructive text-sm">
+                      {errors.defaultHourlyRate}
+                    </p>
+                  )}
                 </div>
-                <div>
-                  <CardTitle>Address</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Client&apos;s physical location
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <AddressForm
-                addressLine1={formData.addressLine1}
-                addressLine2={formData.addressLine2}
-                city={formData.city}
-                state={formData.state}
-                postalCode={formData.postalCode}
-                country={formData.country}
-                onChange={handleInputChange}
-                errors={errors}
-                required={false}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Billing Information */}
-          <Card className="card-primary">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                  <DollarSign className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
-                </div>
-                <div>
-                  <CardTitle>Billing Information</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Default billing rates for this client
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label
-                  htmlFor="defaultHourlyRate"
-                  className="text-sm font-medium"
-                >
-                  Default Hourly Rate
-                </Label>
-                <NumberInput
-                  value={formData.defaultHourlyRate}
-                  onChange={(value) =>
-                    handleInputChange("defaultHourlyRate", value)
-                  }
-                  min={0}
-                  step={1}
-                  prefix="$"
-                  width="full"
-                  disabled={isSubmitting}
-                />
-                {errors.defaultHourlyRate && (
-                  <p className="text-destructive text-sm">
-                    {errors.defaultHourlyRate}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </form>
+              </CardContent>
+            </Card>
+          </div>
+        </form>
+      </div>
 
       <FloatingActionBar
         leftContent={
@@ -477,6 +515,6 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           )}
         </Button>
       </FloatingActionBar>
-    </div>
+    </>
   );
 }

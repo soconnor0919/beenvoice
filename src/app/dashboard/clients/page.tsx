@@ -14,7 +14,7 @@ export default async function ClientsPage() {
         description="Manage your clients and their information."
         variant="gradient"
       >
-        <Button asChild variant="brand">
+        <Button asChild className="btn-brand-primary shadow-md">
           <Link href="/dashboard/clients/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Add Client</span>

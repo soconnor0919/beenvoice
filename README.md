@@ -259,4 +259,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-Built with ❤️ for freelancers and small businesses who deserve better invoicing tools.
+Built for freelancers and small businesses who deserve better invoicing tools.

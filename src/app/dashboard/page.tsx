@@ -24,11 +24,11 @@ import {
 // Modern gradient background component
 function DashboardHero({ firstName }: { firstName: string }) {
   return (
-    <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-green-500 via-green-600 to-green-700 p-8 text-white">
+    <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-br from-teal-600 via-blue-600 to-blue-700 p-8 text-white">
       <div className="absolute inset-0 bg-black/10" />
       <div className="relative z-10">
         <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
-        <p className="text-lg text-green-100">
+        <p className="text-lg text-blue-100">
           Ready to manage your invoicing business
         </p>
       </div>
@@ -94,7 +94,7 @@ async function DashboardStats() {
   ];
 
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
         return (
@@ -102,17 +102,17 @@ async function DashboardStats() {
             key={stat.title}
             className="border-0 shadow-sm transition-shadow hover:shadow-md"
           >
-            <CardContent className="p-4 lg:p-6">
-              <div className="mb-3 flex items-center justify-between lg:mb-4">
-                <div className={`rounded-lg p-2 ${stat.bgColor}`}>
-                  <Icon className="h-4 w-4 text-gray-700 lg:h-5 lg:w-5 dark:text-gray-800" />
+            <CardContent className="p-3 sm:p-4 lg:p-6">
+              <div className="mb-2 flex items-center justify-between sm:mb-3 lg:mb-4">
+                <div className={`rounded-lg p-1.5 sm:p-2 ${stat.bgColor}`}>
+                  <Icon className="h-3 w-3 text-gray-700 sm:h-4 sm:w-4 lg:h-5 lg:w-5 dark:text-gray-800" />
                 </div>
-                <span className="text-xs font-medium text-green-600 lg:text-sm dark:text-green-400">
+                <span className="text-xs font-medium text-teal-600 dark:text-teal-400">
                   {stat.change}
                 </span>
               </div>
               <div>
-                <p className="mb-1 text-xl font-bold text-gray-900 lg:text-2xl dark:text-gray-100">
+                <p className="mb-1 text-base font-bold text-gray-900 sm:text-xl lg:text-2xl dark:text-gray-100">
                   {stat.value}
                 </p>
                 <p className="text-xs text-gray-600 lg:text-sm dark:text-gray-300">
@@ -157,7 +157,7 @@ function QuickActions() {
     <Card className="border-0 shadow-sm">
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Plus className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <Plus className="h-5 w-5 text-teal-600 dark:text-teal-400" />
           Quick Actions
         </CardTitle>
       </CardHeader>
@@ -171,7 +171,7 @@ function QuickActions() {
               variant={action.primary ? "default" : "outline"}
               className={`h-12 w-full justify-start px-3 ${
                 action.primary
-                  ? "bg-green-600 text-white hover:bg-green-700"
+                  ? "bg-teal-600 text-white hover:bg-teal-700"
                   : "border-gray-200 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
               }`}
             >
@@ -218,7 +218,7 @@ async function CurrentWork() {
             <p className="mb-4 text-gray-600 dark:text-gray-300">
               No draft invoices found
             </p>
-            <Button asChild className="bg-green-600 hover:bg-green-700">
+            <Button asChild className="bg-teal-600 hover:bg-teal-700">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Invoice
@@ -254,7 +254,7 @@ async function CurrentWork() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+              <p className="text-2xl font-bold text-teal-600 dark:text-teal-400">
                 ${currentInvoice.totalAmount.toFixed(2)}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -273,7 +273,7 @@ async function CurrentWork() {
             <Button
               asChild
               size="sm"
-              className="flex-1 bg-green-600 hover:bg-green-700"
+              className="flex-1 bg-teal-600 hover:bg-teal-700"
             >
               <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
                 <Edit className="mr-2 h-3 w-3" />
@@ -331,7 +331,7 @@ async function RecentActivity() {
             <p className="mb-4 text-gray-600 dark:text-gray-300">
               No invoices yet
             </p>
-            <Button asChild className="bg-green-600 hover:bg-green-700">
+            <Button asChild className="bg-teal-600 hover:bg-teal-700">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Invoice
@@ -348,12 +348,12 @@ async function RecentActivity() {
               >
                 <Card className="card-secondary transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60">
                   <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
+                    <div className="space-y-3">
                       <div className="flex items-center gap-3">
                         <div className="rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
                           <FileText className="h-4 w-4 text-gray-600 dark:text-gray-300" />
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <p className="font-medium text-gray-900 dark:text-gray-100">
                             #{invoice.invoiceNumber}
                           </p>
@@ -362,8 +362,11 @@ async function RecentActivity() {
                             {new Date(invoice.issueDate).toLocaleDateString()}
                           </p>
                         </div>
+                        <div className="rounded-lg p-1 transition-colors hover:bg-gray-300/50 dark:hover:bg-gray-600/50">
+                          <Eye className="h-4 w-4 text-gray-600 dark:text-gray-300" />
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-between">
                         <Badge
                           className={`border ${getStatusColor(invoice.status)}`}
                         >
@@ -372,9 +375,6 @@ async function RecentActivity() {
                         <p className="font-semibold text-gray-900 dark:text-gray-100">
                           ${invoice.totalAmount.toFixed(2)}
                         </p>
-                        <div className="rounded-lg p-1 transition-colors hover:bg-gray-300/50 dark:hover:bg-gray-600/50">
-                          <Eye className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -391,16 +391,16 @@ async function RecentActivity() {
 // Loading skeletons
 function StatsSkeleton() {
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <Card key={i} className="border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="mb-4 flex items-center justify-between">
-              <Skeleton className="h-9 w-9 rounded-lg" />
-              <Skeleton className="h-4 w-12" />
+          <CardContent className="p-3 sm:p-4 lg:p-6">
+            <div className="mb-2 flex items-center justify-between sm:mb-3 lg:mb-4">
+              <Skeleton className="h-6 w-6 rounded-lg sm:h-8 sm:w-8 lg:h-9 lg:w-9" />
+              <Skeleton className="h-3 w-8 sm:h-4 sm:w-12" />
             </div>
-            <Skeleton className="mb-2 h-8 w-20" />
-            <Skeleton className="h-4 w-24" />
+            <Skeleton className="mb-1 h-5 w-16 sm:mb-2 sm:h-6 sm:w-20 lg:h-8" />
+            <Skeleton className="h-3 w-20 sm:h-4 sm:w-24" />
           </CardContent>
         </Card>
       ))}

@@ -1,25 +1,12 @@
-import Link from "next/link";
-import { HydrateClient } from "~/trpc/server";
+"use client";
+
+import { useParams } from "next/navigation";
 import { ClientForm } from "~/components/forms/client-form";
-import { PageHeader } from "~/components/layout/page-header";
 
-interface EditClientPageProps {
-  params: Promise<{ id: string }>;
-}
+export default function EditClientPage() {
+  const params = useParams();
+  const clientId = Array.isArray(params?.id) ? params.id[0] : params?.id;
+  if (!clientId) return null;
 
-export default async function EditClientPage({ params }: EditClientPageProps) {
-  const { id } = await params;
-
-  return (
-    <div>
-      <PageHeader
-        title="Edit Client"
-        description="Update client information below."
-        variant="gradient"
-      />
-      <HydrateClient>
-        <ClientForm mode="edit" clientId={id} />
-      </HydrateClient>
-    </div>
-  );
+  return <ClientForm clientId={clientId} mode="edit" />;
 }

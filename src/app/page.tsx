@@ -41,15 +41,16 @@ export default function HomePage() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="hidden sm:inline-flex"
+                  className="text-slate-700 hover:text-slate-900 dark:text-slate-200 dark:hover:text-white"
                 >
-                  Sign In
+                  <span className="hidden sm:inline">Sign In</span>
+                  <span className="sm:hidden">Sign In</span>
                 </Button>
               </Link>
               <Link href="/auth/register">
                 <Button size="sm" className="btn-brand-primary">
-                  <span className="hidden sm:inline">Get Started Free</span>
-                  <span className="sm:hidden">Start Free</span>
+                  <span className="hidden sm:inline">Get Started</span>
+                  <span className="sm:hidden">Start</span>
                 </Button>
               </Link>
             </div>
@@ -68,17 +69,17 @@ export default function HomePage() {
           <div className="mx-auto max-w-4xl">
             <Badge className="badge-brand mb-4 sm:mb-6">
               <Sparkles className="mr-1 h-3 w-3" />
-              100% Free Forever
+              Free Forever
             </Badge>
 
             <h1 className="mb-4 text-4xl font-bold tracking-tight text-white sm:mb-6 sm:text-6xl lg:text-7xl">
               Simple Invoicing for
-              <span className="block text-emerald-100">Freelancers</span>
+              <span className="block text-emerald-50">Freelancers</span>
             </h1>
 
-            <p className="mx-auto mb-6 max-w-2xl text-lg leading-relaxed text-emerald-100 sm:mb-8 sm:text-xl">
+            <p className="mx-auto mb-6 max-w-2xl text-lg leading-relaxed text-emerald-50/90 sm:mb-8 sm:text-xl">
               Create professional invoices, manage clients, and track payments.
-              Built specifically for freelancers and small businesses—
+              Built for freelancers and small businesses—
               <span className="font-semibold text-white">completely free</span>.
             </p>
 
@@ -86,9 +87,9 @@ export default function HomePage() {
               <Link href="/auth/register">
                 <Button
                   size="lg"
-                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold text-emerald-700 shadow-xl transition-all duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold shadow-xl transition-all duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                 >
-                  Start Free
+                  Get Started
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
@@ -96,22 +97,22 @@ export default function HomePage() {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="btn-brand-secondary group w-full px-6 py-3 text-base sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                  className="group w-full border-white/30 px-6 py-3 text-base text-white hover:bg-white/10 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                 >
-                  See Features
+                  Learn More
                   <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
             </div>
 
-            <div className="mt-8 flex flex-col items-center justify-center gap-2 text-sm text-emerald-200 sm:mt-12 sm:flex-row sm:gap-6">
+            <div className="mt-8 flex flex-col items-center justify-center gap-2 text-sm text-emerald-50/80 sm:mt-12 sm:flex-row sm:gap-6">
               {[
                 "No credit card required",
                 "Setup in 2 minutes",
-                "Cancel anytime",
+                "Free forever",
               ].map((text, i) => (
                 <div key={i} className="flex items-center gap-2">
-                  <Check className="h-4 w-4 text-emerald-300" />
+                  <Check className="h-4 w-4 text-emerald-100" />
                   <span className="text-center">{text}</span>
                 </div>
               ))}
@@ -132,17 +133,14 @@ export default function HomePage() {
           <div className="mb-12 text-center sm:mb-16">
             <Badge className="badge-features mb-4">
               <Zap className="mr-1 h-3 w-3" />
-              Supercharged Features
+              Features
             </Badge>
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-slate-100">
               Everything you need to
-              <span className="text-brand-gradient block">
-                invoice professionally
-              </span>
+              <span className="text-brand-gradient block">get paid</span>
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl dark:text-slate-300">
-              Simple, powerful features designed specifically for freelancers
-              and small businesses.
+              Simple, powerful features for freelancers and small businesses.
             </p>
           </div>
 
@@ -157,8 +155,8 @@ export default function HomePage() {
                   Quick Setup
                 </h3>
                 <p className="mb-4 text-slate-600 dark:text-slate-300">
-                  Start creating invoices immediately. No complicated setup or
-                  configuration required.
+                  Start creating invoices immediately. No complicated setup
+                  required.
                 </p>
                 <ul className="feature-list">
                   <li className="feature-item">
@@ -187,8 +185,7 @@ export default function HomePage() {
                   Payment Tracking
                 </h3>
                 <p className="mb-4 text-slate-600 dark:text-slate-300">
-                  Keep track of invoice status and monitor which clients have
-                  paid.
+                  Keep track of invoice status and monitor payments.
                 </p>
                 <ul className="feature-list">
                   <li className="feature-item">
@@ -217,7 +214,7 @@ export default function HomePage() {
                   Professional Features
                 </h3>
                 <p className="mb-4 text-slate-600 dark:text-slate-300">
-                  Everything you need to look professional and get paid on time.
+                  Professional features to help you get paid on time.
                 </p>
                 <ul className="feature-list">
                   <li className="feature-item">
@@ -250,11 +247,10 @@ export default function HomePage() {
         <div className="relative container mx-auto px-4">
           <div className="mb-12 text-center sm:mb-16">
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-slate-100">
-              Simple, transparent pricing
+              Simple pricing
             </h2>
             <p className="mx-auto max-w-2xl text-lg text-slate-600 sm:text-xl dark:text-slate-300">
-              Start free, stay free. No hidden fees, no gotchas, no limits on
-              your success.
+              Start free, stay free. No hidden fees or limits.
             </p>
           </div>
 
@@ -298,7 +294,7 @@ export default function HomePage() {
                     variant="brand"
                     className="w-full py-3 text-base font-semibold sm:text-lg"
                   >
-                    Get Started Now
+                    Get Started
                   </Button>
                 </Link>
 
@@ -319,10 +315,8 @@ export default function HomePage() {
         <div className="relative container mx-auto px-4">
           <div className="mb-12 text-center sm:mb-16">
             <h2 className="mb-4 text-3xl font-bold tracking-tight text-slate-900 sm:text-4xl lg:text-5xl dark:text-slate-100">
-              Why freelancers
-              <span className="text-brand-gradient block">
-                choose BeenVoice
-              </span>
+              Why choose
+              <span className="text-brand-gradient block">BeenVoice</span>
             </h2>
           </div>
 
@@ -335,8 +329,7 @@ export default function HomePage() {
                 Quick & Simple
               </h3>
               <p className="text-slate-600 dark:text-slate-300">
-                No learning curve. Start creating professional invoices in
-                minutes, not hours.
+                No learning curve. Start creating invoices in minutes.
               </p>
             </div>
             <div className="text-center">
@@ -347,8 +340,7 @@ export default function HomePage() {
                 Always Free
               </h3>
               <p className="text-slate-600 dark:text-slate-300">
-                No hidden fees, no premium tiers. All features are free for as
-                long as you need them.
+                No hidden fees, no premium tiers. All features are free.
               </p>
             </div>
             <div className="text-center">
@@ -360,7 +352,7 @@ export default function HomePage() {
               </h3>
               <p className="text-slate-600 dark:text-slate-300">
                 Focus on your work, not paperwork. Automated calculations and
-                professional formatting.
+                formatting.
               </p>
             </div>
           </div>
@@ -377,13 +369,11 @@ export default function HomePage() {
         <div className="relative container mx-auto px-4 text-center">
           <div className="mx-auto max-w-3xl">
             <h2 className="mb-4 text-3xl font-bold text-white sm:mb-6 sm:text-4xl lg:text-5xl">
-              Ready to revolutionize
-              <span className="block">your invoicing?</span>
+              Ready to get started?
             </h2>
-            <p className="mb-6 text-lg text-emerald-100 sm:mb-8 sm:text-xl">
-              Join thousands of entrepreneurs who&apos;ve already transformed
-              their business with BeenVoice. Start your journey
-              today&mdash;completely free.
+            <p className="mb-6 text-lg text-emerald-50/90 sm:mb-8 sm:text-xl">
+              Join thousands of freelancers already using BeenVoice. Start
+              today—completely free.
             </p>
 
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -391,15 +381,15 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold text-emerald-700 shadow-xl transition-all duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold shadow-xl transition-all duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                 >
-                  Start Your Success Story
+                  Start Free Today
                   <Rocket className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5" />
                 </Button>
               </Link>
             </div>
 
-            <div className="mt-6 flex flex-col items-center justify-center gap-3 text-emerald-200 sm:mt-8 sm:flex-row sm:gap-6">
+            <div className="mt-6 flex flex-col items-center justify-center gap-3 text-emerald-50/80 sm:mt-8 sm:flex-row sm:gap-6">
               <div className="flex items-center gap-2">
                 <Heart className="h-4 w-4" />
                 Free forever
@@ -422,26 +412,38 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <Logo className="mx-auto mb-4" />
-            <p className="text-muted mb-4 text-sm sm:mb-6 sm:text-base">
+            <p className="mb-4 text-sm text-slate-600 sm:mb-6 sm:text-base dark:text-slate-400">
               Simple invoicing for freelancers. Free, forever.
             </p>
-            <div className="text-muted flex flex-wrap items-center justify-center gap-4 text-sm sm:gap-6">
-              <Link href="/auth/signin" className="link-primary">
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-slate-600 sm:gap-6 dark:text-slate-400">
+              <Link
+                href="/auth/signin"
+                className="transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
+              >
                 Sign In
               </Link>
-              <Link href="/auth/register" className="link-primary">
+              <Link
+                href="/auth/register"
+                className="transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
+              >
                 Register
               </Link>
-              <a href="#features" className="link-primary">
+              <a
+                href="#features"
+                className="transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
+              >
                 Features
               </a>
-              <a href="#pricing" className="link-primary">
+              <a
+                href="#pricing"
+                className="transition-colors hover:text-emerald-600 dark:hover:text-emerald-400"
+              >
                 Pricing
               </a>
             </div>
-            <div className="mt-6 border-t pt-6 sm:mt-8 sm:pt-8">
-              <p className="text-muted text-sm sm:text-base">
-                &copy; 2024 BeenVoice. Built with ♥ for entrepreneurs.
+            <div className="mt-6 border-t border-slate-200 pt-6 sm:mt-8 sm:pt-8 dark:border-slate-700">
+              <p className="text-sm text-slate-600 sm:text-base dark:text-slate-400">
+                &copy; 2025 Sean O'Connor.
               </p>
             </div>
           </div>
