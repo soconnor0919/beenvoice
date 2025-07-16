@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
+import bcrypt from "bcryptjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
   users,
   clients,
   businesses,
   invoices,
-  invoiceItems
+  invoiceItems,
 } from "~/server/db/schema";
 
 // Validation schemas for backup data
@@ -93,7 +94,7 @@ export const settingsRouter = createTRPCRouter({
     .input(
       z.object({
         name: z.string().min(1, "Name is required"),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db
@@ -102,6 +103,68 @@ export const settingsRouter = createTRPCRouter({
           name: input.name,
         })
         .where(eq(users.id, ctx.session.user.id));
+
+      return { success: true };
+    }),
+
+  // Change user password
+  changePassword: protectedProcedure
+    .input(
+      z
+        .object({
+          currentPassword: z.string().min(1, "Current password is required"),
+          newPassword: z
+            .string()
+            .min(8, "New password must be at least 8 characters"),
+          confirmPassword: z
+            .string()
+            .min(1, "Password confirmation is required"),
+        })
+        .refine((data) => data.newPassword === data.confirmPassword, {
+          message: "Passwords don't match",
+          path: ["confirmPassword"],
+        }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session.user.id;
+
+      // Get the current user with password
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.id, userId),
+        columns: {
+          id: true,
+          password: true,
+        },
+      });
+
+      if (!user || !user.password) {
+        throw new Error("User not found or no password set");
+      }
+
+      // Verify current password
+      const isCurrentPasswordValid = await bcrypt.compare(
+        input.currentPassword,
+        user.password,
+      );
+
+      if (!isCurrentPasswordValid) {
+        throw new Error("Current password is incorrect");
+      }
+
+      // Hash the new password
+      const saltRounds = 12;
+      const hashedNewPassword = await bcrypt.hash(
+        input.newPassword,
+        saltRounds,
+      );
+
+      // Update the password
+      await ctx.db
+        .update(users)
+        .set({
+          password: hashedNewPassword,
+        })
+        .where(eq(users.id, userId));
 
       return { success: true };
     }),
@@ -193,7 +256,7 @@ export const settingsRouter = createTRPCRouter({
         name: user?.name ?? "",
         email: user?.email ?? "",
       },
-      clients: userClients.map(client => ({
+      clients: userClients.map((client) => ({
         name: client.name,
         email: client.email ?? undefined,
         phone: client.phone ?? undefined,
@@ -204,7 +267,7 @@ export const settingsRouter = createTRPCRouter({
         postalCode: client.postalCode ?? undefined,
         country: client.country ?? undefined,
       })),
-      businesses: userBusinesses.map(business => ({
+      businesses: userBusinesses.map((business) => ({
         name: business.name,
         email: business.email ?? undefined,
         phone: business.phone ?? undefined,
@@ -219,7 +282,7 @@ export const settingsRouter = createTRPCRouter({
         logoUrl: business.logoUrl ?? undefined,
         isDefault: business.isDefault ?? false,
       })),
-      invoices: userInvoices.map(invoice => ({
+      invoices: userInvoices.map((invoice) => ({
         invoiceNumber: invoice.invoiceNumber,
         businessName: invoice.business?.name,
         clientName: invoice.client.name,
@@ -307,10 +370,10 @@ export const settingsRouter = createTRPCRouter({
           if (newInvoice && invoiceData.items.length > 0) {
             // Import invoice items
             await tx.insert(invoiceItems).values(
-              invoiceData.items.map(item => ({
+              invoiceData.items.map((item) => ({
                 ...item,
                 invoiceId: newInvoice.id,
-              }))
+              })),
             );
           }
         }
@@ -321,8 +384,11 @@ export const settingsRouter = createTRPCRouter({
             clients: input.clients.length,
             businesses: input.businesses.length,
             invoices: input.invoices.length,
-            items: input.invoices.reduce((sum, inv) => sum + inv.items.length, 0),
-          }
+            items: input.invoices.reduce(
+              (sum, inv) => sum + inv.items.length,
+              0,
+            ),
+          },
         };
       });
     }),
@@ -336,17 +402,17 @@ export const settingsRouter = createTRPCRouter({
         .select({ count: clients.id })
         .from(clients)
         .where(eq(clients.createdById, userId))
-        .then(result => result.length),
+        .then((result) => result.length),
       ctx.db
         .select({ count: businesses.id })
         .from(businesses)
         .where(eq(businesses.createdById, userId))
-        .then(result => result.length),
+        .then((result) => result.length),
       ctx.db
         .select({ count: invoices.id })
         .from(invoices)
         .where(eq(invoices.createdById, userId))
-        .then(result => result.length),
+        .then((result) => result.length),
     ]);
 
     return {
@@ -358,11 +424,13 @@ export const settingsRouter = createTRPCRouter({
 
   // Delete all user data (for account deletion)
   deleteAllData: protectedProcedure
-    .input(z.object({
-      confirmText: z.string().refine(val => val === "DELETE ALL DATA", {
-        message: "You must type 'DELETE ALL DATA' to confirm",
+    .input(
+      z.object({
+        confirmText: z.string().refine((val) => val === "DELETE ALL DATA", {
+          message: "You must type 'DELETE ALL DATA' to confirm",
+        }),
       }),
-    }))
+    )
     .mutation(async ({ ctx }) => {
       const userId = ctx.session.user.id;
 
@@ -376,7 +444,9 @@ export const settingsRouter = createTRPCRouter({
 
         if (userInvoiceIds.length > 0) {
           for (const invoice of userInvoiceIds) {
-            await tx.delete(invoiceItems).where(eq(invoiceItems.invoiceId, invoice.id));
+            await tx
+              .delete(invoiceItems)
+              .where(eq(invoiceItems.invoiceId, invoice.id));
           }
         }
 

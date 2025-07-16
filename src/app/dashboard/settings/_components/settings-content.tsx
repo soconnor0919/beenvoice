@@ -10,10 +10,12 @@ import {
   Database,
   AlertTriangle,
   Shield,
-  Settings,
   FileText,
   Users,
   Building,
+  Key,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 
 import { api } from "~/trpc/react";
@@ -58,6 +60,14 @@ export function SettingsContent() {
   const [importData, setImportData] = useState("");
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
 
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   // Queries
   const { data: profile, refetch: refetchProfile } =
     api.settings.getProfile.useQuery();
@@ -71,6 +81,18 @@ export function SettingsContent() {
     },
     onError: (error: { message: string }) => {
       toast.error(`Failed to update profile: ${error.message}`);
+    },
+  });
+
+  const changePasswordMutation = api.settings.changePassword.useMutation({
+    onSuccess: () => {
+      toast.success("Password changed successfully");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    },
+    onError: (error: { message: string }) => {
+      toast.error(`Failed to change password: ${error.message}`);
     },
   });
 
@@ -132,6 +154,27 @@ export function SettingsContent() {
       return;
     }
     updateProfileMutation.mutate({ name: name.trim() });
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      toast.error("Please fill in all password fields");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error("New passwords don't match");
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast.error("New password must be at least 8 characters");
+      return;
+    }
+    changePasswordMutation.mutate({
+      currentPassword,
+      newPassword,
+      confirmPassword,
+    });
   };
 
   const handleExportData = () => {
@@ -239,21 +282,21 @@ export function SettingsContent() {
       value: dataStats?.clients ?? 0,
       icon: Users,
       color: "text-blue-600",
-      bgColor: "bg-blue-100",
+      bgColor: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
       label: "Businesses",
       value: dataStats?.businesses ?? 0,
       icon: Building,
       color: "text-purple-600",
-      bgColor: "bg-purple-100",
+      bgColor: "bg-purple-50 dark:bg-purple-900/20",
     },
     {
       label: "Invoices",
       value: dataStats?.invoices ?? 0,
       icon: FileText,
       color: "text-emerald-600",
-      bgColor: "bg-emerald-100",
+      bgColor: "bg-emerald-50 dark:bg-emerald-900/20",
     },
   ];
 
@@ -264,10 +307,8 @@ export function SettingsContent() {
         {/* Profile Section */}
         <Card className="card-primary">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="icon-bg-emerald">
-                <User className="text-icon-emerald h-5 w-5" />
-              </div>
+            <CardTitle className="card-title-secondary">
+              <User className="text-icon-blue h-5 w-5" />
               Profile Information
             </CardTitle>
             <CardDescription>
@@ -283,7 +324,6 @@ export function SettingsContent() {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Enter your full name"
-                  className="border-0 shadow-sm"
                 />
               </div>
               <div className="space-y-2">
@@ -292,7 +332,7 @@ export function SettingsContent() {
                   id="email"
                   value={session?.user?.email ?? ""}
                   disabled
-                  className="bg-muted border-0 shadow-sm"
+                  className="bg-muted"
                 />
                 <p className="text-muted-foreground text-sm">
                   Email address cannot be changed
@@ -314,10 +354,8 @@ export function SettingsContent() {
         {/* Data Overview */}
         <Card className="card-primary">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <div className="icon-bg-info">
-                <Database className="text-icon-blue h-5 w-5" />
-              </div>
+            <CardTitle className="card-title-info">
+              <Database className="text-icon-blue h-5 w-5" />
               Account Data
             </CardTitle>
             <CardDescription>
@@ -329,24 +367,23 @@ export function SettingsContent() {
               {dataStatItems.map((item) => {
                 const Icon = item.icon;
                 return (
-                  <Card key={item.label} className="card-secondary">
-                    <CardContent className="py-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`rounded-lg p-2 ${item.bgColor}`}>
-                            <Icon className={`h-4 w-4 ${item.color}`} />
-                          </div>
-                          <span className="font-medium">{item.label}</span>
-                        </div>
-                        <Badge
-                          variant="secondary"
-                          className="text-lg font-semibold"
-                        >
-                          {item.value}
-                        </Badge>
+                  <div
+                    key={item.label}
+                    className="bg-card flex items-center justify-between rounded-lg border p-4 transition-shadow hover:shadow-sm"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`rounded-lg p-2 ${item.bgColor}`}>
+                        <Icon className={`h-4 w-4 ${item.color}`} />
                       </div>
-                    </CardContent>
-                  </Card>
+                      <span className="font-medium">{item.label}</span>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="text-lg font-semibold"
+                    >
+                      {item.value}
+                    </Badge>
+                  </div>
                 );
               })}
             </div>
@@ -354,13 +391,118 @@ export function SettingsContent() {
         </Card>
       </div>
 
+      {/* Security Settings */}
+      <Card className="card-primary">
+        <CardHeader>
+          <CardTitle className="card-title-secondary">
+            <Key className="text-icon-amber h-5 w-5" />
+            Security Settings
+          </CardTitle>
+          <CardDescription>
+            Change your password and manage account security
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleChangePassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="current-password">Current Password</Label>
+              <div className="relative">
+                <Input
+                  id="current-password"
+                  type={showCurrentPassword ? "text" : "password"}
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder="Enter your current password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                >
+                  {showCurrentPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <div className="relative">
+                <Input
+                  id="new-password"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder="Enter your new password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                >
+                  {showNewPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+              <p className="text-muted-foreground text-sm">
+                Password must be at least 8 characters long
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <div className="relative">
+                <Input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your new password"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={changePasswordMutation.isPending}
+              className="btn-brand-primary"
+            >
+              {changePasswordMutation.isPending
+                ? "Changing Password..."
+                : "Change Password"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
       {/* Data Management */}
       <Card className="card-primary">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="bg-indigo-subtle rounded-lg p-2">
-              <Shield className="text-icon-indigo h-5 w-5" />
-            </div>
+          <CardTitle className="card-title-secondary">
+            <Shield className="text-icon-indigo h-5 w-5" />
             Data Management
           </CardTitle>
           <CardDescription>
@@ -429,38 +571,38 @@ export function SettingsContent() {
                 </DialogContent>
               </Dialog>
             </div>
-          </div>
 
-          {/* Backup Information */}
-          <div className="mt-6 rounded-lg border p-4">
-            <h4 className="font-medium">Backup Information</h4>
-            <ul className="text-muted-foreground mt-2 space-y-1 text-sm">
-              <li>• Regular backups protect your important business data</li>
-              <li>• Backup files contain all data in secure JSON format</li>
-              <li>• Import adds to existing data without replacing anything</li>
-              <li>• Store backup files in a secure, accessible location</li>
-            </ul>
+            {/* Backup Information */}
+            <div className="border-border bg-muted/20 rounded-lg border p-4">
+              <h4 className="font-medium">Backup Information</h4>
+              <ul className="text-muted-foreground mt-2 space-y-1 text-sm">
+                <li>• Regular backups protect your important business data</li>
+                <li>• Backup files contain all data in secure JSON format</li>
+                <li>
+                  • Import adds to existing data without replacing anything
+                </li>
+                <li>• Store backup files in a secure, accessible location</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Danger Zone */}
-      <Card className="card-primary">
+      <Card className="card-primary border-l-4 border-l-red-500">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className="icon-bg-error">
-              <AlertTriangle className="text-icon-red h-5 w-5" />
-            </div>
-            Data Management
+          <CardTitle className="card-title-warning">
+            <AlertTriangle className="text-icon-red h-5 w-5" />
+            Danger Zone
           </CardTitle>
           <CardDescription>
-            Manage your account data with caution
+            Irreversible actions that permanently affect your account
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="rounded-lg border p-4">
-              <h4 className="font-medium text-red-600">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+              <h4 className="font-medium text-red-600 dark:text-red-400">
                 Delete All Account Data
               </h4>
               <p className="text-muted-foreground mt-2 text-sm">
@@ -472,7 +614,7 @@ export function SettingsContent() {
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-100">
+                <Button variant="destructive" className="w-full">
                   <AlertTriangle className="mr-2 h-4 w-4" />
                   Delete All Data
                 </Button>
@@ -485,7 +627,7 @@ export function SettingsContent() {
                       This action cannot be undone. This will permanently delete
                       all your:
                     </div>
-                    <ul className="list-inside list-disc space-y-1 rounded-lg border p-3 text-sm">
+                    <ul className="border-border bg-muted/50 list-inside list-disc space-y-1 rounded-lg border p-3 text-sm">
                       <li>Client information and contact details</li>
                       <li>Business profiles and settings</li>
                       <li>Invoices and invoice line items</li>
@@ -516,7 +658,7 @@ export function SettingsContent() {
                       deleteConfirmText !== "delete all my data" ||
                       deleteDataMutation.isPending
                     }
-                    className="btn-danger"
+                    className="bg-red-600 hover:bg-red-700"
                   >
                     {deleteDataMutation.isPending
                       ? "Deleting..."

@@ -440,8 +440,8 @@ export function CSVImportPage() {
       {/* Global Client Selection */}
       <Card className="card-primary">
         <CardHeader>
-          <CardTitle className="card-title-primary">
-            <Users className="h-5 w-5" />
+          <CardTitle className="card-title-secondary">
+            <Users className="text-icon-blue h-5 w-5" />
             Default Client
           </CardTitle>
         </CardHeader>
@@ -460,7 +460,7 @@ export function CSVImportPage() {
                   applyGlobalClient(newClientId);
                 }
               }}
-              className="h-12 w-full rounded-md border px-3 py-2"
+              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-12 w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               disabled={loadingClients}
             >
               <option value="">No default client (select individually)</option>
@@ -470,7 +470,7 @@ export function CSVImportPage() {
                 </option>
               ))}
             </select>
-            <p className="text-muted text-xs">
+            <p className="text-muted-foreground text-xs">
               This client will be automatically selected for all uploaded files.
               You can still change individual files below.
             </p>
@@ -481,8 +481,8 @@ export function CSVImportPage() {
       {/* File Upload Area */}
       <Card className="card-primary">
         <CardHeader>
-          <CardTitle className="card-title-primary">
-            <Upload className="h-5 w-5" />
+          <CardTitle className="card-title-secondary">
+            <Upload className="text-icon-emerald h-5 w-5" />
             Upload CSV Files
           </CardTitle>
         </CardHeader>
@@ -496,38 +496,55 @@ export function CSVImportPage() {
             description="Files must be named YYYY-MM-DD.csv (e.g., 2024-01-15.csv). Up to 50 files can be uploaded at once."
           />
 
-          {/* Summary Stats */}
+          {/* Summary Card */}
           {totalFiles > 0 && (
-            <div className="grid grid-cols-2 gap-4 rounded-lg bg-emerald-50/50 p-4 md:grid-cols-4">
-              <div className="text-center">
-                <div className="text-icon-emerald text-2xl font-bold">
-                  {totalFiles}
+            <Card className="card-primary">
+              <CardHeader>
+                <CardTitle className="card-title-secondary">
+                  <FileText className="text-icon-emerald h-5 w-5" />
+                  Import Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4 rounded-lg bg-green-50/50 p-4 md:grid-cols-4 dark:bg-green-900/10">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {totalFiles}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Files
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {totalItems}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Total Items
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {totalAmount.toLocaleString("en-US", {
+                        style: "currency",
+                        currency: "USD",
+                      })}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Total Amount
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {readyFiles}/{totalFiles}
+                    </div>
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                      Ready
+                    </div>
+                  </div>
                 </div>
-                <div className="text-secondary text-sm">Files</div>
-                <div className="text-muted text-xs">of 50 max</div>
-              </div>
-              <div className="text-center">
-                <div className="text-icon-emerald text-2xl font-bold">
-                  {totalItems}
-                </div>
-                <div className="text-secondary text-sm">Total Items</div>
-              </div>
-              <div className="text-center">
-                <div className="text-icon-emerald text-2xl font-bold">
-                  {totalAmount.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  })}
-                </div>
-                <div className="text-secondary text-sm">Total Amount</div>
-              </div>
-              <div className="text-center">
-                <div className="text-icon-emerald text-2xl font-bold">
-                  {readyFiles}/{totalFiles}
-                </div>
-                <div className="text-secondary text-sm">Ready</div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           )}
         </CardContent>
       </Card>
@@ -536,23 +553,25 @@ export function CSVImportPage() {
       {files.length > 0 && (
         <Card className="card-primary">
           <CardHeader>
-            <CardTitle className="text-brand-light">Uploaded Files</CardTitle>
+            <CardTitle className="card-title-secondary">
+              Uploaded Files
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               {files.map((fileData, index) => (
                 <div
                   key={index}
-                  className="rounded-lg border border-gray-200 bg-white p-4"
+                  className="border-border bg-card rounded-lg border p-4"
                 >
                   <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <FileText className="text-icon-emerald h-5 w-5" />
                       <div>
-                        <h3 className="text-accent truncate font-medium">
+                        <h3 className="text-foreground truncate font-medium">
                           {fileData.file.name}
                         </h3>
-                        <p className="text-muted text-sm">
+                        <p className="text-muted-foreground text-sm">
                           {fileData.parsedItems.length} items •{" "}
                           {fileData.parsedItems
                             .reduce((sum, item) => sum + item.hours, 0)
@@ -574,7 +593,7 @@ export function CSVImportPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => removeFile(index)}
-                        className="text-icon-red hover:text-error"
+                        className="text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="mr-1 h-4 w-4" />
                         Remove
@@ -584,7 +603,7 @@ export function CSVImportPage() {
 
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div className="space-y-2">
-                      <Label className="text-secondary text-xs font-medium">
+                      <Label className="text-muted-foreground text-xs font-medium">
                         Invoice Number
                       </Label>
                       <Input
@@ -596,15 +615,18 @@ export function CSVImportPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-xs font-medium">Client</Label>
+                      <Label className="text-muted-foreground text-xs font-medium">
+                        Client
+                      </Label>
                       <select
                         value={fileData.clientId}
                         onChange={(e) =>
                           updateFileData(index, { clientId: e.target.value })
                         }
-                        className="h-9 w-full rounded-md border px-3 py-1 text-sm"
+                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        disabled={loadingClients}
                       >
-                        <option value="">Select client</option>
+                        <option value="">Select Client</option>
                         {clients?.map((client) => (
                           <option key={client.id} value={client.id}>
                             {client.name}
@@ -614,7 +636,7 @@ export function CSVImportPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-secondary text-xs font-medium">
+                      <Label className="text-muted-foreground text-xs font-medium">
                         Issue Date
                       </Label>
                       <DatePicker
@@ -628,7 +650,7 @@ export function CSVImportPage() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label className="text-secondary text-xs font-medium">
+                      <Label className="text-muted-foreground text-xs font-medium">
                         Due Date
                       </Label>
                       <DatePicker
@@ -644,20 +666,20 @@ export function CSVImportPage() {
 
                   {/* Error Display */}
                   {fileData.errors.length > 0 && (
-                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
                       <div className="mb-2 flex items-center gap-2">
-                        <AlertCircle className="text-icon-red h-4 w-4" />
-                        <span className="text-error text-sm font-medium">
+                        <AlertCircle className="h-4 w-4 text-red-600" />
+                        <span className="text-sm font-medium text-red-800 dark:text-red-200">
                           Issues Found
                         </span>
                       </div>
-                      <ul className="text-error space-y-1 text-sm">
+                      <ul className="space-y-1 text-sm text-red-700 dark:text-red-300">
                         {fileData.errors.map((error, errorIndex) => (
                           <li
                             key={errorIndex}
                             className="flex items-start gap-2"
                           >
-                            <span className="text-icon-red">•</span>
+                            <span className="text-red-600">•</span>
                             <span>{error}</span>
                           </li>
                         ))}
@@ -666,7 +688,7 @@ export function CSVImportPage() {
                   )}
 
                   <div className="mt-4 flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
+                    <div className="text-muted-foreground text-sm">
                       Total:{" "}
                       {fileData.parsedItems
                         .reduce((sum, item) => sum + item.amount, 0)
@@ -677,7 +699,7 @@ export function CSVImportPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {fileData.errors.length > 0 && (
-                        <Badge className="badge-error text-xs">
+                        <Badge variant="destructive" className="text-xs">
                           {fileData.errors.length} Error
                           {fileData.errors.length !== 1 ? "s" : ""}
                         </Badge>
@@ -692,6 +714,7 @@ export function CSVImportPage() {
                               ? "default"
                               : "secondary"
                         }
+                        className="text-xs"
                       >
                         {fileData.errors.length > 0
                           ? "Has Errors"
@@ -713,20 +736,27 @@ export function CSVImportPage() {
       {/* Batch Actions */}
       {files.length > 0 && (
         <Card className="card-primary">
+          <CardHeader>
+            <CardTitle className="card-title-secondary">
+              <DollarSign className="text-icon-green h-5 w-5" />
+              Create Invoices
+            </CardTitle>
+          </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
               {isProcessing && (
                 <div className="flex w-full flex-col gap-2">
-                  <span className="text-xs text-gray-500">
-                    Uploading invoices...
+                  <span className="text-muted-foreground text-sm">
+                    Creating invoices... ({progressCount}/{totalFiles})
                   </span>
                   <Progress
                     value={Math.round((progressCount / totalFiles) * 100)}
+                    className="h-2"
                   />
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
+                <div className="text-muted-foreground text-sm">
                   {readyFiles} of {totalFiles} files ready for import
                 </div>
                 <Button
@@ -790,24 +820,24 @@ export function CSVImportPage() {
               </div>
 
               <div className="min-h-0 flex-1 overflow-hidden">
-                <div className="max-h-96 overflow-y-auto">
-                  <div className="overflow-x-auto">
-                    <table className="w-full min-w-[600px] text-sm">
-                      <thead className="sticky top-0 bg-gray-50">
+                <div className="p-0">
+                  <div className="max-h-96 overflow-auto">
+                    <table className="w-full border-collapse">
+                      <thead className="bg-muted/50 sticky top-0">
                         <tr>
-                          <th className="p-2 text-left font-medium whitespace-nowrap text-gray-700">
+                          <th className="text-muted-foreground p-2 text-left font-medium">
                             Date
                           </th>
-                          <th className="p-2 text-left font-medium text-gray-700">
+                          <th className="text-muted-foreground p-2 text-left font-medium">
                             Description
                           </th>
-                          <th className="p-2 text-right font-medium whitespace-nowrap text-gray-700">
+                          <th className="text-muted-foreground p-2 text-right font-medium whitespace-nowrap">
                             Hours
                           </th>
-                          <th className="p-2 text-right font-medium whitespace-nowrap text-gray-700">
+                          <th className="text-muted-foreground p-2 text-right font-medium whitespace-nowrap">
                             Rate
                           </th>
-                          <th className="p-2 text-right font-medium whitespace-nowrap text-gray-700">
+                          <th className="text-muted-foreground p-2 text-right font-medium whitespace-nowrap">
                             Amount
                           </th>
                         </tr>
@@ -815,26 +845,23 @@ export function CSVImportPage() {
                       <tbody>
                         {files[selectedFileIndex].parsedItems.map(
                           (item, index) => (
-                            <tr
-                              key={index}
-                              className="border-b border-gray-100"
-                            >
-                              <td className="p-2 whitespace-nowrap text-gray-600">
+                            <tr key={index} className="border-border border-b">
+                              <td className="text-foreground p-2 whitespace-nowrap">
                                 {item.date.toLocaleDateString()}
                               </td>
-                              <td className="max-w-xs truncate p-2 text-gray-600">
+                              <td className="text-foreground max-w-xs truncate p-2">
                                 {item.description}
                               </td>
-                              <td className="p-2 text-right whitespace-nowrap text-gray-600">
+                              <td className="text-foreground p-2 text-right whitespace-nowrap">
                                 {item.hours}
                               </td>
-                              <td className="p-2 text-right whitespace-nowrap text-gray-600">
+                              <td className="text-foreground p-2 text-right whitespace-nowrap">
                                 {item.rate.toLocaleString("en-US", {
                                   style: "currency",
                                   currency: "USD",
                                 })}
                               </td>
-                              <td className="text-secondary p-2 text-right font-medium whitespace-nowrap">
+                              <td className="text-foreground p-2 text-right font-medium whitespace-nowrap">
                                 {item.amount.toLocaleString("en-US", {
                                   style: "currency",
                                   currency: "USD",

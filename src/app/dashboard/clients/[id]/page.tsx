@@ -208,7 +208,7 @@ export default async function ClientDetailPage({
 
           {/* Recent Invoices */}
           {client.invoices && client.invoices.length > 0 && (
-            <Card className="card-primary">
+            <Card className="">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <div className="bg-blue-subtle rounded-lg p-2">
@@ -222,7 +222,7 @@ export default async function ClientDetailPage({
                   {client.invoices.slice(0, 3).map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="flex items-center justify-between rounded-lg border p-3"
+                      className="card-secondary transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60 flex items-center justify-between rounded-lg border p-3"
                     >
                       <div>
                         <p className="text-foreground font-medium">
