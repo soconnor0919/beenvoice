@@ -5,7 +5,7 @@ import { HydrateClient } from "~/trpc/server";
 
 export default function NewBusinessPage() {
   return (
-    <div>
+    <div className="space-y-6 pb-32">
       <PageHeader
         title="Add Business"
         description="Enter business details below to add a new business."

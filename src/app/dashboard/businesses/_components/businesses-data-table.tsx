@@ -53,11 +53,8 @@ const formatAddress = (business: Business) => {
   return parts.join(", ") || "—";
 };
 
-export function BusinessesDataTable({
-  businesses: initialBusinesses,
-}: BusinessesDataTableProps) {
+export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
   const router = useRouter();
-  const [businesses, setBusinesses] = useState(initialBusinesses);
   const [businessToDelete, setBusinessToDelete] = useState<Business | null>(
     null,
   );
@@ -67,7 +64,6 @@ export function BusinessesDataTable({
   const deleteBusinessMutation = api.businesses.delete.useMutation({
     onSuccess: () => {
       toast.success("Business deleted successfully");
-      setBusinesses(businesses.filter((b) => b.id !== businessToDelete?.id));
       setBusinessToDelete(null);
       void utils.businesses.getAll.invalidate();
     },
@@ -95,8 +91,8 @@ export function BusinessesDataTable({
         const business = row.original;
         return (
           <div className="flex items-center gap-3">
-            <div className="bg-status-info-muted hidden rounded-lg p-2 sm:flex">
-              <Building className="text-status-info h-4 w-4" />
+            <div className="bg-blue-subtle hidden rounded-lg p-2 sm:flex">
+              <Building className="text-icon-blue h-4 w-4" />
             </div>
             <div className="min-w-0">
               <p className="truncate font-medium">{business.name}</p>
@@ -186,10 +182,10 @@ export function BusinessesDataTable({
         return (
           <div className="flex items-center justify-end gap-1">
             <Link href={`/dashboard/businesses/${business.id}/edit`}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="h-8 w-8 p-0"
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground h-8 w-8 p-0"
                 data-action-button="true"
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -198,7 +194,7 @@ export function BusinessesDataTable({
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0"
+              className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
               data-action-button="true"
               onClick={() => setBusinessToDelete(business)}
             >
@@ -230,7 +226,8 @@ export function BusinessesDataTable({
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the
-              business "{businessToDelete?.name}" and remove all associated data.
+              business "{businessToDelete?.name}" and remove all associated
+              data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

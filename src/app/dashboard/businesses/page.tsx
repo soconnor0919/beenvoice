@@ -1,20 +1,28 @@
 import Link from "next/link";
-import { HydrateClient } from "~/trpc/server";
+import { Suspense } from "react";
+import { api, HydrateClient } from "~/trpc/server";
 import { Button } from "~/components/ui/button";
-import { Plus } from "lucide-react";
-import { BusinessesTable } from "./_components/businesses-table";
+import { Plus, Building } from "lucide-react";
+import { BusinessesDataTable } from "./_components/businesses-data-table";
 import { PageHeader } from "~/components/layout/page-header";
-import { PageContent, PageSection } from "~/components/layout/page-layout";
+import { DataTableSkeleton } from "~/components/data/data-table";
+
+// Businesses Table Component
+async function BusinessesTable() {
+  const businesses = await api.businesses.getAll();
+
+  return <BusinessesDataTable businesses={businesses} />;
+}
 
 export default async function BusinessesPage() {
   return (
     <>
       <PageHeader
         title="Businesses"
-        description="Manage your businesses and their information."
+        description="Manage your businesses and their information"
         variant="gradient"
       >
-        <Button asChild variant="brand">
+        <Button asChild className="btn-brand-primary shadow-md">
           <Link href="/dashboard/businesses/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Add Business</span>
@@ -23,7 +31,9 @@ export default async function BusinessesPage() {
       </PageHeader>
 
       <HydrateClient>
-        <BusinessesTable />
+        <Suspense fallback={<DataTableSkeleton columns={6} rows={5} />}>
+          <BusinessesTable />
+        </Suspense>
       </HydrateClient>
     </>
   );

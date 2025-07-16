@@ -25,6 +25,7 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
 import { AddressForm } from "~/components/forms/address-form";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
+import { PageHeader } from "~/components/layout/page-header";
 import { api } from "~/trpc/react";
 import {
   formatPhoneNumber,
@@ -274,217 +275,261 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl pb-32">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Main Form Container - styled like data table */}
-        <div className="space-y-4">
-          {/* Basic Information */}
-          <Card className="card-primary">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                  <Building className="text-brand-light h-5 w-5" />
-                </div>
-                <div>
-                  <CardTitle>Basic Information</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Enter your business details
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-medium">
-                    Business Name
-                    <span className="text-destructive ml-1">*</span>
-                  </Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    placeholder={PLACEHOLDERS.name}
-                    className={`${errors.name ? "border-destructive" : ""}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.name && (
-                    <p className="text-destructive text-sm">{errors.name}</p>
-                  )}
-                </div>
+    <>
+      <div className="space-y-6 pb-32">
+        <PageHeader
+          title={mode === "edit" ? "Edit Business" : "Add Business"}
+          description={
+            mode === "edit"
+              ? "Update business information below"
+              : "Enter business details below to add a new business."
+          }
+          variant="gradient"
+        >
+          <Button
+            type="submit"
+            form="business-form"
+            disabled={isSubmitting}
+            className="btn-brand-primary shadow-md"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin sm:mr-2" />
+                <span className="hidden sm:inline">
+                  {mode === "create" ? "Creating..." : "Saving..."}
+                </span>
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">
+                  {mode === "create" ? "Create Business" : "Save Changes"}
+                </span>
+              </>
+            )}
+          </Button>
+        </PageHeader>
 
-                <div className="space-y-2">
-                  <Label htmlFor="taxId" className="text-sm font-medium">
-                    Tax ID (EIN)
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (Optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="taxId"
-                    value={formData.taxId}
-                    onChange={(e) => handleTaxIdChange(e.target.value)}
-                    placeholder={PLACEHOLDERS.taxId}
-                    className={`${errors.taxId ? "border-destructive" : ""}`}
-                    disabled={isSubmitting}
-                    maxLength={10}
-                  />
-                  {errors.taxId && (
-                    <p className="text-destructive text-sm">{errors.taxId}</p>
-                  )}
+        <form id="business-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Main Form Container - styled like data table */}
+          <div className="space-y-4">
+            {/* Basic Information */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                    <Building className="text-brand-light h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle>Basic Information</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Enter your business details
+                    </p>
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium">
-                    Email
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (Optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    placeholder={PLACEHOLDERS.email}
-                    className={`${errors.email ? "border-destructive" : ""}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.email && (
-                    <p className="text-destructive text-sm">{errors.email}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-medium">
-                    Phone
-                    <span className="text-muted-foreground ml-1 text-xs font-normal">
-                      (Optional)
-                    </span>
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => handlePhoneChange(e.target.value)}
-                    placeholder={PLACEHOLDERS.phone}
-                    className={`${errors.phone ? "border-destructive" : ""}`}
-                    disabled={isSubmitting}
-                  />
-                  {errors.phone && (
-                    <p className="text-destructive text-sm">{errors.phone}</p>
-                  )}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="website" className="text-sm font-medium">
-                  Website
-                  <span className="text-muted-foreground ml-1 text-xs font-normal">
-                    (Optional)
-                  </span>
-                </Label>
-                <Input
-                  id="website"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
-                  placeholder={PLACEHOLDERS.website}
-                  className={`${errors.website ? "border-destructive" : ""}`}
-                  disabled={isSubmitting}
-                />
-                {errors.website && (
-                  <p className="text-destructive text-sm">{errors.website}</p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Address */}
-          <Card className="card-primary">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                  <svg
-                    className="text-brand-light h-5 w-5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium">
+                      Business Name
+                      <span className="text-destructive ml-1">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
+                      placeholder={PLACEHOLDERS.name}
+                      className={`${errors.name ? "border-destructive" : ""}`}
+                      disabled={isSubmitting}
                     />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <CardTitle>Business Address</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Your business location
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <AddressForm
-                addressLine1={formData.addressLine1}
-                addressLine2={formData.addressLine2}
-                city={formData.city}
-                state={formData.state}
-                postalCode={formData.postalCode}
-                country={formData.country}
-                onChange={handleInputChange}
-                errors={errors}
-                required={false}
-              />
-            </CardContent>
-          </Card>
+                    {errors.name && (
+                      <p className="text-destructive text-sm">{errors.name}</p>
+                    )}
+                  </div>
 
-          {/* Settings */}
-          <Card className="card-primary">
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                  <Star className="text-brand-light h-5 w-5" />
+                  <div className="space-y-2">
+                    <Label htmlFor="taxId" className="text-sm font-medium">
+                      Tax ID (EIN)
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="taxId"
+                      value={formData.taxId}
+                      onChange={(e) => handleTaxIdChange(e.target.value)}
+                      placeholder={PLACEHOLDERS.taxId}
+                      className={`${errors.taxId ? "border-destructive" : ""}`}
+                      disabled={isSubmitting}
+                      maxLength={10}
+                    />
+                    {errors.taxId && (
+                      <p className="text-destructive text-sm">{errors.taxId}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">
+                      Email
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                      placeholder={PLACEHOLDERS.email}
+                      className={`${errors.email ? "border-destructive" : ""}`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && (
+                      <p className="text-destructive text-sm">{errors.email}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-sm font-medium">
+                      Phone
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
+                      placeholder={PLACEHOLDERS.phone}
+                      className={`${errors.phone ? "border-destructive" : ""}`}
+                      disabled={isSubmitting}
+                    />
+                    {errors.phone && (
+                      <p className="text-destructive text-sm">{errors.phone}</p>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <CardTitle>Settings</CardTitle>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Configure business preferences
-                  </p>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="bg-brand-muted border-border/40 flex items-center justify-between rounded-xl border p-4">
-                <div className="space-y-0.5">
-                  <Label htmlFor="isDefault" className="text-base font-medium">
-                    Default Business
+
+                <div className="space-y-2">
+                  <Label htmlFor="website" className="text-sm font-medium">
+                    Website
+                    <span className="text-muted-foreground ml-1 text-xs font-normal">
+                      (Optional)
+                    </span>
                   </Label>
-                  <p className="text-muted-foreground text-sm">
-                    Set this as your default business for new invoices
-                  </p>
+                  <Input
+                    id="website"
+                    value={formData.website}
+                    onChange={(e) =>
+                      handleInputChange("website", e.target.value)
+                    }
+                    placeholder={PLACEHOLDERS.website}
+                    className={`${errors.website ? "border-destructive" : ""}`}
+                    disabled={isSubmitting}
+                  />
+                  {errors.website && (
+                    <p className="text-destructive text-sm">{errors.website}</p>
+                  )}
                 </div>
-                <Switch
-                  id="isDefault"
-                  checked={formData.isDefault}
-                  onCheckedChange={(checked) =>
-                    handleInputChange("isDefault", checked)
-                  }
-                  disabled={isSubmitting}
+              </CardContent>
+            </Card>
+
+            {/* Address */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                    <svg
+                      className="text-brand-light h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <CardTitle>Business Address</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Your business location
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <AddressForm
+                  addressLine1={formData.addressLine1}
+                  addressLine2={formData.addressLine2}
+                  city={formData.city}
+                  state={formData.state}
+                  postalCode={formData.postalCode}
+                  country={formData.country}
+                  onChange={handleInputChange}
+                  errors={errors}
+                  required={false}
                 />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </form>
+              </CardContent>
+            </Card>
+
+            {/* Settings */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                    <Star className="text-brand-light h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle>Settings</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Configure business preferences
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-brand-muted border-border/40 flex items-center justify-between rounded-xl border p-4">
+                  <div className="space-y-0.5">
+                    <Label
+                      htmlFor="isDefault"
+                      className="text-base font-medium"
+                    >
+                      Default Business
+                    </Label>
+                    <p className="text-muted-foreground text-sm">
+                      Set this as your default business for new invoices
+                    </p>
+                  </div>
+                  <Switch
+                    id="isDefault"
+                    checked={formData.isDefault}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("isDefault", checked)
+                    }
+                    disabled={isSubmitting}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </form>
+      </div>
 
       <FloatingActionBar
         leftContent={
@@ -541,6 +586,6 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
           )}
         </Button>
       </FloatingActionBar>
-    </div>
+    </>
   );
 }
