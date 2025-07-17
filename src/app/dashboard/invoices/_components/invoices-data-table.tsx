@@ -7,8 +7,7 @@ import { Button } from "~/components/ui/button";
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { PDFDownloadButton } from "~/app/dashboard/invoices/[id]/_components/pdf-download-button";
 import { DataTable, DataTableColumnHeader } from "~/components/data/data-table";
-import { EmptyState } from "~/components/layout/page-layout";
-import { Plus, FileText, Eye, Edit } from "lucide-react";
+import { Eye, Edit } from "lucide-react";
 
 // Type for invoice data
 interface Invoice {
@@ -57,6 +56,7 @@ interface InvoicesDataTableProps {
 const getStatusType = (invoice: Invoice): StatusType => {
   if (invoice.status === "paid") return "paid";
   if (invoice.status === "draft") return "draft";
+  if (invoice.status === "overdue") return "overdue";
   if (invoice.status === "sent") {
     const dueDate = new Date(invoice.dueDate);
     return dueDate < new Date() ? "overdue" : "sent";
@@ -95,8 +95,10 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
       cell: ({ row }) => {
         const invoice = row.original;
         return (
-          <div className="min-w-0 max-w-[80px] sm:max-w-[200px] lg:max-w-[300px]">
-            <p className="truncate font-medium">{invoice.client?.name ?? "—"}</p>
+          <div className="max-w-[80px] min-w-0 sm:max-w-[200px] lg:max-w-[300px]">
+            <p className="truncate font-medium">
+              {invoice.client?.name ?? "—"}
+            </p>
             <p className="text-muted-foreground truncate text-xs sm:text-sm">
               {invoice.invoiceNumber}
             </p>
@@ -149,7 +151,9 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
         const amount = row.getValue("totalAmount");
         return (
           <div className="text-right">
-            <p className="font-semibold text-sm">{formatCurrency(amount as number)}</p>
+            <p className="text-sm font-semibold">
+              {formatCurrency(amount as number)}
+            </p>
             <p className="text-muted-foreground text-xs">
               {row.original.items?.length ?? 0} items
             </p>
@@ -168,9 +172,9 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
         return (
           <div className="flex items-center justify-end gap-1">
             <Link href={`/dashboard/invoices/${invoice.id}`}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="h-8 w-8 p-0"
                 data-action-button="true"
               >
@@ -178,9 +182,9 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
               </Button>
             </Link>
             <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="h-8 w-8 p-0"
                 data-action-button="true"
               >

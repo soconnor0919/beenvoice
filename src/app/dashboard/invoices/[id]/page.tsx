@@ -58,6 +58,7 @@ async function InvoiceContent({ invoiceId }: { invoiceId: string }) {
   const getStatusType = (): StatusType => {
     if (invoice.status === "paid") return "paid";
     if (invoice.status === "draft") return "draft";
+    if (invoice.status === "overdue") return "overdue";
     if (invoice.status === "sent") {
       return isOverdue ? "overdue" : "sent";
     }
