@@ -231,8 +231,9 @@ function InvoiceFormSkeleton() {
   );
 }
 
-export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
+function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
+  const utils = api.useUtils();
 
   const [formData, setFormData] = useState({
     invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
@@ -418,6 +419,8 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const createInvoice = api.invoices.create.useMutation({
     onSuccess: () => {
       toast.success("Invoice created successfully");
+      // Invalidate related queries to refresh cache
+      void utils.invoices.getAll.invalidate();
       router.push("/dashboard/invoices");
     },
     onError: (error) => {
@@ -428,44 +431,116 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const updateInvoice = api.invoices.update.useMutation({
     onSuccess: () => {
       toast.success("Invoice updated successfully");
+      // Invalidate related queries to refresh cache
+      void utils.invoices.getAll.invalidate();
+      if (invoiceId) {
+        void utils.invoices.getById.invalidate({ id: invoiceId });
+      }
       router.push("/dashboard/invoices");
     },
     onError: (error) => {
+      console.error("Update invoice error:", error);
       toast.error(error.message || "Failed to update invoice");
     },
   });
+
+  const updateStatus = api.invoices.updateStatus.useMutation({
+    onSuccess: () => {
+      toast.success("Status updated successfully");
+      // Invalidate related queries to refresh cache
+      void utils.invoices.getAll.invalidate();
+      if (invoiceId) {
+        void utils.invoices.getById.invalidate({ id: invoiceId });
+      }
+      router.push("/dashboard/invoices");
+    },
+    onError: (error) => {
+      console.error("Update status error:", error);
+      toast.error(error.message || "Failed to update status");
+    },
+  });
+
+  // Check if only status has changed compared to existing invoice
+  const hasOnlyStatusChanged = React.useMemo(() => {
+    if (!existingInvoice || !invoiceId) return false;
+
+    return (
+      formData.invoiceNumber === existingInvoice.invoiceNumber &&
+      formData.businessId === (existingInvoice.businessId ?? "") &&
+      formData.clientId === existingInvoice.clientId &&
+      formData.issueDate.getTime() ===
+        new Date(existingInvoice.issueDate).getTime() &&
+      formData.dueDate.getTime() ===
+        new Date(existingInvoice.dueDate).getTime() &&
+      formData.status !== existingInvoice.status &&
+      formData.notes === (existingInvoice.notes ?? "") &&
+      formData.taxRate === existingInvoice.taxRate &&
+      JSON.stringify(
+        formData.items.map((item) => ({
+          date: item.date.getTime(),
+          description: item.description,
+          hours: item.hours,
+          rate: item.rate,
+        })),
+      ) ===
+        JSON.stringify(
+          (existingInvoice.items ?? []).map((item) => ({
+            date: new Date(item.date).getTime(),
+            description: item.description,
+            hours: item.hours,
+            rate: item.rate,
+          })),
+        )
+    );
+  }, [formData, existingInvoice, invoiceId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      const invoiceData = {
-        invoiceNumber: formData.invoiceNumber,
-        businessId: formData.businessId || undefined,
-        clientId: formData.clientId,
-        issueDate: formData.issueDate,
-        dueDate: formData.dueDate,
-        status: formData.status,
-        notes: formData.notes,
-        taxRate: formData.taxRate,
-
-        items: formData.items.map((item) => ({
-          date: item.date,
-          description: item.description,
-          hours: item.hours,
-          rate: item.rate,
-          amount: item.hours * item.rate,
-        })),
-      };
-
-      if (invoiceId) {
-        await updateInvoice.mutateAsync({ id: invoiceId, ...invoiceData });
+      if (invoiceId && hasOnlyStatusChanged) {
+        // Use dedicated status update mutation for status-only changes
+        console.log("Using status-only update:", {
+          id: invoiceId,
+          status: formData.status,
+        });
+        await updateStatus.mutateAsync({
+          id: invoiceId,
+          status: formData.status,
+        });
       } else {
-        await createInvoice.mutateAsync(invoiceData);
+        // Use full update mutation for all other changes
+        const invoiceData = {
+          invoiceNumber: formData.invoiceNumber,
+          businessId: formData.businessId || undefined,
+          clientId: formData.clientId,
+          issueDate: formData.issueDate,
+          dueDate: formData.dueDate,
+          status: formData.status,
+          notes: formData.notes,
+          taxRate: formData.taxRate,
+
+          items: formData.items.map((item) => ({
+            date: item.date,
+            description: item.description,
+            hours: item.hours,
+            rate: item.rate,
+            amount: item.hours * item.rate,
+          })),
+        };
+
+        console.log("Submitting invoice data:", invoiceData);
+
+        if (invoiceId) {
+          await updateInvoice.mutateAsync({ id: invoiceId, ...invoiceData });
+        } else {
+          await createInvoice.mutateAsync(invoiceData);
+        }
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
+      toast.error("Failed to save invoice. Check console for details.");
     } finally {
       setLoading(false);
     }
@@ -567,6 +642,11 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                               ))}
                             </SelectContent>
                           </Select>
+                          {invoiceId && hasOnlyStatusChanged && (
+                            <div className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+                              Only status will be updated
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -839,3 +919,5 @@ export function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     </>
   );
 }
+
+export { InvoiceForm };
