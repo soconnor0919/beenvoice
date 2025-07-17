@@ -661,11 +661,6 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                               ))}
                             </SelectContent>
                           </Select>
-                          {invoiceId && hasOnlyStatusChanged && (
-                            <div className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-                              Only status will be updated
-                            </div>
-                          )}
                         </div>
                       </div>
 
