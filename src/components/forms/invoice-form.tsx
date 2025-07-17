@@ -498,6 +498,25 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     e.preventDefault();
     setLoading(true);
 
+    // Client-side validation
+    if (!formData.clientId) {
+      toast.error("Please select a client");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.items.length === 0) {
+      toast.error("Please add at least one invoice item");
+      setLoading(false);
+      return;
+    }
+
+    if (formData.items.some(item => !item.description.trim())) {
+      toast.error("Please provide descriptions for all items");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (invoiceId && hasOnlyStatusChanged) {
         // Use dedicated status update mutation for status-only changes
@@ -526,7 +545,6 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             description: item.description,
             hours: item.hours,
             rate: item.rate,
-            amount: item.hours * item.rate,
           })),
         };
 
@@ -540,7 +558,8 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       }
     } catch (error) {
       console.error("Error saving invoice:", error);
-      toast.error("Failed to save invoice. Check console for details.");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to save invoice: ${errorMessage}`);
     } finally {
       setLoading(false);
     }

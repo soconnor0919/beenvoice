@@ -30,6 +30,7 @@ const createInvoiceSchema = z.object({
 
 const updateInvoiceSchema = createInvoiceSchema.partial().extend({
   id: z.string(),
+  clientId: z.string().min(1, "Client is required"), // Keep clientId required for updates
 });
 
 const updateStatusSchema = z.object({
