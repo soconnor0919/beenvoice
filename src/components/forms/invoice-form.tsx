@@ -1,16 +1,14 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
-import { api } from "~/trpc/react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
-import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
-import { DatePicker } from "~/components/ui/date-picker";
-import { Separator } from "~/components/ui/separator";
 import { Textarea } from "~/components/ui/textarea";
-import { NumberInput } from "~/components/ui/number-input";
+import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   Select,
@@ -19,259 +17,122 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { toast } from "sonner";
-import { FileText, DollarSign, Clock, Save, Check } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { FloatingActionBar } from "~/components/layout/floating-action-bar";
-import { InvoiceLineItems } from "~/components/forms/invoice-line-items";
+import { DatePicker } from "~/components/ui/date-picker";
+import { NumberInput } from "~/components/ui/number-input";
 import { PageHeader } from "~/components/layout/page-header";
+import { FloatingActionBar } from "~/components/layout/floating-action-bar";
+import { InvoiceLineItems } from "./invoice-line-items";
+import { api } from "~/trpc/react";
+import { toast } from "sonner";
+import { FileText, DollarSign, Check, Save, Clock } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft" },
   { value: "sent", label: "Sent" },
   { value: "paid", label: "Paid" },
   { value: "overdue", label: "Overdue" },
-] as const;
+];
 
 interface InvoiceFormProps {
   invoiceId?: string;
 }
 
-// Custom skeleton for invoice form
+interface InvoiceItem {
+  id: string;
+  date: Date;
+  description: string;
+  hours: number;
+  rate: number;
+  amount: number;
+}
+
+interface FormData {
+  invoiceNumber: string;
+  businessId: string;
+  clientId: string;
+  issueDate: Date;
+  dueDate: Date;
+  status: "draft" | "sent" | "paid" | "overdue";
+  notes: string;
+  taxRate: number;
+  defaultHourlyRate: number;
+  items: InvoiceItem[];
+}
+
 function InvoiceFormSkeleton() {
   return (
-    <div className="space-y-6 pb-24">
-      <div className="mb-8">
-        <div className="flex items-start justify-between gap-4">
-          <div className="bg-muted/30 h-8 w-48 animate-pulse rounded sm:h-9 sm:w-64"></div>
-        </div>
-        <div className="bg-muted/30 mt-2 h-4 w-36 animate-pulse rounded sm:w-48"></div>
-      </div>
-
-      {/* Form Content */}
+    <div className="space-y-6 pb-32">
+      <PageHeader
+        title="Loading..."
+        description="Loading invoice form"
+        variant="gradient"
+      />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/* Left Column - Content with Tabs */}
         <div className="space-y-6 lg:col-span-2">
-          {/* Tabs - Match actual TabsList structure */}
-          <div className="bg-muted text-muted-foreground inline-flex h-9 w-full items-center justify-center rounded-lg p-[3px]">
-            <div className="bg-background h-[calc(100%-1px)] flex-1 rounded-md shadow-sm"></div>
-            <div className="bg-muted/30 h-[calc(100%-1px)] flex-1 rounded-md"></div>
-          </div>
-
-          {/* Invoice Details Card */}
-          <Card className="card-primary">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
-                <div className="bg-muted/30 h-6 w-32 animate-pulse rounded"></div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* First row - stacked on mobile */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-              </div>
-
-              {/* Second row */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-18 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-              </div>
-
-              {/* Third row */}
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-24 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                </div>
-              </div>
-
-              {/* Status field */}
-              <div className="space-y-2">
-                <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
-                <div className="bg-muted/30 h-10 w-full animate-pulse rounded sm:w-48"></div>
-              </div>
-
-              {/* Notes field */}
-              <div className="space-y-2">
-                <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                <div className="bg-muted/30 h-20 w-full animate-pulse rounded"></div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Invoice Items Card */}
-          <Card className="card-primary">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
-                <div className="bg-muted/30 h-6 w-28 animate-pulse rounded"></div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Line item skeleton */}
-              <div className="space-y-4 rounded-lg border p-3 sm:p-4">
-                <div className="flex items-center justify-between">
-                  <div className="bg-muted/30 h-5 w-20 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-8 w-8 animate-pulse rounded"></div>
-                </div>
-
-                {/* Description */}
-                <div className="space-y-2">
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-16 w-full animate-pulse rounded"></div>
-                </div>
-
-                {/* Date, Hours, Rate - stacked on mobile */}
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <div className="space-y-2">
-                    <div className="bg-muted/30 h-4 w-10 animate-pulse rounded"></div>
-                    <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
-                    <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="bg-muted/30 h-4 w-8 animate-pulse rounded"></div>
-                    <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-                  </div>
-                </div>
-
-                {/* Amount display */}
-                <div className="bg-muted/30 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="bg-muted/50 h-4 w-16 animate-pulse rounded"></div>
-                    <div className="bg-muted/50 h-6 w-20 animate-pulse rounded"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Add item button */}
-              <div className="bg-muted/30 h-10 w-full animate-pulse rounded"></div>
-            </CardContent>
-          </Card>
+          <div className="bg-muted h-96 animate-pulse rounded-lg" />
         </div>
-
-        {/* Right Column - Summary */}
         <div className="space-y-6">
-          <Card className="card-primary sticky top-6">
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-2">
-                <div className="bg-muted/30 h-5 w-5 animate-pulse rounded"></div>
-                <div className="bg-muted/30 h-6 w-16 animate-pulse rounded"></div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Totals */}
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                </div>
-                <div className="flex justify-between">
-                  <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-4 w-16 animate-pulse rounded"></div>
-                </div>
-                <Separator />
-                <div className="flex justify-between">
-                  <div className="bg-muted/30 h-5 w-12 animate-pulse rounded"></div>
-                  <div className="bg-muted/30 h-5 w-24 animate-pulse rounded"></div>
-                </div>
-              </div>
-
-              <Separator />
-
-              {/* Stats */}
-              <div className="space-y-2">
-                <div className="bg-muted/30 h-4 w-20 animate-pulse rounded"></div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <div className="bg-muted/30 h-3 w-12 animate-pulse rounded"></div>
-                    <div className="bg-muted/30 h-4 w-8 animate-pulse rounded"></div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="bg-muted/30 h-3 w-16 animate-pulse rounded"></div>
-                    <div className="bg-muted/30 h-4 w-12 animate-pulse rounded"></div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      {/* Floating Action Bar Skeleton - Mobile only */}
-      <div className="fixed right-4 bottom-6 left-4 lg:hidden">
-        <div className="bg-background rounded-lg border p-4 shadow-lg">
-          <div className="flex items-center justify-between gap-3">
-            <div className="bg-muted/30 h-9 flex-1 animate-pulse rounded"></div>
-            <div className="bg-muted/30 h-9 w-20 animate-pulse rounded"></div>
-          </div>
+          <div className="bg-muted h-64 animate-pulse rounded-lg" />
         </div>
       </div>
     </div>
   );
 }
 
-function InvoiceForm({ invoiceId }: InvoiceFormProps) {
+export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
   const utils = api.useUtils();
 
-  const [formData, setFormData] = useState({
+  // Single state object for all form data
+  const [formData, setFormData] = useState<FormData>({
     invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
     businessId: "",
     clientId: "",
     issueDate: new Date(),
     dueDate: new Date(),
-    status: "draft" as "draft" | "sent" | "paid" | "overdue",
+    status: "draft",
     notes: "",
     taxRate: 0,
-    defaultHourlyRate: 100,
+    defaultHourlyRate: 25,
     items: [
       {
         id: crypto.randomUUID(),
         date: new Date(),
         description: "",
         hours: 1,
-        rate: 100,
-        amount: 100,
+        rate: 25,
+        amount: 25,
       },
     ],
   });
-  const [loading, setLoading] = useState(false);
 
-  // Fetch clients and businesses for dropdowns
+  const [loading, setLoading] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
+  // Data queries
   const { data: clients, isLoading: loadingClients } =
     api.clients.getAll.useQuery();
   const { data: businesses, isLoading: loadingBusinesses } =
     api.businesses.getAll.useQuery();
-
-  // Fetch existing invoice data if editing
   const { data: existingInvoice, isLoading: loadingInvoice } =
-    api.invoices.getById.useQuery({ id: invoiceId! }, { enabled: !!invoiceId });
+    api.invoices.getById.useQuery(
+      { id: invoiceId! },
+      { enabled: !!invoiceId && invoiceId !== "new" },
+    );
 
-  // Populate form with existing data when editing
-  React.useEffect(() => {
-    if (existingInvoice && invoiceId) {
-      setFormData({
+  // Single initialization effect - only runs once when data is ready
+  useEffect(() => {
+    if (initialized) return;
+
+    const dataReady =
+      !loadingClients &&
+      !loadingBusinesses &&
+      (!invoiceId || invoiceId === "new" || !loadingInvoice);
+    if (!dataReady) return;
+
+    if (invoiceId && invoiceId !== "new" && existingInvoice) {
+      // Initialize with existing invoice data
+      const formDataToSet = {
         invoiceNumber: existingInvoice.invoiceNumber,
         businessId: existingInvoice.businessId ?? "",
         clientId: existingInvoice.clientId,
@@ -280,51 +141,52 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: existingInvoice.status as "draft" | "sent" | "paid" | "overdue",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
-        defaultHourlyRate: 100,
-
-        items: existingInvoice.items?.map((item) => ({
-          id: crypto.randomUUID(),
-          date: new Date(item.date),
-          description: item.description,
-          hours: item.hours,
-          rate: item.rate,
-          amount: item.amount,
-        })) || [
-          {
+        defaultHourlyRate: 25,
+        items:
+          existingInvoice.items?.map((item) => ({
             id: crypto.randomUUID(),
-            date: new Date(),
-            description: "",
-            hours: 1,
-            rate: 100,
-            amount: 100,
-          },
-        ],
-      });
-    }
-  }, [existingInvoice, invoiceId]);
-
-  // Auto-fill default business for new invoices
-  React.useEffect(() => {
-    if (!invoiceId && businesses && !formData.businessId) {
+            date: new Date(item.date),
+            description: item.description,
+            hours: item.hours,
+            rate: item.rate,
+            amount: item.amount,
+          })) || [],
+      };
+      setFormData(formDataToSet);
+    } else if ((!invoiceId || invoiceId === "new") && businesses) {
+      // New invoice - set default business
       const defaultBusiness = businesses.find((b) => b.isDefault);
       if (defaultBusiness) {
         setFormData((prev) => ({ ...prev, businessId: defaultBusiness.id }));
+      } else if (businesses.length > 0) {
+        // If no default business, use the first one
+        setFormData((prev) => ({ ...prev, businessId: businesses[0]!.id }));
       }
     }
-  }, [businesses, formData.businessId, invoiceId]);
 
-  // Update default hourly rate when client changes
-  React.useEffect(() => {
-    if (formData.clientId && clients) {
-      const selectedClient = clients.find((c) => c.id === formData.clientId);
-      if (selectedClient?.defaultHourlyRate) {
-        setFormData((prev) => ({
-          ...prev,
-          defaultHourlyRate: selectedClient.defaultHourlyRate,
-        }));
-      }
+    setInitialized(true);
+  }, [
+    loadingClients,
+    loadingBusinesses,
+    loadingInvoice,
+    existingInvoice,
+    businesses,
+    invoiceId,
+    initialized,
+  ]);
+
+  // Update default hourly rate when client changes (only during initialization)
+  useEffect(() => {
+    if (!initialized || !formData.clientId || !clients) return;
+
+    const selectedClient = clients.find((c) => c.id === formData.clientId);
+    if (selectedClient?.defaultHourlyRate) {
+      setFormData((prev) => ({
+        ...prev,
+        defaultHourlyRate: selectedClient.defaultHourlyRate,
+      }));
     }
-  }, [formData.clientId, clients]);
+  }, [formData.clientId, clients, initialized]);
 
   // Calculate totals
   const totals = React.useMemo(() => {
@@ -337,7 +199,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     return { subtotal, taxAmount, total };
   }, [formData.items, formData.taxRate]);
 
-  // Add new item
+  // Item management functions
   const addItem = () => {
     setFormData((prev) => ({
       ...prev,
@@ -348,14 +210,13 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           date: new Date(),
           description: "",
           hours: 1,
-          rate: formData.defaultHourlyRate,
-          amount: formData.defaultHourlyRate,
+          rate: prev.defaultHourlyRate,
+          amount: prev.defaultHourlyRate,
         },
       ],
     }));
   };
 
-  // Remove item
   const removeItem = (idx: number) => {
     if (formData.items.length > 1) {
       setFormData((prev) => ({
@@ -365,7 +226,6 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     }
   };
 
-  // Update item
   const updateItem = (
     idx: number,
     field: string,
@@ -373,55 +233,57 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   ) => {
     setFormData((prev) => ({
       ...prev,
-      items: prev.items.map((item, i) =>
-        i === idx ? { ...item, [field]: value } : item,
-      ),
+      items: prev.items.map((item, i) => {
+        if (i === idx) {
+          const updatedItem = { ...item, [field]: value };
+          if (field === "hours" || field === "rate") {
+            updatedItem.amount = updatedItem.hours * updatedItem.rate;
+          }
+          return updatedItem;
+        }
+        return item;
+      }),
     }));
   };
 
-  // Move item up
   const moveItemUp = (idx: number) => {
-    if (idx === 0) return; // Already at top
+    if (idx === 0) return;
     setFormData((prev) => {
       const newItems = [...prev.items];
-      if (idx > 0 && idx < newItems.length) {
-        const temp = newItems[idx - 1]!;
-        newItems[idx - 1] = newItems[idx]!;
-        newItems[idx] = temp;
+      if (newItems[idx] && newItems[idx - 1]) {
+        [newItems[idx - 1], newItems[idx]] = [
+          newItems[idx]!,
+          newItems[idx - 1]!,
+        ];
       }
       return { ...prev, items: newItems };
     });
   };
 
-  // Move item down
   const moveItemDown = (idx: number) => {
-    if (idx === formData.items.length - 1) return; // Already at bottom
+    if (idx === formData.items.length - 1) return;
     setFormData((prev) => {
       const newItems = [...prev.items];
-      if (idx >= 0 && idx < newItems.length - 1) {
-        const temp = newItems[idx]!;
-        newItems[idx] = newItems[idx + 1]!;
-        newItems[idx + 1] = temp;
+      if (newItems[idx] && newItems[idx + 1]) {
+        [newItems[idx], newItems[idx + 1]] = [
+          newItems[idx + 1]!,
+          newItems[idx]!,
+        ];
       }
       return { ...prev, items: newItems };
     });
   };
 
-  // Reorder items
-  const reorderItems = (newItems: typeof formData.items) => {
-    setFormData((prev) => ({
-      ...prev,
-      items: newItems,
-    }));
+  const reorderItems = (newItems: InvoiceItem[]) => {
+    setFormData((prev) => ({ ...prev, items: newItems }));
   };
 
-  // tRPC mutations
+  // Mutations
   const createInvoice = api.invoices.create.useMutation({
-    onSuccess: () => {
+    onSuccess: (invoice) => {
       toast.success("Invoice created successfully");
-      // Invalidate related queries to refresh cache
       void utils.invoices.getAll.invalidate();
-      router.push("/dashboard/invoices");
+      router.push(`/dashboard/invoices/${invoice.id}/view`);
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create invoice");
@@ -429,125 +291,122 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   });
 
   const updateInvoice = api.invoices.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success("Invoice updated successfully");
-      // Invalidate related queries to refresh cache
-      void utils.invoices.getAll.invalidate();
-      if (invoiceId) {
-        void utils.invoices.getById.invalidate({ id: invoiceId });
+      await utils.invoices.getAll.invalidate();
+      // The update mutation returns { success: true }, so we use the current invoiceId
+      if (invoiceId && invoiceId !== "new") {
+        router.push(`/dashboard/invoices/${invoiceId}/view`);
+      } else {
+        router.push("/dashboard/invoices");
       }
-      router.push("/dashboard/invoices");
     },
     onError: (error) => {
-      console.error("Update invoice error:", error);
       toast.error(error.message || "Failed to update invoice");
     },
   });
 
-  const updateStatus = api.invoices.updateStatus.useMutation({
-    onSuccess: () => {
-      toast.success("Status updated successfully");
-      // Invalidate related queries to refresh cache
-      void utils.invoices.getAll.invalidate();
-      if (invoiceId) {
-        void utils.invoices.getById.invalidate({ id: invoiceId });
-      }
-      router.push("/dashboard/invoices");
-    },
-    onError: (error) => {
-      console.error("Update status error:", error);
-      toast.error(error.message || "Failed to update status");
-    },
-  });
-
-  // Check if only status has changed compared to existing invoice
-  const hasOnlyStatusChanged = React.useMemo(() => {
-    if (!existingInvoice || !invoiceId) return false;
-
-    return (
-      formData.invoiceNumber === existingInvoice.invoiceNumber &&
-      formData.businessId === (existingInvoice.businessId ?? "") &&
-      formData.clientId === existingInvoice.clientId &&
-      formData.issueDate.getTime() ===
-        new Date(existingInvoice.issueDate).getTime() &&
-      formData.dueDate.getTime() ===
-        new Date(existingInvoice.dueDate).getTime() &&
-      formData.status !== existingInvoice.status &&
-      formData.notes === (existingInvoice.notes ?? "") &&
-      formData.taxRate === existingInvoice.taxRate &&
-      JSON.stringify(
-        formData.items.map((item) => ({
-          date: item.date.getTime(),
-          description: item.description,
-          hours: item.hours,
-          rate: item.rate,
-        })),
-      ) ===
-        JSON.stringify(
-          (existingInvoice.items ?? []).map((item) => ({
-            date: new Date(item.date).getTime(),
-            description: item.description,
-            hours: item.hours,
-            rate: item.rate,
-          })),
-        )
-    );
-  }, [formData, existingInvoice, invoiceId]);
-
+  // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (invoiceId && hasOnlyStatusChanged) {
-        // Use dedicated status update mutation for status-only changes
-        console.log("Using status-only update:", {
-          id: invoiceId,
-          status: formData.status,
-        });
-        await updateStatus.mutateAsync({
-          id: invoiceId,
-          status: formData.status,
-        });
-      } else {
-        // Use full update mutation for all other changes
-        const invoiceData = {
-          invoiceNumber: formData.invoiceNumber,
-          businessId: formData.businessId || undefined,
-          clientId: formData.clientId,
-          issueDate: formData.issueDate,
-          dueDate: formData.dueDate,
-          status: formData.status,
-          notes: formData.notes,
-          taxRate: formData.taxRate,
+      // Validate required fields
+      if (!formData.clientId || formData.clientId.trim() === "") {
+        toast.error("Please select a client");
+        setLoading(false);
+        return;
+      }
 
-          items: formData.items.map((item) => ({
-            date: item.date,
-            description: item.description,
-            hours: item.hours,
-            rate: item.rate,
-            amount: item.hours * item.rate,
-          })),
-        };
+      if (!formData.invoiceNumber.trim()) {
+        toast.error("Invoice number is required");
+        setLoading(false);
+        return;
+      }
 
-        console.log("Submitting invoice data:", invoiceData);
+      // Business is optional in the schema, so we don't require it
+      // if (!formData.businessId || formData.businessId.trim() === "") {
+      //   toast.error("Please select a business");
+      //   setLoading(false);
+      //   return;
+      // }
 
-        if (invoiceId) {
-          await updateInvoice.mutateAsync({ id: invoiceId, ...invoiceData });
-        } else {
-          await createInvoice.mutateAsync(invoiceData);
+      if (formData.items.length === 0) {
+        toast.error("At least one invoice item is required");
+        setLoading(false);
+        return;
+      }
+
+      // Validate each item
+      for (let i = 0; i < formData.items.length; i++) {
+        const item = formData.items[i];
+        if (!item) continue;
+
+        if (!item.description.trim()) {
+          toast.error(`Item ${i + 1}: Description is required`);
+          setLoading(false);
+          return;
+        }
+        if (item.hours <= 0) {
+          toast.error(`Item ${i + 1}: Hours must be greater than 0`);
+          setLoading(false);
+          return;
+        }
+        if (item.rate <= 0) {
+          toast.error(`Item ${i + 1}: Rate must be greater than 0`);
+          setLoading(false);
+          return;
         }
       }
+
+      // Prepare invoice data
+      const invoiceData = {
+        invoiceNumber: formData.invoiceNumber,
+        businessId: formData.businessId || "", // Ensure it's not undefined
+        clientId: formData.clientId,
+        issueDate: formData.issueDate,
+        dueDate: formData.dueDate,
+        status: formData.status,
+        notes: formData.notes,
+        taxRate: formData.taxRate,
+        items: formData.items.map((item) => ({
+          date: item.date,
+          description: item.description,
+          hours: item.hours,
+          rate: item.rate,
+          amount: item.hours * item.rate,
+        })),
+      };
+
+      if (invoiceId && invoiceId !== "new") {
+        await updateInvoice.mutateAsync({ id: invoiceId, ...invoiceData });
+      } else {
+        await createInvoice.mutateAsync(invoiceData);
+      }
     } catch (error) {
-      console.error("Error saving invoice:", error);
-      toast.error("Failed to save invoice. Check console for details.");
+      console.error("Invoice save error:", error);
+      toast.error("Failed to save invoice. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Field update functions
+  const updateField = <K extends keyof FormData>(
+    field: K,
+    value: FormData[K],
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
   // Show loading state
-  if (loadingClients || loadingBusinesses || (invoiceId && loadingInvoice)) {
+  if (
+    !initialized ||
+    loadingClients ||
+    loadingBusinesses ||
+    (invoiceId && invoiceId !== "new" && loadingInvoice)
+  ) {
     return <InvoiceFormSkeleton />;
   }
 
@@ -555,15 +414,18 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     <>
       <div className="space-y-6 pb-32">
         <PageHeader
-          title={invoiceId ? "Edit Invoice" : "Create Invoice"}
+          title={
+            invoiceId && invoiceId !== "new" ? "Edit Invoice" : "Create Invoice"
+          }
           description={
-            invoiceId ? "Update invoice details" : "Create a new invoice"
+            invoiceId && invoiceId !== "new"
+              ? "Update invoice details"
+              : "Create a new invoice"
           }
           variant="gradient"
         >
           <Button
-            type="submit"
-            form="invoice-form"
+            onClick={handleSubmit}
             disabled={loading}
             className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
           >
@@ -581,10 +443,8 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           </Button>
         </PageHeader>
 
-        {/* Form Content */}
         <form id="invoice-form" onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            {/* Left Column - Content with Tabs */}
             <div className="space-y-6 lg:col-span-2">
               <Tabs defaultValue="invoice-details" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
@@ -593,8 +453,8 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   </TabsTrigger>
                   <TabsTrigger value="invoice-items">Invoice Items</TabsTrigger>
                 </TabsList>
+
                 <TabsContent value="invoice-details">
-                  {/* Invoice Details */}
                   <Card className="card-primary">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -617,16 +477,10 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         <div className="space-y-2">
                           <Label htmlFor="status">Status</Label>
                           <Select
-                            key={`status-${formData.status}`}
                             value={formData.status}
                             onValueChange={(
                               value: "draft" | "sent" | "paid" | "overdue",
-                            ) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                status: value,
-                              }))
-                            }
+                            ) => updateField("status", value)}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -642,11 +496,6 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                               ))}
                             </SelectContent>
                           </Select>
-                          {invoiceId && hasOnlyStatusChanged && (
-                            <div className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-                              Only status will be updated
-                            </div>
-                          )}
                         </div>
                       </div>
 
@@ -656,10 +505,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           <DatePicker
                             date={formData.issueDate}
                             onDateChange={(date) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                issueDate: date ?? new Date(),
-                              }))
+                              updateField("issueDate", date ?? new Date())
                             }
                             className="w-full"
                           />
@@ -669,10 +515,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           <DatePicker
                             date={formData.dueDate}
                             onDateChange={(date) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                dueDate: date ?? new Date(),
-                              }))
+                              updateField("dueDate", date ?? new Date())
                             }
                             className="w-full"
                           />
@@ -683,13 +526,9 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         <div className="space-y-2">
                           <Label htmlFor="business">From (Business)</Label>
                           <Select
-                            key={`business-${formData.businessId}-${businesses?.length}`}
                             value={formData.businessId}
                             onValueChange={(value) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                businessId: value,
-                              }))
+                              updateField("businessId", value)
                             }
                           >
                             <SelectTrigger>
@@ -710,13 +549,9 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         <div className="space-y-2">
                           <Label htmlFor="client">Bill To (Client)</Label>
                           <Select
-                            key={`client-${formData.clientId}-${clients?.length}`}
                             value={formData.clientId}
                             onValueChange={(value) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                clientId: value,
-                              }))
+                              updateField("clientId", value)
                             }
                           >
                             <SelectTrigger>
@@ -738,12 +573,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           <Label htmlFor="taxRate">Tax Rate (%)</Label>
                           <NumberInput
                             value={formData.taxRate}
-                            onChange={(value) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                taxRate: value,
-                              }))
-                            }
+                            onChange={(value) => updateField("taxRate", value)}
                             min={0}
                             max={100}
                             step={1}
@@ -758,10 +588,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           <NumberInput
                             value={formData.defaultHourlyRate}
                             onChange={(value) =>
-                              setFormData((prev) => ({
-                                ...prev,
-                                defaultHourlyRate: value,
-                              }))
+                              updateField("defaultHourlyRate", value)
                             }
                             min={0}
                             step={1}
@@ -776,12 +603,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         <Textarea
                           id="notes"
                           value={formData.notes}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              notes: e.target.value,
-                            }))
-                          }
+                          onChange={(e) => updateField("notes", e.target.value)}
                           placeholder="Additional notes for the client..."
                           className="min-h-[80px] resize-none"
                         />
@@ -789,6 +611,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     </CardContent>
                   </Card>
                 </TabsContent>
+
                 <TabsContent value="invoice-items">
                   <Card className="card-primary">
                     <CardHeader>
@@ -813,7 +636,6 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               </Tabs>
             </div>
 
-            {/* Right Column - Summary (Always Visible) */}
             <div className="space-y-6">
               <Card className="card-primary sticky top-6">
                 <CardHeader>
@@ -878,7 +700,6 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         </form>
       </div>
 
-      {/* Floating Action Bar */}
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
@@ -887,7 +708,9 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
-                {invoiceId ? "Edit Invoice" : "Create Invoice"}
+                {invoiceId && invoiceId !== "new"
+                  ? "Edit Invoice"
+                  : "Create Invoice"}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-300">
                 Update invoice details
@@ -897,8 +720,7 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         }
       >
         <Button
-          type="submit"
-          form="invoice-form"
+          onClick={handleSubmit}
           disabled={loading}
           className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
           size="sm"
@@ -919,5 +741,3 @@ function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     </>
   );
 }
-
-export { InvoiceForm };

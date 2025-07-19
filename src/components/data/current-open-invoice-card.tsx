@@ -143,7 +143,7 @@ export function CurrentOpenInvoiceCard() {
             </Link>
           </Button>
           <Button asChild variant="brand" size="sm" className="flex-1">
-            <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
+            <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
               <Edit className="mr-2 h-3 w-3" />
               Continue
             </Link>

@@ -134,6 +134,7 @@ export function AddressForm({
             </Label>
             {country === "United States" ? (
               <SearchableSelect
+                key={`state-${state}`}
                 id="state"
                 options={stateOptions}
                 value={state || ""}
@@ -190,6 +191,7 @@ export function AddressForm({
               {required && <span className="text-destructive ml-1">*</span>}
             </Label>
             <SearchableSelect
+              key={`country-${country}`}
               id="country"
               options={countryOptions}
               value={country || ""}

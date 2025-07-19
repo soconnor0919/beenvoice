@@ -1,7 +1,7 @@
 "use client";
 
 import { InvoiceView } from "~/components/data/invoice-view";
-import { InvoiceForm } from "~/components/forms/invoice-form";
+import InvoiceForm from "~/components/forms/invoice-form";
 
 interface UnifiedInvoicePageProps {
   invoiceId: string;

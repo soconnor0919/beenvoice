@@ -24,13 +24,11 @@ import {
 // Modern gradient background component
 function DashboardHero({ firstName }: { firstName: string }) {
   return (
-    <Card className="relative mb-8 overflow-hidden p-8 border-0 shadow-sm transition-shadow hover:shadow-md">
+    <Card className="relative mb-8 overflow-hidden border-0 p-8 shadow-sm transition-shadow hover:shadow-md">
       <div className="absolute inset-0" />
       <div className="relative z-10">
         <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
-        <p className="text-lg">
-          Ready to manage your invoicing business
-        </p>
+        <p className="text-lg">Ready to manage your invoicing business</p>
       </div>
       <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10" />
       <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/5" />
@@ -275,7 +273,7 @@ async function CurrentWork() {
               size="sm"
               className="flex-1 bg-teal-600 hover:bg-teal-700"
             >
-              <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
+              <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
                 <Edit className="mr-2 h-3 w-3" />
                 Continue
               </Link>

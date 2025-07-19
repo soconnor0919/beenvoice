@@ -18,12 +18,16 @@ const invoiceItemSchema = z.object({
 
 const createInvoiceSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
-  businessId: z.string().min(1, "Business is required").optional(),
+  businessId: z
+    .string()
+    .min(1, "Business is required")
+    .optional()
+    .or(z.literal("")),
   clientId: z.string().min(1, "Client is required"),
   issueDate: z.date(),
   dueDate: z.date(),
   status: z.enum(["draft", "sent", "paid", "overdue"]).default("draft"),
-  notes: z.string().optional(),
+  notes: z.string().optional().or(z.literal("")),
   taxRate: z.number().min(0).max(100).default(0),
   items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
 });
@@ -136,7 +140,7 @@ export const invoicesRouter = createTRPCRouter({
         const { items, ...invoiceData } = input;
 
         // Verify business exists and belongs to user (if provided)
-        if (invoiceData.businessId) {
+        if (invoiceData.businessId && invoiceData.businessId.trim() !== "") {
           const business = await ctx.db.query.businesses.findFirst({
             where: eq(businesses.id, invoiceData.businessId),
           });
@@ -229,6 +233,14 @@ export const invoicesRouter = createTRPCRouter({
       try {
         const { id, items, ...invoiceData } = input;
 
+        // Clean up empty strings to null for optional string fields only
+        const cleanInvoiceData = {
+          ...invoiceData,
+          businessId:
+            !invoiceData.businessId || invoiceData.businessId.trim() === "" ? null : invoiceData.businessId,
+          notes: invoiceData.notes === "" ? null : invoiceData.notes,
+        };
+
         // Verify invoice exists and belongs to user
         const existingInvoice = await ctx.db.query.invoices.findFirst({
           where: eq(invoices.id, id),
@@ -249,9 +261,9 @@ export const invoicesRouter = createTRPCRouter({
         }
 
         // If business is being updated, verify it belongs to user
-        if (invoiceData.businessId) {
+        if (cleanInvoiceData.businessId && cleanInvoiceData.businessId.trim() !== "") {
           const business = await ctx.db.query.businesses.findFirst({
-            where: eq(businesses.id, invoiceData.businessId),
+            where: eq(businesses.id, cleanInvoiceData.businessId),
           });
 
           if (!business || business.createdById !== ctx.session.user.id) {
@@ -263,9 +275,9 @@ export const invoicesRouter = createTRPCRouter({
         }
 
         // If client is being updated, verify it belongs to user
-        if (invoiceData.clientId) {
+        if (cleanInvoiceData.clientId) {
           const client = await ctx.db.query.clients.findFirst({
-            where: eq(clients.id, invoiceData.clientId),
+            where: eq(clients.id, cleanInvoiceData.clientId),
           });
 
           if (!client || client.createdById !== ctx.session.user.id) {
@@ -283,18 +295,29 @@ export const invoicesRouter = createTRPCRouter({
             0,
           );
           const taxAmount =
-            (subtotal * (invoiceData.taxRate ?? existingInvoice.taxRate)) / 100;
+            (subtotal * (cleanInvoiceData.taxRate ?? existingInvoice.taxRate)) /
+            100;
           const totalAmount = subtotal + taxAmount;
 
           // Update invoice
-          await ctx.db
+          const updateData = {
+            ...cleanInvoiceData,
+            totalAmount,
+            updatedAt: new Date(),
+          };
+
+          const [updatedInvoice] = await ctx.db
             .update(invoices)
-            .set({
-              ...invoiceData,
-              totalAmount,
-              updatedAt: new Date(),
-            })
-            .where(eq(invoices.id, id));
+            .set(updateData)
+            .where(eq(invoices.id, id))
+            .returning();
+
+          if (!updatedInvoice) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to update invoice",
+            });
+          }
 
           // Delete existing items and create new ones
           await ctx.db
@@ -311,13 +334,23 @@ export const invoicesRouter = createTRPCRouter({
           await ctx.db.insert(invoiceItems).values(itemsToInsert);
         } else {
           // Update invoice without items
-          await ctx.db
+          const updateData = {
+            ...cleanInvoiceData,
+            updatedAt: new Date(),
+          };
+
+          const [updatedInvoice] = await ctx.db
             .update(invoices)
-            .set({
-              ...invoiceData,
-              updatedAt: new Date(),
-            })
-            .where(eq(invoices.id, id));
+            .set(updateData)
+            .where(eq(invoices.id, id))
+            .returning();
+
+          if (!updatedInvoice) {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: "Failed to update invoice",
+            });
+          }
         }
 
         return { success: true };
@@ -399,8 +432,11 @@ export const invoicesRouter = createTRPCRouter({
           })
           .where(eq(invoices.id, input.id));
 
+        console.log("Status update completed successfully");
+
         return { success: true };
       } catch (error) {
+        console.error("UpdateStatus error:", error);
         if (error instanceof TRPCError) throw error;
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",

@@ -181,7 +181,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
                 <Eye className="h-3.5 w-3.5" />
               </Button>
             </Link>
-            <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
+            <Link href={`/dashboard/invoices/${invoice.id}`}>
               <Button
                 variant="ghost"
                 size="sm"
