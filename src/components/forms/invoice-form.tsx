@@ -24,7 +24,15 @@ import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { InvoiceLineItems } from "./invoice-line-items";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { FileText, DollarSign, Check, Save, Clock } from "lucide-react";
+import { FileText, DollarSign, Check, Save, Clock, Trash2 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 
 const STATUS_OPTIONS = [
   { value: "draft", label: "Draft" },
@@ -108,6 +116,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   // Data queries
   const { data: clients, isLoading: loadingClients } =
@@ -119,6 +128,17 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       { id: invoiceId! },
       { enabled: !!invoiceId && invoiceId !== "new" },
     );
+
+  // Delete mutation
+  const deleteInvoice = api.invoices.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice deleted successfully");
+      router.push("/dashboard/invoices");
+    },
+    onError: (error) => {
+      toast.error(error.message ?? "Failed to delete invoice");
+    },
+  });
 
   // Single initialization effect - only runs once when data is ready
   useEffect(() => {
@@ -250,11 +270,13 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     if (idx === 0) return;
     setFormData((prev) => {
       const newItems = [...prev.items];
-      if (newItems[idx] && newItems[idx - 1]) {
-        [newItems[idx - 1], newItems[idx]] = [
-          newItems[idx]!,
-          newItems[idx - 1]!,
-        ];
+      if (idx > 0 && idx < newItems.length) {
+        const currentItem = newItems[idx];
+        const previousItem = newItems[idx - 1];
+        if (currentItem && previousItem) {
+          newItems[idx - 1] = currentItem;
+          newItems[idx] = previousItem;
+        }
       }
       return { ...prev, items: newItems };
     });
@@ -264,11 +286,13 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     if (idx === formData.items.length - 1) return;
     setFormData((prev) => {
       const newItems = [...prev.items];
-      if (newItems[idx] && newItems[idx + 1]) {
-        [newItems[idx], newItems[idx + 1]] = [
-          newItems[idx + 1]!,
-          newItems[idx]!,
-        ];
+      if (idx >= 0 && idx < newItems.length - 1) {
+        const currentItem = newItems[idx];
+        const nextItem = newItems[idx + 1];
+        if (currentItem && nextItem) {
+          newItems[idx] = nextItem;
+          newItems[idx + 1] = currentItem;
+        }
       }
       return { ...prev, items: newItems };
     });
@@ -392,6 +416,16 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     }
   };
 
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (invoiceId && invoiceId !== "new") {
+      deleteInvoice.mutate({ id: invoiceId });
+    }
+  };
+
   // Field update functions
   const updateField = <K extends keyof FormData>(
     field: K,
@@ -419,11 +453,22 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           }
           description={
             invoiceId && invoiceId !== "new"
-              ? "Update invoice details"
-              : "Create a new invoice"
+              ? "Update invoice details and line items"
+              : "Create a new invoice for your client"
           }
           variant="gradient"
         >
+          {invoiceId && invoiceId !== "new" && (
+            <Button
+              variant="outline"
+              onClick={handleDelete}
+              disabled={loading || deleteInvoice.isPending}
+              className="text-red-700 shadow-sm hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Delete Invoice</span>
+            </Button>
+          )}
           <Button
             onClick={handleSubmit}
             disabled={loading}
@@ -719,6 +764,18 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           </div>
         }
       >
+        {invoiceId && invoiceId !== "new" && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDelete}
+            disabled={loading || deleteInvoice.isPending}
+            className="text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Delete</span>
+          </Button>
+        )}
         <Button
           onClick={handleSubmit}
           disabled={loading}
@@ -738,6 +795,36 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           )}
         </Button>
       </FloatingActionBar>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Invoice</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete invoice{" "}
+              <strong>{formData.invoiceNumber}</strong>? This action cannot be
+              undone and will permanently remove the invoice and all its data.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleteInvoice.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteInvoice.isPending}
+            >
+              {deleteInvoice.isPending ? "Deleting..." : "Delete Invoice"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

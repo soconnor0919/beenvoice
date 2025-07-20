@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ColumnDef } from "@tanstack/react-table";
@@ -7,7 +8,17 @@ import { Button } from "~/components/ui/button";
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { PDFDownloadButton } from "~/app/dashboard/invoices/[id]/_components/pdf-download-button";
 import { DataTable, DataTableColumnHeader } from "~/components/data/data-table";
-import { Eye, Edit } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { Eye, Edit, Trash2 } from "lucide-react";
+import { api } from "~/trpc/react";
+import { toast } from "sonner";
 
 // Type for invoice data
 interface Invoice {
@@ -81,9 +92,35 @@ const formatCurrency = (amount: number) => {
 
 export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
   const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [invoiceToDelete, setInvoiceToDelete] = useState<Invoice | null>(null);
+
+  const utils = api.useUtils();
+  const deleteInvoice = api.invoices.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice deleted successfully");
+      void utils.invoices.getAll.invalidate();
+      setDeleteDialogOpen(false);
+      setInvoiceToDelete(null);
+    },
+    onError: (error) => {
+      toast.error(error.message ?? "Failed to delete invoice");
+    },
+  });
 
   const handleRowClick = (invoice: Invoice) => {
     router.push(`/dashboard/invoices/${invoice.id}`);
+  };
+
+  const handleDelete = (invoice: Invoice) => {
+    setInvoiceToDelete(invoice);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (invoiceToDelete) {
+      deleteInvoice.mutate({ id: invoiceToDelete.id });
+    }
   };
 
   const columns: ColumnDef<Invoice>[] = [
@@ -191,6 +228,18 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
                 <Edit className="h-3.5 w-3.5" />
               </Button>
             </Link>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete(invoice);
+              }}
+              data-action-button="true"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </Button>
             {invoice.items && invoice.client && (
               <div data-action-button="true">
                 <PDFDownloadButton invoiceId={invoice.id} variant="icon" />
@@ -216,13 +265,46 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      data={invoices}
-      searchKey="invoiceNumber"
-      searchPlaceholder="Search invoices..."
-      filterableColumns={filterableColumns}
-      onRowClick={handleRowClick}
-    />
+    <>
+      <DataTable
+        columns={columns}
+        data={invoices}
+        searchKey="invoiceNumber"
+        searchPlaceholder="Search invoices..."
+        filterableColumns={filterableColumns}
+        onRowClick={handleRowClick}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Invoice</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete invoice{" "}
+              <strong>{invoiceToDelete?.invoiceNumber}</strong> for{" "}
+              <strong>{invoiceToDelete?.client?.name}</strong>? This action
+              cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleteInvoice.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteInvoice.isPending}
+            >
+              {deleteInvoice.isPending ? "Deleting..." : "Delete Invoice"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
