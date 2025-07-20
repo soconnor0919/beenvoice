@@ -109,7 +109,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
   });
 
   const handleRowClick = (invoice: Invoice) => {
-    router.push(`/dashboard/invoices/${invoice.id}`);
+    router.push(`/dashboard/invoices/${invoice.id}/view`);
   };
 
   const handleDelete = (invoice: Invoice) => {
@@ -208,7 +208,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
         const invoice = row.original;
         return (
           <div className="flex items-center justify-end gap-1">
-            <Link href={`/dashboard/invoices/${invoice.id}`}>
+            <Link href={`/dashboard/invoices/${invoice.id}/view`}>
               <Button
                 variant="ghost"
                 size="sm"

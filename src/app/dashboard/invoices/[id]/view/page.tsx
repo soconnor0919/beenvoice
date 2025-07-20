@@ -1,7 +1,9 @@
-import { Suspense } from "react";
-import { notFound } from "next/navigation";
+"use client";
+
+import { useState } from "react";
+import { notFound, useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { api, HydrateClient } from "~/trpc/server";
+import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
@@ -10,6 +12,15 @@ import { PageHeader } from "~/components/layout/page-header";
 import { PDFDownloadButton } from "../_components/pdf-download-button";
 import { SendInvoiceButton } from "../_components/send-invoice-button";
 import { InvoiceDetailsSkeleton } from "../_components/invoice-details-skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
+import { toast } from "sonner";
 
 import {
   Building,
@@ -21,14 +32,39 @@ import {
   User,
   AlertTriangle,
   Check,
+  Trash2,
 } from "lucide-react";
 
-interface InvoiceViewPageProps {
-  params: Promise<{ id: string }>;
-}
+function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
+  const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-async function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
-  const invoice = await api.invoices.getById({ id: invoiceId });
+  const { data: invoice, isLoading } = api.invoices.getById.useQuery({
+    id: invoiceId,
+  });
+
+  // Delete mutation
+  const deleteInvoice = api.invoices.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Invoice deleted successfully");
+      router.push("/dashboard/invoices");
+    },
+    onError: (error) => {
+      toast.error(error.message ?? "Failed to delete invoice");
+    },
+  });
+
+  const handleDelete = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    deleteInvoice.mutate({ id: invoiceId });
+  };
+
+  if (isLoading) {
+    return <InvoiceDetailsSkeleton />;
+  }
 
   if (!invoice) {
     notFound();
@@ -368,22 +404,57 @@ async function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               {invoice.status === "draft" && (
                 <SendInvoiceButton invoiceId={invoice.id} className="w-full" />
               )}
+
+              <Button
+                variant="outline"
+                onClick={handleDelete}
+                disabled={deleteInvoice.isPending}
+                className="w-full text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Invoice
+              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Invoice</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete invoice{" "}
+              <strong>{invoice.invoiceNumber}</strong>? This action cannot be
+              undone and will permanently remove the invoice and all its data.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleteInvoice.isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={deleteInvoice.isPending}
+            >
+              {deleteInvoice.isPending ? "Deleting..." : "Delete Invoice"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
 
-export default async function InvoiceViewPage({ params }: InvoiceViewPageProps) {
-  const { id } = await params;
+export default function InvoiceViewPage() {
+  const params = useParams();
+  const id = params.id as string;
 
-  return (
-    <HydrateClient>
-      <Suspense fallback={<InvoiceDetailsSkeleton />}>
-        <InvoiceViewContent invoiceId={id} />
-      </Suspense>
-    </HydrateClient>
-  );
+  return <InvoiceViewContent invoiceId={id} />;
 }
