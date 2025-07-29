@@ -45,7 +45,7 @@ export function AddressForm({
   className = "",
 }: AddressFormProps) {
   const handlePostalCodeChange = (value: string) => {
-    const formatted = formatPostalCode(value, country || "US");
+    const formatted = formatPostalCode(value, country ?? "US");
     onChange("postalCode", formatted);
   };
 
@@ -137,7 +137,7 @@ export function AddressForm({
                 key={`state-${state}`}
                 id="state"
                 options={stateOptions}
-                value={state || ""}
+                value={state ?? ""}
                 onValueChange={(value) => onChange("state", value)}
                 placeholder="Select a state"
                 className={errors.state ? "border-destructive" : ""}
@@ -194,7 +194,7 @@ export function AddressForm({
               key={`country-${country}`}
               id="country"
               options={countryOptions}
-              value={country || ""}
+              value={country ?? ""}
               onValueChange={(value) => {
                 // Don't save the placeholder value
                 if (value !== "__placeholder__") {
@@ -218,7 +218,8 @@ export function AddressForm({
                 return option.label;
               }}
               isOptionDisabled={(option) =>
-                option.disabled || option.value?.startsWith("divider-")
+                (option.disabled ?? false) ||
+                (option.value?.startsWith("divider-") ?? false)
               }
             />
             {errors.country && (

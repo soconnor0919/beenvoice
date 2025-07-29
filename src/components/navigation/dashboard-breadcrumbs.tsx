@@ -1,21 +1,21 @@
 "use client";
 
+import { format } from "date-fns";
+import { ChevronRight } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React from "react";
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "~/components/ui/breadcrumb";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { ChevronRight } from "lucide-react";
-import React from "react";
-import { api } from "~/trpc/react";
-import { format } from "date-fns";
 import { Skeleton } from "~/components/ui/skeleton";
-import { getRouteLabel, capitalize } from "~/lib/pluralize";
+import { getRouteLabel } from "~/lib/pluralize";
+import { api } from "~/trpc/react";
 
 function isUUID(str: string) {
   return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(
@@ -40,7 +40,7 @@ export function DashboardBreadcrumbs() {
   const resourceType = segments[1]; // e.g., 'clients', 'invoices', 'businesses'
   const resourceId =
     segments[2] && isUUID(segments[2]) ? segments[2] : undefined;
-  const action = segments[3]; // e.g., 'edit'
+  // const action = segments[3]; // e.g., 'edit'
 
   // Fetch client data if needed
   const { data: client, isLoading: clientLoading } =

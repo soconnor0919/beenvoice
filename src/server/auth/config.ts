@@ -47,13 +47,16 @@ export const authConfig = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
-        if (typeof credentials.email !== 'string' || typeof credentials.password !== 'string') {
+        if (
+          typeof credentials.email !== "string" ||
+          typeof credentials.password !== "string"
+        ) {
           return null;
         }
 
@@ -61,11 +64,14 @@ export const authConfig = {
           where: eq(users.email, credentials.email),
         });
 
-        if (!user || !user.password) {
+        if (!user?.password) {
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
 
         if (!isPasswordValid) {
           return null;
@@ -76,7 +82,7 @@ export const authConfig = {
           email: user.email,
           name: user.name,
         };
-      }
+      },
     }),
   ],
   adapter: DrizzleAdapter(db, {

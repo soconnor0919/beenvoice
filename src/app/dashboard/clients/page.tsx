@@ -1,10 +1,9 @@
-import Link from "next/link";
-import { HydrateClient } from "~/trpc/server";
-import { Button } from "~/components/ui/button";
 import { Plus } from "lucide-react";
-import { ClientsTable } from "./_components/clients-table";
+import Link from "next/link";
 import { PageHeader } from "~/components/layout/page-header";
-import { PageContent, PageSection } from "~/components/layout/page-layout";
+import { Button } from "~/components/ui/button";
+import { HydrateClient } from "~/trpc/server";
+import { ClientsTable } from "./_components/clients-table";
 
 export default async function ClientsPage() {
   return (

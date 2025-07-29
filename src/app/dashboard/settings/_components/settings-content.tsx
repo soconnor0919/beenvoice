@@ -16,6 +16,7 @@ import {
   Key,
   Eye,
   EyeOff,
+  FileUp,
 } from "lucide-react";
 
 import { api } from "~/trpc/react";
@@ -59,6 +60,7 @@ export function SettingsContent() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [importData, setImportData] = useState("");
   const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
+  const [importMethod, setImportMethod] = useState<"file" | "paste">("file");
 
   // Password change state
   const [currentPassword, setCurrentPassword] = useState("");
@@ -182,69 +184,52 @@ export function SettingsContent() {
   };
 
   // Type guard for backup data
-  const isValidBackupData = (
-    data: unknown,
-  ): data is {
-    exportDate: string;
-    version: string;
-    user: { name?: string; email: string };
-    clients: Array<{
-      name: string;
-      email?: string;
-      phone?: string;
-      addressLine1?: string;
-      addressLine2?: string;
-      city?: string;
-      state?: string;
-      postalCode?: string;
-      country?: string;
-    }>;
-    businesses: Array<{
-      name: string;
-      email?: string;
-      phone?: string;
-      addressLine1?: string;
-      addressLine2?: string;
-      city?: string;
-      state?: string;
-      postalCode?: string;
-      country?: string;
-      website?: string;
-      taxId?: string;
-      logoUrl?: string;
-      isDefault?: boolean;
-    }>;
-    invoices: Array<{
-      invoiceNumber: string;
-      businessName?: string;
-      clientName: string;
-      issueDate: Date;
-      dueDate: Date;
-      status?: string;
-      totalAmount?: number;
-      taxRate?: number;
-      notes?: string;
-      items: Array<{
-        date: Date;
-        description: string;
-        hours: number;
-        rate: number;
-        amount: number;
-        position?: number;
-      }>;
-    }>;
-  } => {
+  const isValidBackupData = (data: unknown): boolean => {
+    if (typeof data !== "object" || data === null) return false;
+
+    const obj = data as Record<string, unknown>;
     return !!(
-      data &&
-      typeof data === "object" &&
-      data !== null &&
-      "exportDate" in data &&
-      "version" in data &&
-      "user" in data &&
-      "clients" in data &&
-      "businesses" in data &&
-      "invoices" in data
+      obj.exportDate &&
+      obj.version &&
+      obj.user &&
+      obj.clients &&
+      obj.businesses &&
+      obj.invoices &&
+      Array.isArray(obj.clients) &&
+      Array.isArray(obj.businesses) &&
+      Array.isArray(obj.invoices)
     );
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith(".json")) {
+      toast.error("Please select a JSON file");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const parsedData: unknown = JSON.parse(content);
+
+        if (isValidBackupData(parsedData)) {
+          // @ts-expect-error Server handles validation of backup data format
+          importDataMutation.mutate(parsedData);
+        } else {
+          toast.error("Invalid backup file format");
+        }
+      } catch {
+        toast.error("Invalid JSON format. Please check your backup file.");
+      }
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read file");
+    };
+    reader.readAsText(file);
   };
 
   const handleImportData = () => {
@@ -252,6 +237,7 @@ export function SettingsContent() {
       const parsedData: unknown = JSON.parse(importData);
 
       if (isValidBackupData(parsedData)) {
+        // @ts-expect-error Server handles validation of backup data format
         importDataMutation.mutate(parsedData);
       } else {
         toast.error("Invalid backup file format");
@@ -536,37 +522,95 @@ export function SettingsContent() {
                   <DialogHeader>
                     <DialogTitle>Import Backup Data</DialogTitle>
                     <DialogDescription>
-                      Paste the contents of your backup JSON file below. This
-                      will add the data to your existing account.
+                      Upload your backup JSON file or paste the contents below.
+                      This will add the data to your existing account.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <Textarea
-                      placeholder="Paste your backup JSON data here..."
-                      value={importData}
-                      onChange={(e) => setImportData(e.target.value)}
-                      rows={12}
-                      className="font-mono text-sm"
-                    />
+                    {/* Import Method Selector */}
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant={
+                          importMethod === "file" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setImportMethod("file")}
+                        className="flex-1"
+                      >
+                        <FileUp className="mr-2 h-4 w-4" />
+                        Upload File
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          importMethod === "paste" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setImportMethod("paste")}
+                        className="flex-1"
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
+                        Paste Content
+                      </Button>
+                    </div>
+
+                    {/* File Upload Method */}
+                    {importMethod === "file" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="backup-file">Select Backup File</Label>
+                        <Input
+                          id="backup-file"
+                          type="file"
+                          accept=".json"
+                          onChange={handleFileUpload}
+                          disabled={importDataMutation.isPending}
+                        />
+                        <p className="text-muted-foreground text-sm">
+                          Select the JSON backup file you previously exported.
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Manual Paste Method */}
+                    {importMethod === "paste" && (
+                      <div className="space-y-2">
+                        <Label htmlFor="backup-content">Backup Content</Label>
+                        <Textarea
+                          id="backup-content"
+                          placeholder="Paste your backup JSON data here..."
+                          value={importData}
+                          onChange={(e) => setImportData(e.target.value)}
+                          rows={12}
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                    )}
                   </div>
                   <DialogFooter>
                     <Button
                       variant="outline"
-                      onClick={() => setIsImportDialogOpen(false)}
+                      onClick={() => {
+                        setIsImportDialogOpen(false);
+                        setImportData("");
+                        setImportMethod("file");
+                      }}
                     >
                       Cancel
                     </Button>
-                    <Button
-                      onClick={handleImportData}
-                      disabled={
-                        !importData.trim() || importDataMutation.isPending
-                      }
-                      className="btn-brand-primary"
-                    >
-                      {importDataMutation.isPending
-                        ? "Importing..."
-                        : "Import Data"}
-                    </Button>
+                    {importMethod === "paste" && (
+                      <Button
+                        onClick={handleImportData}
+                        disabled={
+                          !importData.trim() || importDataMutation.isPending
+                        }
+                        className="btn-brand-primary"
+                      >
+                        {importDataMutation.isPending
+                          ? "Importing..."
+                          : "Import Data"}
+                      </Button>
+                    )}
                   </DialogFooter>
                 </DialogContent>
               </Dialog>
@@ -581,6 +625,7 @@ export function SettingsContent() {
                 <li>
                   • Import adds to existing data without replacing anything
                 </li>
+                <li>• Upload JSON files directly or paste content manually</li>
                 <li>• Store backup files in a secure, accessible location</li>
               </ul>
             </div>

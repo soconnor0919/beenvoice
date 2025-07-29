@@ -15,6 +15,8 @@ import {
   DollarSign,
   ArrowLeft,
 } from "lucide-react";
+import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
+import type { StoredInvoiceStatus } from "~/types/invoice";
 
 interface ClientDetailPageProps {
   params: Promise<{ id: string }>;
@@ -222,7 +224,7 @@ export default async function ClientDetailPage({
                   {client.invoices.slice(0, 3).map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="card-secondary transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60 flex items-center justify-between rounded-lg border p-3"
+                      className="card-secondary flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60"
                     >
                       <div>
                         <p className="text-foreground font-medium">
@@ -238,15 +240,29 @@ export default async function ClientDetailPage({
                         </p>
                         <Badge
                           variant={
-                            invoice.status === "paid"
+                            getEffectiveInvoiceStatus(
+                              invoice.status as StoredInvoiceStatus,
+                              invoice.dueDate,
+                            ) === "paid"
                               ? "default"
-                              : invoice.status === "sent"
+                              : getEffectiveInvoiceStatus(
+                                    invoice.status as StoredInvoiceStatus,
+                                    invoice.dueDate,
+                                  ) === "sent"
                                 ? "secondary"
-                                : "outline"
+                                : getEffectiveInvoiceStatus(
+                                      invoice.status as StoredInvoiceStatus,
+                                      invoice.dueDate,
+                                    ) === "overdue"
+                                  ? "destructive"
+                                  : "outline"
                           }
                           className="text-xs"
                         >
-                          {invoice.status}
+                          {getEffectiveInvoiceStatus(
+                            invoice.status as StoredInvoiceStatus,
+                            invoice.dueDate,
+                          )}
                         </Badge>
                       </div>
                     </div>

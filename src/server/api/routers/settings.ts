@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, and } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import {
@@ -40,7 +40,7 @@ const BusinessBackupSchema = z.object({
 });
 
 const InvoiceItemBackupSchema = z.object({
-  date: z.date(),
+  date: z.string().transform((str) => new Date(str)),
   description: z.string(),
   hours: z.number(),
   rate: z.number(),
@@ -52,8 +52,8 @@ const InvoiceBackupSchema = z.object({
   invoiceNumber: z.string(),
   businessName: z.string().optional(),
   clientName: z.string(),
-  issueDate: z.date(),
-  dueDate: z.date(),
+  issueDate: z.string().transform((str) => new Date(str)),
+  dueDate: z.string().transform((str) => new Date(str)),
   status: z.string().default("draft"),
   totalAmount: z.number().default(0),
   taxRate: z.number().default(0),
@@ -137,7 +137,7 @@ export const settingsRouter = createTRPCRouter({
         },
       });
 
-      if (!user || !user.password) {
+      if (!user?.password) {
         throw new Error("User not found or no password set");
       }
 

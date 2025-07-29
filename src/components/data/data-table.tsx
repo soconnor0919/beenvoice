@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import type {
   ColumnDef,
   ColumnFiltersState,
@@ -18,23 +17,25 @@ import {
 import {
   ArrowUpDown,
   ChevronDown,
-  Search,
-  Filter,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Filter,
+  Search,
   X,
 } from "lucide-react";
+import * as React from "react";
 
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
+import { Input } from "~/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -50,7 +51,6 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Card, CardContent } from "~/components/ui/card";
 import { cn } from "~/lib/utils";
 
 interface DataTableProps<TData, TValue> {
@@ -77,7 +77,7 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
   columns,
   data,
-  searchKey,
+  searchKey: _searchKey,
   searchPlaceholder = "Search...",
   showColumnVisibility = true,
   showPagination = true,
@@ -511,7 +511,7 @@ export function DataTable<TData, TValue>({
 }
 
 // Helper component for sortable column headers
-export function DataTableColumnHeader<TData, TValue>({
+export function DataTableColumnHeader({
   column,
   title,
   className,
@@ -552,7 +552,7 @@ export function DataTableColumnHeader<TData, TValue>({
 
 // Export skeleton component for loading states
 export function DataTableSkeleton({
-  columns = 5,
+  columns: _columns = 5,
   rows = 5,
 }: {
   columns?: number;

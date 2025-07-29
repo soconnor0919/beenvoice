@@ -443,7 +443,7 @@ export default function HomePage() {
             </div>
             <div className="mt-6 border-t border-slate-200 pt-6 sm:mt-8 sm:pt-8 dark:border-slate-700">
               <p className="text-sm text-slate-600 sm:text-base dark:text-slate-400">
-                &copy; 2025 Sean O'Connor.
+                &copy; 2025 Sean O&apos;Connor.
               </p>
             </div>
           </div>

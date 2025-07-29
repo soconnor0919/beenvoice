@@ -1,20 +1,18 @@
 "use client";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
 import { useState } from "react";
-import { Button } from "~/components/ui/button";
-import { Skeleton } from "~/components/ui/skeleton";
 import { Logo } from "~/components/branding/logo";
 import { SidebarTrigger } from "~/components/navigation/sidebar-trigger";
-import { api } from "~/trpc/react";
-import { FileText, Edit } from "lucide-react";
+import { Button } from "~/components/ui/button";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export function Navbar() {
   const { data: session, status } = useSession();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  
+
   // Get current open invoice for quick access
-  const { data: currentInvoice } = api.invoices.getCurrentOpen.useQuery();
+  // const { data: currentInvoice } = api.invoices.getCurrentOpen.useQuery();
 
   return (
     <header className="fixed top-2 right-2 left-2 z-30 md:top-3 md:right-3 md:left-3">
@@ -30,7 +28,6 @@ export function Navbar() {
             </Link>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
-            
             {status === "loading" ? (
               <>
                 <Skeleton className="bg-muted/20 hidden h-5 w-20 sm:inline" />

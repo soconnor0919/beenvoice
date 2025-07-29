@@ -43,6 +43,13 @@ beenvoice is a professional invoicing application built with the T3 stack (Next.
 - Protected routes require authentication
 - Follow NextAuth.js security best practices
 
+### Development Tools
+- Use ESLint and Prettier for code formatting
+- Use TypeScript for type safety
+- Exclusively use bun for development and production. Do not use Node.js or Deno.
+- Stay away from starting development servers or running builds unless absolutely necessary.
+- Run lints and typechecks when helpful.
+
 ## Component Architecture
 
 ### UI Components (shadcn/ui)
@@ -111,21 +118,21 @@ beenvoice is a professional invoicing application built with the T3 stack (Next.
 interface ComponentProps {
   // Required props
   title: string;
-  
+
   // Optional props with defaults
   variant?: "default" | "success" | "warning" | "error";
   size?: "sm" | "md" | "lg";
-  
+
   // Styling props
   className?: string;
-  
+
   // Event handlers
   onClick?: () => void;
   onChange?: (value: string) => void;
-  
+
   // Content
   children?: React.ReactNode;
-  
+
   // Accessibility
   "aria-label"?: string;
 }
@@ -237,7 +244,7 @@ export const exampleRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Business logic here
     }),
-  
+
   list: protectedProcedure
     .input(z.object({ /* pagination/filtering */ }))
     .query(async ({ ctx, input }) => {
@@ -425,7 +432,7 @@ export const exampleRouter = createTRPCRouter({
 - Document emergency procedures
 
 ## Remember
-This is a business application where reliability, security, and professional user experience are critical. Every decision should prioritize these values over development convenience or flashy features. 
+This is a business application where reliability, security, and professional user experience are critical. Every decision should prioritize these values over development convenience or flashy features.
 
 - Don't create demo pages unless absolutely necessary.
 - Don't create unnecessary complexity.

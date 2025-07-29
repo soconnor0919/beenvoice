@@ -11,43 +11,68 @@ import {
 import { saveAs } from "file-saver";
 import React from "react";
 
-// Register Inter font
-Font.register({
-  family: "Inter",
-  src: "/fonts/inter/Inter-Variable.ttf",
-  fontWeight: "normal",
-});
+// Global font registration state
+let fontsRegistered = false;
 
-Font.register({
-  family: "Inter",
-  src: "/fonts/inter/Inter-Italic-Variable.ttf",
-  fontStyle: "italic",
-});
+// Font registration helper that works in both client and server environments
+const registerFonts = () => {
+  try {
+    // Avoid duplicate registration
+    if (fontsRegistered) {
+      return;
+    }
 
-// Register Azeret Mono fonts for numbers and tables - multiple weights
-Font.register({
-  family: "AzeretMono",
-  src: "/fonts/azeret/AzeretMono-Regular.ttf",
-  fontWeight: "normal",
-});
+    // Only register custom fonts on client side for now
+    // Server-side will use fallback fonts to avoid path/loading issues
+    if (typeof window !== "undefined") {
+      // Register Inter font
+      Font.register({
+        family: "Inter",
+        src: "/fonts/inter/Inter-Variable.ttf",
+        fontWeight: "normal",
+      });
 
-Font.register({
-  family: "AzeretMono",
-  src: "/fonts/azeret/AzeretMono-Regular.ttf",
-  fontWeight: "semibold",
-});
+      Font.register({
+        family: "Inter",
+        src: "/fonts/inter/Inter-Italic-Variable.ttf",
+        fontStyle: "italic",
+      });
 
-Font.register({
-  family: "AzeretMono",
-  src: "/fonts/azeret/AzeretMono-Regular.ttf",
-  fontWeight: "bold",
-});
+      // Register Azeret Mono fonts for numbers and tables - multiple weights
+      Font.register({
+        family: "AzeretMono",
+        src: "/fonts/azeret/AzeretMono-Regular.ttf",
+        fontWeight: "normal",
+      });
 
-Font.register({
-  family: "AzeretMono",
-  src: "/fonts/azeret/AzeretMono-Italic-Variable.ttf",
-  fontStyle: "italic",
-});
+      Font.register({
+        family: "AzeretMono",
+        src: "/fonts/azeret/AzeretMono-Regular.ttf",
+        fontWeight: "semibold",
+      });
+
+      Font.register({
+        family: "AzeretMono",
+        src: "/fonts/azeret/AzeretMono-Regular.ttf",
+        fontWeight: "bold",
+      });
+
+      Font.register({
+        family: "AzeretMono",
+        src: "/fonts/azeret/AzeretMono-Italic-Variable.ttf",
+        fontStyle: "italic",
+      });
+    }
+
+    fontsRegistered = true;
+  } catch (error) {
+    console.warn("Font registration failed, using built-in fonts:", error);
+    fontsRegistered = true; // Don't keep trying
+  }
+};
+
+// Register fonts immediately
+registerFonts();
 
 interface InvoiceData {
   invoiceNumber: string;
@@ -94,7 +119,7 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    fontFamily: "Inter",
+    fontFamily: "Helvetica",
     fontSize: 10,
     paddingTop: 40,
     paddingBottom: 80,
@@ -121,16 +146,18 @@ const styles = StyleSheet.create({
   },
 
   businessName: {
-    fontSize: 24,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
+    fontSize: 18,
     color: "#111827",
     marginBottom: 4,
   },
 
   businessInfo: {
-    fontSize: 11,
+    fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#6b7280",
-    marginBottom: 2,
+    lineHeight: 1.3,
+    marginBottom: 3,
   },
 
   businessAddress: {
@@ -147,15 +174,14 @@ const styles = StyleSheet.create({
 
   invoiceTitle: {
     fontSize: 32,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     color: "#10b981",
     marginBottom: 8,
   },
 
   invoiceNumber: {
     fontSize: 15,
-    fontWeight: "semibold",
-    fontFamily: "AzeretMono",
+    fontFamily: "Courier-Bold",
     color: "#111827",
     marginBottom: 4,
   },
@@ -165,7 +191,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     borderRadius: 4,
     fontSize: 12,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     textAlign: "center",
   },
 
@@ -193,21 +219,23 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     color: "#111827",
     marginBottom: 12,
   },
 
   clientName: {
-    fontSize: 13,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
+    fontSize: 14,
     color: "#111827",
-    marginBottom: 4,
+    marginBottom: 2,
   },
 
   clientInfo: {
-    fontSize: 11,
+    fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#6b7280",
+    lineHeight: 1.3,
     marginBottom: 2,
   },
 
@@ -232,9 +260,8 @@ const styles = StyleSheet.create({
 
   detailValue: {
     fontSize: 10,
-    fontFamily: "AzeretMono",
+    fontFamily: "Courier-Bold",
     color: "#111827",
-    fontWeight: "semibold",
     flex: 1,
     textAlign: "right",
   },
@@ -251,15 +278,23 @@ const styles = StyleSheet.create({
 
   notesTitle: {
     fontSize: 12,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     color: "#111827",
     marginBottom: 6,
   },
 
   notesContent: {
     fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
+  },
+
+  businessContact: {
+    fontSize: 9,
+    fontFamily: "Helvetica",
+    color: "#6b7280",
+    lineHeight: 1.2,
   },
 
   // Separator styles
@@ -280,8 +315,8 @@ const styles = StyleSheet.create({
   },
 
   abridgedBusinessName: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
     color: "#111827",
   },
 
@@ -293,14 +328,13 @@ const styles = StyleSheet.create({
 
   abridgedInvoiceTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     color: "#10b981",
   },
 
   abridgedInvoiceNumber: {
     fontSize: 13,
-    fontWeight: "semibold",
-    fontFamily: "AzeretMono",
+    fontFamily: "Courier-Bold",
     color: "#111827",
   },
 
@@ -320,7 +354,7 @@ const styles = StyleSheet.create({
 
   tableHeaderCell: {
     fontSize: 11,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     color: "#111827",
     paddingHorizontal: 4,
   },
@@ -369,8 +403,7 @@ const styles = StyleSheet.create({
 
   tableCellDate: {
     width: "15%",
-    fontFamily: "AzeretMono",
-    fontWeight: "semibold",
+    fontFamily: "Courier",
     alignSelf: "flex-start",
   },
 
@@ -383,24 +416,21 @@ const styles = StyleSheet.create({
   tableCellHours: {
     width: "12%",
     textAlign: "right",
-    fontFamily: "AzeretMono",
-    fontWeight: "semibold",
+    fontFamily: "Courier",
     alignSelf: "flex-start",
   },
 
   tableCellRate: {
     width: "15%",
     textAlign: "right",
-    fontFamily: "AzeretMono",
-    fontWeight: "semibold",
+    fontFamily: "Courier",
     alignSelf: "flex-start",
   },
 
   tableCellAmount: {
     width: "18%",
     textAlign: "right",
-    fontFamily: "AzeretMono",
-    fontWeight: "bold",
+    fontFamily: "Courier-Bold",
     alignSelf: "flex-start",
   },
 
@@ -432,9 +462,8 @@ const styles = StyleSheet.create({
 
   totalAmount: {
     fontSize: 10,
-    fontFamily: "AzeretMono",
+    fontFamily: "Courier-Bold",
     color: "#111827",
-    fontWeight: "semibold",
   },
 
   finalTotalRow: {
@@ -447,19 +476,19 @@ const styles = StyleSheet.create({
 
   finalTotalLabel: {
     fontSize: 14,
-    fontWeight: "bold",
+    fontFamily: "Helvetica-Bold",
     color: "#1f2937",
   },
 
   finalTotalAmount: {
     fontSize: 15,
-    fontFamily: "AzeretMono",
-    fontWeight: "bold",
+    fontFamily: "Courier-Bold",
     color: "#10b981",
   },
 
   itemCount: {
     fontSize: 9,
+    fontFamily: "Helvetica",
     color: "#6b7280",
     textAlign: "center",
     marginTop: 6,
@@ -757,6 +786,7 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 const Footer: React.FC = () => (
   <View style={styles.footer} fixed>
     <View style={styles.footerLogo}>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <Image
         src="/beenvoice-logo.png"
         style={{
@@ -892,6 +922,9 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 // Export functions
 export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
   try {
+    // Ensure fonts are registered
+    registerFonts();
+
     // Validate invoice data
     if (!invoice) {
       throw new Error("Invoice data is required");
@@ -935,6 +968,11 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
         throw new Error("Generated PDF is invalid. Please try again.");
       } else if (error.message.includes("required")) {
         throw new Error(error.message);
+      } else if (
+        error.message.includes("font") ||
+        error.message.includes("Font")
+      ) {
+        throw new Error("Font loading error. Please try again.");
       }
     }
 
@@ -946,7 +984,12 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
 export async function generateInvoicePDFBlob(
   invoice: InvoiceData,
 ): Promise<Blob> {
+  const isServerSide = typeof window === "undefined";
+
   try {
+    // Ensure fonts are registered (important for server-side generation)
+    registerFonts();
+
     // Validate invoice data
     if (!invoice) {
       throw new Error("Invoice data is required");
@@ -960,17 +1003,56 @@ export async function generateInvoicePDFBlob(
       throw new Error("Client information is required");
     }
 
-    // Generate PDF blob
-    const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    console.log(
+      `Generating PDF blob for invoice ${invoice.invoiceNumber} (${isServerSide ? "server-side" : "client-side"})...`,
+    );
+
+    // Generate PDF blob with timeout (same as generateInvoicePDF)
+    const pdfPromise = pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("PDF generation timed out")), 30000),
+    );
+
+    const blob = await Promise.race([pdfPromise, timeoutPromise]);
 
     // Validate blob
     if (!blob || blob.size === 0) {
       throw new Error("Generated PDF is empty");
     }
 
+    console.log(
+      `PDF blob generated successfully, size: ${blob.size} bytes (${isServerSide ? "server-side" : "client-side"})`,
+    );
     return blob;
   } catch (error) {
-    console.error("PDF generation error:", error);
-    throw new Error("Failed to generate PDF");
+    console.error(
+      `PDF generation error for email attachment (${isServerSide ? "server-side" : "client-side"}):`,
+      error,
+    );
+
+    // Provide more specific error messages (same as generateInvoicePDF)
+    if (error instanceof Error) {
+      if (error.message.includes("timeout")) {
+        throw new Error("PDF generation took too long. Please try again.");
+      } else if (error.message.includes("empty")) {
+        throw new Error("Generated PDF is invalid. Please try again.");
+      } else if (error.message.includes("required")) {
+        throw new Error(error.message);
+      } else if (
+        error.message.includes("font") ||
+        error.message.includes("Font")
+      ) {
+        throw new Error("Font loading error. Please try again.");
+      } else if (
+        error.message.includes("Cannot resolve") ||
+        error.message.includes("Failed to load")
+      ) {
+        throw new Error("Resource loading error during PDF generation.");
+      }
+    }
+
+    throw new Error(
+      `Failed to generate PDF for email attachment: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

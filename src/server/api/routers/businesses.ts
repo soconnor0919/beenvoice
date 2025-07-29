@@ -21,6 +21,20 @@ const businessSchema = z.object({
   isDefault: z.boolean().default(false),
 });
 
+const emailConfigSchema = z.object({
+  resendApiKey: z
+    .string()
+    .min(1, "Resend API Key is required")
+    .optional()
+    .or(z.literal("")),
+  resendDomain: z
+    .string()
+    .min(1, "Resend Domain is required")
+    .optional()
+    .or(z.literal("")),
+  emailFromName: z.string().optional().or(z.literal("")),
+});
+
 export const businessesRouter = createTRPCRouter({
   // Get all businesses for the current user
   getAll: protectedProcedure.query(async ({ ctx }) => {
@@ -207,5 +221,94 @@ export const businessesRouter = createTRPCRouter({
       }
 
       return updatedBusiness;
+    }),
+
+  // Update email configuration for a business
+  updateEmailConfig: protectedProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        ...emailConfigSchema.shape,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...emailConfig } = input;
+
+      // Validate that business belongs to user
+      const business = await ctx.db
+        .select()
+        .from(businesses)
+        .where(
+          and(
+            eq(businesses.id, id),
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
+        )
+        .limit(1);
+
+      if (!business[0]) {
+        throw new Error(
+          "Business not found or you don't have permission to update it",
+        );
+      }
+
+      // Update email configuration
+      const [updatedBusiness] = await ctx.db
+        .update(businesses)
+        .set({
+          resendApiKey: emailConfig.resendApiKey ?? null,
+          resendDomain: emailConfig.resendDomain ?? null,
+          emailFromName: emailConfig.emailFromName ?? null,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(businesses.id, id),
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
+        )
+        .returning();
+
+      if (!updatedBusiness) {
+        throw new Error("Failed to update email configuration");
+      }
+
+      return {
+        success: true,
+        message: "Email configuration updated successfully",
+      };
+    }),
+
+  // Get email configuration for a business (without exposing the API key)
+  getEmailConfig: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const business = await ctx.db
+        .select({
+          id: businesses.id,
+          name: businesses.name,
+          resendDomain: businesses.resendDomain,
+          emailFromName: businesses.emailFromName,
+          hasApiKey: businesses.resendApiKey,
+        })
+        .from(businesses)
+        .where(
+          and(
+            eq(businesses.id, input.id),
+            eq(businesses.createdById, ctx.session.user.id),
+          ),
+        )
+        .limit(1);
+
+      if (!business[0]) {
+        throw new Error(
+          "Business not found or you don't have permission to view it",
+        );
+      }
+
+      return {
+        ...business[0],
+        hasApiKey: !!business[0].hasApiKey,
+      };
     }),
 });

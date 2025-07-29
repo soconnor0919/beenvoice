@@ -19,6 +19,8 @@ import {
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
+import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
+import type { StoredInvoiceStatus } from "~/types/invoice";
 
 // Type for invoice data
 interface Invoice {
@@ -65,14 +67,10 @@ interface InvoicesDataTableProps {
 }
 
 const getStatusType = (invoice: Invoice): StatusType => {
-  if (invoice.status === "paid") return "paid";
-  if (invoice.status === "draft") return "draft";
-  if (invoice.status === "overdue") return "overdue";
-  if (invoice.status === "sent") {
-    const dueDate = new Date(invoice.dueDate);
-    return dueDate < new Date() ? "overdue" : "sent";
-  }
-  return "draft";
+  return getEffectiveInvoiceStatus(
+    invoice.status as StoredInvoiceStatus,
+    invoice.dueDate,
+  ) as StatusType;
 };
 
 const formatDate = (date: Date) => {

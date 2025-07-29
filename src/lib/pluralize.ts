@@ -1,7 +1,10 @@
 /**
  * Pluralization rules for common entities in the app
  */
-const PLURALIZATION_RULES: Record<string, { singular: string; plural: string }> = {
+const PLURALIZATION_RULES: Record<
+  string,
+  { singular: string; plural: string }
+> = {
   business: { singular: "Business", plural: "Businesses" },
   client: { singular: "Client", plural: "Clients" },
   invoice: { singular: "Invoice", plural: "Invoices" },
@@ -58,7 +61,7 @@ export function singularize(word: string): string {
 
   // Check if we have a specific rule for this word (search by plural)
   const rule = Object.values(PLURALIZATION_RULES).find(
-    (r) => r.plural.toLowerCase() === lowerWord
+    (r) => r.plural.toLowerCase() === lowerWord,
   );
 
   if (rule) {
@@ -101,7 +104,7 @@ export function capitalize(word: string): string {
 /**
  * Get a properly formatted label for a route segment
  */
-export function getRouteLabel(segment: string, isPlural: boolean = true): string {
+export function getRouteLabel(segment: string, isPlural = true): string {
   // First, check if it's already in our rules
   const rule = PLURALIZATION_RULES[segment.toLowerCase()];
   if (rule) {

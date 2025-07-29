@@ -1,97 +1,95 @@
 {
-  "version": "6",
-  "dialect": "sqlite",
-  "id": "d29d5fc3-5c1a-4506-b057-2c117bcd2017",
+  "id": "c86256e7-28b4-48ea-8104-933cbff6e217",
   "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
   "tables": {
-    "beenvoice_account": {
+    "public.beenvoice_account": {
       "name": "beenvoice_account",
+      "schema": "",
       "columns": {
         "userId": {
           "name": "userId",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "type": {
           "name": "type",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "provider": {
           "name": "provider",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "providerAccountId": {
           "name": "providerAccountId",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "refresh_token": {
           "name": "refresh_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "access_token": {
           "name": "access_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "expires_at": {
           "name": "expires_at",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "token_type": {
           "name": "token_type",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "scope": {
           "name": "scope",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "id_token": {
           "name": "id_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "session_state": {
           "name": "session_state",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {
         "account_user_id_idx": {
           "name": "account_user_id_idx",
           "columns": [
-            "userId"
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -111,169 +109,205 @@
       },
       "compositePrimaryKeys": {
         "beenvoice_account_provider_providerAccountId_pk": {
+          "name": "beenvoice_account_provider_providerAccountId_pk",
           "columns": [
             "provider",
             "providerAccountId"
-          ],
-          "name": "beenvoice_account_provider_providerAccountId_pk"
+          ]
         }
       },
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_business": {
+    "public.beenvoice_business": {
       "name": "beenvoice_business",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "email": {
           "name": "email",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "phone": {
           "name": "phone",
-          "type": "text(50)",
+          "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "addressLine1": {
           "name": "addressLine1",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "addressLine2": {
           "name": "addressLine2",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "city": {
           "name": "city",
-          "type": "text(100)",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "state": {
           "name": "state",
-          "type": "text(50)",
+          "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "postalCode": {
           "name": "postalCode",
-          "type": "text(20)",
+          "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "country": {
           "name": "country",
-          "type": "text(100)",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "website": {
           "name": "website",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "taxId": {
           "name": "taxId",
-          "type": "text(100)",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "logoUrl": {
           "name": "logoUrl",
-          "type": "text(500)",
+          "type": "varchar(500)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "isDefault": {
           "name": "isDefault",
-          "type": "integer",
+          "type": "boolean",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
           "default": false
+        },
+        "resendApiKey": {
+          "name": "resendApiKey",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resendDomain": {
+          "name": "resendDomain",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "emailFromName": {
+          "name": "emailFromName",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "createdById": {
           "name": "createdById",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "createdAt": {
           "name": "createdAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
+          "default": "CURRENT_TIMESTAMP"
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {
         "business_created_by_idx": {
           "name": "business_created_by_idx",
           "columns": [
-            "createdById"
+            {
+              "expression": "createdById",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "business_name_idx": {
           "name": "business_name_idx",
           "columns": [
-            "name"
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "business_email_idx": {
           "name": "business_email_idx",
           "columns": [
-            "email"
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "business_is_default_idx": {
           "name": "business_is_default_idx",
           "columns": [
-            "isDefault"
+            {
+              "expression": "isDefault",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -293,125 +327,146 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_client": {
+    "public.beenvoice_client": {
       "name": "beenvoice_client",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "email": {
           "name": "email",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "phone": {
           "name": "phone",
-          "type": "text(50)",
+          "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "addressLine1": {
           "name": "addressLine1",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "addressLine2": {
           "name": "addressLine2",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "city": {
           "name": "city",
-          "type": "text(100)",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "state": {
           "name": "state",
-          "type": "text(50)",
+          "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "postalCode": {
           "name": "postalCode",
-          "type": "text(20)",
+          "type": "varchar(20)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "country": {
           "name": "country",
-          "type": "text(100)",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
+        },
+        "defaultHourlyRate": {
+          "name": "defaultHourlyRate",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 100
         },
         "createdById": {
           "name": "createdById",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "createdAt": {
           "name": "createdAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
+          "default": "CURRENT_TIMESTAMP"
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {
         "client_created_by_idx": {
           "name": "client_created_by_idx",
           "columns": [
-            "createdById"
+            {
+              "expression": "createdById",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "client_name_idx": {
           "name": "client_name_idx",
           "columns": [
-            "name"
+            {
+              "expression": "name",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "client_email_idx": {
           "name": "client_email_idx",
           "columns": [
-            "email"
+            {
+              "expression": "email",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -431,98 +486,116 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_invoice_item": {
+    "public.beenvoice_invoice_item": {
       "name": "beenvoice_invoice_item",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "invoiceId": {
           "name": "invoiceId",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "date": {
           "name": "date",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "description": {
           "name": "description",
-          "type": "text(500)",
+          "type": "varchar(500)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "hours": {
           "name": "hours",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "rate": {
           "name": "rate",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "amount": {
           "name": "amount",
           "type": "real",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "position": {
           "name": "position",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": 0
         },
         "createdAt": {
           "name": "createdAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
+          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {
         "invoice_item_invoice_id_idx": {
           "name": "invoice_item_invoice_id_idx",
           "columns": [
-            "invoiceId"
+            {
+              "expression": "invoiceId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "invoice_item_date_idx": {
           "name": "invoice_item_date_idx",
           "columns": [
-            "date"
+            {
+              "expression": "date",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "invoice_item_position_idx": {
           "name": "invoice_item_position_idx",
           "columns": [
-            "position"
+            {
+              "expression": "position",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -542,59 +615,55 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_invoice": {
+    "public.beenvoice_invoice": {
       "name": "beenvoice_invoice",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "invoiceNumber": {
           "name": "invoiceNumber",
-          "type": "text(100)",
+          "type": "varchar(100)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "businessId": {
           "name": "businessId",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "clientId": {
           "name": "clientId",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "issueDate": {
           "name": "issueDate",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "dueDate": {
           "name": "dueDate",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "status": {
           "name": "status",
-          "type": "text(50)",
+          "type": "varchar(50)",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": "'draft'"
         },
         "totalAmount": {
@@ -602,7 +671,6 @@
           "type": "real",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": 0
         },
         "taxRate": {
@@ -610,74 +678,109 @@
           "type": "real",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
           "default": 0
         },
         "notes": {
           "name": "notes",
-          "type": "text(1000)",
+          "type": "varchar(1000)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "createdById": {
           "name": "createdById",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "createdAt": {
           "name": "createdAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false,
-          "default": "(unixepoch())"
+          "default": "CURRENT_TIMESTAMP"
         },
         "updatedAt": {
           "name": "updatedAt",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {
         "invoice_business_id_idx": {
           "name": "invoice_business_id_idx",
           "columns": [
-            "businessId"
+            {
+              "expression": "businessId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "invoice_client_id_idx": {
           "name": "invoice_client_id_idx",
           "columns": [
-            "clientId"
+            {
+              "expression": "clientId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "invoice_created_by_idx": {
           "name": "invoice_created_by_idx",
           "columns": [
-            "createdById"
+            {
+              "expression": "createdById",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "invoice_number_idx": {
           "name": "invoice_number_idx",
           "columns": [
-            "invoiceNumber"
+            {
+              "expression": "invoiceNumber",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         },
         "invoice_status_idx": {
           "name": "invoice_status_idx",
           "columns": [
-            "status"
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -723,40 +826,48 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_session": {
+    "public.beenvoice_session": {
       "name": "beenvoice_session",
+      "schema": "",
       "columns": {
         "sessionToken": {
           "name": "sessionToken",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "userId": {
           "name": "userId",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "expires": {
           "name": "expires",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         }
       },
       "indexes": {
         "session_userId_idx": {
           "name": "session_userId_idx",
           "columns": [
-            "userId"
+            {
+              "expression": "userId",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
           ],
-          "isUnique": false
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
@@ -776,109 +887,109 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_user": {
+    "public.beenvoice_user": {
       "name": "beenvoice_user",
+      "schema": "",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "name": {
           "name": "name",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "email": {
           "name": "email",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "password": {
           "name": "password",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         },
         "emailVerified": {
           "name": "emailVerified",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "(unixepoch())"
+          "default": "CURRENT_TIMESTAMP"
         },
         "image": {
           "name": "image",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
+          "notNull": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
-    "beenvoice_verification_token": {
+    "public.beenvoice_verification_token": {
       "name": "beenvoice_verification_token",
+      "schema": "",
       "columns": {
         "identifier": {
           "name": "identifier",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "token": {
           "name": "token",
-          "type": "text(255)",
+          "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         },
         "expires": {
           "name": "expires",
-          "type": "integer",
+          "type": "timestamp",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {
         "beenvoice_verification_token_identifier_token_pk": {
+          "name": "beenvoice_verification_token_identifier_token_pk",
           "columns": [
             "identifier",
             "token"
-          ],
-          "name": "beenvoice_verification_token_identifier_token_pk"
+          ]
         }
       },
       "uniqueConstraints": {},
-      "checkConstraints": {}
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
-  "views": {},
   "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
+    "columns": {},
     "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "indexes": {}
+    "tables": {}
   }
 }

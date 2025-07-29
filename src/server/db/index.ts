@@ -1,5 +1,5 @@
-import { createClient, type Client } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 
 import { env } from "~/env";
 import * as schema from "./schema";
@@ -9,15 +9,18 @@ import * as schema from "./schema";
  * update.
  */
 const globalForDb = globalThis as unknown as {
-  client: Client | undefined;
+  pool: Pool | undefined;
 };
 
-export const client =
-  globalForDb.client ??
-  createClient({
-    url: env.DATABASE_URL,
-    authToken: env.DATABASE_AUTH_TOKEN,
+export const pool =
+  globalForDb.pool ??
+  new Pool({
+    connectionString: env.DATABASE_URL,
+    ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 2000,
   });
-if (env.NODE_ENV !== "production") globalForDb.client = client;
+if (env.NODE_ENV !== "production") globalForDb.pool = pool;
 
-export const db = drizzle(client, { schema });
+export const db = drizzle(pool, { schema });

@@ -49,29 +49,35 @@ function RegisterForm() {
   }
 
   return (
-    <div className="auth-container">
-      <div className="auth-form-container">
+    <div className="floating-orbs flex min-h-screen items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-8">
         {/* Logo and Welcome */}
-        <div className="auth-header">
+        <div className="space-y-4 text-center">
           <Logo size="lg" className="mx-auto" />
           <div>
-            <h1 className="auth-title">Join beenvoice</h1>
-            <p className="auth-subtitle">Create your account to get started</p>
+            <h1 className="text-foreground text-2xl font-bold">
+              Join beenvoice
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Create your account to get started
+            </p>
           </div>
         </div>
 
         {/* Registration Form */}
-        <Card className="auth-card">
+        <Card className="card-primary">
           <CardHeader className="space-y-1">
-            <CardTitle className="auth-card-title">Create Account</CardTitle>
+            <CardTitle className="text-center text-xl">
+              Create Account
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleRegister} className="auth-form">
-              <div className="auth-input-grid">
-                <div className="auth-input-group">
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="firstName">First Name</Label>
                   <div className="relative">
-                    <User className="auth-input-icon" />
+                    <User className="form-icon-left" />
                     <Input
                       id="firstName"
                       type="text"
@@ -84,10 +90,10 @@ function RegisterForm() {
                     />
                   </div>
                 </div>
-                <div className="auth-input-group">
+                <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name</Label>
                   <div className="relative">
-                    <User className="auth-input-icon" />
+                    <User className="form-icon-left" />
                     <Input
                       id="lastName"
                       type="text"
@@ -100,10 +106,10 @@ function RegisterForm() {
                   </div>
                 </div>
               </div>
-              <div className="auth-input-group">
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
-                  <Mail className="auth-input-icon" />
+                  <Mail className="form-icon-left" />
                   <Input
                     id="email"
                     type="email"
@@ -115,10 +121,10 @@ function RegisterForm() {
                   />
                 </div>
               </div>
-              <div className="auth-input-group">
+              <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
                 <div className="relative">
-                  <Lock className="auth-input-icon" />
+                  <Lock className="form-icon-left" />
                   <Input
                     id="password"
                     type="password"
@@ -130,15 +136,11 @@ function RegisterForm() {
                     placeholder="Create a password"
                   />
                 </div>
-                <p className="auth-password-help">
+                <p className="text-muted-foreground text-xs">
                   Must be at least 6 characters
                 </p>
               </div>
-              <Button
-                type="submit"
-                className="auth-submit-btn"
-                disabled={loading}
-              >
+              <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? (
                   "Creating account..."
                 ) : (
@@ -149,11 +151,11 @@ function RegisterForm() {
                 )}
               </Button>
             </form>
-            <div className="auth-footer-text">
+            <div className="mt-6 text-center text-sm">
               <span className="text-muted-foreground">
                 Already have an account?{" "}
               </span>
-              <Link href="/auth/signin" className="auth-footer-link">
+              <Link href="/auth/signin" className="nav-link-brand">
                 Sign in here
               </Link>
             </div>
@@ -161,9 +163,9 @@ function RegisterForm() {
         </Card>
 
         {/* Features */}
-        <div className="auth-features">
+        <div className="space-y-4 text-center">
           <p className="welcome-description">Start invoicing like a pro</p>
-          <div className="auth-features-list">
+          <div className="welcome-feature-list">
             <span>✓ Free to start</span>
             <span>✓ No credit card</span>
             <span>✓ Cancel anytime</span>
@@ -178,13 +180,15 @@ export default function RegisterPage() {
   return (
     <Suspense
       fallback={
-        <div className="auth-container">
-          <div className="auth-form-container">
-            <div className="auth-header">
+        <div className="floating-orbs flex min-h-screen items-center justify-center p-4">
+          <div className="w-full max-w-md space-y-8">
+            <div className="space-y-4 text-center">
               <Logo size="lg" className="mx-auto" />
               <div>
-                <h1 className="auth-title">Join beenvoice</h1>
-                <p className="auth-subtitle">Loading...</p>
+                <h1 className="text-foreground text-2xl font-bold">
+                  Join beenvoice
+                </h1>
+                <p className="text-muted-foreground mt-2">Loading...</p>
               </div>
             </div>
           </div>

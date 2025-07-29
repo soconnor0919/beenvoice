@@ -22,11 +22,11 @@ export function PageHeader({
 
     switch (variant) {
       case "gradient":
-        return `${baseClasses} text-3xl text-brand-gradient`;
+        return `${baseClasses} text-3xl text-foreground`;
       case "large":
         return `${baseClasses} text-4xl text-foreground`;
       case "large-gradient":
-        return `${baseClasses} text-4xl text-brand-gradient`;
+        return `${baseClasses} text-4xl text-foreground`;
       default:
         return `${baseClasses} text-3xl text-foreground`;
     }

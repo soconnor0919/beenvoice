@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "~/components/ui/button";
-import { Skeleton } from "~/components/ui/skeleton";
 import { MenuIcon, X } from "lucide-react";
-import { useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { Button } from "~/components/ui/button";
+import { Skeleton } from "~/components/ui/skeleton";
 import { navigationConfig } from "~/lib/navigation";
 
 interface SidebarTriggerProps {

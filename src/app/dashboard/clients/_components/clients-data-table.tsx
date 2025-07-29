@@ -96,7 +96,7 @@ export function ClientsDataTable({
             <div className="min-w-0">
               <p className="truncate font-medium">{client.name}</p>
               <p className="text-muted-foreground truncate text-sm">
-                {client.email || "—"}
+                {client.email ?? "—"}
               </p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export function ClientsDataTable({
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Phone" />
       ),
-      cell: ({ row }) => row.original.phone || "—",
+      cell: ({ row }) => row.original.phone ?? "—",
       meta: {
         headerClassName: "hidden md:table-cell",
         cellClassName: "hidden md:table-cell",
@@ -148,9 +148,9 @@ export function ClientsDataTable({
         return (
           <div className="flex items-center justify-end gap-1">
             <Link href={`/dashboard/clients/${client.id}/edit`}>
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 className="h-8 w-8 p-0"
                 data-action-button="true"
               >
@@ -192,7 +192,8 @@ export function ClientsDataTable({
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the
-              client "{clientToDelete?.name}" and remove all associated data.
+              client &quot;{clientToDelete?.name}&quot; and remove all
+              associated data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

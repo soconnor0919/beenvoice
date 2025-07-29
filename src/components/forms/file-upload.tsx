@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useCallback } from "react";
-import { useDropzone } from "react-dropzone";
+import { useDropzone, type FileRejection } from "react-dropzone";
 import { cn } from "~/lib/utils";
 import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -98,7 +98,7 @@ export function FileUpload({
   const [errors, setErrors] = React.useState<Record<string, string>>({});
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: any[]) => {
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       // Handle accepted files
       const newFiles = [...files, ...acceptedFiles];
       setFiles(newFiles);
@@ -106,19 +106,19 @@ export function FileUpload({
 
       // Handle rejected files
       const newErrors: Record<string, string> = { ...errors };
-      rejectedFiles.forEach(({ file, errors }) => {
-        const errorMessage = errors
-          .map((e: any) => {
-            if (e.code === "file-too-large") {
+      rejectedFiles.forEach(({ file, errors: fileErrors }) => {
+        const errorMessage = fileErrors
+          .map((error) => {
+            if (error.code === "file-too-large") {
               return `File is too large. Max size is ${(maxSize / 1024 / 1024).toFixed(1)}MB`;
             }
-            if (e.code === "file-invalid-type") {
+            if (error.code === "file-invalid-type") {
               return "File type not supported";
             }
-            if (e.code === "too-many-files") {
+            if (error.code === "too-many-files") {
               return `Too many files. Max is ${maxFiles}`;
             }
-            return e.message;
+            return error.message;
           })
           .join(", ");
         newErrors[file.name] = errorMessage;

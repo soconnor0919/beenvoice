@@ -1,5 +1,5 @@
 import { relations, sql } from "drizzle-orm";
-import { index, primaryKey, sqliteTableCreator } from "drizzle-orm/sqlite-core";
+import { index, primaryKey, pgTableCreator } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
 /**
@@ -8,20 +8,20 @@ import { type AdapterAccount } from "next-auth/adapters";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = sqliteTableCreator((name) => `beenvoice_${name}`);
+export const createTable = pgTableCreator((name) => `beenvoice_${name}`);
 
 // Auth-related tables (keeping existing)
 export const users = createTable("user", (d) => ({
   id: d
-    .text({ length: 255 })
+    .varchar({ length: 255 })
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: d.text({ length: 255 }),
-  email: d.text({ length: 255 }).notNull(),
-  password: d.text({ length: 255 }),
-  emailVerified: d.integer({ mode: "timestamp" }).default(sql`(unixepoch())`),
-  image: d.text({ length: 255 }),
+  name: d.varchar({ length: 255 }),
+  email: d.varchar({ length: 255 }).notNull(),
+  password: d.varchar({ length: 255 }),
+  emailVerified: d.timestamp().default(sql`CURRENT_TIMESTAMP`),
+  image: d.varchar({ length: 255 }),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
@@ -35,19 +35,19 @@ export const accounts = createTable(
   "account",
   (d) => ({
     userId: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    type: d.text({ length: 255 }).$type<AdapterAccount["type"]>().notNull(),
-    provider: d.text({ length: 255 }).notNull(),
-    providerAccountId: d.text({ length: 255 }).notNull(),
+    type: d.varchar({ length: 255 }).$type<AdapterAccount["type"]>().notNull(),
+    provider: d.varchar({ length: 255 }).notNull(),
+    providerAccountId: d.varchar({ length: 255 }).notNull(),
     refresh_token: d.text(),
     access_token: d.text(),
     expires_at: d.integer(),
-    token_type: d.text({ length: 255 }),
-    scope: d.text({ length: 255 }),
+    token_type: d.varchar({ length: 255 }),
+    scope: d.varchar({ length: 255 }),
     id_token: d.text(),
-    session_state: d.text({ length: 255 }),
+    session_state: d.varchar({ length: 255 }),
   }),
   (t) => [
     primaryKey({
@@ -64,12 +64,12 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   (d) => ({
-    sessionToken: d.text({ length: 255 }).notNull().primaryKey(),
+    sessionToken: d.varchar({ length: 255 }).notNull().primaryKey(),
     userId: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    expires: d.integer({ mode: "timestamp" }).notNull(),
+    expires: d.timestamp().notNull(),
   }),
   (t) => [index("session_userId_idx").on(t.userId)],
 );
@@ -81,9 +81,9 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verification_token",
   (d) => ({
-    identifier: d.text({ length: 255 }).notNull(),
-    token: d.text({ length: 255 }).notNull(),
-    expires: d.integer({ mode: "timestamp" }).notNull(),
+    identifier: d.varchar({ length: 255 }).notNull(),
+    token: d.varchar({ length: 255 }).notNull(),
+    expires: d.timestamp().notNull(),
   }),
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
@@ -93,29 +93,29 @@ export const clients = createTable(
   "client",
   (d) => ({
     id: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    name: d.text({ length: 255 }).notNull(),
-    email: d.text({ length: 255 }),
-    phone: d.text({ length: 50 }),
-    addressLine1: d.text({ length: 255 }),
-    addressLine2: d.text({ length: 255 }),
-    city: d.text({ length: 100 }),
-    state: d.text({ length: 50 }),
-    postalCode: d.text({ length: 20 }),
-    country: d.text({ length: 100 }),
+    name: d.varchar({ length: 255 }).notNull(),
+    email: d.varchar({ length: 255 }),
+    phone: d.varchar({ length: 50 }),
+    addressLine1: d.varchar({ length: 255 }),
+    addressLine2: d.varchar({ length: 255 }),
+    city: d.varchar({ length: 100 }),
+    state: d.varchar({ length: 50 }),
+    postalCode: d.varchar({ length: 20 }),
+    country: d.varchar({ length: 100 }),
     defaultHourlyRate: d.real().notNull().default(100.0),
     createdById: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
     createdAt: d
-      .integer({ mode: "timestamp" })
-      .default(sql`(unixepoch())`)
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: d.integer({ mode: "timestamp" }).$onUpdate(() => new Date()),
+    updatedAt: d.timestamp().$onUpdate(() => new Date()),
   }),
   (t) => [
     index("client_created_by_idx").on(t.createdById),
@@ -136,32 +136,36 @@ export const businesses = createTable(
   "business",
   (d) => ({
     id: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    name: d.text({ length: 255 }).notNull(),
-    email: d.text({ length: 255 }),
-    phone: d.text({ length: 50 }),
-    addressLine1: d.text({ length: 255 }),
-    addressLine2: d.text({ length: 255 }),
-    city: d.text({ length: 100 }),
-    state: d.text({ length: 50 }),
-    postalCode: d.text({ length: 20 }),
-    country: d.text({ length: 100 }),
-    website: d.text({ length: 255 }),
-    taxId: d.text({ length: 100 }),
-    logoUrl: d.text({ length: 500 }),
-    isDefault: d.integer({ mode: "boolean" }).default(false),
+    name: d.varchar({ length: 255 }).notNull(),
+    email: d.varchar({ length: 255 }),
+    phone: d.varchar({ length: 50 }),
+    addressLine1: d.varchar({ length: 255 }),
+    addressLine2: d.varchar({ length: 255 }),
+    city: d.varchar({ length: 100 }),
+    state: d.varchar({ length: 50 }),
+    postalCode: d.varchar({ length: 20 }),
+    country: d.varchar({ length: 100 }),
+    website: d.varchar({ length: 255 }),
+    taxId: d.varchar({ length: 100 }),
+    logoUrl: d.varchar({ length: 500 }),
+    isDefault: d.boolean().default(false),
+    // Email configuration for custom Resend setup
+    resendApiKey: d.varchar({ length: 255 }),
+    resendDomain: d.varchar({ length: 255 }),
+    emailFromName: d.varchar({ length: 255 }),
     createdById: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
     createdAt: d
-      .integer({ mode: "timestamp" })
-      .default(sql`(unixepoch())`)
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: d.integer({ mode: "timestamp" }).$onUpdate(() => new Date()),
+    updatedAt: d.timestamp().$onUpdate(() => new Date()),
   }),
   (t) => [
     index("business_created_by_idx").on(t.createdById),
@@ -183,31 +187,31 @@ export const invoices = createTable(
   "invoice",
   (d) => ({
     id: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
-    invoiceNumber: d.text({ length: 100 }).notNull(),
-    businessId: d.text({ length: 255 }).references(() => businesses.id),
+    invoiceNumber: d.varchar({ length: 100 }).notNull(),
+    businessId: d.varchar({ length: 255 }).references(() => businesses.id),
     clientId: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => clients.id),
-    issueDate: d.integer({ mode: "timestamp" }).notNull(),
-    dueDate: d.integer({ mode: "timestamp" }).notNull(),
-    status: d.text({ length: 50 }).notNull().default("draft"), // draft, sent, paid, overdue
+    issueDate: d.timestamp().notNull(),
+    dueDate: d.timestamp().notNull(),
+    status: d.varchar({ length: 50 }).notNull().default("draft"), // draft, sent, paid (overdue computed)
     totalAmount: d.real().notNull().default(0),
     taxRate: d.real().notNull().default(0.0),
-    notes: d.text({ length: 1000 }),
+    notes: d.varchar({ length: 1000 }),
     createdById: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
     createdAt: d
-      .integer({ mode: "timestamp" })
-      .default(sql`(unixepoch())`)
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: d.integer({ mode: "timestamp" }).$onUpdate(() => new Date()),
+    updatedAt: d.timestamp().$onUpdate(() => new Date()),
   }),
   (t) => [
     index("invoice_business_id_idx").on(t.businessId),
@@ -238,23 +242,23 @@ export const invoiceItems = createTable(
   "invoice_item",
   (d) => ({
     id: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     invoiceId: d
-      .text({ length: 255 })
+      .varchar({ length: 255 })
       .notNull()
       .references(() => invoices.id, { onDelete: "cascade" }),
-    date: d.integer({ mode: "timestamp" }).notNull(),
-    description: d.text({ length: 500 }).notNull(),
+    date: d.timestamp().notNull(),
+    description: d.varchar({ length: 500 }).notNull(),
     hours: d.real().notNull(),
     rate: d.real().notNull(),
     amount: d.real().notNull(),
     position: d.integer().notNull().default(0), // NEW: position for ordering
     createdAt: d
-      .integer({ mode: "timestamp" })
-      .default(sql`(unixepoch())`)
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
   }),
   (t) => [

@@ -252,7 +252,7 @@ function CalendarDayButton({
   modifiers,
   ...props
 }: React.ComponentProps<typeof DayButton>) {
-  const _defaultClassNames = getDefaultClassNames();
+  // const _defaultClassNames = getDefaultClassNames();
 
   const ref = React.useRef<HTMLButtonElement>(null);
   React.useEffect(() => {

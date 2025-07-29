@@ -1,11 +1,11 @@
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { api, HydrateClient } from "~/trpc/server";
-import { Button } from "~/components/ui/button";
-import { Plus, Building } from "lucide-react";
-import { BusinessesDataTable } from "./_components/businesses-data-table";
-import { PageHeader } from "~/components/layout/page-header";
 import { DataTableSkeleton } from "~/components/data/data-table";
+import { PageHeader } from "~/components/layout/page-header";
+import { Button } from "~/components/ui/button";
+import { api, HydrateClient } from "~/trpc/server";
+import { BusinessesDataTable } from "./_components/businesses-data-table";
 
 // Businesses Table Component
 async function BusinessesTable() {

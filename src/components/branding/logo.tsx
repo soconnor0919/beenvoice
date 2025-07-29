@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { cn } from "~/lib/utils";
 
 interface LogoProps {
   className?: string;
@@ -18,8 +17,8 @@ export function Logo({ className, size = "md" }: LogoProps) {
     <Image
       src="/beenvoice-logo.svg"
       alt="beenvoice logo"
-      width={width} 
-      height={height} 
+      width={width}
+      height={height}
       className={className}
       priority
     />

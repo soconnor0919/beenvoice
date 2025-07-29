@@ -226,8 +226,8 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
             <DialogTitle>Are you sure?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the
-              business "{businessToDelete?.name}" and remove all associated
-              data.
+              business &quot;{businessToDelete?.name}&quot; and remove all
+              associated data.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -1,21 +1,12 @@
 "use client";
 
+import { Calendar, Clock, Edit, Eye, FileText, Plus, User } from "lucide-react";
 import Link from "next/link";
-import { api } from "~/trpc/react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
 import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
-import {
-  FileText,
-  Clock,
-  Plus,
-  Edit,
-  Eye,
-  DollarSign,
-  User,
-  Calendar,
-} from "lucide-react";
+import { api } from "~/trpc/react";
 
 export function CurrentOpenInvoiceCard() {
   const { data: currentInvoice, isLoading } =

@@ -1,25 +1,26 @@
-import { Suspense } from "react";
-import { HydrateClient, api } from "~/trpc/server";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
-import { Badge } from "~/components/ui/badge";
-import { Skeleton } from "~/components/ui/skeleton";
-import { auth } from "~/server/auth";
-import Link from "next/link";
 import {
-  Users,
-  FileText,
-  DollarSign,
-  TrendingUp,
-  Plus,
+  Activity,
   ArrowUpRight,
+  BarChart3,
   Calendar,
   Clock,
-  Eye,
+  DollarSign,
   Edit,
-  Activity,
-  BarChart3,
+  Eye,
+  FileText,
+  Plus,
+  Users,
 } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
+import { Badge } from "~/components/ui/badge";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Skeleton } from "~/components/ui/skeleton";
+import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
+import { auth } from "~/server/auth";
+import { HydrateClient, api } from "~/trpc/server";
+import type { StoredInvoiceStatus } from "~/types/invoice";
 
 // Modern gradient background component
 function DashboardHero({ firstName }: { firstName: string }) {
@@ -46,10 +47,22 @@ async function DashboardStats() {
   const totalClients = clients.length;
   const totalInvoices = invoices.length;
   const totalRevenue = invoices
-    .filter((invoice) => invoice.status === "paid")
+    .filter(
+      (invoice) =>
+        getEffectiveInvoiceStatus(
+          invoice.status as StoredInvoiceStatus,
+          invoice.dueDate,
+        ) === "paid",
+    )
     .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
   const pendingAmount = invoices
-    .filter((invoice) => invoice.status === "sent")
+    .filter((invoice) => {
+      const effectiveStatus = getEffectiveInvoiceStatus(
+        invoice.status as StoredInvoiceStatus,
+        invoice.dueDate,
+      );
+      return effectiveStatus === "sent" || effectiveStatus === "overdue";
+    })
     .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
 
   const stats = [
@@ -197,7 +210,11 @@ function QuickActions() {
 async function CurrentWork() {
   const invoices = await api.invoices.getAll();
   const draftInvoices = invoices.filter(
-    (invoice) => invoice.status === "draft",
+    (invoice) =>
+      getEffectiveInvoiceStatus(
+        invoice.status as StoredInvoiceStatus,
+        invoice.dueDate,
+      ) === "draft",
   );
   const currentInvoice = draftInvoices[0];
 

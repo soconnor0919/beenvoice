@@ -42,7 +42,7 @@ function SignInForm() {
   }
 
   return (
-    <div className="bg-gradient-auth flex min-h-screen items-center justify-center p-4">
+    <div className="floating-orbs flex min-h-screen items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo and Welcome */}
         <div className="space-y-4 text-center">
@@ -135,7 +135,7 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="bg-gradient-auth flex min-h-screen items-center justify-center p-4">
+        <div className="floating-orbs flex min-h-screen items-center justify-center p-4">
           <div className="w-full max-w-md space-y-8">
             <div className="space-y-4 text-center">
               <Logo size="lg" className="mx-auto" />

@@ -1,17 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { notFound, useRouter, useParams } from "next/navigation";
+import { DollarSign, Edit, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { api } from "~/trpc/react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Button } from "~/components/ui/button";
+import { notFound, useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
-import { Separator } from "~/components/ui/separator";
 import { PageHeader } from "~/components/layout/page-header";
-import { PDFDownloadButton } from "../_components/pdf-download-button";
-import { SendInvoiceButton } from "../_components/send-invoice-button";
-import { InvoiceDetailsSkeleton } from "../_components/invoice-details-skeleton";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -20,19 +17,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { toast } from "sonner";
+import { Separator } from "~/components/ui/separator";
+import {
+  getEffectiveInvoiceStatus,
+  isInvoiceOverdue,
+} from "~/lib/invoice-status";
+import { api } from "~/trpc/react";
+import type { StoredInvoiceStatus } from "~/types/invoice";
+import { InvoiceDetailsSkeleton } from "../_components/invoice-details-skeleton";
+import { PDFDownloadButton } from "../_components/pdf-download-button";
+import { EnhancedSendInvoiceButton } from "~/components/forms/enhanced-send-invoice-button";
 
 import {
+  AlertTriangle,
   Building,
-  Edit,
+  Check,
   FileText,
   Mail,
   MapPin,
   Phone,
   User,
-  AlertTriangle,
-  Check,
-  Trash2,
 } from "lucide-react";
 
 function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
@@ -42,8 +46,8 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
   const { data: invoice, isLoading } = api.invoices.getById.useQuery({
     id: invoiceId,
   });
+  const utils = api.useUtils();
 
-  // Delete mutation
   const deleteInvoice = api.invoices.delete.useMutation({
     onSuccess: () => {
       toast.success("Invoice deleted successfully");
@@ -54,8 +58,25 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
     },
   });
 
+  const updateStatus = api.invoices.updateStatus.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.message);
+      void utils.invoices.getById.invalidate({ id: invoiceId });
+    },
+    onError: (error) => {
+      toast.error(error.message ?? "Failed to update invoice status");
+    },
+  });
+
   const handleDelete = () => {
     setDeleteDialogOpen(true);
+  };
+
+  const handleMarkAsPaid = () => {
+    updateStatus.mutate({
+      id: invoiceId,
+      status: "paid" as StoredInvoiceStatus,
+    });
   };
 
   const confirmDelete = () => {
@@ -88,17 +109,17 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
   const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
   const taxAmount = (subtotal * invoice.taxRate) / 100;
   const total = subtotal + taxAmount;
-  const isOverdue =
-    new Date(invoice.dueDate) < new Date() && invoice.status !== "paid";
+  const effectiveStatus = getEffectiveInvoiceStatus(
+    invoice.status as StoredInvoiceStatus,
+    invoice.dueDate,
+  );
+  const isOverdue = isInvoiceOverdue(
+    invoice.status as StoredInvoiceStatus,
+    invoice.dueDate,
+  );
 
   const getStatusType = (): StatusType => {
-    if (invoice.status === "paid") return "paid";
-    if (invoice.status === "draft") return "draft";
-    if (invoice.status === "overdue") return "overdue";
-    if (invoice.status === "sent") {
-      return isOverdue ? "overdue" : "sent";
-    }
-    return "draft";
+    return effectiveStatus as StatusType;
   };
 
   return (
@@ -401,8 +422,38 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
                 <PDFDownloadButton invoiceId={invoice.id} className="w-full" />
               )}
 
-              {invoice.status === "draft" && (
-                <SendInvoiceButton invoiceId={invoice.id} className="w-full" />
+              {/* Send Invoice Button - Show for draft, sent, and overdue */}
+              {effectiveStatus === "draft" && (
+                <EnhancedSendInvoiceButton
+                  invoiceId={invoice.id}
+                  className="w-full"
+                />
+              )}
+
+              {(effectiveStatus === "sent" ||
+                effectiveStatus === "overdue") && (
+                <EnhancedSendInvoiceButton
+                  invoiceId={invoice.id}
+                  className="w-full"
+                  showResend={true}
+                />
+              )}
+
+              {/* Manual Status Updates */}
+              {(effectiveStatus === "sent" ||
+                effectiveStatus === "overdue") && (
+                <Button
+                  onClick={handleMarkAsPaid}
+                  disabled={updateStatus.isPending}
+                  className="w-full bg-green-600 text-white hover:bg-green-700"
+                >
+                  {updateStatus.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <DollarSign className="mr-2 h-4 w-4" />
+                  )}
+                  Mark as Paid
+                </Button>
               )}
 
               <Button

@@ -4,27 +4,68 @@ import { useState } from "react";
 import { Button } from "~/components/ui/button";
 import { toast } from "sonner";
 import { api } from "~/trpc/react";
-import { generateInvoicePDFBlob } from "~/lib/pdf-export";
 import { Send, Loader2 } from "lucide-react";
 
 interface SendInvoiceButtonProps {
   invoiceId: string;
   variant?: "default" | "outline" | "ghost" | "icon";
   className?: string;
+  showResend?: boolean;
 }
 
 export function SendInvoiceButton({
   invoiceId,
   variant = "outline",
   className,
+  showResend = false,
 }: SendInvoiceButtonProps) {
   const [isSending, setIsSending] = useState(false);
 
-  // Fetch invoice data when sending is triggered
-  const { refetch: fetchInvoice } = api.invoices.getById.useQuery(
-    { id: invoiceId },
-    { enabled: false },
-  );
+  // Get utils for cache invalidation
+  const utils = api.useUtils();
+
+  // Use the new email API mutation
+  const sendInvoiceMutation = api.email.sendInvoice.useMutation({
+    onSuccess: (data) => {
+      // Show detailed success message with delivery info
+      toast.success(data.message, {
+        description: `Email ID: ${data.emailId}`,
+        duration: 5000,
+      });
+
+      // Refresh invoice data to show updated status
+      void utils.invoices.getById.invalidate({ id: invoiceId });
+    },
+    onError: (error) => {
+      // Enhanced error handling with specific error types
+      console.error("Email send error:", error);
+
+      let errorMessage = "Failed to send invoice email";
+      let errorDescription = "";
+
+      if (error.message.includes("Invalid recipient")) {
+        errorMessage = "Invalid Email Address";
+        errorDescription =
+          "Please check the client's email address and try again.";
+      } else if (error.message.includes("domain not verified")) {
+        errorMessage = "Email Configuration Issue";
+        errorDescription = "Please contact support to configure email sending.";
+      } else if (error.message.includes("rate limit")) {
+        errorMessage = "Too Many Emails";
+        errorDescription = "Please wait a moment before sending another email.";
+      } else if (error.message.includes("no email address")) {
+        errorMessage = "No Email Address";
+        errorDescription = "This client doesn't have an email address on file.";
+      } else {
+        errorDescription = error.message;
+      }
+
+      toast.error(errorMessage, {
+        description: errorDescription,
+        duration: 6000,
+      });
+    },
+  });
 
   const handleSendInvoice = async () => {
     if (isSending) return;
@@ -32,88 +73,12 @@ export function SendInvoiceButton({
     setIsSending(true);
 
     try {
-      // Fetch fresh invoice data
-      const { data: invoice } = await fetchInvoice();
-
-      if (!invoice) {
-        throw new Error("Invoice not found");
-      }
-
-      // Generate PDF blob for potential attachment
-      const pdfBlob = await generateInvoicePDFBlob(invoice);
-
-      // Create a temporary download URL for the PDF
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-
-      // Format currency
-      const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat("en-US", {
-          style: "currency",
-          currency: "USD",
-        }).format(amount);
-      };
-
-      // Format date
-      const formatDate = (date: Date) => {
-        return new Intl.DateTimeFormat("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }).format(new Date(date));
-      };
-
-      // Calculate days until due
-      const today = new Date();
-      const dueDate = new Date(invoice.dueDate);
-      const daysUntilDue = Math.ceil(
-        (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
-      );
-
-      // Create professional email template
-      const subject = `Invoice ${invoice.invoiceNumber} - ${formatCurrency(invoice.totalAmount)}`;
-
-      const body = `Dear ${invoice.client.name},
-
-I hope this email finds you well. Please find attached invoice ${invoice.invoiceNumber} for the services provided.
-
-Invoice Details:
-• Invoice Number: ${invoice.invoiceNumber}
-• Issue Date: ${formatDate(invoice.issueDate)}
-• Due Date: ${formatDate(invoice.dueDate)}
-• Amount Due: ${formatCurrency(invoice.totalAmount)}
-${daysUntilDue > 0 ? `• Payment Due: In ${daysUntilDue} days` : daysUntilDue === 0 ? `• Payment Due: Today` : `• Status: ${Math.abs(daysUntilDue)} days overdue`}
-
-${invoice.notes ? `\nAdditional Notes:\n${invoice.notes}\n` : ""}
-Please review the attached invoice and remit payment by the due date. If you have any questions or concerns regarding this invoice, please don't hesitate to contact me.
-
-Thank you for your business!
-
-Best regards,
-${invoice.business?.name ?? "Your Business Name"}
-${invoice.business?.email ? `\n${invoice.business.email}` : ""}
-${invoice.business?.phone ? `\n${invoice.business.phone}` : ""}`;
-
-      // Create mailto link
-      const mailtoLink = `mailto:${invoice.client.email ?? ""}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-      // Create a temporary link element to trigger mailto
-      const link = document.createElement("a");
-      link.href = mailtoLink;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      // Clean up the PDF URL object
-      URL.revokeObjectURL(pdfUrl);
-
-      toast.success("Email client opened with invoice details");
+      await sendInvoiceMutation.mutateAsync({
+        invoiceId,
+      });
     } catch (error) {
+      // Error is already handled by the mutation's onError
       console.error("Send invoice error:", error);
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Failed to prepare invoice email",
-      );
     } finally {
       setIsSending(false);
     }
@@ -149,12 +114,12 @@ ${invoice.business?.phone ? `\n${invoice.business.phone}` : ""}`;
       {isSending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          <span>Preparing Email...</span>
+          <span>Sending Email...</span>
         </>
       ) : (
         <>
           <Send className="mr-2 h-4 w-4" />
-          <span>Send Invoice</span>
+          <span>{showResend ? "Resend Invoice" : "Send Invoice"}</span>
         </>
       )}
     </Button>

@@ -38,7 +38,6 @@ const STATUS_OPTIONS = [
   { value: "draft", label: "Draft" },
   { value: "sent", label: "Sent" },
   { value: "paid", label: "Paid" },
-  { value: "overdue", label: "Overdue" },
 ];
 
 interface InvoiceFormProps {
@@ -60,7 +59,7 @@ interface FormData {
   clientId: string;
   issueDate: Date;
   dueDate: Date;
-  status: "draft" | "sent" | "paid" | "overdue";
+  status: "draft" | "sent" | "paid";
   notes: string;
   taxRate: number;
   defaultHourlyRate: number;
@@ -158,7 +157,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         clientId: existingInvoice.clientId,
         issueDate: new Date(existingInvoice.issueDate),
         dueDate: new Date(existingInvoice.dueDate),
-        status: existingInvoice.status as "draft" | "sent" | "paid" | "overdue",
+        status: existingInvoice.status as "draft" | "sent" | "paid",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
         defaultHourlyRate: 25,
@@ -523,9 +522,9 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           <Label htmlFor="status">Status</Label>
                           <Select
                             value={formData.status}
-                            onValueChange={(
-                              value: "draft" | "sent" | "paid" | "overdue",
-                            ) => updateField("status", value)}
+                            onValueChange={(value: "draft" | "sent" | "paid") =>
+                              updateField("status", value)
+                            }
                           >
                             <SelectTrigger>
                               <SelectValue />

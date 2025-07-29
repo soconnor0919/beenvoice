@@ -305,7 +305,7 @@ export function formatWebsiteUrl(url: string): string {
   if (!url) return "";
 
   // If URL doesn't start with http:// or https://, add https://
-  if (!url.match(/^https?:\/\//i)) {
+  if (!/^https?:\/\//i.exec(url)) {
     return `https://${url}`;
   }
 
@@ -315,7 +315,7 @@ export function formatWebsiteUrl(url: string): string {
 // Postal code formatting
 export function formatPostalCode(
   value: string,
-  country: string = "United States",
+  country = "United States",
 ): string {
   if (country === "United States") {
     // Format as US ZIP code (12345 or 12345-6789)
@@ -340,7 +340,7 @@ export function formatPostalCode(
 }
 
 // Tax ID formatting
-export function formatTaxId(value: string, type: string = "EIN"): string {
+export function formatTaxId(value: string, type = "EIN"): string {
   const digits = value.replace(/\D/g, "");
 
   if (type === "EIN") {

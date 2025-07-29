@@ -26,7 +26,7 @@ const createInvoiceSchema = z.object({
   clientId: z.string().min(1, "Client is required"),
   issueDate: z.date(),
   dueDate: z.date(),
-  status: z.enum(["draft", "sent", "paid", "overdue"]).default("draft"),
+  status: z.enum(["draft", "sent", "paid"]).default("draft"),
   notes: z.string().optional().or(z.literal("")),
   taxRate: z.number().min(0).max(100).default(0),
   items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
@@ -38,7 +38,7 @@ const updateInvoiceSchema = createInvoiceSchema.partial().extend({
 
 const updateStatusSchema = z.object({
   id: z.string(),
-  status: z.enum(["draft", "sent", "paid", "overdue"]),
+  status: z.enum(["draft", "sent", "paid"]),
 });
 
 export const invoicesRouter = createTRPCRouter({
@@ -237,7 +237,9 @@ export const invoicesRouter = createTRPCRouter({
         const cleanInvoiceData = {
           ...invoiceData,
           businessId:
-            !invoiceData.businessId || invoiceData.businessId.trim() === "" ? null : invoiceData.businessId,
+            !invoiceData.businessId || invoiceData.businessId.trim() === ""
+              ? null
+              : invoiceData.businessId,
           notes: invoiceData.notes === "" ? null : invoiceData.notes,
         };
 
@@ -261,7 +263,10 @@ export const invoicesRouter = createTRPCRouter({
         }
 
         // If business is being updated, verify it belongs to user
-        if (cleanInvoiceData.businessId && cleanInvoiceData.businessId.trim() !== "") {
+        if (
+          cleanInvoiceData.businessId &&
+          cleanInvoiceData.businessId.trim() !== ""
+        ) {
           const business = await ctx.db.query.businesses.findFirst({
             where: eq(businesses.id, cleanInvoiceData.businessId),
           });
@@ -434,7 +439,10 @@ export const invoicesRouter = createTRPCRouter({
 
         console.log("Status update completed successfully");
 
-        return { success: true };
+        return {
+          success: true,
+          message: `Invoice status updated to ${input.status}`,
+        };
       } catch (error) {
         console.error("UpdateStatus error:", error);
         if (error instanceof TRPCError) throw error;

@@ -89,9 +89,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
     deleteInvoice.mutate({ id: invoiceId });
   };
 
-  const handleStatusUpdate = (
-    newStatus: "draft" | "sent" | "paid" | "overdue",
-  ) => {
+  const handleStatusUpdate = (newStatus: "draft" | "sent" | "paid") => {
     updateStatus.mutate({ id: invoiceId, status: newStatus });
   };
 

@@ -1,40 +1,43 @@
 "use client";
 
 import {
-  Building,
-  Mail,
-  Phone,
-  Save,
-  Globe,
-  BadgeDollarSign,
-  Image,
-  Star,
-  Loader2,
   ArrowLeft,
+  Building,
+  Eye,
+  EyeOff,
   FileText,
+  Globe,
+  Info,
+  Key,
+  Loader2,
+  Mail,
+  Save,
+  Star,
+  User,
 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { AddressForm } from "~/components/forms/address-form";
+import { FloatingActionBar } from "~/components/layout/floating-action-bar";
+import { PageHeader } from "~/components/layout/page-header";
 import { Button } from "~/components/ui/button";
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Switch } from "~/components/ui/switch";
-import { AddressForm } from "~/components/forms/address-form";
-import { FloatingActionBar } from "~/components/layout/floating-action-bar";
-import { PageHeader } from "~/components/layout/page-header";
-import { api } from "~/trpc/react";
 import {
   formatPhoneNumber,
-  formatWebsiteUrl,
   formatTaxId,
+  formatWebsiteUrl,
   isValidEmail,
-  VALIDATION_MESSAGES,
   PLACEHOLDERS,
+  VALIDATION_MESSAGES,
 } from "~/lib/form-constants";
+import { api } from "~/trpc/react";
 
 interface BusinessFormProps {
   businessId?: string;
@@ -53,8 +56,10 @@ interface FormData {
   country: string;
   website: string;
   taxId: string;
-  logoUrl: string;
   isDefault: boolean;
+  resendApiKey: string;
+  resendDomain: string;
+  emailFromName: string;
 }
 
 interface FormErrors {
@@ -68,6 +73,9 @@ interface FormErrors {
   country?: string;
   website?: string;
   taxId?: string;
+  resendApiKey?: string;
+  resendDomain?: string;
+  emailFromName?: string;
 }
 
 const initialFormData: FormData = {
@@ -82,8 +90,10 @@ const initialFormData: FormData = {
   country: "United States",
   website: "",
   taxId: "",
-  logoUrl: "",
   isDefault: false,
+  resendApiKey: "",
+  resendDomain: "",
+  emailFromName: "",
 };
 
 export function BusinessForm({ businessId, mode }: BusinessFormProps) {
@@ -91,6 +101,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
 
   // Fetch business data if editing
@@ -99,6 +110,23 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       { id: businessId! },
       { enabled: mode === "edit" && !!businessId },
     );
+
+  // Fetch email configuration if editing
+  const { data: emailConfig, isLoading: isLoadingEmailConfig } =
+    api.businesses.getEmailConfig.useQuery(
+      { id: businessId! },
+      { enabled: mode === "edit" && !!businessId },
+    );
+
+  // Update email configuration mutation
+  const updateEmailConfig = api.businesses.updateEmailConfig.useMutation({
+    onSuccess: () => {
+      toast.success("Email configuration updated successfully");
+    },
+    onError: (error) => {
+      toast.error(`Failed to update email configuration: ${error.message}`);
+    },
+  });
 
   const createBusiness = api.businesses.create.useMutation({
     onSuccess: () => {
@@ -135,11 +163,13 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
         country: business.country ?? "United States",
         website: business.website ?? "",
         taxId: business.taxId ?? "",
-        logoUrl: business.logoUrl ?? "",
         isDefault: business.isDefault ?? false,
+        resendApiKey: "", // Never pre-fill API key for security
+        resendDomain: emailConfig?.resendDomain ?? "",
+        emailFromName: emailConfig?.emailFromName ?? "",
       });
     }
-  }, [business, mode]);
+  }, [business, emailConfig, mode]);
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -202,6 +232,36 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       }
     }
 
+    // Email configuration validation
+    // API Key validation
+    if (formData.resendApiKey && !formData.resendApiKey.startsWith("re_")) {
+      newErrors.resendApiKey = "Resend API key should start with 're_'";
+    }
+
+    // Domain validation
+    if (formData.resendDomain) {
+      const domainRegex =
+        /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.([a-zA-Z]{2,})+$/;
+      if (!domainRegex.test(formData.resendDomain)) {
+        newErrors.resendDomain =
+          "Please enter a valid domain (e.g., yourdomain.com)";
+      }
+    }
+
+    // If API key is provided, domain must also be provided
+    if (formData.resendApiKey && !formData.resendDomain) {
+      newErrors.resendDomain = "Domain is required when API key is provided";
+    }
+
+    // If domain is provided, API key must also be provided
+    if (
+      formData.resendDomain &&
+      !formData.resendApiKey &&
+      !emailConfig?.hasApiKey
+    ) {
+      newErrors.resendApiKey = "API key is required when domain is provided";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -224,12 +284,73 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       };
 
       if (mode === "create") {
-        await createBusiness.mutateAsync(dataToSubmit);
+        // Create business data (excluding email config fields)
+        const businessData = {
+          name: dataToSubmit.name,
+          email: dataToSubmit.email,
+          phone: dataToSubmit.phone,
+          addressLine1: dataToSubmit.addressLine1,
+          addressLine2: dataToSubmit.addressLine2,
+          city: dataToSubmit.city,
+          state: dataToSubmit.state,
+          postalCode: dataToSubmit.postalCode,
+          country: dataToSubmit.country,
+          website: dataToSubmit.website,
+          taxId: dataToSubmit.taxId,
+          isDefault: dataToSubmit.isDefault,
+        };
+
+        const newBusiness = await createBusiness.mutateAsync(businessData);
+
+        // Update email configuration separately if any email fields are provided
+        if (
+          newBusiness &&
+          (formData.resendApiKey ||
+            formData.resendDomain ||
+            formData.emailFromName)
+        ) {
+          await updateEmailConfig.mutateAsync({
+            id: newBusiness.id,
+            resendApiKey: formData.resendApiKey || undefined,
+            resendDomain: formData.resendDomain || undefined,
+            emailFromName: formData.emailFromName || undefined,
+          });
+        }
       } else {
+        // Update business data (excluding email config fields)
+        const businessData = {
+          name: dataToSubmit.name,
+          email: dataToSubmit.email,
+          phone: dataToSubmit.phone,
+          addressLine1: dataToSubmit.addressLine1,
+          addressLine2: dataToSubmit.addressLine2,
+          city: dataToSubmit.city,
+          state: dataToSubmit.state,
+          postalCode: dataToSubmit.postalCode,
+          country: dataToSubmit.country,
+          website: dataToSubmit.website,
+          taxId: dataToSubmit.taxId,
+          isDefault: dataToSubmit.isDefault,
+        };
+
         await updateBusiness.mutateAsync({
           id: businessId!,
-          ...dataToSubmit,
+          ...businessData,
         });
+
+        // Update email configuration separately if any email fields are provided
+        if (
+          formData.resendApiKey ||
+          formData.resendDomain ||
+          formData.emailFromName
+        ) {
+          await updateEmailConfig.mutateAsync({
+            id: businessId!,
+            resendApiKey: formData.resendApiKey || undefined,
+            resendDomain: formData.resendDomain || undefined,
+            emailFromName: formData.emailFromName || undefined,
+          });
+        }
       }
     } finally {
       setIsSubmitting(false);
@@ -246,7 +367,10 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
     router.push("/dashboard/businesses");
   };
 
-  if (mode === "edit" && isLoadingBusiness) {
+  if (
+    (mode === "edit" && isLoadingBusiness) ||
+    (mode === "edit" && isLoadingEmailConfig)
+  ) {
     return (
       <div className="space-y-6 pb-32">
         <Card>
@@ -485,6 +609,189 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                   errors={errors}
                   required={false}
                 />
+              </CardContent>
+            </Card>
+
+            {/* Email Configuration */}
+            <Card className="card-primary">
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                    <Mail className="text-brand-light h-5 w-5" />
+                  </div>
+                  <div>
+                    <CardTitle>Email Configuration</CardTitle>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Configure your own Resend API key and domain for sending
+                      invoices
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Current Status */}
+                {mode === "edit" && (
+                  <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium">
+                        Current Status:
+                      </span>
+                      {emailConfig?.hasApiKey && emailConfig?.resendDomain ? (
+                        <Badge
+                          variant="default"
+                          className="bg-green-100 text-green-800"
+                        >
+                          <Key className="mr-1 h-3 w-3" />
+                          Custom Configuration Active
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary">
+                          <Globe className="mr-1 h-3 w-3" />
+                          Using System Default
+                        </Badge>
+                      )}
+                    </div>
+                    {emailConfig?.resendDomain && (
+                      <span className="text-sm text-gray-600">
+                        Domain: {emailConfig.resendDomain}
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                <Alert>
+                  <Info className="h-4 w-4" />
+                  <AlertDescription>
+                    To use your own email configuration, you&apos;ll need to:
+                    <ul className="mt-2 list-inside list-disc space-y-1">
+                      <li>
+                        Create a free account at{" "}
+                        <a
+                          href="https://resend.com"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:underline"
+                        >
+                          resend.com
+                        </a>
+                      </li>
+                      <li>Verify your domain in the Resend dashboard</li>
+                      <li>Get your API key from the Resend dashboard</li>
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+
+                <div className="space-y-4">
+                  {/* API Key */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="resendApiKey"
+                      className="flex items-center gap-2"
+                    >
+                      <Key className="h-4 w-4" />
+                      Resend API Key
+                      {mode === "edit" && emailConfig?.hasApiKey && (
+                        <Badge variant="outline" className="text-xs">
+                          Currently Set
+                        </Badge>
+                      )}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="resendApiKey"
+                        type={showApiKey ? "text" : "password"}
+                        value={formData.resendApiKey}
+                        onChange={(e) =>
+                          handleInputChange("resendApiKey", e.target.value)
+                        }
+                        placeholder={
+                          mode === "edit" && emailConfig?.hasApiKey
+                            ? "Enter new API key to update"
+                            : "re_..."
+                        }
+                        className={errors.resendApiKey ? "border-red-500" : ""}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                        onClick={() => setShowApiKey(!showApiKey)}
+                      >
+                        {showApiKey ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {errors.resendApiKey && (
+                      <p className="text-sm text-red-600">
+                        {errors.resendApiKey}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Domain */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="resendDomain"
+                      className="flex items-center gap-2"
+                    >
+                      <Globe className="h-4 w-4" />
+                      Verified Domain
+                    </Label>
+                    <Input
+                      id="resendDomain"
+                      type="text"
+                      value={formData.resendDomain}
+                      onChange={(e) =>
+                        handleInputChange("resendDomain", e.target.value)
+                      }
+                      placeholder="yourdomain.com"
+                      className={errors.resendDomain ? "border-red-500" : ""}
+                    />
+                    {errors.resendDomain && (
+                      <p className="text-sm text-red-600">
+                        {errors.resendDomain}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-600">
+                      This domain must be verified in your Resend account before
+                      emails can be sent.
+                    </p>
+                  </div>
+
+                  {/* From Name */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="emailFromName"
+                      className="flex items-center gap-2"
+                    >
+                      <User className="h-4 w-4" />
+                      From Name (Optional)
+                    </Label>
+                    <Input
+                      id="emailFromName"
+                      type="text"
+                      value={formData.emailFromName}
+                      onChange={(e) =>
+                        handleInputChange("emailFromName", e.target.value)
+                      }
+                      placeholder={formData.name || "Your Business Name"}
+                      className={errors.emailFromName ? "border-red-500" : ""}
+                    />
+                    {errors.emailFromName && (
+                      <p className="text-sm text-red-600">
+                        {errors.emailFromName}
+                      </p>
+                    )}
+                    <p className="text-sm text-gray-600">
+                      This will appear as the sender name in emails. Defaults to
+                      your business name.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
