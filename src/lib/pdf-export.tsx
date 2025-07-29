@@ -385,9 +385,9 @@ const styles = StyleSheet.create({
   tableRow: {
     flexDirection: "row",
     borderBottom: "1px solid #e5e7eb",
-    paddingVertical: 2,
-    paddingHorizontal: 4,
+    paddingVertical: 6,
     alignItems: "flex-start",
+    minHeight: 24,
   },
 
   tableRowAlt: {
@@ -409,8 +409,11 @@ const styles = StyleSheet.create({
 
   tableCellDescription: {
     width: "40%",
-    lineHeight: 1.3,
-    alignSelf: "flex-start",
+    lineHeight: 1.4,
+    paddingVertical: 4,
+    paddingHorizontal: 2,
+    textAlign: "left",
+    flexWrap: "wrap",
   },
 
   tableCellHours: {
@@ -557,7 +560,109 @@ const getStatusStyle = (status: string) => {
   }
 };
 
-// Dynamic pagination calculation based on page height
+// Helper function to estimate text height based on content and width
+function estimateTextHeight(
+  text: string,
+  maxWidth: number,
+  fontSize = 10,
+  lineHeight = 1.3,
+): number {
+  if (!text) return fontSize * lineHeight;
+
+  // Rough character width estimation for Helvetica at given font size
+  const avgCharWidth = fontSize * 0.6;
+  const maxCharsPerLine = Math.floor(maxWidth / avgCharWidth);
+
+  if (maxCharsPerLine <= 0) return fontSize * lineHeight;
+
+  const lines = Math.ceil(text.length / maxCharsPerLine);
+  return lines * fontSize * lineHeight;
+}
+
+// Calculate estimated height for a table row based on actual content
+function calculateRowHeight(
+  item: NonNullable<InvoiceData["items"]>[0],
+): number {
+  if (!item) return 18; // fallback
+
+  const basePadding = 8; // Row padding
+  const fontSize = 10;
+  const lineHeight = 1.3;
+
+  // Description column is 40% of table width
+  // Table width is roughly 512 points (letter width - margins)
+  const descriptionWidth = 512 * 0.4;
+
+  const descriptionHeight = estimateTextHeight(
+    item.description,
+    descriptionWidth,
+    fontSize,
+    lineHeight,
+  );
+
+  // Minimum row height for other columns
+  const minRowHeight = fontSize * lineHeight;
+
+  // Row height is the maximum of description height and minimum height, plus padding
+  // Ensure minimum row height of 24 points for readability
+  return Math.max(descriptionHeight, minRowHeight, 24) + basePadding;
+}
+
+// Dynamic pagination calculation based on actual content
+function calculateItemsForPage(
+  items: NonNullable<InvoiceData["items"]>,
+  startIndex: number,
+  isFirstPage: boolean,
+  hasNotes: boolean,
+): number {
+  // Estimate available space in points (1 point = 1/72 inch)
+  const pageHeight = 792; // Letter size height in points
+  const margins = 80; // Top + bottom margins
+  const footerSpace = 60; // Footer space
+
+  let availableHeight = pageHeight - margins - footerSpace;
+
+  if (isFirstPage) {
+    // Dense header takes significant space
+    availableHeight -= 200; // Dense header space
+  } else {
+    // Abridged header is smaller
+    availableHeight -= 60; // Abridged header space
+  }
+
+  if (hasNotes) {
+    // Last page needs space for totals and notes
+    availableHeight -= 120; // Totals + notes space
+  } else {
+    // Regular page just needs totals space
+    availableHeight -= 80; // Totals space only
+  }
+
+  // Table header takes space
+  availableHeight -= 30; // Table header
+
+  // Calculate how many items can fit based on actual row heights
+  let usedHeight = 0;
+  let itemCount = 0;
+
+  for (let i = startIndex; i < items.length; i++) {
+    const item = items[i];
+    if (!item) continue;
+
+    const rowHeight = calculateRowHeight(item);
+
+    if (usedHeight + rowHeight > availableHeight) {
+      break; // This item won't fit
+    }
+
+    usedHeight += rowHeight;
+    itemCount++;
+  }
+
+  return Math.max(1, itemCount); // Always return at least 1 item
+}
+
+// Fallback function for backward compatibility
 function calculateItemsPerPage(
   isFirstPage: boolean,
   hasNotes: boolean,
@@ -588,10 +693,10 @@ function calculateItemsPerPage(
   // Table header takes space
   availableHeight -= 30; // Table header
 
-  // Each row is approximately 18 points (includes padding and text)
-  const rowHeight = 18;
+  // Conservative estimate using average row height
+  const avgRowHeight = 24; // Increased from 18 to account for potential wrapping
 
-  return Math.max(1, Math.floor(availableHeight / rowHeight));
+  return Math.max(1, Math.floor(availableHeight / avgRowHeight));
 }
 
 // Dynamic pagination function
@@ -613,21 +718,34 @@ function paginateItems(
     const isFirstPage = pageIndex === 0;
     const remainingItems = validItems.length - currentIndex;
 
-    // Calculate items per page for this page
-    let itemsPerPage = calculateItemsPerPage(isFirstPage, false);
+    // Check if this is the last page to determine if we need space for notes
+    const couldBeLastPage =
+      currentIndex + calculateItemsPerPage(isFirstPage, false) >=
+      validItems.length;
 
-    // Check if this would create orphans (< 4 items on next page)
-    if (remainingItems > itemsPerPage && remainingItems - itemsPerPage < 4) {
-      // Distribute items more evenly to avoid orphans
-      itemsPerPage = Math.floor(remainingItems / 2);
+    // Calculate items per page using dynamic calculation
+    let itemsPerPage = calculateItemsForPage(
+      validItems,
+      currentIndex,
+      isFirstPage,
+      couldBeLastPage && hasNotes,
+    );
+
+    // Fallback to old method if dynamic calculation fails
+    if (itemsPerPage === 0) {
+      itemsPerPage = calculateItemsPerPage(
+        isFirstPage,
+        couldBeLastPage && hasNotes,
+      );
     }
 
-    // Check if this is the last page and needs space for totals/notes
-    const isLastPage = currentIndex + itemsPerPage >= validItems.length;
-    if (isLastPage && hasNotes) {
-      // Recalculate with space for totals and notes
-      const maxItemsWithNotes = calculateItemsPerPage(false, true);
-      itemsPerPage = Math.min(itemsPerPage, maxItemsWithNotes);
+    // Check if this would create orphans (< 3 items on next page)
+    if (remainingItems > itemsPerPage && remainingItems - itemsPerPage < 3) {
+      // Try to fit a few more items or split more evenly
+      const potentialItemsPerPage = Math.floor(remainingItems / 2);
+      if (potentialItemsPerPage > 0) {
+        itemsPerPage = potentialItemsPerPage;
+      }
     }
 
     const pageItems = validItems.slice(

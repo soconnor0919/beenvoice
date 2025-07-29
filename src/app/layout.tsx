@@ -1,5 +1,6 @@
 import "~/styles/globals.css";
 
+import { Analytics } from "@vercel/analytics/next";
 import { type Metadata } from "next";
 import { Geist, Azeret_Mono } from "next/font/google";
 
@@ -29,6 +30,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${geist.variable} ${azeretMono.variable}`}>
+      <Analytics />
       <body className="relative min-h-screen overflow-x-hidden font-sans antialiased">
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster />
