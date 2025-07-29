@@ -1,3 +1,5 @@
+![beenvoice Logo](public/beenvoice-logo.png)
+
 # beenvoice - Invoicing Made Simple
 
 A modern, professional invoicing application built for freelancers and small businesses. beenvoice provides a clean, efficient way to manage clients and create professional invoices with ease.
@@ -44,7 +46,7 @@ A modern, professional invoicing application built for freelancers and small bus
    ```bash
    # Using Bun (recommended)
    bun install
-   
+
    # Or using npm
    npm install
    ```
@@ -53,7 +55,7 @@ A modern, professional invoicing application built for freelancers and small bus
    ```bash
    cp .env.example .env.local
    ```
-   
+
    Edit `.env.local` and add your configuration:
    ```env
    DATABASE_URL="file:./db.sqlite"
