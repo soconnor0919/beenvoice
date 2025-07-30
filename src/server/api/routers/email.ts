@@ -119,15 +119,6 @@ export const emailRouter = createTRPCRouter({
       let resendInstance: Resend;
       let fromEmail: string;
 
-      console.log("Email configuration debug:");
-      console.log(
-        "- Business resendApiKey:",
-        invoice.business?.resendApiKey ? "***SET***" : "not set",
-      );
-      console.log("- Business resendDomain:", invoice.business?.resendDomain);
-      console.log("- System RESEND_DOMAIN:", env.RESEND_DOMAIN);
-      console.log("- Business email:", invoice.business?.email);
-
       // Check if business has custom Resend configuration
       if (invoice.business?.resendApiKey && invoice.business?.resendDomain) {
         // Use business's custom Resend setup
@@ -135,20 +126,15 @@ export const emailRouter = createTRPCRouter({
         const fromName =
           invoice.business.emailFromName ?? invoice.business.name ?? userName;
         fromEmail = `${fromName} <noreply@${invoice.business.resendDomain}>`;
-        console.log("- Using business custom Resend configuration");
       } else if (env.RESEND_DOMAIN) {
         // Use system Resend configuration
         resendInstance = defaultResend;
         fromEmail = `noreply@${env.RESEND_DOMAIN}`;
-        console.log("- Using system Resend configuration");
       } else {
         // Fallback to business email if no configured domains
         resendInstance = defaultResend;
         fromEmail = invoice.business?.email ?? "noreply@yourdomain.com";
-        console.log("- Using fallback configuration");
       }
-
-      console.log("- Final fromEmail:", fromEmail);
 
       // Prepare CC and BCC lists
       const ccEmails: string[] = [];
@@ -163,8 +149,6 @@ export const emailRouter = createTRPCRouter({
         for (const email of ccList) {
           if (emailRegex.test(email)) {
             ccEmails.push(email);
-          } else {
-            console.warn("Invalid CC email format, skipping:", email);
           }
         }
       }
@@ -178,8 +162,6 @@ export const emailRouter = createTRPCRouter({
         for (const email of bccList) {
           if (emailRegex.test(email)) {
             bccEmails.push(email);
-          } else {
-            console.warn("Invalid BCC email format, skipping:", email);
           }
         }
       }
@@ -189,11 +171,6 @@ export const emailRouter = createTRPCRouter({
         // Validate business email format before adding to CC
         if (emailRegex.test(invoice.business.email)) {
           ccEmails.push(invoice.business.email);
-        } else {
-          console.warn(
-            "Invalid business email format, skipping CC:",
-            invoice.business.email,
-          );
         }
       }
 
@@ -222,8 +199,7 @@ export const emailRouter = createTRPCRouter({
             },
           ],
         });
-      } catch (sendError) {
-        console.error("Resend API call failed:", sendError);
+      } catch {
         throw new Error(
           "Email service is currently unavailable. Please try again later.",
         );
@@ -231,7 +207,6 @@ export const emailRouter = createTRPCRouter({
 
       // Enhanced error checking
       if (emailResult.error) {
-        console.error("Resend API error:", emailResult.error);
         const errorMsg = emailResult.error.message?.toLowerCase() ?? "";
 
         // Provide more specific error messages based on error type
@@ -287,12 +262,8 @@ export const emailRouter = createTRPCRouter({
               updatedAt: new Date(),
             })
             .where(eq(invoices.id, input.invoiceId));
-        } catch (dbError) {
-          console.error("Failed to update invoice status:", dbError);
+        } catch {
           // Don't throw here - email was sent successfully, status update is secondary
-          console.warn(
-            `Invoice ${invoice.invoiceNumber} sent but status not updated`,
-          );
         }
       }
 

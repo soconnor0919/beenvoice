@@ -9,6 +9,14 @@ import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Label } from "~/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/components/ui/dialog";
 import { PageHeader } from "~/components/layout/page-header";
 import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { EmailComposer } from "~/components/forms/email-composer";
@@ -55,6 +63,8 @@ export default function SendEmailPage() {
   const [activeTab, setActiveTab] = useState("compose");
   const [isSending, setIsSending] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   // Email content state
   const [subject, setSubject] = useState("");
@@ -87,10 +97,9 @@ export default function SendEmailPage() {
       void utils.invoices.getById.invalidate({ id: invoiceId });
     },
     onError: (error) => {
-      console.error("Email send error:", error);
-
       let errorMessage = "Failed to send invoice email";
       let errorDescription = error.message;
+      let canRetry = false;
 
       if (error.message.includes("Invalid recipient")) {
         errorMessage = "Invalid Email Address";
@@ -102,14 +111,35 @@ export default function SendEmailPage() {
       } else if (error.message.includes("rate limit")) {
         errorMessage = "Too Many Emails";
         errorDescription = "Please wait a moment before sending another email.";
+        canRetry = true;
       } else if (error.message.includes("no email address")) {
         errorMessage = "No Email Address";
         errorDescription = "This client doesn't have an email address on file.";
+      } else if (
+        error.message.includes("unavailable") ||
+        error.message.includes("timeout")
+      ) {
+        errorMessage = "Service Temporarily Unavailable";
+        errorDescription =
+          "The email service is temporarily unavailable. Please try again.";
+        canRetry = true;
+      } else {
+        canRetry = true; // Allow retry for unknown errors
       }
 
       toast.error(errorMessage, {
-        description: errorDescription,
+        description:
+          canRetry && retryCount < 2
+            ? `${errorDescription} You can retry this operation.`
+            : errorDescription,
         duration: 6000,
+        action:
+          canRetry && retryCount < 2
+            ? {
+                label: "Retry",
+                onClick: () => handleRetry(),
+              }
+            : undefined,
       });
 
       setIsSending(false);
@@ -177,8 +207,12 @@ export default function SendEmailPage() {
       return;
     }
 
-    // Email content is now optional since template handles default messaging
+    // Show confirmation dialog
+    setShowConfirmDialog(true);
+  };
 
+  const confirmSendEmail = async () => {
+    setShowConfirmDialog(false);
     setIsSending(true);
 
     try {
@@ -191,9 +225,16 @@ export default function SendEmailPage() {
         ccEmails: ccEmail.trim() || undefined,
         bccEmails: bccEmail.trim() || undefined,
       });
-    } catch (error) {
+      setRetryCount(0); // Reset retry count on success
+    } catch {
       // Error handling is done in the mutation's onError
-      console.error("Send email error:", error);
+    }
+  };
+
+  const handleRetry = () => {
+    if (retryCount < 2) {
+      setRetryCount((prev) => prev + 1);
+      void confirmSendEmail();
     }
   };
 
@@ -490,7 +531,7 @@ export default function SendEmailPage() {
         <Button
           onClick={handleSendEmail}
           disabled={!canSend || isSending}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-colors duration-200 hover:from-emerald-700 hover:to-teal-700"
           size="sm"
         >
           {isSending ? (
@@ -506,6 +547,52 @@ export default function SendEmailPage() {
           )}
         </Button>
       </FloatingActionBar>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Invoice Email?</DialogTitle>
+            <DialogDescription>
+              This will send invoice #{invoice.invoiceNumber} to{" "}
+              <strong>{invoice.client?.email}</strong>
+              {ccEmail && (
+                <>
+                  {" "}
+                  with CC to <strong>{ccEmail}</strong>
+                </>
+              )}
+              {bccEmail && (
+                <>
+                  {" "}
+                  and BCC to <strong>{bccEmail}</strong>
+                </>
+              )}
+              .
+              {retryCount > 0 && (
+                <div className="mt-2 text-sm text-yellow-600">
+                  Retry attempt {retryCount} of 2
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowConfirmDialog(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmSendEmail}
+              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              Send Email
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

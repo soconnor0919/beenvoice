@@ -61,8 +61,8 @@ export function FloatingActionBar({
       {/* Content container - full width when floating, content width when docked */}
       <div
         className={cn(
-          "w-full transition-all duration-300",
-          isDocked ? "mx-auto  px-4 mb-0" : "px-4 mb-4",
+          "w-full transition-transform duration-300",
+          isDocked ? "mx-auto mb-0 px-4" : "mb-4 px-4",
         )}
       >
         <Card className="card-primary">

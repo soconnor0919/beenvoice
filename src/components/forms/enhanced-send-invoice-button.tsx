@@ -49,8 +49,8 @@ export function EnhancedSendInvoiceButton({
           !hasClientEmail
             ? "Client has no email address"
             : showResend
-              ? "Resend Invoice"
-              : "Send Invoice"
+              ? "Resend Email"
+              : "Compose Email"
         }
       >
         {invoiceLoading ? (
@@ -90,7 +90,7 @@ export function EnhancedSendInvoiceButton({
           ) : (
             <Send className="mr-2 h-4 w-4" />
           )}
-          <span>{showResend ? "Resend Invoice" : "Send Invoice"}</span>
+          <span>{showResend ? "Resend Email" : "Compose Email"}</span>
         </>
       )}
     </Button>

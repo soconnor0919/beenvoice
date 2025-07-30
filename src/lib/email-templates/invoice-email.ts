@@ -43,7 +43,7 @@ export function generateInvoiceEmailTemplate({
   customMessage,
   userName,
   userEmail,
-  baseUrl = "https://beenvoice.app",
+  baseUrl: _baseUrl = "https://beenvoice.app",
 }: InvoiceEmailTemplateProps): { html: string; text: string } {
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat("en-US", {
@@ -173,44 +173,25 @@ export function generateInvoiceEmailTemplate({
             margin: 24px 0;
         }
 
-        .invoice-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+        .invoice-summary {
             margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 16px;
         }
 
         .invoice-number {
             font-size: 24px;
             font-weight: bold;
             color: #16a34a;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
         }
 
         .invoice-date {
             font-size: 14px;
             color: #6b7280;
-        }
-
-        .invoice-amount {
-            text-align: right;
-        }
-
-        .amount-label {
-            font-size: 14px;
-            color: #6b7280;
             margin-bottom: 4px;
         }
 
-        .amount-value {
-            font-size: 28px;
-            font-weight: bold;
-            color: #1f2937;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
-        }
+
 
         .invoice-details {
             border-top: 1px solid #e5e7eb;
@@ -219,11 +200,13 @@ export function generateInvoiceEmailTemplate({
         }
 
         .detail-row {
-            display: table;
+            border-collapse: separate;
+            border-spacing: 0;
             width: 100%;
-            padding: 8px 0;
             border-bottom: 1px solid #f3f4f6;
         }
+
+
 
         .detail-row:last-child {
             border-bottom: none;
@@ -234,21 +217,19 @@ export function generateInvoiceEmailTemplate({
         }
 
         .detail-label {
-            display: table-cell;
             font-size: 14px;
             color: #6b7280;
             text-align: left;
-            width: 50%;
+            padding: 8px 0;
         }
 
         .detail-value {
-            display: table-cell;
             font-size: 14px;
             color: #1f2937;
             font-weight: bold;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             text-align: right;
-            width: 50%;
+            padding: 8px 0;
         }
 
         .business-info {
@@ -349,11 +330,14 @@ export function generateInvoiceEmailTemplate({
             border-top: 1px solid #e5e7eb;
         }
 
-        .footer-logo {
-            max-width: 80px;
-            height: auto;
+        .footer-brand {
+            font-size: 18px;
+            font-weight: bold;
+            color: #16a34a;
             margin: 0 auto 8px;
             display: block;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
         }
 
         .footer-text {
@@ -376,6 +360,12 @@ export function generateInvoiceEmailTemplate({
             border-collapse: collapse;
             mso-table-lspace: 0pt;
             mso-table-rspace: 0pt;
+        }
+
+        /* Gmail specific fixes */
+        .gmail-fix {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
         }
 
         /* Apple Mail attachment preview fix */
@@ -404,15 +394,10 @@ export function generateInvoiceEmailTemplate({
                 text-align: left;
             }
 
-            .detail-row {
-                display: block;
-            }
-
-            .detail-label,
-            .detail-value {
-                display: block;
-                width: 100%;
-                text-align: left;
+            .detail-row td {
+                display: block !important;
+                width: 100% !important;
+                text-align: left !important;
             }
         }
     </style>
@@ -434,39 +419,41 @@ export function generateInvoiceEmailTemplate({
             ${customContent ? `<div class="message custom-content">${customContent}</div>` : ""}
 
             <div class="invoice-card">
-                <div class="invoice-header">
-                    <div>
-                        <div class="invoice-number">#${invoice.invoiceNumber}</div>
-                        <div class="invoice-date">Issue Date: ${formatDate(invoice.issueDate)}</div>
-                        <div class="invoice-date">Due Date: ${formatDate(invoice.dueDate)}</div>
-                    </div>
-                    <div class="invoice-amount">
-                        <div class="amount-label">Total Amount</div>
-                        <div class="amount-value">${formatCurrency(total)}</div>
-                    </div>
+                <div class="invoice-summary">
+                    <div class="invoice-number">#${invoice.invoiceNumber}</div>
+                    <div class="invoice-date">Issue Date: ${formatDate(invoice.issueDate)}</div>
+                    <div class="invoice-date">Due Date: ${formatDate(invoice.dueDate)}</div>
                 </div>
 
                 <div class="invoice-details">
-                    <div class="detail-row">
-                        <span class="detail-label">Client</span>
-                        <span class="detail-value">${invoice.client.name}</span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Subtotal</span>
-                        <span class="detail-value">${formatCurrency(subtotal)}</span>
-                    </div>
+                    <table class="detail-row" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: separate; border-spacing: 0; width: 100%; border-bottom: 1px solid #f3f4f6;">
+                        <tr>
+                            <td class="detail-label" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: left;">Client</td>
+                            <td class="detail-value" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: right;">${invoice.client.name}</td>
+                        </tr>
+                    </table>
+                    <table class="detail-row" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: separate; border-spacing: 0; width: 100%; border-bottom: 1px solid #f3f4f6;">
+                        <tr>
+                            <td class="detail-label" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: left;">Subtotal</td>
+                            <td class="detail-value" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: right;">${formatCurrency(subtotal)}</td>
+                        </tr>
+                    </table>
                     ${
                       invoice.taxRate > 0
-                        ? `<div class="detail-row">
-                            <span class="detail-label">Tax (${invoice.taxRate}%)</span>
-                            <span class="detail-value">${formatCurrency(taxAmount)}</span>
-                           </div>`
+                        ? `<table class="detail-row" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: separate; border-spacing: 0; width: 100%; border-bottom: 1px solid #f3f4f6;">
+                            <tr>
+                                <td class="detail-label" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: left;">Tax (${invoice.taxRate}%)</td>
+                                <td class="detail-value" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: right;">${formatCurrency(taxAmount)}</td>
+                            </tr>
+                           </table>`
                         : ""
                     }
-                    <div class="detail-row">
-                        <span class="detail-label">Total</span>
-                        <span class="detail-value">${formatCurrency(total)}</span>
-                    </div>
+                    <table class="detail-row" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: separate; border-spacing: 0; width: 100%; border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 12px;">
+                        <tr>
+                            <td class="detail-label" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: left; font-weight: bold; font-size: 16px;">Total</td>
+                            <td class="detail-value" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: right; font-weight: bold; font-size: 18px; color: #16a34a;">${formatCurrency(total)}</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
 
@@ -497,7 +484,7 @@ export function generateInvoiceEmailTemplate({
         </div>
 
         <div class="footer">
-            <img src="${baseUrl}/beenvoice-logo.svg" alt="beenvoice" class="footer-logo" />
+            <div class="footer-brand">beenvoice</div>
             ${
               invoice.business
                 ? `<div class="footer-text">

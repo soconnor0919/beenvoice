@@ -65,8 +65,7 @@ const registerFonts = () => {
     }
 
     fontsRegistered = true;
-  } catch (error) {
-    console.warn("Font registration failed, using built-in fonts:", error);
+  } catch {
     fontsRegistered = true; // Don't keep trying
   }
 };
@@ -1076,8 +1075,6 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
     // Download the PDF
     saveAs(blob, filename);
   } catch (error) {
-    console.error("PDF generation error:", error);
-
     // Provide more specific error messages
     if (error instanceof Error) {
       if (error.message.includes("timeout")) {
@@ -1102,8 +1099,6 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
 export async function generateInvoicePDFBlob(
   invoice: InvoiceData,
 ): Promise<Blob> {
-  const isServerSide = typeof window === "undefined";
-
   try {
     // Ensure fonts are registered (important for server-side generation)
     registerFonts();
@@ -1121,10 +1116,6 @@ export async function generateInvoicePDFBlob(
       throw new Error("Client information is required");
     }
 
-    console.log(
-      `Generating PDF blob for invoice ${invoice.invoiceNumber} (${isServerSide ? "server-side" : "client-side"})...`,
-    );
-
     // Generate PDF blob with timeout (same as generateInvoicePDF)
     const pdfPromise = pdf(<InvoicePDF invoice={invoice} />).toBlob();
     const timeoutPromise = new Promise<never>((_, reject) =>
@@ -1137,17 +1128,8 @@ export async function generateInvoicePDFBlob(
     if (!blob || blob.size === 0) {
       throw new Error("Generated PDF is empty");
     }
-
-    console.log(
-      `PDF blob generated successfully, size: ${blob.size} bytes (${isServerSide ? "server-side" : "client-side"})`,
-    );
     return blob;
   } catch (error) {
-    console.error(
-      `PDF generation error for email attachment (${isServerSide ? "server-side" : "client-side"}):`,
-      error,
-    );
-
     // Provide more specific error messages (same as generateInvoicePDF)
     if (error instanceof Error) {
       if (error.message.includes("timeout")) {
