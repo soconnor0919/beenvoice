@@ -25,6 +25,7 @@ import { InvoiceLineItems } from "./invoice-line-items";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { FileText, DollarSign, Check, Save, Clock, Trash2 } from "lucide-react";
+import { cn } from "~/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -62,7 +63,7 @@ interface FormData {
   status: "draft" | "sent" | "paid";
   notes: string;
   taxRate: number;
-  defaultHourlyRate: number;
+  defaultHourlyRate: number | null;
   items: InvoiceItem[];
 }
 
@@ -100,15 +101,15 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     status: "draft",
     notes: "",
     taxRate: 0,
-    defaultHourlyRate: 25,
+    defaultHourlyRate: null,
     items: [
       {
         id: crypto.randomUUID(),
         date: new Date(),
         description: "",
         hours: 1,
-        rate: 25,
-        amount: 25,
+        rate: 0,
+        amount: 0,
       },
     ],
   });
@@ -160,7 +161,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: existingInvoice.status as "draft" | "sent" | "paid",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
-        defaultHourlyRate: 25,
+        defaultHourlyRate: null,
         items:
           existingInvoice.items?.map((item) => ({
             id: crypto.randomUUID(),
@@ -194,18 +195,18 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     initialized,
   ]);
 
-  // Update default hourly rate when client changes (only during initialization)
+  // Update default hourly rate when client changes
   useEffect(() => {
-    if (!initialized || !formData.clientId || !clients) return;
+    if (!formData.clientId || !clients) return;
 
     const selectedClient = clients.find((c) => c.id === formData.clientId);
-    if (selectedClient?.defaultHourlyRate) {
+    if (selectedClient?.defaultHourlyRate != null) {
       setFormData((prev) => ({
         ...prev,
         defaultHourlyRate: selectedClient.defaultHourlyRate,
       }));
     }
-  }, [formData.clientId, clients, initialized]);
+  }, [formData.clientId, clients]);
 
   // Calculate totals
   const totals = React.useMemo(() => {
@@ -229,8 +230,8 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           date: new Date(),
           description: "",
           hours: 1,
-          rate: prev.defaultHourlyRate,
-          amount: prev.defaultHourlyRate,
+          rate: prev.defaultHourlyRate ?? 0,
+          amount: prev.defaultHourlyRate ?? 0,
         },
       ],
     }));
@@ -623,18 +624,62 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="defaultHourlyRate">
-                            Default Hourly Rate
+                            Default Hourly Rate for New Items
                           </Label>
-                          <NumberInput
-                            value={formData.defaultHourlyRate}
-                            onChange={(value) =>
-                              updateField("defaultHourlyRate", value)
-                            }
-                            min={0}
-                            step={1}
-                            prefix="$"
-                            width="full"
-                          />
+                          <p
+                            className={cn(
+                              "mb-2 text-xs",
+                              formData.clientId &&
+                                clients?.find((c) => c.id === formData.clientId)
+                                  ?.defaultHourlyRate
+                                ? "text-green-600"
+                                : "text-muted-foreground",
+                            )}
+                          >
+                            {formData.clientId &&
+                            clients?.find((c) => c.id === formData.clientId)
+                              ?.defaultHourlyRate
+                              ? `✓ Inherited from ${clients.find((c) => c.id === formData.clientId)?.name}: $${clients.find((c) => c.id === formData.clientId)?.defaultHourlyRate}/hour`
+                              : formData.clientId
+                                ? "Client has no default rate set - enter rate manually"
+                                : "Select a client first, or enter rate manually"}
+                          </p>
+                          <div className="relative">
+                            <NumberInput
+                              value={formData.defaultHourlyRate ?? 0}
+                              onChange={(value) =>
+                                updateField("defaultHourlyRate", value)
+                              }
+                              min={0}
+                              step={1}
+                              prefix="$"
+                              width="full"
+                              className={cn(
+                                formData.clientId &&
+                                  clients?.find(
+                                    (c) => c.id === formData.clientId,
+                                  )?.defaultHourlyRate
+                                  ? "border-green-200 bg-green-50/50"
+                                  : "",
+                              )}
+                              placeholder={
+                                formData.clientId &&
+                                clients?.find((c) => c.id === formData.clientId)
+                                  ?.defaultHourlyRate
+                                  ? "Inherited from client"
+                                  : "Enter hourly rate"
+                              }
+                            />
+                            {formData.clientId &&
+                              clients?.find((c) => c.id === formData.clientId)
+                                ?.defaultHourlyRate && (
+                                <div className="absolute top-1/2 right-3 -translate-y-1/2">
+                                  <span className="text-xs text-green-600">
+                                    ✓
+                                  </span>
+                                </div>
+                              )}
+                          </div>
                         </div>
                       </div>
 

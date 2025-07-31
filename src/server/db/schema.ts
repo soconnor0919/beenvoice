@@ -108,7 +108,7 @@ export const clients = createTable(
     state: d.varchar({ length: 50 }),
     postalCode: d.varchar({ length: 20 }),
     country: d.varchar({ length: 100 }),
-    defaultHourlyRate: d.real().notNull().default(100.0),
+    defaultHourlyRate: d.real(),
     createdById: d
       .varchar({ length: 255 })
       .notNull()

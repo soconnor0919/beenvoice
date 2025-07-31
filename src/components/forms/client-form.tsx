@@ -44,7 +44,7 @@ interface FormData {
   state: string;
   postalCode: string;
   country: string;
-  defaultHourlyRate: number;
+  defaultHourlyRate: number | null;
 }
 
 interface FormErrors {
@@ -69,7 +69,7 @@ const initialFormData: FormData = {
   state: "",
   postalCode: "",
   country: "United States",
-  defaultHourlyRate: 100,
+  defaultHourlyRate: null,
 };
 
 export function ClientForm({ clientId, mode }: ClientFormProps) {
@@ -119,12 +119,12 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         state: client.state ?? "",
         postalCode: client.postalCode ?? "",
         country: client.country ?? "United States",
-        defaultHourlyRate: client.defaultHourlyRate ?? 100,
+        defaultHourlyRate: client.defaultHourlyRate ?? null,
       });
     }
   }, [client, mode]);
 
-  const handleInputChange = (field: string, value: string | number) => {
+  const handleInputChange = (field: string, value: string | number | null) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setIsDirty(true);
 
@@ -195,12 +195,17 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
     setIsSubmitting(true);
 
     try {
+      const apiData = {
+        ...formData,
+        defaultHourlyRate: formData.defaultHourlyRate ?? undefined,
+      };
+
       if (mode === "create") {
-        await createClient.mutateAsync(formData);
+        await createClient.mutateAsync(apiData);
       } else {
         await updateClient.mutateAsync({
           id: clientId!,
-          ...formData,
+          ...apiData,
         });
       }
     } finally {
@@ -290,7 +295,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center">
                     <UserPlus className="text-primary h-5 w-5" />
                   </div>
                   <div>
@@ -371,7 +376,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center">
                     <svg
                       className="text-primary h-5 w-5"
                       fill="none"
@@ -419,7 +424,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center">
                     <DollarSign className="text-primary h-5 w-5" />
                   </div>
                   <div>
@@ -436,18 +441,26 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                     htmlFor="defaultHourlyRate"
                     className="text-sm font-medium"
                   >
-                    Default Hourly Rate
+                    Default Hourly Rate (Optional)
                   </Label>
+                  <p className="text-muted-foreground mb-2 text-xs">
+                    This rate will be used as the default when creating new
+                    invoice items for this client.
+                  </p>
                   <NumberInput
-                    value={formData.defaultHourlyRate}
+                    value={formData.defaultHourlyRate ?? 0}
                     onChange={(value) =>
-                      handleInputChange("defaultHourlyRate", value)
+                      handleInputChange(
+                        "defaultHourlyRate",
+                        value === 0 ? null : value,
+                      )
                     }
                     min={0}
                     step={1}
                     prefix="$"
                     width="full"
                     disabled={isSubmitting}
+                    placeholder="0.00"
                   />
                   {errors.defaultHourlyRate && (
                     <p className="text-destructive text-sm">
@@ -464,7 +477,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="bg-primary/10  p-2">
+            <div className="bg-primary/10 p-2">
               <FileText className="text-primary h-5 w-5" />
             </div>
             <div>

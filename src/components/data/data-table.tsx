@@ -251,9 +251,15 @@ export function DataTable<TData, TValue>({
                     </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All {column.title}</SelectItem>
+                    <SelectItem value="all" className="gap-0">
+                      All {column.title}
+                    </SelectItem>
                     {column.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}
+                        className="gap-0"
+                      >
                         {option.label}
                       </SelectItem>
                     ))}

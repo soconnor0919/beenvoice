@@ -42,7 +42,7 @@ const createClientSchema = z.object({
     .max(100, "Country name is too long")
     .optional()
     .or(z.literal("")),
-  defaultHourlyRate: z.number().min(0, "Rate must be positive").default(100),
+  defaultHourlyRate: z.number().min(0, "Rate must be positive").optional(),
 });
 
 const updateClientSchema = createClientSchema.partial().extend({
