@@ -3,7 +3,7 @@
 import { DollarSign, Edit, Loader2, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { notFound, useParams, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { StatusBadge, type StatusType } from "~/components/data/status-badge";
 import { PageHeader } from "~/components/layout/page-header";
@@ -505,7 +505,24 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
 
 export default function InvoiceViewPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
+
+  // Handle /invoices/new route - redirect to dedicated new page
+  useEffect(() => {
+    if (id === "new") {
+      router.replace("/dashboard/invoices/new");
+    }
+  }, [id, router]);
+
+  // Don't render anything if we're redirecting
+  if (id === "new") {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
 
   return <InvoiceViewContent invoiceId={id} />;
 }

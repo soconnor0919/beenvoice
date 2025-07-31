@@ -27,10 +27,10 @@ export function generatePasswordResetEmailTemplate({
   <title>Password Reset - beenvoice</title>
   <style>
     body {
-      font-family: 'Geist Mono', ui-monospace, 'Courier New', monospace;
+      font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
       line-height: 1.6;
       color: #0f0f0f;
-      background-color: #fafafa;
+      background-color: #f9fafb;
       margin: 0;
       padding: 0;
     }
@@ -38,24 +38,20 @@ export function generatePasswordResetEmailTemplate({
       max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
-      border: 1px solid #e5e5e5;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
     }
     .header {
-      background-color: #f5f5f5;
+      background-color: #0f0f0f;
       padding: 32px 32px 24px;
-      border-bottom: 1px solid #e5e5e5;
+      border-bottom: 1px solid #e5e7eb;
     }
     .logo {
       font-size: 24px;
       font-weight: 700;
-      color: #0f0f0f;
+      color: #ffffff;
       margin: 0;
-    }
-    .logo .dollar {
-      color: #16a34a;
-    }
-    .logo .voice {
-      opacity: 0.7;
+      letter-spacing: 0.5px;
     }
     .content {
       padding: 32px;
@@ -77,23 +73,26 @@ export function generatePasswordResetEmailTemplate({
     }
     .button {
       display: inline-block;
-      background-color: #16a34a;
+      background-color: #374151;
       color: #ffffff;
       padding: 12px 24px;
       text-decoration: none;
       font-weight: 500;
       font-size: 14px;
-      border: none;
+      border: 1px solid #374151;
+      border-radius: 0;
       transition: background-color 0.2s;
     }
     .button:hover {
-      background-color: #15803d;
+      background-color: #1f2937;
+      border-color: #1f2937;
     }
     .security-notice {
-      background-color: #f5f5f5;
-      border-left: 4px solid #16a34a;
+      background-color: #f9fafb;
+      border-left: 4px solid #374151;
       padding: 16px;
       margin: 24px 0;
+      border-radius: 0;
     }
     .security-notice h4 {
       margin: 0 0 8px 0;
@@ -107,14 +106,14 @@ export function generatePasswordResetEmailTemplate({
       color: #525252;
     }
     .footer {
-      background-color: #f5f5f5;
+      background-color: #f9fafb;
       padding: 24px 32px;
-      border-top: 1px solid #e5e5e5;
+      border-top: 1px solid #e5e7eb;
       font-size: 12px;
-      color: #737373;
+      color: #6b7280;
     }
     .footer a {
-      color: #16a34a;
+      color: #374151;
       text-decoration: none;
     }
     .footer a:hover {
@@ -122,7 +121,7 @@ export function generatePasswordResetEmailTemplate({
     }
     .divider {
       height: 1px;
-      background-color: #e5e5e5;
+      background-color: #e5e7eb;
       margin: 24px 0;
     }
     @media (max-width: 600px) {
@@ -140,7 +139,7 @@ export function generatePasswordResetEmailTemplate({
   <div class="container">
     <div class="header">
       <h1 class="logo">
-        <span class="dollar">$</span> been<span class="voice">voice</span>
+        beenvoice
       </h1>
     </div>
 
@@ -161,7 +160,7 @@ export function generatePasswordResetEmailTemplate({
       <p class="text">
         If the button doesn't work, copy and paste this link into your browser:
         <br>
-        <a href="${resetUrl}" style="color: #16a34a; word-break: break-all;">${resetUrl}</a>
+        <a href="${resetUrl}" style="color: #374151; word-break: break-all;">${resetUrl}</a>
       </p>
 
       <div class="security-notice">

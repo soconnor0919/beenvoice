@@ -106,9 +106,9 @@ export function generateInvoiceEmailTemplate({
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
             line-height: 1.6;
-            color: #1f2937;
+            color: #0f0f0f;
             background-color: #f9fafb;
             -webkit-text-size-adjust: 100%;
             -ms-text-size-adjust: 100%;
@@ -118,14 +118,14 @@ export function generateInvoiceEmailTemplate({
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .header {
-            background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+            background: #0f0f0f;
             padding: 32px 24px;
             text-align: center;
             color: white;
@@ -135,15 +135,15 @@ export function generateInvoiceEmailTemplate({
             font-size: 28px;
             font-weight: bold;
             margin-bottom: 8px;
-            letter-spacing: -0.5px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            letter-spacing: 0.5px;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .header-subtitle {
             font-size: 16px;
-            opacity: 0.9;
+            opacity: 0.8;
             font-weight: normal;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .content {
@@ -154,21 +154,21 @@ export function generateInvoiceEmailTemplate({
             font-size: 16px;
             font-weight: bold;
             margin-bottom: 24px;
-            color: #374151;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            color: #0f0f0f;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .message {
             font-size: 15px;
             line-height: 1.7;
             margin-bottom: 32px;
-            color: #4b5563;
+            color: #374151;
         }
 
         .invoice-card {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0;
             padding: 16px;
             margin: 24px 0;
         }
@@ -180,9 +180,9 @@ export function generateInvoiceEmailTemplate({
         .invoice-number {
             font-size: 24px;
             font-weight: bold;
-            color: #16a34a;
+            color: #0f0f0f;
             margin-bottom: 8px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .invoice-date {
@@ -243,9 +243,9 @@ export function generateInvoiceEmailTemplate({
         .business-name {
             font-size: 16px;
             font-weight: bold;
-            color: #1f2937;
+            color: #0f0f0f;
             margin-bottom: 8px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .business-details {
@@ -268,8 +268,8 @@ export function generateInvoiceEmailTemplate({
             text-align: center;
             margin: 32px 0;
             padding: 24px;
-            background-color: #f8fafc;
-            border-radius: 8px;
+            background-color: #f9fafb;
+            border-radius: 0;
         }
 
         .cta-text {
@@ -279,9 +279,9 @@ export function generateInvoiceEmailTemplate({
         }
 
         .attachment-notice {
-            background-color: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            border-radius: 8px;
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 0;
             padding: 16px;
             margin: 20px 0;
             display: flex;
@@ -292,16 +292,16 @@ export function generateInvoiceEmailTemplate({
         .attachment-icon {
             width: 20px;
             height: 20px;
-            background-color: #16a34a;
-            border-radius: 50%;
+            background-color: #374151;
+            border-radius: 0;
             flex-shrink: 0;
         }
 
         .attachment-text {
             font-size: 14px;
-            color: #166534;
+            color: #374151;
             font-weight: bold;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .signature {
@@ -313,9 +313,9 @@ export function generateInvoiceEmailTemplate({
         .signature-name {
             font-size: 16px;
             font-weight: bold;
-            color: #1f2937;
+            color: #0f0f0f;
             margin-bottom: 4px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         .signature-email {
@@ -333,18 +333,19 @@ export function generateInvoiceEmailTemplate({
         .footer-brand {
             font-size: 18px;
             font-weight: bold;
-            color: #16a34a;
+            color: #0f0f0f;
             margin: 0 auto 8px;
             display: block;
             text-align: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
+            letter-spacing: 0.5px;
         }
 
         .footer-text {
             font-size: 12px;
-            color: #9ca3af;
+            color: #6b7280;
             line-height: 1.5;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            font-family: ui-monospace, 'Geist Mono', 'Courier New', monospace;
         }
 
         /* Email client specific fixes */
@@ -370,8 +371,8 @@ export function generateInvoiceEmailTemplate({
 
         /* Apple Mail attachment preview fix */
         .attachment-notice {
-            border: 2px dashed #bbf7d0 !important;
-            background-color: #f0fdf4 !important;
+            border: 1px solid #e5e7eb !important;
+            background-color: #f9fafb !important;
         }
 
         @media (max-width: 600px) {
@@ -414,7 +415,7 @@ export function generateInvoiceEmailTemplate({
                 <div class="greeting">${getTimeOfDayGreeting()},</div>
                 <p>I hope this email finds you well. Please find attached invoice <strong>#${invoice.invoiceNumber}</strong>
                 for the services provided. The invoice details are summarized below for your reference.</p>
-                ${customMessage ? `<div style="margin: 16px 0; padding: 16px; background-color: #f0fdf4; border-left: 4px solid #16a34a; border-radius: 4px;">${customMessage}</div>` : ""}
+                ${customMessage ? `<div style="margin: 16px 0; padding: 16px; background-color: #f9fafb; border-left: 4px solid #374151; border-radius: 0;">${customMessage}</div>` : ""}
             </div>
             ${customContent ? `<div class="message custom-content">${customContent}</div>` : ""}
 
@@ -451,7 +452,7 @@ export function generateInvoiceEmailTemplate({
                     <table class="detail-row" cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse: separate; border-spacing: 0; width: 100%; border-top: 2px solid #e5e7eb; margin-top: 8px; padding-top: 12px;">
                         <tr>
                             <td class="detail-label" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: left; font-weight: bold; font-size: 16px;">Total</td>
-                            <td class="detail-value" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: right; font-weight: bold; font-size: 18px; color: #16a34a;">${formatCurrency(total)}</td>
+                            <td class="detail-value" style="width: 50%; vertical-align: top; padding: 8px 0; text-align: right; font-weight: bold; font-size: 18px; color: #0f0f0f;">${formatCurrency(total)}</td>
                         </tr>
                     </table>
                 </div>
