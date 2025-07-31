@@ -671,7 +671,7 @@
 
   /* Additional Brand Utility Classes */
   .btn-brand-primary {
-    @apply bg-gradient-to-r from-teal-500 to-teal-700 text-white shadow-lg shadow-teal-500/25 transition-all duration-300 hover:from-teal-600 hover:to-teal-800 hover:shadow-xl hover:shadow-teal-500/30;
+    @apply bg-gradient-to-r from-teal-500 to-teal-700 text-white shadow-lg shadow-teal-500/25 transition-colors duration-300 hover:from-teal-600 hover:to-teal-800;
   }
 
   .btn-brand-secondary {

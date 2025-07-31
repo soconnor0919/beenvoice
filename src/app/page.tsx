@@ -87,7 +87,7 @@ export default function HomePage() {
               <Link href="/auth/register">
                 <Button
                   size="lg"
-                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold shadow-xl transition-all duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold shadow-xl transition-colors duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                 >
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5" />
@@ -381,7 +381,7 @@ export default function HomePage() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold shadow-xl transition-all duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
+                  className="btn-brand-secondary group w-full px-6 py-3 text-base font-semibold shadow-xl transition-colors duration-300 sm:w-auto sm:px-8 sm:py-4 sm:text-lg"
                 >
                   Start Free Today
                   <Rocket className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1 sm:h-5 sm:w-5" />

@@ -623,7 +623,7 @@ function calculateItemsForPage(
 
   if (isFirstPage) {
     // Dense header takes significant space
-    availableHeight -= 200; // Dense header space
+    availableHeight -= 300; // Dense header space
   } else {
     // Abridged header is smaller
     availableHeight -= 60; // Abridged header space
@@ -675,7 +675,7 @@ function calculateItemsPerPage(
 
   if (isFirstPage) {
     // Dense header takes significant space
-    availableHeight -= 200; // Dense header space
+    availableHeight -= 300; // Dense header space
   } else {
     // Abridged header is smaller
     availableHeight -= 60; // Abridged header space
@@ -717,35 +717,34 @@ function paginateItems(
     const isFirstPage = pageIndex === 0;
     const remainingItems = validItems.length - currentIndex;
 
-    // Check if this is the last page to determine if we need space for notes
-    const couldBeLastPage =
-      currentIndex + calculateItemsPerPage(isFirstPage, false) >=
-      validItems.length;
+    // Determine if this could be the last page with simple calculation
+    const maxPossibleItems = calculateItemsPerPage(isFirstPage, false);
+    const wouldBeLastPage =
+      currentIndex + maxPossibleItems >= validItems.length;
 
-    // Calculate items per page using dynamic calculation
+    // Calculate items per page, accounting for notes space if this is likely the last page
     let itemsPerPage = calculateItemsForPage(
       validItems,
       currentIndex,
       isFirstPage,
-      couldBeLastPage && hasNotes,
+      wouldBeLastPage && hasNotes,
     );
 
-    // Fallback to old method if dynamic calculation fails
+    // Fallback to conservative calculation if dynamic fails
     if (itemsPerPage === 0) {
       itemsPerPage = calculateItemsPerPage(
         isFirstPage,
-        couldBeLastPage && hasNotes,
+        wouldBeLastPage && hasNotes,
       );
     }
 
-    // Check if this would create orphans (< 3 items on next page)
-    if (remainingItems > itemsPerPage && remainingItems - itemsPerPage < 3) {
-      // Try to fit a few more items or split more evenly
-      const potentialItemsPerPage = Math.floor(remainingItems / 2);
-      if (potentialItemsPerPage > 0) {
-        itemsPerPage = potentialItemsPerPage;
-      }
+    // Ensure we don't have tiny orphan pages
+    if (remainingItems > itemsPerPage && remainingItems - itemsPerPage < 2) {
+      itemsPerPage = Math.max(1, itemsPerPage - 1);
     }
+
+    // Never take more items than we have
+    itemsPerPage = Math.min(itemsPerPage, remainingItems);
 
     const pageItems = validItems.slice(
       currentIndex,
