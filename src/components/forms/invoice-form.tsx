@@ -195,6 +195,27 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     initialized,
   ]);
 
+  // Update the first line item when defaultHourlyRate changes (if it hasn't been manually edited)
+  useEffect(() => {
+    if (
+      formData.items.length === 1 &&
+      formData.items[0]?.description === "" &&
+      formData.items[0]?.hours === 1
+    ) {
+      const newRate = formData.defaultHourlyRate ?? 0;
+      setFormData((prev) => ({
+        ...prev,
+        items: [
+          {
+            ...prev.items[0]!,
+            rate: newRate,
+            amount: newRate,
+          },
+        ],
+      }));
+    }
+  }, [formData.defaultHourlyRate]);
+
   // Update default hourly rate when client changes
   useEffect(() => {
     if (!formData.clientId || !clients) return;
@@ -626,60 +647,26 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           <Label htmlFor="defaultHourlyRate">
                             Default Hourly Rate for New Items
                           </Label>
-                          <p
+                          <NumberInput
+                            value={formData.defaultHourlyRate ?? 0}
+                            onChange={(value) =>
+                              updateField("defaultHourlyRate", value)
+                            }
+                            min={0}
+                            step={1}
+                            prefix="$"
+                            width="full"
+                            disabled={!formData.clientId}
                             className={cn(
-                              "mb-2 text-xs",
-                              formData.clientId &&
-                                clients?.find((c) => c.id === formData.clientId)
-                                  ?.defaultHourlyRate
-                                ? "text-green-600"
-                                : "text-muted-foreground",
+                              !formData.clientId &&
+                                "cursor-not-allowed opacity-50",
                             )}
-                          >
-                            {formData.clientId &&
-                            clients?.find((c) => c.id === formData.clientId)
-                              ?.defaultHourlyRate
-                              ? `✓ Inherited from ${clients.find((c) => c.id === formData.clientId)?.name}: $${clients.find((c) => c.id === formData.clientId)?.defaultHourlyRate}/hour`
-                              : formData.clientId
-                                ? "Client has no default rate set - enter rate manually"
-                                : "Select a client first, or enter rate manually"}
-                          </p>
-                          <div className="relative">
-                            <NumberInput
-                              value={formData.defaultHourlyRate ?? 0}
-                              onChange={(value) =>
-                                updateField("defaultHourlyRate", value)
-                              }
-                              min={0}
-                              step={1}
-                              prefix="$"
-                              width="full"
-                              className={cn(
-                                formData.clientId &&
-                                  clients?.find(
-                                    (c) => c.id === formData.clientId,
-                                  )?.defaultHourlyRate
-                                  ? "border-green-200 bg-green-50/50"
-                                  : "",
-                              )}
-                              placeholder={
-                                formData.clientId &&
-                                clients?.find((c) => c.id === formData.clientId)
-                                  ?.defaultHourlyRate
-                                  ? "Inherited from client"
-                                  : "Enter hourly rate"
-                              }
-                            />
-                            {formData.clientId &&
-                              clients?.find((c) => c.id === formData.clientId)
-                                ?.defaultHourlyRate && (
-                                <div className="absolute top-1/2 right-3 -translate-y-1/2">
-                                  <span className="text-xs text-green-600">
-                                    ✓
-                                  </span>
-                                </div>
-                              )}
-                          </div>
+                            placeholder={
+                              !formData.clientId
+                                ? "Select client first"
+                                : "Enter hourly rate"
+                            }
+                          />
                         </div>
                       </div>
 
