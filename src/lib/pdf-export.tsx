@@ -4,74 +4,10 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
-  Image,
   pdf,
 } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import React from "react";
-
-// Global font registration state
-let fontsRegistered = false;
-
-// Font registration helper that works in both client and server environments
-const registerFonts = () => {
-  try {
-    // Avoid duplicate registration
-    if (fontsRegistered) {
-      return;
-    }
-
-    // Only register custom fonts on client side for now
-    // Server-side will use fallback fonts to avoid path/loading issues
-    if (typeof window !== "undefined") {
-      // Register Inter font
-      Font.register({
-        family: "Inter",
-        src: "/fonts/inter/Inter-Variable.ttf",
-        fontWeight: "normal",
-      });
-
-      Font.register({
-        family: "Inter",
-        src: "/fonts/inter/Inter-Italic-Variable.ttf",
-        fontStyle: "italic",
-      });
-
-      // Register Azeret Mono fonts for numbers and tables - multiple weights
-      Font.register({
-        family: "AzeretMono",
-        src: "/fonts/azeret/AzeretMono-Regular.ttf",
-        fontWeight: "normal",
-      });
-
-      Font.register({
-        family: "AzeretMono",
-        src: "/fonts/azeret/AzeretMono-Regular.ttf",
-        fontWeight: "semibold",
-      });
-
-      Font.register({
-        family: "AzeretMono",
-        src: "/fonts/azeret/AzeretMono-Regular.ttf",
-        fontWeight: "bold",
-      });
-
-      Font.register({
-        family: "AzeretMono",
-        src: "/fonts/azeret/AzeretMono-Italic-Variable.ttf",
-        fontStyle: "italic",
-      });
-    }
-
-    fontsRegistered = true;
-  } catch {
-    fontsRegistered = true; // Don't keep trying
-  }
-};
-
-// Register fonts immediately
-registerFonts();
 
 interface InvoiceData {
   invoiceNumber: string;
@@ -128,7 +64,7 @@ const styles = StyleSheet.create({
   // Dense header (first page)
   denseHeader: {
     marginBottom: 30,
-    borderBottom: "2px solid #10b981",
+    borderBottom: "1px solid #e5e7eb",
     paddingBottom: 20,
   },
 
@@ -147,7 +83,7 @@ const styles = StyleSheet.create({
   businessName: {
     fontFamily: "Helvetica-Bold",
     fontSize: 18,
-    color: "#111827",
+    color: "#0f0f0f",
     marginBottom: 4,
   },
 
@@ -155,12 +91,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#6b7280",
-    lineHeight: 1.3,
+    lineHeight: 1.4,
     marginBottom: 3,
   },
 
   businessAddress: {
-    fontSize: 11,
+    fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
     marginTop: 4,
@@ -172,36 +109,35 @@ const styles = StyleSheet.create({
   },
 
   invoiceTitle: {
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: "Helvetica-Bold",
-    color: "#10b981",
+    color: "#0f0f0f",
     marginBottom: 8,
   },
 
   invoiceNumber: {
-    fontSize: 15,
-    fontFamily: "Courier-Bold",
-    color: "#111827",
+    fontSize: 14,
+    fontFamily: "Helvetica-Bold",
+    color: "#374151",
     marginBottom: 4,
   },
 
   statusBadge: {
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 4,
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
     textAlign: "center",
   },
 
   statusPaid: {
-    backgroundColor: "#ecfdf5",
-    color: "#065f46",
+    backgroundColor: "#f9fafb",
+    color: "#374151",
   },
 
   statusUnpaid: {
-    backgroundColor: "#fef3c7",
-    color: "#92400e",
+    backgroundColor: "#f9fafb",
+    color: "#6b7280",
   },
 
   // Details section (first page only)
@@ -217,16 +153,16 @@ const styles = StyleSheet.create({
   },
 
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "Helvetica-Bold",
-    color: "#111827",
+    color: "#0f0f0f",
     marginBottom: 12,
   },
 
   clientName: {
     fontFamily: "Helvetica-Bold",
-    fontSize: 14,
-    color: "#111827",
+    fontSize: 12,
+    color: "#0f0f0f",
     marginBottom: 2,
   },
 
@@ -234,12 +170,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontFamily: "Helvetica",
     color: "#6b7280",
-    lineHeight: 1.3,
+    lineHeight: 1.4,
     marginBottom: 2,
   },
 
   clientAddress: {
-    fontSize: 11,
+    fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
     marginTop: 4,
@@ -253,14 +190,15 @@ const styles = StyleSheet.create({
 
   detailLabel: {
     fontSize: 11,
+    fontFamily: "Helvetica",
     color: "#6b7280",
     flex: 1,
   },
 
   detailValue: {
     fontSize: 10,
-    fontFamily: "Courier-Bold",
-    color: "#111827",
+    fontFamily: "Helvetica-Bold",
+    color: "#0f0f0f",
     flex: 1,
     textAlign: "right",
   },
@@ -269,16 +207,14 @@ const styles = StyleSheet.create({
   notesSection: {
     marginTop: 0,
     marginBottom: 0,
-    padding: 15,
+    padding: 12,
     backgroundColor: "#f9fafb",
-    borderRadius: 4,
-    border: "1px solid #e5e7eb",
   },
 
   notesTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Helvetica-Bold",
-    color: "#111827",
+    color: "#0f0f0f",
     marginBottom: 6,
   },
 
@@ -293,7 +229,7 @@ const styles = StyleSheet.create({
     fontSize: 9,
     fontFamily: "Helvetica",
     color: "#6b7280",
-    lineHeight: 1.2,
+    lineHeight: 1.4,
   },
 
   // Separator styles
@@ -309,32 +245,32 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
-    paddingBottom: 15,
+    paddingBottom: 12,
     borderBottom: "1px solid #e5e7eb",
   },
 
   abridgedBusinessName: {
     fontSize: 12,
     fontFamily: "Helvetica-Bold",
-    color: "#111827",
+    color: "#0f0f0f",
   },
 
   abridgedInvoiceInfo: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 15,
+    gap: 12,
   },
 
   abridgedInvoiceTitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Helvetica-Bold",
-    color: "#10b981",
+    color: "#0f0f0f",
   },
 
   abridgedInvoiceNumber: {
-    fontSize: 13,
-    fontFamily: "Courier-Bold",
-    color: "#111827",
+    fontSize: 12,
+    fontFamily: "Helvetica-Bold",
+    color: "#374151",
   },
 
   // Table styles
@@ -345,16 +281,16 @@ const styles = StyleSheet.create({
 
   tableHeader: {
     flexDirection: "row",
-    backgroundColor: "#f3f4f6",
-    borderBottom: "2px solid #10b981",
+    backgroundColor: "#f9fafb",
+    borderBottom: "1px solid #e5e7eb",
     paddingVertical: 8,
     paddingHorizontal: 4,
   },
 
   tableHeaderCell: {
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: "Helvetica-Bold",
-    color: "#111827",
+    color: "#374151",
     paddingHorizontal: 4,
   },
 
@@ -395,9 +331,10 @@ const styles = StyleSheet.create({
 
   tableCell: {
     fontSize: 10,
-    color: "#111827",
+    color: "#0f0f0f",
     paddingHorizontal: 4,
     paddingVertical: 2,
+    fontFamily: "Helvetica",
   },
 
   tableCellDate: {
@@ -413,6 +350,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     textAlign: "left",
     flexWrap: "wrap",
+    fontFamily: "Helvetica",
   },
 
   tableCellHours: {
@@ -454,10 +392,8 @@ const styles = StyleSheet.create({
 
   totalsBox: {
     width: "100%",
-    padding: 10,
+    padding: 12,
     backgroundColor: "#f9fafb",
-    border: "1px solid #e5e7eb",
-    borderRadius: 4,
   },
 
   totalRow: {
@@ -468,43 +404,42 @@ const styles = StyleSheet.create({
   },
 
   totalLabel: {
-    fontSize: 12,
-    color: "#475569",
+    fontSize: 11,
+    color: "#6b7280",
     fontFamily: "Helvetica",
   },
 
   totalAmount: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: "Courier-Bold",
-    color: "#1e293b",
+    color: "#0f0f0f",
   },
 
   finalTotalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 6,
-    paddingTop: 6,
+    marginTop: 8,
+    paddingTop: 8,
   },
 
   finalTotalLabel: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: "Helvetica-Bold",
-    color: "#1f2937",
+    color: "#0f0f0f",
   },
 
   finalTotalAmount: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: "Courier-Bold",
-    color: "#10b981",
+    color: "#0f0f0f",
   },
 
   itemCount: {
     fontSize: 9,
     fontFamily: "Helvetica",
-    color: "#64748b",
+    color: "#9ca3af",
     textAlign: "center",
     marginTop: 6,
-    fontStyle: "italic",
   },
 
   // Footer
@@ -516,18 +451,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingTop: 15,
+    paddingTop: 12,
     borderTop: "1px solid #e5e7eb",
   },
 
   footerLogo: {
     flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+    alignItems: "baseline",
+    gap: 4,
   },
 
   pageNumber: {
     fontSize: 10,
+    fontFamily: "Helvetica",
     color: "#6b7280",
   },
 });
@@ -561,9 +497,21 @@ const getStatusLabel = (status: string) => {
 };
 
 const getStatusStyle = (status: string) => {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case "paid":
       return [styles.statusBadge, styles.statusPaid];
+    case "sent":
+      return [styles.statusBadge, styles.statusPaid];
+    case "overdue":
+      return [
+        styles.statusBadge,
+        { backgroundColor: "#fef2f2", color: "#dc2626" },
+      ];
+    case "draft":
+      return [
+        styles.statusBadge,
+        { backgroundColor: "#f9fafb", color: "#9ca3af" },
+      ];
     default:
       return [styles.statusBadge, styles.statusUnpaid];
   }
@@ -914,13 +862,25 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 const Footer: React.FC = () => (
   <View style={styles.footer} fixed>
     <View style={styles.footerLogo}>
-      {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <Image
-        src="/beenvoice-logo.png"
+      <Text
         style={{
-          height: 24,
+          fontSize: 12,
+          fontFamily: "Helvetica-Bold",
+          color: "#0f0f0f",
         }}
-      />
+      >
+        beenvoice
+      </Text>
+      <Text
+        style={{
+          fontSize: 9,
+          fontFamily: "Helvetica",
+          color: "#6b7280",
+          marginLeft: 8,
+        }}
+      >
+        Professional Invoicing
+      </Text>
     </View>
     <Text
       style={styles.pageNumber}
@@ -944,13 +904,12 @@ const TotalsSection: React.FC<{
       <View style={styles.totalsBox}>
         <Text
           style={{
-            fontSize: 12,
+            fontSize: 11,
             fontFamily: "Helvetica-Bold",
-            color: "#334155",
+            color: "#0f0f0f",
             textAlign: "center",
-            marginBottom: 6,
-            paddingBottom: 4,
-            borderBottom: "1px solid #e2e8f0",
+            marginBottom: 8,
+            paddingBottom: 6,
           }}
         >
           INVOICE SUMMARY
@@ -1066,9 +1025,6 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 // Export functions
 export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
   try {
-    // Ensure fonts are registered
-    registerFonts();
-
     // Validate invoice data
     if (!invoice) {
       throw new Error("Invoice data is required");
@@ -1082,13 +1038,8 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
       throw new Error("Client information is required");
     }
 
-    // Generate PDF blob with timeout
-    const pdfPromise = pdf(<InvoicePDF invoice={invoice} />).toBlob();
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("PDF generation timed out")), 30000),
-    );
-
-    const blob = await Promise.race([pdfPromise, timeoutPromise]);
+    // Generate PDF blob
+    const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
 
     // Validate blob
     if (!blob || blob.size === 0) {
@@ -1102,22 +1053,8 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
     // Download the PDF
     saveAs(blob, filename);
   } catch (error) {
-    // Provide more specific error messages
-    if (error instanceof Error) {
-      if (error.message.includes("timeout")) {
-        throw new Error("PDF generation took too long. Please try again.");
-      } else if (error.message.includes("empty")) {
-        throw new Error("Generated PDF is invalid. Please try again.");
-      } else if (error.message.includes("required")) {
-        throw new Error(error.message);
-      } else if (
-        error.message.includes("font") ||
-        error.message.includes("Font")
-      ) {
-        throw new Error("Font loading error. Please try again.");
-      }
-    }
-
+    // Log the actual error for debugging
+    console.error("PDF generation error:", error);
     throw new Error("Failed to generate PDF. Please try again.");
   }
 }
@@ -1127,9 +1064,6 @@ export async function generateInvoicePDFBlob(
   invoice: InvoiceData,
 ): Promise<Blob> {
   try {
-    // Ensure fonts are registered (important for server-side generation)
-    registerFonts();
-
     // Validate invoice data
     if (!invoice) {
       throw new Error("Invoice data is required");
@@ -1143,43 +1077,20 @@ export async function generateInvoicePDFBlob(
       throw new Error("Client information is required");
     }
 
-    // Generate PDF blob with timeout (same as generateInvoicePDF)
-    const pdfPromise = pdf(<InvoicePDF invoice={invoice} />).toBlob();
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("PDF generation timed out")), 30000),
-    );
-
-    const blob = await Promise.race([pdfPromise, timeoutPromise]);
+    // Generate PDF blob
+    const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
 
     // Validate blob
     if (!blob || blob.size === 0) {
       throw new Error("Generated PDF is empty");
     }
+
     return blob;
   } catch (error) {
-    // Provide more specific error messages (same as generateInvoicePDF)
+    // Re-throw with consistent error handling
     if (error instanceof Error) {
-      if (error.message.includes("timeout")) {
-        throw new Error("PDF generation took too long. Please try again.");
-      } else if (error.message.includes("empty")) {
-        throw new Error("Generated PDF is invalid. Please try again.");
-      } else if (error.message.includes("required")) {
-        throw new Error(error.message);
-      } else if (
-        error.message.includes("font") ||
-        error.message.includes("Font")
-      ) {
-        throw new Error("Font loading error. Please try again.");
-      } else if (
-        error.message.includes("Cannot resolve") ||
-        error.message.includes("Failed to load")
-      ) {
-        throw new Error("Resource loading error during PDF generation.");
-      }
+      throw error;
     }
-
-    throw new Error(
-      `Failed to generate PDF for email attachment: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    throw new Error("Failed to generate PDF blob");
   }
 }
