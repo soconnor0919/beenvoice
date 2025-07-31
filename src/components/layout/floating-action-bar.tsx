@@ -50,7 +50,7 @@ export function FloatingActionBar({
         // Base positioning - always at bottom
         "fixed right-0 left-0 z-50",
         // Safe area and sidebar adjustments
-        "pb-safe-area-inset-bottom md:left-[276px]",
+        "pb-safe-area-inset-bottom md:left-64",
         // Conditional centering based on dock state
         isDocked ? "flex justify-center" : "",
         // Dynamic bottom positioning
@@ -65,7 +65,7 @@ export function FloatingActionBar({
           isDocked ? "mx-auto mb-0 px-4" : "mb-4 px-4",
         )}
       >
-        <Card className="card-primary">
+        <Card className="bg-card border-border border">
           <CardContent className="flex items-center justify-between p-4">
             {/* Left content */}
             {leftContent && (

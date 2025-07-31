@@ -148,7 +148,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
     return (
       <div className="py-12 text-center">
         <FileText className="text-muted mx-auto mb-4 h-12 w-12" />
-        <h3 className="text-accent mb-2 text-lg font-medium">
+        <h3 className="text-foreground mb-2 text-lg font-medium">
           Invoice not found
         </h3>
         <p className="text-muted mb-4">
@@ -169,9 +169,9 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
     <div className="space-y-6">
       {/* Status Alert */}
       {isOverdue && (
-        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
+        <Card className="border-destructive/20 bg-destructive/10">
           <CardContent className="p-4">
-            <div className="text-error flex items-center gap-2">
+            <div className="text-destructive flex items-center gap-2">
               <AlertCircle className="h-5 w-5" />
               <span className="font-medium">This invoice is overdue</span>
             </div>
@@ -183,13 +183,13 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
         {/* Main Content */}
         <div className="space-y-6 lg:col-span-2">
           {/* Invoice Header Card */}
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardContent>
               <div className="flex items-start justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="rounded-lg bg-emerald-100 p-2 dark:bg-emerald-900/30">
-                      <FileText className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                    <div className="bg-primary/10  p-2">
+                      <FileText className="text-primary h-6 w-6" />
                     </div>
                     <div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -228,7 +228,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                   >
                     <StatusIcon className="mr-1 h-3 w-3" />
                   </StatusBadge>
-                  <div className="text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                  <div className="text-primary text-3xl font-bold">
                     {formatCurrency(invoice.totalAmount)}
                   </div>
                   <Button
@@ -239,7 +239,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                   >
                     {isExportingPDF ? (
                       <>
-                        <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                        <div className="mr-2 h-4 w-4 animate-spin  border-2 border-white border-t-transparent" />
                         Generating PDF...
                       </>
                     ) : (
@@ -255,9 +255,9 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Client Information */}
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <CardTitle className="text-primary flex items-center gap-2">
                 <User className="h-5 w-5" />
                 Bill To
               </CardTitle>
@@ -318,31 +318,31 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Invoice Items */}
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <CardTitle className="text-primary flex items-center gap-2">
                 <Clock className="h-5 w-5" />
                 Invoice Items
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
+              <div className="border-border overflow-hidden  border">
                 <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-gray-700">
+                  <thead className="bg-muted">
                     <tr>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
                         Date
                       </th>
-                      <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
                         Description
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="text-muted-foreground px-4 py-3 text-right text-sm font-semibold">
                         Hours
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="text-muted-foreground px-4 py-3 text-right text-sm font-semibold">
                         Rate
                       </th>
-                      <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      <th className="text-muted-foreground px-4 py-3 text-right text-sm font-semibold">
                         Amount
                       </th>
                     </tr>
@@ -351,21 +351,21 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                     {invoice.items?.map((item, index) => (
                       <tr
                         key={item.id || index}
-                        className="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-700"
+                        className="border-border hover:bg-muted/50 border-t"
                       >
-                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-300">
+                        <td className="text-foreground px-4 py-3 text-sm">
                           {formatDate(item.date)}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-300">
+                        <td className="text-foreground px-4 py-3 text-sm">
                           {item.description}
                         </td>
-                        <td className="px-4 py-3 text-right text-sm text-gray-900 dark:text-gray-300">
+                        <td className="text-foreground px-4 py-3 text-right text-sm">
                           {item.hours}
                         </td>
-                        <td className="px-4 py-3 text-right text-sm text-gray-900 dark:text-gray-300">
+                        <td className="text-foreground px-4 py-3 text-right text-sm">
                           {formatCurrency(item.rate)}
                         </td>
-                        <td className="px-4 py-3 text-right text-sm font-medium text-gray-900 dark:text-gray-300">
+                        <td className="text-foreground px-4 py-3 text-right text-sm font-medium">
                           {formatCurrency(item.amount)}
                         </td>
                       </tr>
@@ -378,11 +378,9 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
 
           {/* Notes */}
           {invoice.notes && (
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
-                <CardTitle className="text-emerald-700 dark:text-emerald-400">
-                  Notes
-                </CardTitle>
+                <CardTitle className="text-primary">Notes</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
@@ -396,18 +394,16 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Status Actions */}
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardHeader>
-              <CardTitle className="text-emerald-700 dark:text-emerald-400">
-                Status Actions
-              </CardTitle>
+              <CardTitle className="text-primary">Status Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {invoice.status === "draft" && (
                 <Button
                   onClick={() => handleStatusUpdate("sent")}
                   disabled={updateStatus.isPending}
-                  className="w-full bg-blue-600 text-white hover:bg-blue-700"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                 >
                   <Send className="mr-2 h-4 w-4" />
                   Mark as Sent
@@ -418,7 +414,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <Button
                   onClick={() => handleStatusUpdate("paid")}
                   disabled={updateStatus.isPending}
-                  className="w-full bg-green-600 text-white hover:bg-green-700"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                 >
                   <DollarSign className="mr-2 h-4 w-4" />
                   Mark as Paid
@@ -429,7 +425,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <Button
                   onClick={() => handleStatusUpdate("paid")}
                   disabled={updateStatus.isPending}
-                  className="w-full bg-green-600 text-white hover:bg-green-700"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
                 >
                   <DollarSign className="mr-2 h-4 w-4" />
                   Mark as Paid
@@ -438,21 +434,17 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
 
               {invoice.status === "paid" && (
                 <div className="py-4 text-center">
-                  <DollarSign className="mx-auto mb-2 h-8 w-8 text-green-600 dark:text-green-400" />
-                  <p className="font-medium text-green-600 dark:text-green-400">
-                    Invoice Paid
-                  </p>
+                  <DollarSign className="text-primary mx-auto mb-2 h-8 w-8" />
+                  <p className="text-primary font-medium">Invoice Paid</p>
                 </div>
               )}
             </CardContent>
           </Card>
 
           {/* Invoice Summary */}
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardHeader>
-              <CardTitle className="text-emerald-700 dark:text-emerald-400">
-                Summary
-              </CardTitle>
+              <CardTitle className="text-primary">Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
@@ -471,14 +463,14 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span className="dark:text-white">Total</span>
-                  <span className="text-emerald-600 dark:text-emerald-400">
+                  <span className="text-primary">
                     {formatCurrency(invoice.totalAmount)}
                   </span>
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 text-center dark:border-gray-700">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+              <div className="border-border border-t pt-4 text-center">
+                <p className="text-muted-foreground text-sm">
                   {invoice.items?.length ?? 0} item
                   {invoice.items?.length !== 1 ? "s" : ""}
                 </p>
@@ -487,17 +479,15 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Danger Zone */}
-          <Card className="card-primary border-red-200 dark:border-red-800">
+          <Card className="bg-card border-border border border-destructive/20">
             <CardHeader>
-              <CardTitle className="text-red-700 dark:text-red-400">
-                Danger Zone
-              </CardTitle>
+              <CardTitle className="text-destructive">Danger Zone</CardTitle>
             </CardHeader>
             <CardContent>
               <Button
                 onClick={handleDelete}
                 variant="outline"
-                className="w-full border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-900/20"
+                className="border-destructive/20 text-destructive hover:bg-destructive/10 w-full"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Invoice
@@ -509,7 +499,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="card-primary">
+        <DialogContent className="bg-card border-border border">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-gray-800 dark:text-white">
               Delete Invoice
@@ -524,7 +514,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              className="border-border text-muted-foreground hover:bg-muted"
             >
               Cancel
             </Button>
@@ -532,7 +522,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
               variant="destructive"
               onClick={confirmDelete}
               disabled={deleteInvoice.isPending}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               {deleteInvoice.isPending ? "Deleting..." : "Delete Invoice"}
             </Button>

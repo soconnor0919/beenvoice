@@ -24,14 +24,14 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
         size="icon"
         aria-label="Toggle navigation"
         onClick={onToggle}
-        className="bg-card/80 h-8 w-8 shadow-lg backdrop-blur-sm md:hidden"
+        className="h-8 w-8 md:hidden"
       >
         {isOpen ? <X className="h-4 w-4" /> : <MenuIcon className="h-4 w-4" />}
       </Button>
 
       {/* Mobile dropdown navigation */}
       {isOpen && (
-        <div className="bg-background/95 border-border/40 absolute top-full right-0 left-0 z-40 mt-2 rounded-2xl border shadow-2xl backdrop-blur-xl md:hidden">
+        <div className="bg-background border-border absolute top-full right-0 left-0 z-40 mt-1 border-t">
           {/* Navigation content */}
           <nav className="flex flex-col p-4">
             {navigationConfig.map((section, sectionIndex) => (
@@ -52,7 +52,7 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                         (_, i) => (
                           <div
                             key={i}
-                            className="flex items-center gap-3 rounded-lg px-3 py-2.5"
+                            className="flex items-center gap-3  px-3 py-2.5"
                           >
                             <Skeleton className="bg-muted/20 h-4 w-4" />
                             <Skeleton className="bg-muted/20 h-4 w-20" />
@@ -70,10 +70,10 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                           aria-current={
                             pathname === link.href ? "page" : undefined
                           }
-                          className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
                             pathname === link.href
-                              ? "bg-gradient-to-r from-emerald-600/10 to-teal-600/10 text-emerald-700 shadow-sm dark:from-emerald-500/20 dark:to-teal-500/20 dark:text-emerald-400"
-                              : "text-foreground hover:bg-accent/50 hover:text-accent-foreground"
+                              ? "bg-primary/10 text-primary"
+                              : "text-foreground hover:bg-muted"
                           }`}
                           onClick={onToggle}
                         >

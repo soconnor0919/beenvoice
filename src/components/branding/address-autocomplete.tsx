@@ -64,7 +64,7 @@ export function AddressAutocomplete({
         onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
       />
       {showSuggestions && suggestions.length > 0 && (
-        <Card className="card-primary absolute z-10 mt-1 max-h-60 w-full overflow-auto">
+        <Card className="bg-card border-border border absolute z-10 mt-1 max-h-60 w-full overflow-auto">
           <ul>
             {suggestions.map((s) => (
               <li

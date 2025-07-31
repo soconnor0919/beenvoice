@@ -95,7 +95,7 @@ export function EmailPreview({
   return (
     <div className={className}>
       {/* Email Headers */}
-      <div className="bg-muted/20 mb-4 space-y-3 rounded-lg p-4">
+      <div className="bg-muted/20 mb-4 space-y-3  p-4">
         <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
           <div>
             <span className="text-muted-foreground block text-xs font-medium">
@@ -142,7 +142,7 @@ export function EmailPreview({
 
       {/* Email Content */}
       {emailTemplate ? (
-        <div className="rounded-lg border bg-gray-50 p-1 shadow-sm">
+        <div className=" border bg-gray-50 p-1 shadow-sm">
           <iframe
             srcDoc={emailTemplate.html}
             className="h-[700px] w-full rounded border-0"

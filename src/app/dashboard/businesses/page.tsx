@@ -22,7 +22,7 @@ export default async function BusinessesPage() {
         description="Manage your businesses and their information"
         variant="gradient"
       >
-        <Button asChild className="btn-brand-primary shadow-md">
+        <Button asChild variant="default" className="shadow-md">
           <Link href="/dashboard/businesses/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Add Business</span>

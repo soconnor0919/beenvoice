@@ -22,8 +22,8 @@ const variantStyles = {
     background: "bg-muted/50",
   },
   success: {
-    icon: "text-status-success",
-    background: "bg-status-success-muted",
+    icon: "text-primary",
+    background: "bg-primary/10",
   },
   warning: {
     icon: "text-status-warning",
@@ -67,9 +67,7 @@ export function StatsCard({
                 <span
                   className={cn(
                     "text-sm font-medium",
-                    trend.isPositive
-                      ? "text-status-success"
-                      : "text-status-error",
+                    trend.isPositive ? "text-primary" : "text-destructive",
                   )}
                 >
                   {trend.isPositive ? "+" : ""}
@@ -82,7 +80,7 @@ export function StatsCard({
             )}
           </div>
           {Icon && (
-            <div className={cn("rounded-full p-3", styles.background)}>
+            <div className={cn(" p-3", styles.background)}>
               <Icon className={cn("h-6 w-6", styles.icon)} />
             </div>
           )}
@@ -94,7 +92,7 @@ export function StatsCard({
 
 export function StatsCardSkeleton() {
   return (
-    <Card className="card-primary">
+    <Card className="bg-card border-border border">
       <CardContent className="p-6">
         <div className="animate-pulse">
           <div className="bg-muted mb-2 h-4 w-1/2 rounded"></div>

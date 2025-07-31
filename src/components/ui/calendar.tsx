@@ -100,7 +100,7 @@ function Calendar({
           defaultClassNames.dropdowns,
         ),
         dropdown_root: cn(
-          "relative has-focus:border-ring border border-input shadow-sm has-focus:ring-ring/50 has-focus:ring-2 rounded-md h-8",
+          "relative has-focus:border-ring border border-input shadow-sm has-focus:ring-ring/50 has-focus:ring-2  h-8",
           defaultClassNames.dropdown_root,
         ),
         dropdown: cn(
@@ -275,7 +275,7 @@ function CalendarDayButton({
       data-range-end={modifiers.range_end}
       data-range-middle={modifiers.range_middle}
       className={cn(
-        "hover:bg-accent hover:text-accent-foreground flex aspect-square size-auto h-8 w-full min-w-8 items-center justify-center rounded-md border-0 text-sm leading-none font-normal shadow-none",
+        "hover:bg-accent hover:text-foreground-foreground flex aspect-square size-auto h-8 w-full min-w-8 items-center justify-center  border-0 text-sm leading-none font-normal shadow-none",
         modifiers.selected && "bg-primary text-primary-foreground",
         modifiers.today && !modifiers.selected && "bg-accent font-semibold",
         className,

@@ -107,7 +107,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
   });
 
   const handleRowClick = (invoice: Invoice) => {
-    router.push(`/dashboard/invoices/${invoice.id}/view`);
+    router.push(`/dashboard/invoices/${invoice.id}`);
   };
 
   const handleDelete = (invoice: Invoice) => {
@@ -206,7 +206,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
         const invoice = row.original;
         return (
           <div className="flex items-center justify-end gap-1">
-            <Link href={`/dashboard/invoices/${invoice.id}/view`}>
+            <Link href={`/dashboard/invoices/${invoice.id}`}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -216,7 +216,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
                 <Eye className="h-3.5 w-3.5" />
               </Button>
             </Link>
-            <Link href={`/dashboard/invoices/${invoice.id}`}>
+            <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
               <Button
                 variant="ghost"
                 size="sm"
@@ -229,7 +229,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+              className="text-destructive hover:text-destructive/80 h-8 w-8 p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(invoice);

@@ -215,12 +215,12 @@ export function DataTable<TData, TValue>({
 
       {/* Filter Bar Card */}
       {(showSearch || filterableColumns.length > 0 || showColumnVisibility) && (
-        <Card className="card-primary py-2">
+        <Card className="bg-card border-border border py-2">
           <CardContent className="px-3 py-0">
             <div className="flex items-center gap-2">
               {showSearch && (
                 <div className="relative min-w-0 flex-1">
-                  <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                  <Search className="text-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <Input
                     placeholder={searchPlaceholder}
                     value={globalFilter ?? ""}
@@ -244,7 +244,7 @@ export function DataTable<TData, TValue>({
                 >
                   <SelectTrigger className="h-9 w-9 p-0 sm:w-[180px] sm:px-3 [&>svg]:hidden sm:[&>svg]:inline-flex">
                     <div className="flex w-full items-center justify-center">
-                      <Filter className="h-4 w-4 sm:hidden" />
+                      <Filter className="text-foreground h-4 w-4 sm:hidden" />
                       <span className="hidden sm:inline">
                         <SelectValue placeholder={column.title} />
                       </span>
@@ -272,7 +272,7 @@ export function DataTable<TData, TValue>({
                 >
                   <X className="h-4 w-4 sm:hidden" />
                   <span className="hidden sm:flex sm:items-center">
-                    <Filter className="mr-2 h-3.5 w-3.5" />
+                    <Filter className="text-foreground mr-2 h-3.5 w-3.5" />
                     Clear filters
                   </span>
                 </Button>
@@ -315,7 +315,7 @@ export function DataTable<TData, TValue>({
       )}
 
       {/* Table Content Card */}
-      <Card className="card-primary overflow-hidden p-0">
+      <Card className="bg-card border-border overflow-hidden border p-0">
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
@@ -400,7 +400,7 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination Bar Card */}
       {showPagination && (
-        <Card className="card-primary py-2">
+        <Card className="bg-card border-border border py-2">
           <CardContent className="px-3 py-0">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
@@ -561,17 +561,17 @@ export function DataTableSkeleton({
   return (
     <div className="space-y-4">
       {/* Filter bar skeleton */}
-      <Card className="card-primary py-2">
+      <Card className="bg-card border-border border py-2">
         <CardContent className="px-3 py-0">
           <div className="flex items-center gap-2">
-            <div className="bg-muted/30 h-9 w-full flex-1 animate-pulse rounded-md sm:max-w-sm"></div>
-            <div className="bg-muted/30 h-9 w-24 animate-pulse rounded-md"></div>
+            <div className="bg-muted/30 h-9 w-full flex-1 animate-pulse sm:max-w-sm"></div>
+            <div className="bg-muted/30 h-9 w-24 animate-pulse"></div>
           </div>
         </CardContent>
       </Card>
 
       {/* Table skeleton */}
-      <Card className="card-primary overflow-hidden p-0">
+      <Card className="bg-card border-border overflow-hidden border p-0">
         <div className="w-full overflow-x-auto">
           <Table>
             <TableHeader>
@@ -632,7 +632,7 @@ export function DataTableSkeleton({
       </Card>
 
       {/* Pagination skeleton */}
-      <Card className="card-primary py-2">
+      <Card className="bg-card border-border border py-2">
         <CardContent className="px-3 py-0">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">

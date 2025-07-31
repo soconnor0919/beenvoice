@@ -69,7 +69,7 @@ export default async function ClientDetailPage({
             <span>Back to Clients</span>
           </Link>
         </Button>
-        <Button asChild className="btn-brand-primary shadow-md">
+        <Button asChild variant="default" className="shadow-md">
           <Link href={`/dashboard/clients/${client.id}/edit`}>
             <Edit className="mr-2 h-4 w-4" />
             <span>Edit Client</span>
@@ -80,11 +80,11 @@ export default async function ClientDetailPage({
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* Client Information Card */}
         <div className="lg:col-span-2">
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="bg-blue-subtle rounded-lg p-2">
-                  <Building className="text-icon-blue h-5 w-5" />
+                <div className="bg-primary/10  p-2">
+                  <Building className="text-primary h-5 w-5" />
                 </div>
                 <span>Contact Information</span>
               </CardTitle>
@@ -94,8 +94,8 @@ export default async function ClientDetailPage({
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {client.email && (
                   <div className="flex items-center space-x-3">
-                    <div className="bg-green-subtle rounded-lg p-2">
-                      <Mail className="text-icon-green h-4 w-4" />
+                    <div className="bg-primary/10  p-2">
+                      <Mail className="text-primary h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-muted-foreground text-sm font-medium">
@@ -108,8 +108,8 @@ export default async function ClientDetailPage({
 
                 {client.phone && (
                   <div className="flex items-center space-x-3">
-                    <div className="bg-green-subtle rounded-lg p-2">
-                      <Phone className="text-icon-green h-4 w-4" />
+                    <div className="bg-primary/10  p-2">
+                      <Phone className="text-primary h-4 w-4" />
                     </div>
                     <div>
                       <p className="text-muted-foreground text-sm font-medium">
@@ -126,8 +126,8 @@ export default async function ClientDetailPage({
                 <div>
                   <h3 className="mb-4 text-lg font-semibold">Client Address</h3>
                   <div className="flex items-start space-x-3">
-                    <div className="bg-green-subtle rounded-lg p-2">
-                      <MapPin className="text-icon-green h-4 w-4" />
+                    <div className="bg-primary/10  p-2">
+                      <MapPin className="text-primary h-4 w-4" />
                     </div>
                     <div className="space-y-1 text-sm">
                       {client.addressLine1 && (
@@ -155,8 +155,8 @@ export default async function ClientDetailPage({
               <div>
                 <h3 className="mb-4 text-lg font-semibold">Client Details</h3>
                 <div className="flex items-center space-x-3">
-                  <div className="bg-green-subtle rounded-lg p-2">
-                    <Calendar className="text-icon-green h-4 w-4" />
+                  <div className="bg-primary/10  p-2">
+                    <Calendar className="text-primary h-4 w-4" />
                   </div>
                   <div>
                     <p className="text-muted-foreground text-sm font-medium">
@@ -174,11 +174,11 @@ export default async function ClientDetailPage({
 
         {/* Stats Card */}
         <div className="space-y-6">
-          <Card className="card-primary">
+          <Card className="bg-card border-border border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="bg-blue-subtle rounded-lg p-2">
-                  <DollarSign className="text-icon-blue h-5 w-5" />
+                <div className="bg-primary/10  p-2">
+                  <DollarSign className="text-primary h-5 w-5" />
                 </div>
                 <span>Invoice Summary</span>
               </CardTitle>
@@ -213,8 +213,8 @@ export default async function ClientDetailPage({
             <Card className="">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <div className="bg-blue-subtle rounded-lg p-2">
-                    <DollarSign className="text-icon-blue h-5 w-5" />
+                  <div className="bg-primary/10  p-2">
+                    <DollarSign className="text-primary h-5 w-5" />
                   </div>
                   <span>Recent Invoices</span>
                 </CardTitle>
@@ -224,7 +224,7 @@ export default async function ClientDetailPage({
                   {client.invoices.slice(0, 3).map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="card-secondary flex items-center justify-between rounded-lg border p-3 transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60"
+                      className="card-secondary hover:bg-muted/50 flex items-center justify-between  border p-3 transition-colors"
                     >
                       <div>
                         <p className="text-foreground font-medium">

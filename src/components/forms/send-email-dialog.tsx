@@ -242,7 +242,7 @@ export function SendEmailDialog({
       <DialogContent className="flex max-h-[90vh] max-w-4xl flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Mail className="h-5 w-5 text-green-600" />
+            <Mail className="text-primary h-5 w-5" />
             Send Invoice Email
           </DialogTitle>
           <DialogDescription>
@@ -419,7 +419,7 @@ export function SendEmailDialog({
                 <Button
                   onClick={handleSendEmail}
                   disabled={!canSend || isSending}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-primary hover:bg-primary/90"
                 >
                   {isSending ? (
                     <>

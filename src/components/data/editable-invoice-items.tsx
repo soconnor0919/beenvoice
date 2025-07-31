@@ -87,7 +87,7 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`card-secondary rounded-lg transition-colors ${
+      className={`card-secondary  transition-colors ${
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
     >
@@ -154,7 +154,7 @@ function SortableItem({
 
         {/* Amount */}
         <div className="col-span-1">
-          <div className="bg-muted/30 flex h-9 items-center rounded-md border px-3 font-medium text-emerald-600">
+          <div className="bg-muted/30 text-primary flex h-9 items-center  border px-3 font-medium">
             ${item.amount.toFixed(2)}
           </div>
         </div>
@@ -166,7 +166,7 @@ function SortableItem({
             onClick={() => onRemove(index)}
             variant="ghost"
             size="sm"
-            className="h-9 w-9 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive/80 h-9 w-9 p-0"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -206,7 +206,7 @@ function SortableItem({
               onClick={() => onRemove(index)}
               variant="ghost"
               size="sm"
-              className="h-6 w-6 p-0 text-red-600 hover:bg-red-50 hover:text-red-700"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive/80 h-6 w-6 p-0"
             >
               <Trash2 className="h-3 w-3" />
             </Button>
@@ -266,10 +266,10 @@ function SortableItem({
         </div>
 
         {/* Amount */}
-        <div className="bg-muted/20 rounded-md border p-3">
+        <div className="bg-muted/20  border p-3">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground text-sm">Total Amount:</span>
-            <span className="font-mono text-lg font-bold text-emerald-600">
+            <span className="text-primary font-mono text-lg font-bold">
               ${item.amount.toFixed(2)}
             </span>
           </div>
@@ -362,7 +362,7 @@ export function EditableInvoiceItems({
         {items.map((item, _index) => (
           <div
             key={item.id}
-            className="card-secondary animate-pulse rounded-lg p-4"
+            className="card-secondary animate-pulse  p-4"
           >
             {/* Desktop Skeleton */}
             <div className="hidden grid-cols-12 gap-3 md:grid">

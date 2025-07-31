@@ -229,7 +229,7 @@ export function StatusManager({
 
         {/* Overdue Warning */}
         {isOverdue && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-50 p-3 text-red-800 dark:bg-red-900/20 dark:text-red-300">
+          <div className="bg-destructive/10 text-destructive flex items-center gap-2  p-3">
             <AlertCircle className="h-4 w-4" />
             <span className="text-sm font-medium">
               {daysPastDue} day{daysPastDue !== 1 ? "s" : ""} overdue
@@ -325,7 +325,7 @@ export function StatusManager({
 
         {/* No Email Warning */}
         {!clientEmail && effectiveStatus !== "paid" && (
-          <div className="rounded-lg bg-amber-50 p-3 text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+          <div className="bg-muted text-muted-foreground  p-3">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
               <span className="text-sm font-medium">

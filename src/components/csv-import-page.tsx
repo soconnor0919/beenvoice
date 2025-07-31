@@ -438,10 +438,10 @@ export function CSVImportPage() {
   return (
     <div className="space-y-6">
       {/* Global Client Selection */}
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader>
-          <CardTitle className="card-title-secondary">
-            <Users className="text-icon-blue h-5 w-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <Users className="text-primary h-5 w-5" />
             Default Client
           </CardTitle>
         </CardHeader>
@@ -460,7 +460,7 @@ export function CSVImportPage() {
                   applyGlobalClient(newClientId);
                 }
               }}
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-12 w-full rounded-md border px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-12 w-full  border px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               disabled={loadingClients}
             >
               <option value="">No default client (select individually)</option>
@@ -479,10 +479,10 @@ export function CSVImportPage() {
       </Card>
 
       {/* File Upload Area */}
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader>
-          <CardTitle className="card-title-secondary">
-            <Upload className="text-icon-emerald h-5 w-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <Upload className="text-primary h-5 w-5" />
             Upload CSV Files
           </CardTitle>
         </CardHeader>
@@ -498,49 +498,45 @@ export function CSVImportPage() {
 
           {/* Summary Card */}
           {totalFiles > 0 && (
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
-                <CardTitle className="card-title-secondary">
-                  <FileText className="text-icon-emerald h-5 w-5" />
+                <CardTitle className="text-foreground flex items-center gap-2">
+                  <FileText className="text-primary h-5 w-5" />
                   Import Summary
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-4 rounded-lg bg-green-50/50 p-4 md:grid-cols-4 dark:bg-green-900/10">
+                <div className="bg-primary/10 grid grid-cols-2 gap-4  p-4 md:grid-cols-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-primary text-2xl font-bold">
                       {totalFiles}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Files
-                    </div>
+                    <div className="text-muted-foreground text-sm">Files</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-primary text-2xl font-bold">
                       {totalItems}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-muted-foreground text-sm">
                       Total Items
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-primary text-2xl font-bold">
                       {totalAmount.toLocaleString("en-US", {
                         style: "currency",
                         currency: "USD",
                       })}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <div className="text-muted-foreground text-sm">
                       Total Amount
                     </div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">
+                    <div className="text-primary text-2xl font-bold">
                       {readyFiles}/{totalFiles}
                     </div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      Ready
-                    </div>
+                    <div className="text-muted-foreground text-sm">Ready</div>
                   </div>
                 </div>
               </CardContent>
@@ -551,9 +547,9 @@ export function CSVImportPage() {
 
       {/* File List */}
       {files.length > 0 && (
-        <Card className="card-primary">
+        <Card className="bg-card border-border border">
           <CardHeader>
-            <CardTitle className="card-title-secondary">
+            <CardTitle className="text-foreground flex items-center gap-2">
               Uploaded Files
             </CardTitle>
           </CardHeader>
@@ -562,11 +558,11 @@ export function CSVImportPage() {
               {files.map((fileData, index) => (
                 <div
                   key={index}
-                  className="border-border bg-card rounded-lg border p-4"
+                  className="border-border bg-card  border p-4"
                 >
                   <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <FileText className="text-icon-emerald h-5 w-5" />
+                      <FileText className="text-primary h-5 w-5" />
                       <div>
                         <h3 className="text-foreground truncate font-medium">
                           {fileData.file.name}
@@ -593,7 +589,7 @@ export function CSVImportPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => removeFile(index)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-destructive hover:text-destructive/80"
                       >
                         <Trash2 className="mr-1 h-4 w-4" />
                         Remove
@@ -623,7 +619,7 @@ export function CSVImportPage() {
                         onChange={(e) =>
                           updateFileData(index, { clientId: e.target.value })
                         }
-                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full  border px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={loadingClients}
                       >
                         <option value="">Select Client</option>
@@ -666,20 +662,20 @@ export function CSVImportPage() {
 
                   {/* Error Display */}
                   {fileData.errors.length > 0 && (
-                    <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 dark:border-red-800 dark:bg-red-900/20">
+                    <div className="border-destructive/20 bg-destructive/10 mt-4  border p-3">
                       <div className="mb-2 flex items-center gap-2">
-                        <AlertCircle className="h-4 w-4 text-red-600" />
-                        <span className="text-sm font-medium text-red-800 dark:text-red-200">
+                        <AlertCircle className="text-destructive h-4 w-4" />
+                        <span className="text-destructive text-sm font-medium">
                           Issues Found
                         </span>
                       </div>
-                      <ul className="space-y-1 text-sm text-red-700 dark:text-red-300">
+                      <ul className="text-destructive space-y-1 text-sm">
                         {fileData.errors.map((error, errorIndex) => (
                           <li
                             key={errorIndex}
                             className="flex items-start gap-2"
                           >
-                            <span className="text-red-600">•</span>
+                            <span className="text-destructive">•</span>
                             <span>{error}</span>
                           </li>
                         ))}
@@ -735,10 +731,10 @@ export function CSVImportPage() {
 
       {/* Batch Actions */}
       {files.length > 0 && (
-        <Card className="card-primary">
+        <Card className="bg-card border-border border">
           <CardHeader>
-            <CardTitle className="card-title-secondary">
-              <DollarSign className="text-icon-green h-5 w-5" />
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <DollarSign className="text-primary h-5 w-5" />
               Create Invoices
             </CardTitle>
           </CardHeader>
@@ -762,7 +758,7 @@ export function CSVImportPage() {
                 <Button
                   onClick={processBatch}
                   disabled={readyFiles === 0 || isProcessing}
-                  className="btn-brand-primary"
+                  variant="default"
                 >
                   {isProcessing
                     ? "Processing..."
@@ -776,10 +772,10 @@ export function CSVImportPage() {
 
       {/* Preview Modal */}
       <Dialog open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
-        <DialogContent className="card-primary flex max-h-[90vh] max-w-4xl flex-col">
+        <DialogContent className="bg-card border-border border flex max-h-[90vh] max-w-4xl flex-col">
           <DialogHeader className="flex-shrink-0">
-            <DialogTitle className="flex items-center gap-2 text-xl font-bold text-gray-800">
-              <FileText className="h-5 w-5 text-emerald-600" />
+            <DialogTitle className="text-foreground flex items-center gap-2 text-xl font-bold">
+              <FileText className="text-primary h-5 w-5" />
               {selectedFileIndex !== null &&
                 files[selectedFileIndex]?.file.name}
             </DialogTitle>
@@ -792,14 +788,14 @@ export function CSVImportPage() {
             <div className="flex min-h-0 flex-1 flex-col space-y-4">
               <div className="grid flex-shrink-0 grid-cols-1 gap-4 md:grid-cols-3">
                 <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm text-gray-600">
+                  <FileText className="text-primary h-4 w-4" />
+                  <span className="text-muted-foreground text-sm">
                     {files[selectedFileIndex].parsedItems.length} items
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm text-gray-600">
+                  <Clock className="text-primary h-4 w-4" />
+                  <span className="text-muted-foreground text-sm">
                     {files[selectedFileIndex].parsedItems
                       .reduce((sum, item) => sum + item.hours, 0)
                       .toFixed(1)}{" "}
@@ -807,8 +803,8 @@ export function CSVImportPage() {
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-emerald-600" />
-                  <span className="text-sm font-medium text-gray-600">
+                  <DollarSign className="text-primary h-4 w-4" />
+                  <span className="text-muted-foreground text-sm font-medium">
                     {files[selectedFileIndex].parsedItems
                       .reduce((sum, item) => sum + item.amount, 0)
                       .toLocaleString("en-US", {

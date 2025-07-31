@@ -150,12 +150,12 @@ export function InvoiceList() {
               <CardTitle className="flex items-center justify-between">
                 <span className="truncate">{invoice.invoiceNumber}</span>
                 <div className="flex space-x-1">
-                  <Link href={`/dashboard/invoices/${invoice.id}/view`}>
+                  <Link href={`/dashboard/invoices/${invoice.id}`}>
                     <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={`/dashboard/invoices/${invoice.id}`}>
+                  <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
                     <Button variant="ghost" size="sm">
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -171,7 +171,7 @@ export function InvoiceList() {
               </CardTitle>
               <div className="flex items-center justify-between">
                 <StatusBadge status={invoice.status as StatusType} />
-                <span className="text-icon-green text-lg font-bold">
+                <span className="text-primary text-lg font-bold">
                   {formatCurrency(invoice.totalAmount)}
                 </span>
               </div>

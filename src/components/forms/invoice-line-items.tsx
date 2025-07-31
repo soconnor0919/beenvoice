@@ -25,6 +25,7 @@ import {
   Trash2,
 } from "lucide-react";
 import * as React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "~/components/ui/button";
 import { DatePicker } from "~/components/ui/date-picker";
 import { Input } from "~/components/ui/input";
@@ -114,11 +115,16 @@ function SortableLineItem({
   };
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
       style={style}
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "card-secondary hidden rounded-lg p-4 md:block",
+        "bg-card border-border hidden border p-4 md:block",
         isDragging && "opacity-50",
       )}
     >
@@ -227,7 +233,7 @@ function SortableLineItem({
               size="sm"
               onClick={() => onRemove(index)}
               className={cn(
-                "text-muted-foreground h-8 w-8 p-0 transition-colors hover:text-red-500",
+                "text-muted-foreground hover:text-destructive h-8 w-8 p-0 transition-colors",
                 !canRemove && "cursor-not-allowed opacity-50",
               )}
               disabled={!canRemove}
@@ -238,7 +244,7 @@ function SortableLineItem({
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -254,8 +260,15 @@ function MobileLineItem({
   isLast,
 }: LineItemRowProps) {
   return (
-    <div className="card-secondary space-y-3 rounded-lg md:hidden">
-      <div className="space-y-3 p-4">
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="bg-card border-border space-y-3 border md:hidden"
+    >
+      <div className="bg-secondary space-y-3 p-4">
         {/* Description */}
         <div className="space-y-1">
           <Label className="text-muted-foreground text-xs">Description</Label>
@@ -344,7 +357,7 @@ function MobileLineItem({
             size="sm"
             onClick={() => onRemove(index)}
             className={cn(
-              "text-muted-foreground h-8 w-8 p-0 transition-colors hover:text-red-500",
+              "text-muted-foreground hover:text-destructive h-8 w-8 p-0 transition-colors",
               !canRemove && "cursor-not-allowed opacity-50",
             )}
             disabled={!canRemove}
@@ -367,7 +380,7 @@ function MobileLineItem({
           </span>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
@@ -414,51 +427,57 @@ export function InvoiceLineItems({
           items={items.map((item) => item.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-2">
-            {items.map((item, index) => (
-              <React.Fragment key={item.id}>
-                {/* Desktop/Tablet Card with Drag and Drop */}
-                <SortableLineItem
-                  item={item}
-                  index={index}
-                  canRemove={canRemoveItems}
-                  onRemove={onRemoveItem}
-                  onUpdate={onUpdateItem}
-                  onMoveUp={onMoveUp}
-                  onMoveDown={onMoveDown}
-                  isFirst={index === 0}
-                  isLast={index === items.length - 1}
-                />
+          <AnimatePresence>
+            <div className="space-y-2">
+              {items.map((item, index) => (
+                <React.Fragment key={item.id}>
+                  {/* Desktop/Tablet Card with Drag and Drop */}
+                  <SortableLineItem
+                    item={item}
+                    index={index}
+                    canRemove={canRemoveItems}
+                    onRemove={onRemoveItem}
+                    onUpdate={onUpdateItem}
+                    onMoveUp={onMoveUp}
+                    onMoveDown={onMoveDown}
+                    isFirst={index === 0}
+                    isLast={index === items.length - 1}
+                  />
 
-                {/* Mobile Card */}
-                <MobileLineItem
-                  item={item}
-                  index={index}
-                  canRemove={canRemoveItems}
-                  onRemove={onRemoveItem}
-                  onUpdate={onUpdateItem}
-                  onMoveUp={onMoveUp}
-                  onMoveDown={onMoveDown}
-                  isFirst={index === 0}
-                  isLast={index === items.length - 1}
-                />
-              </React.Fragment>
-            ))}
-          </div>
+                  {/* Mobile Card */}
+                  <MobileLineItem
+                    item={item}
+                    index={index}
+                    canRemove={canRemoveItems}
+                    onRemove={onRemoveItem}
+                    onUpdate={onUpdateItem}
+                    onMoveUp={onMoveUp}
+                    onMoveDown={onMoveDown}
+                    isFirst={index === 0}
+                    isLast={index === items.length - 1}
+                  />
+                </React.Fragment>
+              ))}
+            </div>
+          </AnimatePresence>
         </SortableContext>
       </DndContext>
 
       {/* Add Item Button */}
       <div className="px-3 pt-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onAddItem}
-          className="w-full"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add Another Item
-        </Button>
+        <div className="border-t pt-6">
+          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onAddItem}
+              className="w-full"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add Line Item
+            </Button>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

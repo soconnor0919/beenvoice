@@ -28,10 +28,10 @@ export function CurrentOpenInvoiceCard() {
 
   if (isLoading) {
     return (
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader className="pb-3">
-          <CardTitle className="card-title-secondary">
-            <FileText className="text-icon-emerald h-5 w-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <FileText className="text-primary h-5 w-5" />
             Current Open Invoice
           </CardTitle>
         </CardHeader>
@@ -49,10 +49,10 @@ export function CurrentOpenInvoiceCard() {
 
   if (!currentInvoice) {
     return (
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader className="pb-3">
-          <CardTitle className="card-title-secondary">
-            <FileText className="text-icon-emerald h-5 w-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <FileText className="text-primary h-5 w-5" />
             Current Open Invoice
           </CardTitle>
         </CardHeader>
@@ -80,10 +80,10 @@ export function CurrentOpenInvoiceCard() {
   const totalAmount = currentInvoice.totalAmount;
 
   return (
-    <Card className="card-primary">
+    <Card className="bg-card border-border border">
       <CardHeader className="pb-3">
-        <CardTitle className="card-title-secondary">
-          <FileText className="text-icon-emerald h-5 w-5" />
+        <CardTitle className="text-foreground flex items-center gap-2">
+          <FileText className="text-primary h-5 w-5" />
           Current Open Invoice
         </CardTitle>
       </CardHeader>
@@ -91,13 +91,13 @@ export function CurrentOpenInvoiceCard() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Badge className="badge-secondary text-xs">
+              <Badge className="bg-secondary text-secondary-foreground text-xs">
                 {currentInvoice.invoiceNumber}
               </Badge>
-              <Badge className="badge-outline text-xs">Draft</Badge>
+              <Badge className="border text-xs">Draft</Badge>
             </div>
             <div className="text-right">
-              <p className="text-icon-emerald text-sm font-medium">
+              <p className="text-primary text-sm font-medium">
                 {formatCurrency(totalAmount)}
               </p>
             </div>

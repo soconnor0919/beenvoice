@@ -2,10 +2,10 @@ import "~/styles/globals.css";
 
 import { Analytics } from "@vercel/analytics/next";
 import { type Metadata } from "next";
-import { Geist, Azeret_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
-import { Toaster } from "~/components/ui/toaster";
+import { Toaster } from "~/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "beenvoice - Invoicing Made Simple",
@@ -14,14 +14,9 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const geist = Geist({
+const geistMono = Geist_Mono({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
-});
-
-const azeretMono = Azeret_Mono({
-  subsets: ["latin"],
-  variable: "--font-azeret-mono",
+  variable: "--font-geist-mono",
   display: "swap",
 });
 
@@ -29,9 +24,9 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${geist.variable} ${azeretMono.variable}`}>
+    <html lang="en" className={geistMono.variable}>
       <Analytics />
-      <body className="relative min-h-screen overflow-x-hidden font-sans antialiased">
+      <body className="bg-background text-foreground relative min-h-screen overflow-x-hidden font-sans antialiased">
         <TRPCReactProvider>{children}</TRPCReactProvider>
         <Toaster />
       </body>

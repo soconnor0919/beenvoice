@@ -35,10 +35,9 @@ const variantStyles = {
     hoverBackground: "group-hover:bg-status-warning-muted/70",
   },
   purple: {
-    icon: "text-purple-600",
-    background: "bg-purple-100 dark:bg-purple-900/30",
-    hoverBackground:
-      "group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50",
+    icon: "text-primary",
+    background: "bg-secondary",
+    hoverBackground: "group-hover:bg-secondary/80",
   },
 };
 
@@ -57,7 +56,7 @@ export function QuickActionCard({
     <CardContent className="p-6 text-center">
       <div
         className={cn(
-          "mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full transition-colors",
+          "mx-auto mb-3 flex h-12 w-12 items-center justify-center  transition-colors",
           styles.background,
           styles.hoverBackground,
         )}
@@ -99,10 +98,10 @@ export function QuickActionCard({
 
 export function QuickActionCardSkeleton() {
   return (
-    <Card className="card-primary">
+    <Card className="bg-card border-border border">
       <CardContent className="p-6">
         <div className="animate-pulse">
-          <div className="bg-muted mx-auto mb-3 h-12 w-12 rounded-full"></div>
+          <div className="bg-muted mx-auto mb-3 h-12 w-12 "></div>
           <div className="bg-muted mx-auto mb-2 h-4 w-2/3 rounded"></div>
           <div className="bg-muted mx-auto h-3 w-1/2 rounded"></div>
         </div>

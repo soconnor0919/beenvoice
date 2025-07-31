@@ -91,8 +91,8 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
         const business = row.original;
         return (
           <div className="flex items-center gap-3">
-            <div className="bg-blue-subtle hidden rounded-lg p-2 sm:flex">
-              <Building className="text-icon-blue h-4 w-4" />
+            <div className="bg-primary/10 hidden  p-2 sm:flex">
+              <Building className="text-primary h-4 w-4" />
             </div>
             <div className="min-w-0">
               <p className="truncate font-medium">{business.name}</p>

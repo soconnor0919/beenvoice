@@ -73,7 +73,7 @@ export function ClientList() {
     return (
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 3 }, (_, i: number) => (
-          <Card key={i} className="card-primary">
+          <Card key={i} className="bg-card border-border border">
             <CardHeader>
               <div className="h-4 animate-pulse rounded bg-gray-200" />
             </CardHeader>
@@ -91,9 +91,9 @@ export function ClientList() {
 
   if (!clients || clients.length === 0) {
     return (
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader className="text-center">
-          <CardTitle className="text-brand-gradient text-2xl font-bold">
+          <CardTitle className="text-primary text-2xl font-bold">
             No Clients Yet
           </CardTitle>
           <CardDescription className="text-lg">
@@ -142,20 +142,20 @@ export function ClientList() {
         {filteredClients.map((client) => (
           <Card
             key={client.id}
-            className="group card-primary transition-all duration-300 hover:shadow-lg"
+            className="group bg-card border-border border transition-all duration-300 hover:shadow-lg"
           >
             <CardHeader>
               <CardTitle className="flex items-center justify-between text-lg">
-                <span className="text-accent group-hover:text-icon-emerald font-semibold transition-colors">
+                <span className="text-foreground group-hover:text-primary font-semibold transition-colors">
                   {client.name}
                 </span>
                 <div className="flex space-x-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Link href={`/clients/${client.id}`}>
+                  <Link href={`/dashboard/clients/${client.id}`}>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <Eye className="h-4 w-4" />
                     </Button>
                   </Link>
-                  <Link href={`/clients/${client.id}/edit`}>
+                  <Link href={`/dashboard/clients/${client.id}/edit`}>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -173,25 +173,25 @@ export function ClientList() {
             </CardHeader>
             <CardContent className="space-y-3">
               {client.email && (
-                <div className="text-secondary flex items-center text-sm">
-                  <div className="bg-brand-muted mr-3 rounded p-1.5">
-                    <Mail className="text-icon-emerald h-3 w-3" />
+                <div className="text-muted-foreground flex items-center text-sm">
+                  <div className="bg-muted mr-3 rounded p-1.5">
+                    <Mail className="text-muted-foreground h-3 w-3" />
                   </div>
                   {client.email}
                 </div>
               )}
               {client.phone && (
-                <div className="text-secondary flex items-center text-sm">
-                  <div className="bg-brand-muted-blue mr-3 rounded p-1.5">
-                    <Phone className="text-icon-blue h-3 w-3" />
+                <div className="text-muted-foreground flex items-center text-sm">
+                  <div className="bg-muted mr-3 rounded p-1.5">
+                    <Phone className="text-muted-foreground h-3 w-3" />
                   </div>
                   {client.phone}
                 </div>
               )}
               {(client.addressLine1 ?? client.city ?? client.state) && (
-                <div className="text-secondary flex items-start text-sm">
-                  <div className="bg-brand-muted-teal mt-0.5 mr-3 flex-shrink-0 rounded p-1.5">
-                    <MapPin className="text-icon-teal h-3 w-3" />
+                <div className="text-muted-foreground flex items-start text-sm">
+                  <div className="bg-muted mt-0.5 mr-3 flex-shrink-0 rounded p-1.5">
+                    <MapPin className="text-muted-foreground h-3 w-3" />
                   </div>
                   <div className="min-w-0">
                     {client.addressLine1 && <div>{client.addressLine1}</div>}
@@ -213,12 +213,12 @@ export function ClientList() {
       </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="card-primary">
+        <DialogContent className="bg-card border-border border">
           <DialogHeader>
-            <DialogTitle className="text-accent text-xl font-bold">
+            <DialogTitle className="text-foreground text-xl font-bold">
               Delete Client
             </DialogTitle>
-            <DialogDescription className="text-secondary">
+            <DialogDescription className="text-muted-foreground">
               Are you sure you want to delete this client? This action cannot be
               undone.
             </DialogDescription>
@@ -227,14 +227,14 @@ export function ClientList() {
             <Button
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
-              className="text-secondary"
+              className="text-muted-foreground"
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               Delete
             </Button>

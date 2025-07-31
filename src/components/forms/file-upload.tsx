@@ -34,9 +34,9 @@ function FilePreview({
   const getStatusIcon = () => {
     switch (status) {
       case "success":
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
+        return <CheckCircle className="text-primary h-4 w-4" />;
       case "error":
-        return <AlertCircle className="h-4 w-4 text-red-600" />;
+        return <AlertCircle className="text-destructive h-4 w-4" />;
       default:
         return <FileText className="h-4 w-4 text-gray-400" />;
     }
@@ -45,9 +45,9 @@ function FilePreview({
   const getStatusColor = () => {
     switch (status) {
       case "success":
-        return "border-green-200 bg-green-50";
+        return "border-primary/20 bg-primary/10";
       case "error":
-        return "border-red-200 bg-red-50";
+        return "border-destructive/20 bg-destructive/10";
       default:
         return "border-gray-200 bg-gray-50";
     }
@@ -56,20 +56,20 @@ function FilePreview({
   return (
     <div
       className={cn(
-        "flex items-center justify-between rounded-lg border p-3",
+        "flex items-center justify-between  border p-3",
         getStatusColor(),
       )}
     >
       <div className="flex items-center gap-3">
         {getStatusIcon()}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-900">
+          <p className="text-foreground truncate text-sm font-medium">
             {file.name}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-muted-foreground text-xs">
             {(file.size / 1024 / 1024).toFixed(2)} MB
           </p>
-          {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+          {error && <p className="text-destructive mt-1 text-xs">{error}</p>}
         </div>
       </div>
       <Button
@@ -152,28 +152,28 @@ export function FileUpload({
       <div
         {...getRootProps()}
         className={cn(
-          "cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors",
-          "hover:border-emerald-400 hover:bg-emerald-50/50",
-          isDragActive && "border-emerald-400 bg-emerald-50/50",
-          isDragReject && "border-red-400 bg-red-50/50",
+          "cursor-pointer  border-2 border-dashed p-8 text-center transition-colors",
+          "hover:border-primary/40 hover:bg-primary/10",
+          isDragActive && "border-primary/40 bg-primary/10",
+          isDragReject && "border-destructive/40 bg-destructive/10",
           disabled && "cursor-not-allowed opacity-50",
-          "bg-white/80 backdrop-blur-sm",
+          "bg-background/80 backdrop-blur-sm",
         )}
       >
         <input {...getInputProps()} />
         <div className="flex flex-col items-center gap-4">
           <div
             className={cn(
-              "rounded-full p-3 transition-colors",
-              isDragActive ? "bg-emerald-100" : "bg-gray-100",
-              isDragReject && "bg-red-100",
+              " p-3 transition-colors",
+              isDragActive ? "bg-primary/10" : "bg-muted",
+              isDragReject && "bg-destructive/10",
             )}
           >
             <Upload
               className={cn(
                 "h-6 w-6 transition-colors",
-                isDragActive ? "text-emerald-600" : "text-gray-400",
-                isDragReject && "text-red-600",
+                isDragActive ? "text-primary" : "text-muted-foreground",
+                isDragReject && "text-destructive",
               )}
             />
           </div>
@@ -181,8 +181,8 @@ export function FileUpload({
             <p
               className={cn(
                 "text-lg font-medium transition-colors",
-                isDragActive ? "text-emerald-600" : "text-gray-900",
-                isDragReject && "text-red-600",
+                isDragActive ? "text-primary" : "text-foreground",
+                isDragReject && "text-destructive",
               )}
             >
               {isDragActive
@@ -222,17 +222,17 @@ export function FileUpload({
 
       {/* Error Summary */}
       {Object.keys(errors).length > 0 && (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+        <div className="border-destructive/20 bg-destructive/10  border p-3">
           <div className="mb-2 flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <span className="text-sm font-medium text-red-800">
+            <AlertCircle className="text-destructive h-4 w-4" />
+            <span className="text-destructive text-sm font-medium">
               Upload Errors
             </span>
           </div>
-          <ul className="space-y-1 text-sm text-red-700">
+          <ul className="text-destructive space-y-1 text-sm">
             {Object.entries(errors).map(([fileName, error]) => (
               <li key={fileName} className="flex items-start gap-2">
-                <span className="text-red-600">•</span>
+                <span className="text-destructive">•</span>
                 <span>
                   <strong>{fileName}:</strong> {error}
                 </span>

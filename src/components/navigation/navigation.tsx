@@ -7,8 +7,8 @@ import { cn } from "~/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "Clients", href: "/clients" },
-  { name: "Invoices", href: "/invoices" },
+  { name: "Clients", href: "/dashboard/clients" },
+  { name: "Invoices", href: "/dashboard/invoices" },
 ];
 
 export function Navigation() {
@@ -24,7 +24,7 @@ export function Navigation() {
               "transition-colors",
               pathname === item.href
                 ? "bg-primary text-primary-foreground"
-                : "hover:bg-muted"
+                : "hover:bg-muted",
             )}
           >
             {item.name}
@@ -33,4 +33,4 @@ export function Navigation() {
       ))}
     </nav>
   );
-} 
+}

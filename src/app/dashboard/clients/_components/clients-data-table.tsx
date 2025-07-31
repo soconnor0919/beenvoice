@@ -90,7 +90,7 @@ export function ClientsDataTable({
         const client = row.original;
         return (
           <div className="flex items-center gap-3">
-            <div className="bg-status-info-muted hidden rounded-lg p-2 sm:flex">
+            <div className="bg-status-info-muted hidden  p-2 sm:flex">
               <UserPlus className="text-status-info h-4 w-4" />
             </div>
             <div className="min-w-0">

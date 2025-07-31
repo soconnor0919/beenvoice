@@ -22,6 +22,8 @@ export const users = createTable("user", (d) => ({
   password: d.varchar({ length: 255 }),
   emailVerified: d.timestamp().default(sql`CURRENT_TIMESTAMP`),
   image: d.varchar({ length: 255 }),
+  resetToken: d.varchar({ length: 255 }),
+  resetTokenExpiry: d.timestamp(),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({

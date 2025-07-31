@@ -101,7 +101,7 @@ export function EmailComposer({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[120px] p-4 border rounded-md bg-background",
+          "prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[120px] p-4 border  bg-background",
       },
     },
   });
@@ -133,9 +133,9 @@ export function EmailComposer({
 
   if (!editor) {
     return (
-      <div className="bg-muted flex h-[200px] items-center justify-center rounded-md border">
+      <div className="bg-muted flex h-[200px] items-center justify-center  border">
         <div className="text-center">
-          <div className="border-primary mx-auto mb-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></div>
+          <div className="border-primary mx-auto mb-2 h-4 w-4 animate-spin  border-2 border-t-transparent"></div>
           <p className="text-muted-foreground text-sm">Loading editor...</p>
         </div>
       </div>
@@ -145,7 +145,7 @@ export function EmailComposer({
   return (
     <div className={className}>
       {/* Email Headers */}
-      <div className="bg-muted/20 space-y-4 rounded-lg border p-4">
+      <div className="bg-muted/20 space-y-4  border p-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="from-email" className="text-sm font-medium">
@@ -231,7 +231,7 @@ export function EmailComposer({
           </div>
 
           {/* Editor Toolbar */}
-          <div className="bg-muted/20 flex flex-wrap items-center gap-1 rounded-lg border p-2">
+          <div className="bg-muted/20 flex flex-wrap items-center gap-1  border p-2">
             <MenuButton
               onClick={() => editor.chain().focus().toggleBold().run()}
               isActive={editor.isActive("bold")}

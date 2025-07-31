@@ -76,10 +76,10 @@ function InvoiceFormSkeleton() {
       />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="bg-muted h-96 animate-pulse rounded-lg" />
+          <div className="bg-muted h-96 animate-pulse" />
         </div>
         <div className="space-y-6">
-          <div className="bg-muted h-64 animate-pulse rounded-lg" />
+          <div className="bg-muted h-64 animate-pulse" />
         </div>
       </div>
     </div>
@@ -306,7 +306,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     onSuccess: (invoice) => {
       toast.success("Invoice created successfully");
       void utils.invoices.getAll.invalidate();
-      router.push(`/dashboard/invoices/${invoice.id}/view`);
+      router.push(`/dashboard/invoices/${invoice.id}`);
     },
     onError: (error) => {
       toast.error(error.message || "Failed to create invoice");
@@ -319,7 +319,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       await utils.invoices.getAll.invalidate();
       // The update mutation returns { success: true }, so we use the current invoiceId
       if (invoiceId && invoiceId !== "new") {
-        router.push(`/dashboard/invoices/${invoiceId}/view`);
+        router.push(`/dashboard/invoices/${invoiceId}`);
       } else {
         router.push("/dashboard/invoices");
       }
@@ -462,17 +462,13 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               variant="outline"
               onClick={handleDelete}
               disabled={loading || deleteInvoice.isPending}
-              className="text-red-700 shadow-sm hover:bg-red-50"
+              className="text-destructive hover:bg-destructive/10 shadow-sm"
             >
               <Trash2 className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Delete Invoice</span>
             </Button>
           )}
-          <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
-          >
+          <Button onClick={handleSubmit} disabled={loading} variant="default">
             {loading ? (
               <>
                 <Clock className="h-4 w-4 animate-spin sm:mr-2" />
@@ -499,7 +495,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                 </TabsList>
 
                 <TabsContent value="invoice-details">
-                  <Card className="card-primary">
+                  <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <FileText className="h-5 w-5" />
@@ -657,14 +653,14 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                 </TabsContent>
 
                 <TabsContent value="invoice-items">
-                  <Card className="card-primary">
+                  <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
                         <DollarSign className="h-5 w-5" />
                         Invoice Items
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="px-3 py-0">
+                    <CardContent className="px-3 pb-4">
                       <InvoiceLineItems
                         items={formData.items}
                         onAddItem={addItem}
@@ -681,7 +677,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             </div>
 
             <div className="space-y-6">
-              <Card className="card-primary sticky top-6">
+              <Card className="sticky top-6">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Check className="h-5 w-5" />
@@ -747,8 +743,8 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-              <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div className="bg-primary/10 p-2">
+              <FileText className="text-primary h-5 w-5" />
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -769,7 +765,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             size="sm"
             onClick={handleDelete}
             disabled={loading || deleteInvoice.isPending}
-            className="text-red-700 hover:bg-red-50"
+            className="text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">Delete</span>
@@ -778,7 +774,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          variant="default"
           size="sm"
         >
           {loading ? (

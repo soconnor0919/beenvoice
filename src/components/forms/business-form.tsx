@@ -414,7 +414,8 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             type="submit"
             form="business-form"
             disabled={isSubmitting}
-            className="btn-brand-primary shadow-md"
+            variant="default"
+            className="shadow-md"
           >
             {isSubmitting ? (
               <>
@@ -438,11 +439,11 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
           {/* Main Form Container - styled like data table */}
           <div className="space-y-4">
             {/* Basic Information */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                    <Building className="text-brand-light h-5 w-5" />
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                    <Building className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle>Basic Information</CardTitle>
@@ -565,12 +566,12 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             </Card>
 
             {/* Address */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
                     <svg
-                      className="text-brand-light h-5 w-5"
+                      className="text-muted-foreground h-5 w-5"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -613,11 +614,11 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             </Card>
 
             {/* Email Configuration */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                    <Mail className="text-brand-light h-5 w-5" />
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                    <Mail className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle>Email Configuration</CardTitle>
@@ -631,7 +632,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
               <CardContent className="space-y-6">
                 {/* Current Status */}
                 {mode === "edit" && (
-                  <div className="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+                  <div className="flex items-center justify-between  bg-gray-50 p-4">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">
                         Current Status:
@@ -639,7 +640,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                       {emailConfig?.hasApiKey && emailConfig?.resendDomain ? (
                         <Badge
                           variant="default"
-                          className="bg-green-100 text-green-800"
+                          className="bg-primary/10 text-primary"
                         >
                           <Key className="mr-1 h-3 w-3" />
                           Custom Configuration Active
@@ -670,7 +671,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                           href="https://resend.com"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                          className="text-primary hover:underline"
                         >
                           resend.com
                         </a>
@@ -709,7 +710,9 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                             ? "Enter new API key to update"
                             : "re_..."
                         }
-                        className={errors.resendApiKey ? "border-red-500" : ""}
+                        className={
+                          errors.resendApiKey ? "border-destructive" : ""
+                        }
                       />
                       <Button
                         type="button"
@@ -726,7 +729,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                       </Button>
                     </div>
                     {errors.resendApiKey && (
-                      <p className="text-sm text-red-600">
+                      <p className="text-destructive text-sm">
                         {errors.resendApiKey}
                       </p>
                     )}
@@ -749,10 +752,12 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                         handleInputChange("resendDomain", e.target.value)
                       }
                       placeholder="yourdomain.com"
-                      className={errors.resendDomain ? "border-red-500" : ""}
+                      className={
+                        errors.resendDomain ? "border-destructive" : ""
+                      }
                     />
                     {errors.resendDomain && (
-                      <p className="text-sm text-red-600">
+                      <p className="text-destructive text-sm">
                         {errors.resendDomain}
                       </p>
                     )}
@@ -779,10 +784,12 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                         handleInputChange("emailFromName", e.target.value)
                       }
                       placeholder={formData.name || "Your Business Name"}
-                      className={errors.emailFromName ? "border-red-500" : ""}
+                      className={
+                        errors.emailFromName ? "border-destructive" : ""
+                      }
                     />
                     {errors.emailFromName && (
-                      <p className="text-sm text-red-600">
+                      <p className="text-destructive text-sm">
                         {errors.emailFromName}
                       </p>
                     )}
@@ -796,11 +803,11 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             </Card>
 
             {/* Settings */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-brand-muted flex h-10 w-10 items-center justify-center rounded-lg">
-                    <Star className="text-brand-light h-5 w-5" />
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                    <Star className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle>Settings</CardTitle>
@@ -811,7 +818,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-brand-muted border-border/40 flex items-center justify-between rounded-xl border p-4">
+                <div className="bg-muted border-border/40 flex items-center justify-between  border p-4">
                   <div className="space-y-0.5">
                     <Label
                       htmlFor="isDefault"
@@ -841,8 +848,8 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-primary/10  p-2">
+              <FileText className="text-primary h-5 w-5" />
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -873,7 +880,8 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !isDirty}
-          className="btn-brand-primary shadow-md"
+          variant="default"
+          className="shadow-md"
           size="sm"
         >
           {isSubmitting ? (

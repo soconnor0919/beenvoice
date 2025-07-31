@@ -9,6 +9,8 @@ import {
   Eye,
   FileText,
   Plus,
+  TrendingDown,
+  TrendingUp,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -21,23 +23,23 @@ import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
 import { auth } from "~/server/auth";
 import { HydrateClient, api } from "~/trpc/server";
 import type { StoredInvoiceStatus } from "~/types/invoice";
+import { RevenueChart } from "~/app/dashboard/_components/revenue-chart";
+import { InvoiceStatusChart } from "~/app/dashboard/_components/invoice-status-chart";
+import { MonthlyMetricsChart } from "~/app/dashboard/_components/monthly-metrics-chart";
 
-// Modern gradient background component
+// Hero section with clean mono design
 function DashboardHero({ firstName }: { firstName: string }) {
   return (
-    <Card className="relative mb-8 overflow-hidden border-0 p-8 shadow-sm transition-shadow hover:shadow-md">
-      <div className="absolute inset-0" />
-      <div className="relative z-10">
-        <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
-        <p className="text-lg">Ready to manage your invoicing business</p>
-      </div>
-      <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/10" />
-      <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-white/5" />
-    </Card>
+    <div className="mb-8">
+      <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
+      <p className="text-muted-foreground text-lg">
+        Here&apos;s what&apos;s happening with your business today
+      </p>
+    </div>
   );
 }
 
-// Enhanced stats cards with better visual hierarchy
+// Enhanced stats cards with better visuals
 async function DashboardStats() {
   const [clients, invoices] = await Promise.all([
     api.clients.getAll(),
@@ -45,8 +47,48 @@ async function DashboardStats() {
   ]);
 
   const totalClients = clients.length;
-  const totalInvoices = invoices.length;
-  const totalRevenue = invoices
+  const paidInvoices = invoices.filter(
+    (invoice) =>
+      getEffectiveInvoiceStatus(
+        invoice.status as StoredInvoiceStatus,
+        invoice.dueDate,
+      ) === "paid",
+  );
+  const totalRevenue = paidInvoices.reduce(
+    (sum, invoice) => sum + invoice.totalAmount,
+    0,
+  );
+
+  const pendingInvoices = invoices.filter((invoice) => {
+    const effectiveStatus = getEffectiveInvoiceStatus(
+      invoice.status as StoredInvoiceStatus,
+      invoice.dueDate,
+    );
+    return effectiveStatus === "sent" || effectiveStatus === "overdue";
+  });
+  const pendingAmount = pendingInvoices.reduce(
+    (sum, invoice) => sum + invoice.totalAmount,
+    0,
+  );
+
+  const overdueInvoices = invoices.filter(
+    (invoice) =>
+      getEffectiveInvoiceStatus(
+        invoice.status as StoredInvoiceStatus,
+        invoice.dueDate,
+      ) === "overdue",
+  );
+
+  // Calculate month-over-month trends
+  const now = new Date();
+  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  // Current month data
+  const currentMonthInvoices = invoices.filter(
+    (invoice) => new Date(invoice.issueDate) >= currentMonth,
+  );
+  const currentMonthRevenue = currentMonthInvoices
     .filter(
       (invoice) =>
         getEffectiveInvoiceStatus(
@@ -55,79 +97,134 @@ async function DashboardStats() {
         ) === "paid",
     )
     .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
-  const pendingAmount = invoices
-    .filter((invoice) => {
-      const effectiveStatus = getEffectiveInvoiceStatus(
+
+  // Last month data
+  const lastMonthInvoices = invoices.filter((invoice) => {
+    const date = new Date(invoice.issueDate);
+    return date >= lastMonth && date < currentMonth;
+  });
+  const lastMonthRevenue = lastMonthInvoices
+    .filter(
+      (invoice) =>
+        getEffectiveInvoiceStatus(
+          invoice.status as StoredInvoiceStatus,
+          invoice.dueDate,
+        ) === "paid",
+    )
+    .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
+
+  // Previous month data for clients
+  const prevMonthClients = clients.filter(
+    (client) => new Date(client.createdAt) < currentMonth,
+  ).length;
+
+  // Calculate trends
+  const revenueChange =
+    lastMonthRevenue > 0
+      ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
+      : currentMonthRevenue > 0
+        ? 100
+        : 0;
+
+  const pendingChange =
+    lastMonthInvoices.length > 0
+      ? ((pendingInvoices.length -
+          lastMonthInvoices.filter((invoice) => {
+            const status = getEffectiveInvoiceStatus(
+              invoice.status as StoredInvoiceStatus,
+              invoice.dueDate,
+            );
+            return status === "sent" || status === "overdue";
+          }).length) /
+          lastMonthInvoices.length) *
+        100
+      : pendingInvoices.length > 0
+        ? 100
+        : 0;
+
+  const clientChange = totalClients - prevMonthClients;
+
+  const lastMonthOverdue = lastMonthInvoices.filter(
+    (invoice) =>
+      getEffectiveInvoiceStatus(
         invoice.status as StoredInvoiceStatus,
         invoice.dueDate,
-      );
-      return effectiveStatus === "sent" || effectiveStatus === "overdue";
-    })
-    .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
+      ) === "overdue",
+  ).length;
+  const overdueChange = overdueInvoices.length - lastMonthOverdue;
+
+  const formatTrend = (value: number, isCount = false) => {
+    if (isCount) {
+      return value > 0 ? `+${value}` : value.toString();
+    }
+    return value > 0 ? `+${value.toFixed(1)}%` : `${value.toFixed(1)}%`;
+  };
 
   const stats = [
     {
       title: "Total Revenue",
       value: `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      change: "+12.5%",
+      change: formatTrend(revenueChange),
+      trend: revenueChange >= 0 ? ("up" as const) : ("down" as const),
       icon: DollarSign,
-      color: "",
-      bgColor: "bg-green-50",
-      changeColor: "",
+      description: `From ${paidInvoices.length} paid invoices`,
     },
     {
       title: "Pending Amount",
       value: `$${pendingAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      change: "+8.2%",
+      change: formatTrend(pendingChange),
+      trend: pendingChange >= 0 ? ("up" as const) : ("down" as const),
       icon: Clock,
-      color: "",
-      bgColor: "bg-amber-50",
-      changeColor: "",
+      description: `${pendingInvoices.length} invoices awaiting payment`,
     },
     {
       title: "Active Clients",
       value: totalClients.toString(),
-      change: "+3",
+      change: formatTrend(clientChange, true),
+      trend: clientChange >= 0 ? ("up" as const) : ("down" as const),
       icon: Users,
-      color: "",
-      bgColor: "bg-blue-50",
-      changeColor: "",
+      description: "Total registered clients",
     },
     {
-      title: "Total Invoices",
-      value: totalInvoices.toString(),
-      change: "+15",
-      icon: FileText,
-      color: "",
-      bgColor: "bg-purple-50",
-      changeColor: "",
+      title: "Overdue Invoices",
+      value: overdueInvoices.length.toString(),
+      change: formatTrend(overdueChange, true),
+      trend: overdueChange <= 0 ? ("up" as const) : ("down" as const),
+      icon: TrendingDown,
+      description: "Invoices past due date",
     },
   ];
 
   return (
-    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => {
         const Icon = stat.icon;
+        const TrendIcon = stat.trend === "up" ? TrendingUp : TrendingDown;
+        const isPositive = stat.trend === "up";
+
         return (
-          <Card
-            key={stat.title}
-            className="border-0 shadow-sm transition-shadow hover:shadow-md"
-          >
-            <CardContent className="p-3 sm:p-4 lg:p-6">
-              <div className="mb-2 flex items-center justify-between sm:mb-3 lg:mb-4">
-                <div className={`rounded-lg p-1.5 sm:p-2 ${stat.bgColor}`}>
-                  <Icon className="h-3 w-3 text-gray-700 sm:h-4 sm:w-4 lg:h-5 lg:w-5 dark:text-gray-800" />
+          <Card key={stat.title}>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between space-y-0 pb-2">
+                <div className="flex items-center space-x-2">
+                  <Icon className="text-muted-foreground h-5 w-5" />
+                  <p className="text-muted-foreground text-sm font-medium">
+                    {stat.title}
+                  </p>
                 </div>
-                <span className="text-xs font-medium text-teal-600 dark:text-teal-400">
-                  {stat.change}
-                </span>
+                <div
+                  className={`flex items-center space-x-1 text-xs ${
+                    isPositive ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  <TrendIcon className="h-3 w-3" />
+                  <span>{stat.change}</span>
+                </div>
               </div>
-              <div>
-                <p className="mb-1 text-base font-bold text-gray-900 sm:text-xl lg:text-2xl dark:text-gray-100">
-                  {stat.value}
-                </p>
-                <p className="text-xs text-gray-600 lg:text-sm dark:text-gray-300">
-                  {stat.title}
+              <div className="space-y-1">
+                <p className="text-2xl font-bold">{stat.value}</p>
+                <p className="text-muted-foreground text-xs">
+                  {stat.description}
                 </p>
               </div>
             </CardContent>
@@ -138,64 +235,111 @@ async function DashboardStats() {
   );
 }
 
-// Quick Actions with better visual design
+// Charts section
+async function ChartsSection() {
+  const invoices = await api.invoices.getAll();
+
+  return (
+    <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Revenue Trend Chart */}
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Revenue Over Time
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <RevenueChart invoices={invoices} />
+        </CardContent>
+      </Card>
+
+      {/* Invoice Status Breakdown */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Invoice Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <InvoiceStatusChart invoices={invoices} />
+        </CardContent>
+      </Card>
+
+      {/* Monthly Metrics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Calendar className="h-5 w-5" />
+            Monthly Metrics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <MonthlyMetricsChart invoices={invoices} />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+// Enhanced Quick Actions
 function QuickActions() {
   const actions = [
     {
       title: "Create Invoice",
-      description: "Start a new invoice",
+      description: "Start a new invoice for a client",
       href: "/dashboard/invoices/new",
       icon: FileText,
-      primary: true,
+      featured: true,
     },
     {
       title: "Add Client",
-      description: "Add a new client",
+      description: "Register a new client",
       href: "/dashboard/clients/new",
       icon: Users,
-      primary: false,
+      featured: false,
     },
     {
-      title: "View Reports",
-      description: "Business analytics",
-      href: "/dashboard/reports",
+      title: "View All Invoices",
+      description: "Manage your invoice pipeline",
+      href: "/dashboard/invoices",
       icon: BarChart3,
-      primary: false,
+      featured: false,
     },
   ];
 
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Plus className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Plus className="h-5 w-5" />
           Quick Actions
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-3">
         {actions.map((action) => {
           const Icon = action.icon;
           return (
             <Button
               key={action.title}
               asChild
-              variant={action.primary ? "default" : "outline"}
-              className={`h-12 w-full justify-start px-3 ${
-                action.primary
-                  ? "bg-teal-600 text-white hover:bg-teal-700"
-                  : "border-gray-200 hover:bg-gray-50 dark:border-gray-600 dark:hover:bg-gray-800"
+              variant="outline"
+              className={`h-auto w-full justify-start p-4 ${
+                action.featured
+                  ? "border-foreground/20 bg-muted/50 hover:bg-muted"
+                  : "hover:bg-muted/50"
               }`}
             >
               <Link href={action.href}>
-                <div className="flex items-center gap-3">
-                  <Icon
-                    className={`h-4 w-4 ${action.primary ? "text-white" : "text-gray-600 dark:text-gray-300"}`}
-                  />
-                  <span
-                    className={`font-medium ${action.primary ? "text-white" : "text-gray-900 dark:text-gray-100"}`}
-                  >
-                    {action.title}
-                  </span>
+                <div className="flex items-center space-x-3">
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  <div className="text-left">
+                    <p className="font-semibold">{action.title}</p>
+                    <p className="text-muted-foreground text-sm">
+                      {action.description}
+                    </p>
+                  </div>
                 </div>
               </Link>
             </Button>
@@ -206,7 +350,7 @@ function QuickActions() {
   );
 }
 
-// Current work in progress
+// Current work section with enhanced design
 async function CurrentWork() {
   const invoices = await api.invoices.getAll();
   const draftInvoices = invoices.filter(
@@ -220,20 +364,21 @@ async function CurrentWork() {
 
   if (!currentInvoice) {
     return (
-      <Card className="border-0 shadow-sm">
+      <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <CardTitle className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
             Current Work
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="py-8 text-center">
-            <FileText className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
-            <p className="mb-4 text-gray-600 dark:text-gray-300">
-              No draft invoices found
+            <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-semibold">No active drafts</h3>
+            <p className="text-muted-foreground mb-4">
+              Create a new invoice to get started
             </p>
-            <Button asChild className="bg-teal-600 hover:bg-teal-700">
+            <Button asChild variant="outline" className="border-foreground/20">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Invoice
@@ -249,49 +394,41 @@ async function CurrentWork() {
     currentInvoice.items?.reduce((sum, item) => sum + item.hours, 0) ?? 0;
 
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="flex items-center gap-2">
+          <Activity className="h-5 w-5" />
           Current Work
         </CardTitle>
         <Badge variant="secondary">In Progress</Badge>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-lg font-semibold">
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold">
                 #{currentInvoice.invoiceNumber}
-              </p>
-              <p className="text-gray-600 dark:text-gray-300">
-                {currentInvoice.client?.name}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-2xl font-bold text-teal-600 dark:text-teal-400">
+              </h3>
+              <span className="text-primary text-2xl font-bold">
                 ${currentInvoice.totalAmount.toFixed(2)}
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
-                {totalHours.toFixed(1)} hours
-              </p>
+              </span>
+            </div>
+            <div className="text-muted-foreground flex items-center justify-between text-sm">
+              <span>{currentInvoice.client?.name}</span>
+              <span>{totalHours.toFixed(1)} hours logged</span>
             </div>
           </div>
 
           <div className="flex gap-2">
             <Button asChild variant="outline" size="sm" className="flex-1">
               <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
-                <Eye className="mr-2 h-3 w-3" />
+                <Eye className="mr-2 h-4 w-4" />
                 View
               </Link>
             </Button>
-            <Button
-              asChild
-              size="sm"
-              className="flex-1 bg-teal-600 hover:bg-teal-700"
-            >
-              <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
-                <Edit className="mr-2 h-3 w-3" />
+            <Button asChild size="sm" className="flex-1">
+              <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
                 Continue
               </Link>
             </Button>
@@ -302,7 +439,7 @@ async function CurrentWork() {
   );
 }
 
-// Recent activity with enhanced design
+// Enhanced recent activity
 async function RecentActivity() {
   const invoices = await api.invoices.getAll();
   const recentInvoices = invoices
@@ -315,21 +452,21 @@ async function RecentActivity() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-green-50 border-green-200";
+        return "bg-green-50 border-green-200 text-green-700";
       case "sent":
-        return "bg-blue-50 border-blue-200";
+        return "bg-blue-50 border-blue-200 text-blue-700";
       case "overdue":
-        return "bg-red-50 border-red-200";
+        return "bg-red-50 border-red-200 text-red-700";
       default:
-        return "bg-gray-50 border-gray-200";
+        return "bg-gray-50 border-gray-200 text-gray-700";
     }
   };
 
   return (
-    <Card className="border-0 shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Calendar className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5" />
           Recent Activity
         </CardTitle>
         <Button variant="ghost" size="sm" asChild>
@@ -342,11 +479,12 @@ async function RecentActivity() {
       <CardContent>
         {recentInvoices.length === 0 ? (
           <div className="py-8 text-center">
-            <FileText className="mx-auto mb-4 h-12 w-12 text-gray-300 dark:text-gray-600" />
-            <p className="mb-4 text-gray-600 dark:text-gray-300">
-              No invoices yet
+            <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-semibold">No invoices yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Create your first invoice to get started
             </p>
-            <Button asChild className="bg-teal-600 hover:bg-teal-700">
+            <Button asChild variant="outline" className="border-foreground/20">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Invoice
@@ -361,39 +499,28 @@ async function RecentActivity() {
                 href={`/dashboard/invoices/${invoice.id}`}
                 className="block"
               >
-                <Card className="card-secondary transition-colors hover:bg-gray-200/70 dark:hover:bg-gray-700/60">
-                  <CardContent className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <div className="rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-                          <FileText className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-medium text-gray-900 dark:text-gray-100">
-                            #{invoice.invoiceNumber}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-300">
-                            {invoice.client?.name} •{" "}
-                            {new Date(invoice.issueDate).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="rounded-lg p-1 transition-colors hover:bg-gray-300/50 dark:hover:bg-gray-600/50">
-                          <Eye className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <Badge
-                          className={`border ${getStatusColor(invoice.status)}`}
-                        >
-                          {invoice.status}
-                        </Badge>
-                        <p className="font-semibold text-gray-900 dark:text-gray-100">
-                          ${invoice.totalAmount.toFixed(2)}
-                        </p>
-                      </div>
+                <div className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors">
+                  <div className="flex items-center space-x-3">
+                    <div className="bg-muted rounded-lg p-2">
+                      <FileText className="text-muted-foreground h-4 w-4" />
                     </div>
-                  </CardContent>
-                </Card>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium">#{invoice.invoiceNumber}</p>
+                      <p className="text-muted-foreground text-sm">
+                        {invoice.client?.name} •{" "}
+                        {new Date(invoice.issueDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <Badge className={getStatusColor(invoice.status)}>
+                      {invoice.status}
+                    </Badge>
+                    <span className="font-semibold">
+                      ${invoice.totalAmount.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -406,16 +533,16 @@ async function RecentActivity() {
 // Loading skeletons
 function StatsSkeleton() {
   return (
-    <div className="mb-8 grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-4">
+    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
-        <Card key={i} className="border-0 shadow-sm">
-          <CardContent className="p-3 sm:p-4 lg:p-6">
-            <div className="mb-2 flex items-center justify-between sm:mb-3 lg:mb-4">
-              <Skeleton className="h-6 w-6 rounded-lg sm:h-8 sm:w-8 lg:h-9 lg:w-9" />
-              <Skeleton className="h-3 w-8 sm:h-4 sm:w-12" />
+        <Card key={i}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between space-y-0 pb-2">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-4 w-12" />
             </div>
-            <Skeleton className="mb-1 h-5 w-16 sm:mb-2 sm:h-6 sm:w-20 lg:h-8" />
-            <Skeleton className="h-3 w-20 sm:h-4 sm:w-24" />
+            <Skeleton className="mb-2 h-8 w-20" />
+            <Skeleton className="h-3 w-32" />
           </CardContent>
         </Card>
       ))}
@@ -423,9 +550,40 @@ function StatsSkeleton() {
   );
 }
 
+function ChartsSkeleton() {
+  return (
+    <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <Card className="lg:col-span-2">
+        <CardHeader>
+          <Skeleton className="h-6 w-40" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-32" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-6 w-36" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-64 w-full" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function CardSkeleton() {
   return (
-    <Card className="border-0 shadow-sm">
+    <Card>
       <CardHeader>
         <Skeleton className="h-6 w-32" />
       </CardHeader>
@@ -454,21 +612,28 @@ export default async function DashboardPage() {
         </Suspense>
       </HydrateClient>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <HydrateClient>
-          <Suspense fallback={<CardSkeleton />}>
-            <CurrentWork />
-          </Suspense>
-        </HydrateClient>
-
-        <QuickActions />
-      </div>
-
       <HydrateClient>
-        <Suspense fallback={<CardSkeleton />}>
-          <RecentActivity />
+        <Suspense fallback={<ChartsSkeleton />}>
+          <ChartsSection />
         </Suspense>
       </HydrateClient>
+
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="space-y-8">
+          <HydrateClient>
+            <Suspense fallback={<CardSkeleton />}>
+              <CurrentWork />
+            </Suspense>
+          </HydrateClient>
+          <QuickActions />
+        </div>
+
+        <HydrateClient>
+          <Suspense fallback={<CardSkeleton />}>
+            <RecentActivity />
+          </Suspense>
+        </HydrateClient>
+      </div>
     </div>
   );
 }

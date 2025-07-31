@@ -132,7 +132,7 @@ export function EmptyState({
   return (
     <div className={cn("py-12 text-center", className)}>
       {icon && (
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center  bg-muted/50">
           {icon}
         </div>
       )}

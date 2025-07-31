@@ -66,7 +66,7 @@ const columns: ColumnDef<InvoiceItem>[] = [
     accessorKey: "amount",
     header: "Amount",
     cell: ({ row }) => (
-      <div className="text-icon-emerald text-right font-medium">
+      <div className="text-primary text-right font-medium">
         {formatCurrency(row.getValue("amount"))}
       </div>
     ),

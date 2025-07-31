@@ -28,7 +28,7 @@ export default async function InvoicesPage() {
             <span>Import CSV</span>
           </Link>
         </Button>
-        <Button asChild className="btn-brand-primary shadow-md">
+        <Button asChild variant="default" className="shadow-md">
           <Link href="/dashboard/invoices/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Create Invoice</span>

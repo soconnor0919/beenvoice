@@ -21,16 +21,16 @@ function FormatInstructions() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
       {/* Required Format */}
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader>
-          <CardTitle className="card-title-info">
-            <FileText className="text-icon-blue h-5 w-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <FileText className="text-primary h-5 w-5" />
             Required CSV Format
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-muted-subtle rounded-lg p-4">
-            <p className="text-secondary font-mono text-sm">
+          <div className="bg-muted/50  p-4">
+            <p className="text-muted-foreground font-mono text-sm">
               DATE,DESCRIPTION,HOURS,RATE,AMOUNT
             </p>
           </div>
@@ -49,7 +49,7 @@ function FormatInstructions() {
                 },
               ].map((col) => (
                 <div key={col.field} className="flex items-start gap-3">
-                  <Badge className="badge-outline text-xs">{col.field}</Badge>
+                  <Badge className="border text-xs">{col.field}</Badge>
                   <span className="text-muted-foreground text-sm">
                     {col.desc}
                   </span>
@@ -72,10 +72,10 @@ function FormatInstructions() {
       </Card>
 
       {/* Sample Data & Download */}
-      <Card className="card-primary">
+      <Card className="bg-card border-border border">
         <CardHeader>
-          <CardTitle className="card-title-secondary">
-            <Download className="text-icon-green h-5 w-5" />
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <Download className="text-primary h-5 w-5" />
             Sample Template
           </CardTitle>
         </CardHeader>
@@ -85,9 +85,9 @@ function FormatInstructions() {
             for importing time entries.
           </p>
 
-          <div className="bg-green-subtle rounded-lg p-4">
+          <div className="bg-primary/10  p-4">
             <div className="flex items-start gap-3">
-              <Info className="text-icon-green mt-0.5 h-5 w-5" />
+              <Info className="text-primary mt-0.5 h-5 w-5" />
               <div>
                 <p className="text-success text-sm font-medium">Pro Tip</p>
                 <p className="text-success text-sm">
@@ -100,7 +100,7 @@ function FormatInstructions() {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">Sample Row:</h4>
-            <div className="bg-muted-subtle rounded-lg p-3">
+            <div className="bg-muted/50  p-3">
               <p className="text-muted font-mono text-xs break-all">
                 1/15/24,&quot;Web development work&quot;,8,75.00,600.00
               </p>
@@ -109,7 +109,7 @@ function FormatInstructions() {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">Sample Filename:</h4>
-            <div className="bg-muted-subtle rounded-lg p-3">
+            <div className="bg-muted/50  p-3">
               <p className="text-muted font-mono text-xs">2024-01-15.csv</p>
             </div>
           </div>
@@ -122,10 +122,10 @@ function FormatInstructions() {
 // Important Notes Section
 function ImportantNotes() {
   return (
-    <Card className="card-primary border-l-4 border-l-amber-500">
+    <Card className="bg-card border-border border border-l-4 border-l-amber-500">
       <CardHeader>
-        <CardTitle className="card-title-warning">
-          <AlertCircle className="text-icon-amber h-5 w-5" />
+        <CardTitle className="text-destructive flex items-center gap-2">
+          <AlertCircle className="text-primary h-5 w-5" />
           Important Notes
         </CardTitle>
       </CardHeader>
@@ -158,18 +158,18 @@ function ImportantNotes() {
 // File Format Help Section
 function FileFormatHelp() {
   return (
-    <Card className="card-primary">
+    <Card className="bg-card border-border border">
       <CardHeader>
-        <CardTitle className="card-title-info">
-          <FileSpreadsheet className="text-icon-blue h-5 w-5" />
+        <CardTitle className="text-foreground flex items-center gap-2">
+          <FileSpreadsheet className="text-primary h-5 w-5" />
           Supported File Formats
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-2 text-center">
-            <div className="mx-auto w-fit rounded-full bg-blue-50 p-3 dark:bg-blue-900/20">
-              <FileSpreadsheet className="h-6 w-6 text-blue-600" />
+            <div className="bg-accent mx-auto w-fit  p-3">
+              <FileSpreadsheet className="text-foreground-foreground h-6 w-6" />
             </div>
             <h4 className="font-semibold">CSV Files</h4>
             <p className="text-muted-foreground text-sm">
@@ -178,8 +178,8 @@ function FileFormatHelp() {
             </p>
           </div>
           <div className="space-y-2 text-center">
-            <div className="mx-auto w-fit rounded-full bg-green-50 p-3 dark:bg-green-900/20">
-              <Upload className="h-6 w-6 text-green-600" />
+            <div className="bg-primary/10 mx-auto w-fit  p-3">
+              <Upload className="text-primary h-6 w-6" />
             </div>
             <h4 className="font-semibold">Max Size</h4>
             <p className="text-muted-foreground text-sm">
@@ -187,8 +187,8 @@ function FileFormatHelp() {
             </p>
           </div>
           <div className="space-y-2 text-center">
-            <div className="mx-auto w-fit rounded-full bg-purple-50 p-3 dark:bg-purple-900/20">
-              <CheckCircle className="h-6 w-6 text-purple-600" />
+            <div className="bg-secondary mx-auto w-fit  p-3">
+              <CheckCircle className="text-muted-foreground-foreground h-6 w-6" />
             </div>
             <h4 className="font-semibold">Validation</h4>
             <p className="text-muted-foreground text-sm">

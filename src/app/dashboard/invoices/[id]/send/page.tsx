@@ -44,10 +44,10 @@ function SendEmailPageSkeleton() {
       />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <div className="bg-muted h-96 animate-pulse rounded-lg" />
+          <div className="bg-muted h-96 animate-pulse" />
         </div>
         <div className="space-y-6">
-          <div className="bg-muted h-64 animate-pulse rounded-lg" />
+          <div className="bg-muted h-64 animate-pulse" />
         </div>
       </div>
     </div>
@@ -91,7 +91,7 @@ export default function SendEmailPage() {
       });
 
       // Navigate back to invoice view
-      router.push(`/dashboard/invoices/${invoiceId}/view`);
+      router.push(`/dashboard/invoices/${invoiceId}`);
 
       // Refresh invoice data
       void utils.invoices.getById.invalidate({ id: invoiceId });
@@ -275,7 +275,7 @@ export default function SendEmailPage() {
       >
         <Button
           variant="outline"
-          onClick={() => router.push(`/dashboard/invoices/${invoiceId}/view`)}
+          onClick={() => router.push(`/dashboard/invoices/${invoiceId}`)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Invoice
@@ -334,9 +334,9 @@ export default function SendEmailPage() {
                         onBccEmailChange={setBccEmail}
                       />
                     ) : (
-                      <div className="bg-muted flex h-[400px] items-center justify-center rounded-md border">
+                      <div className="bg-muted flex h-[400px] items-center justify-center border">
                         <div className="text-center">
-                          <div className="border-primary mx-auto mb-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"></div>
+                          <div className="border-primary mx-auto mb-2 h-4 w-4 animate-spin border-2 border-t-transparent"></div>
                           <p className="text-muted-foreground text-sm">
                             Initializing email content...
                           </p>
@@ -382,7 +382,7 @@ export default function SendEmailPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <FileText className="h-5 w-5 text-green-600" />
+                <FileText className="text-primary h-5 w-5" />
                 Invoice #{invoice.invoiceNumber}
               </CardTitle>
             </CardHeader>
@@ -506,14 +506,12 @@ export default function SendEmailPage() {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="rounded-lg bg-green-100 p-2 dark:bg-green-900/30">
-              <Send className="h-5 w-5 text-green-600 dark:text-green-400" />
+            <div className="bg-primary/10 p-2">
+              <Send className="text-primary h-5 w-5" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">
-                Send Invoice
-              </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-foreground font-medium">Send Invoice</p>
+              <p className="text-muted-foreground text-sm">
                 Email invoice to {invoice.client?.name ?? "client"}
               </p>
             </div>
@@ -523,7 +521,7 @@ export default function SendEmailPage() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => router.push(`/dashboard/invoices/${invoiceId}/view`)}
+          onClick={() => router.push(`/dashboard/invoices/${invoiceId}`)}
         >
           Cancel
         </Button>
@@ -531,7 +529,7 @@ export default function SendEmailPage() {
         <Button
           onClick={handleSendEmail}
           disabled={!canSend || isSending}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-colors duration-200 hover:from-emerald-700 hover:to-teal-700"
+          variant="default"
           size="sm"
         >
           {isSending ? (
@@ -570,7 +568,7 @@ export default function SendEmailPage() {
               )}
               .
               {retryCount > 0 && (
-                <div className="mt-2 text-sm text-yellow-600">
+                <div className="text-muted-foreground mt-2 text-sm">
                   Retry attempt {retryCount} of 2
                 </div>
               )}
@@ -583,10 +581,7 @@ export default function SendEmailPage() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={confirmSendEmail}
-              className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700"
-            >
+            <Button onClick={confirmSendEmail} variant="default">
               <Send className="mr-2 h-4 w-4" />
               Send Email
             </Button>

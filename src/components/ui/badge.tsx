@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "~/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
+  "inline-flex items-center justify-center  border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1 [&>svg]:pointer-events-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive transition-[color,box-shadow] overflow-hidden",
   {
     variants: {
       variant: {
@@ -23,13 +23,11 @@ const badgeVariants = cva(
         info: "border-transparent bg-status-info [a&]:hover:opacity-90",
         // Outlined variants for status badges
         "outline-draft":
-          "border-gray-400 text-gray-600 dark:border-gray-500 dark:text-gray-300 bg-transparent",
-        "outline-sent":
-          "border-blue-400 text-blue-600 dark:border-blue-500 dark:text-blue-300 bg-transparent",
-        "outline-paid":
-          "border-green-400 text-green-600 dark:border-green-500 dark:text-green-300 bg-transparent",
+          "border-muted-foreground/40 text-muted-foreground bg-transparent",
+        "outline-sent": "border-primary/40 text-primary bg-transparent",
+        "outline-paid": "border-primary/40 text-primary bg-transparent",
         "outline-overdue":
-          "border-red-400 text-red-600 dark:border-red-500 dark:text-red-300 bg-transparent",
+          "border-destructive/40 text-destructive bg-transparent",
       },
     },
     defaultVariants: {

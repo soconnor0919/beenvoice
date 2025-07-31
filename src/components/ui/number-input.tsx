@@ -76,7 +76,7 @@ export function NumberInput({
   return (
     <div
       className={cn(
-        "bg-background flex h-9 items-center justify-center rounded-md text-sm shadow-none",
+        "bg-background flex h-9 items-center justify-center  text-sm shadow-none",
         widthClass,
         disabled && "cursor-not-allowed opacity-50",
         className,

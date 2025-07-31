@@ -262,7 +262,8 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             type="submit"
             form="client-form"
             disabled={isSubmitting}
-            className="btn-brand-primary shadow-md"
+            variant="default"
+            className="shadow-md"
           >
             {isSubmitting ? (
               <>
@@ -286,11 +287,11 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
           {/* Main Form Container - styled like data table */}
           <div className="space-y-4">
             {/* Basic Information */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                    <UserPlus className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center ">
+                    <UserPlus className="text-primary h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle>Basic Information</CardTitle>
@@ -367,12 +368,12 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             </Card>
 
             {/* Address */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center ">
                     <svg
-                      className="h-5 w-5 text-emerald-700 dark:text-emerald-400"
+                      className="text-primary h-5 w-5"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -415,11 +416,11 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
             </Card>
 
             {/* Billing Information */}
-            <Card className="card-primary">
+            <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-emerald-600/10 to-teal-600/10">
-                    <DollarSign className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />
+                  <div className="bg-primary/10 flex h-10 w-10 items-center justify-center ">
+                    <DollarSign className="text-primary h-5 w-5" />
                   </div>
                   <div>
                     <CardTitle>Billing Information</CardTitle>
@@ -463,8 +464,8 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="rounded-lg bg-blue-100 p-2 dark:bg-blue-900/30">
-              <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            <div className="bg-primary/10  p-2">
+              <FileText className="text-primary h-5 w-5" />
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">
@@ -495,7 +496,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || !isDirty}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 shadow-md transition-all duration-200 hover:from-emerald-700 hover:to-teal-700 hover:shadow-lg"
+          variant="default"
           size="sm"
         >
           {isSubmitting ? (
