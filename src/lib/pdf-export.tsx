@@ -267,8 +267,8 @@ const styles = StyleSheet.create({
 
   // Notes section (first page only)
   notesSection: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 0,
+    marginBottom: 0,
     padding: 15,
     backgroundColor: "#f9fafb",
     borderRadius: 4,
@@ -285,7 +285,7 @@ const styles = StyleSheet.create({
   notesContent: {
     fontSize: 10,
     fontFamily: "Helvetica",
-    color: "#6b7280",
+    color: "#374151",
     lineHeight: 1.4,
   },
 
@@ -436,16 +436,25 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
   },
 
-  // Totals section
-  totalsSection: {
+  // Bottom section with notes and totals
+  bottomSection: {
     marginTop: 20,
     flexDirection: "row",
-    justifyContent: "flex-end",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+
+  notesContainer: {
+    width: 240,
+  },
+
+  totalsContainer: {
+    width: 240,
   },
 
   totalsBox: {
-    width: 250,
-    padding: 15,
+    width: "100%",
+    padding: 10,
     backgroundColor: "#f9fafb",
     border: "1px solid #e5e7eb",
     borderRadius: 4,
@@ -454,26 +463,27 @@ const styles = StyleSheet.create({
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 6,
+    marginBottom: 4,
+    paddingVertical: 1,
   },
 
   totalLabel: {
-    fontSize: 11,
-    color: "#6b7280",
+    fontSize: 12,
+    color: "#475569",
+    fontFamily: "Helvetica",
   },
 
   totalAmount: {
-    fontSize: 10,
+    fontSize: 12,
     fontFamily: "Courier-Bold",
-    color: "#111827",
+    color: "#1e293b",
   },
 
   finalTotalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 8,
-    paddingTop: 8,
-    borderTop: "2px solid #10b981",
+    marginTop: 6,
+    paddingTop: 6,
   },
 
   finalTotalLabel: {
@@ -491,7 +501,7 @@ const styles = StyleSheet.create({
   itemCount: {
     fontSize: 9,
     fontFamily: "Helvetica",
-    color: "#6b7280",
+    color: "#64748b",
     textAlign: "center",
     marginTop: 6,
     fontStyle: "italic",
@@ -631,10 +641,10 @@ function calculateItemsForPage(
 
   if (hasNotes) {
     // Last page needs space for totals and notes
-    availableHeight -= 120; // Totals + notes space
+    availableHeight -= 100; // Totals + notes space (reduced)
   } else {
     // Regular page just needs totals space
-    availableHeight -= 80; // Totals space only
+    availableHeight -= 65; // Totals space only (reduced)
   }
 
   // Table header takes space
@@ -683,10 +693,10 @@ function calculateItemsPerPage(
 
   if (hasNotes) {
     // Last page needs space for totals and notes
-    availableHeight -= 120; // Totals + notes space
+    availableHeight -= 100; // Totals + notes space (reduced)
   } else {
     // Regular page just needs totals space
-    availableHeight -= 80; // Totals space only
+    availableHeight -= 65; // Totals space only (reduced)
   }
 
   // Table header takes space
@@ -892,9 +902,11 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
   if (!invoice.notes) return null;
 
   return (
-    <View style={styles.notesSection}>
-      <Text style={styles.notesTitle}>Notes:</Text>
-      <Text style={styles.notesContent}>{invoice.notes}</Text>
+    <View style={styles.notesContainer}>
+      <View style={styles.notesSection}>
+        <Text style={styles.notesTitle}>NOTES</Text>
+        <Text style={styles.notesContent}>{invoice.notes}</Text>
+      </View>
     </View>
   );
 };
@@ -919,7 +931,7 @@ const Footer: React.FC = () => (
   </View>
 );
 
-// Totals section component
+// Enhanced totals section component
 const TotalsSection: React.FC<{
   invoice: InvoiceData;
   items: Array<NonNullable<InvoiceData["items"]>[0]>;
@@ -928,8 +940,22 @@ const TotalsSection: React.FC<{
   const taxAmount = (subtotal * invoice.taxRate) / 100;
 
   return (
-    <View style={styles.totalsSection}>
+    <View style={styles.totalsContainer}>
       <View style={styles.totalsBox}>
+        <Text
+          style={{
+            fontSize: 12,
+            fontFamily: "Helvetica-Bold",
+            color: "#334155",
+            textAlign: "center",
+            marginBottom: 6,
+            paddingBottom: 4,
+            borderBottom: "1px solid #e2e8f0",
+          }}
+        >
+          INVOICE SUMMARY
+        </Text>
+
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Subtotal:</Text>
           <Text style={styles.totalAmount}>{formatCurrency(subtotal)}</Text>
@@ -943,14 +969,14 @@ const TotalsSection: React.FC<{
         )}
 
         <View style={styles.finalTotalRow}>
-          <Text style={styles.finalTotalLabel}>Total:</Text>
+          <Text style={styles.finalTotalLabel}>TOTAL:</Text>
           <Text style={styles.finalTotalAmount}>
             {formatCurrency(invoice.totalAmount)}
           </Text>
         </View>
 
         <Text style={styles.itemCount}>
-          {items.length} item{items.length !== 1 ? "s" : ""}
+          {items.length} line item{items.length !== 1 ? "s" : ""}
         </Text>
       </View>
     </View>
@@ -1020,11 +1046,13 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
               </View>
             )}
 
-            {/* Totals (only on last page) */}
-            {isLastPage && <TotalsSection invoice={invoice} items={items} />}
-
-            {/* Notes (only on last page) */}
-            {isLastPage && <NotesSection invoice={invoice} />}
+            {/* Bottom section with notes and totals (only on last page) */}
+            {isLastPage && (
+              <View style={styles.bottomSection}>
+                {invoice.notes && <NotesSection invoice={invoice} />}
+                <TotalsSection invoice={invoice} items={items} />
+              </View>
+            )}
 
             {/* Footer */}
             <Footer />
