@@ -51,7 +51,15 @@ export function StatusBadge({
   const label = children ?? statusLabelMap[status];
 
   return (
-    <Badge className={cn(statusClass, className)} {...props}>
+    <Badge
+      className={cn(
+        statusClass,
+        "transition-all duration-200 hover:scale-105",
+        status === "sent" && "animate-pulse",
+        className,
+      )}
+      {...props}
+    >
       {label}
     </Badge>
   );

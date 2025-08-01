@@ -16,13 +16,13 @@ async function BusinessesTable() {
 
 export default async function BusinessesPage() {
   return (
-    <>
+    <div className="page-enter space-y-8">
       <PageHeader
         title="Businesses"
         description="Manage your businesses and their information"
         variant="gradient"
       >
-        <Button asChild variant="default" className="shadow-md">
+        <Button asChild variant="default" className="hover-lift shadow-md">
           <Link href="/dashboard/businesses/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Add Business</span>
@@ -35,6 +35,6 @@ export default async function BusinessesPage() {
           <BusinessesTable />
         </Suspense>
       </HydrateClient>
-    </>
+    </div>
   );
 }

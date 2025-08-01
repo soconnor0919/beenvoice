@@ -6,7 +6,7 @@ import { SettingsContent } from "./_components/settings-content";
 
 export default async function SettingsPage() {
   return (
-    <>
+    <div className="page-enter space-y-8">
       <PageHeader
         title="Settings"
         description="Manage your account preferences and data"
@@ -18,6 +18,6 @@ export default async function SettingsPage() {
           <SettingsContent />
         </Suspense>
       </HydrateClient>
-    </>
+    </div>
   );
 }

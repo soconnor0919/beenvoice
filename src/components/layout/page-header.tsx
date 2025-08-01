@@ -39,22 +39,24 @@ export function PageHeader({
   };
 
   return (
-    <div className={`mb-8 ${className}`}>
+    <div className={`animate-fade-in-down mb-8 ${className}`}>
       <div className="flex items-start justify-between gap-4">
-        <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
+        <div className="animate-fade-in-up space-y-1">
+          <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
+          {description && (
+            <p
+              className={`animate-fade-in-up animate-delay-100 text-muted-foreground ${getDescriptionSpacing()} text-lg`}
+            >
+              {description}
+            </p>
+          )}
+        </div>
         {children && (
-          <div className="flex flex-shrink-0 gap-2 sm:gap-3 [&>*]:h-8 [&>*]:px-2 [&>*]:text-sm sm:[&>*]:h-10 sm:[&>*]:px-4 sm:[&>*]:text-base [&>*>span]:hidden sm:[&>*>span]:inline [&>*>svg]:mr-0 sm:[&>*>svg]:mr-2">
+          <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3 [&>*]:h-8 [&>*]:px-2 [&>*]:text-sm sm:[&>*]:h-10 sm:[&>*]:px-4 sm:[&>*]:text-base [&>*>span]:hidden sm:[&>*>span]:inline [&>*>svg]:mr-0 sm:[&>*>svg]:mr-2">
             {children}
           </div>
         )}
       </div>
-      {description && (
-        <p
-          className={`text-muted-foreground ${getDescriptionSpacing()} text-lg`}
-        >
-          {description}
-        </p>
-      )}
     </div>
   );
 }

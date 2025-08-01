@@ -16,19 +16,19 @@ async function InvoicesTable() {
 
 export default async function InvoicesPage() {
   return (
-    <>
+    <div className="page-enter space-y-8">
       <PageHeader
         title="Invoices"
         description="Manage your invoices and track payments"
         variant="gradient"
       >
-        <Button asChild variant="outline" className="shadow-sm">
+        <Button asChild variant="outline" className="hover-lift shadow-sm">
           <Link href="/dashboard/invoices/import">
             <Upload className="mr-2 h-5 w-5" />
             <span>Import CSV</span>
           </Link>
         </Button>
-        <Button asChild variant="default" className="shadow-md">
+        <Button asChild variant="default" className="hover-lift shadow-md">
           <Link href="/dashboard/invoices/new">
             <Plus className="mr-2 h-5 w-5" />
             <span>Create Invoice</span>
@@ -41,6 +41,6 @@ export default async function InvoicesPage() {
           <InvoicesTable />
         </Suspense>
       </HydrateClient>
-    </>
+    </div>
   );
 }

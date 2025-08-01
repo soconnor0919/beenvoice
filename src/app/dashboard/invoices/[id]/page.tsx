@@ -123,14 +123,18 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
   };
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="page-enter space-y-6 pb-24">
       <PageHeader
         title="Invoice Details"
         description="View and manage invoice information"
         variant="gradient"
       >
-        <PDFDownloadButton invoiceId={invoice.id} variant="outline" />
-        <Button asChild variant="default">
+        <PDFDownloadButton
+          invoiceId={invoice.id}
+          variant="outline"
+          className="hover-lift"
+        />
+        <Button asChild variant="default" className="hover-lift">
           <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
             <Edit className="h-5 w-5" />
             <span>Edit</span>
@@ -324,8 +328,8 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {invoice.items.map((item) => (
-                <Card key={item.id} className="card-secondary">
+              {invoice.items.map((item, _index) => (
+                <Card key={item.id} className="invoice-item card-secondary">
                   <CardContent className="p-3">
                     <div className="space-y-3">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">

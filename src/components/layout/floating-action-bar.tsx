@@ -55,6 +55,8 @@ export function FloatingActionBar({
         isDocked ? "flex justify-center" : "",
         // Dynamic bottom positioning
         isDocked ? "bottom-4" : "bottom-0",
+        // Add entrance animation
+        "animate-slide-in-bottom",
         className,
       )}
     >
@@ -65,17 +67,19 @@ export function FloatingActionBar({
           isDocked ? "mx-auto mb-0 px-4" : "mb-4 px-4",
         )}
       >
-        <Card className="bg-card border-border border">
+        <Card className="hover-lift bg-card border-border border shadow-lg">
           <CardContent className="flex items-center justify-between p-4">
             {/* Left content */}
             {leftContent && (
-              <div className="flex flex-1 items-center gap-3">
+              <div className="animate-fade-in flex flex-1 items-center gap-3">
                 {leftContent}
               </div>
             )}
 
             {/* Right actions */}
-            <div className="flex items-center gap-2 sm:gap-3">{children}</div>
+            <div className="animate-fade-in animate-delay-100 flex items-center gap-2 sm:gap-3">
+              {children}
+            </div>
           </CardContent>
         </Card>
       </div>

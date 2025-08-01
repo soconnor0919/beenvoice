@@ -165,7 +165,14 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
       ),
       cell: ({ row }) => {
         const invoice = row.original;
-        return <StatusBadge status={getStatusType(invoice)} />;
+        return (
+          <StatusBadge
+            status={getStatusType(invoice)}
+            className={
+              getStatusType(invoice) === "sent" ? "status-pending" : ""
+            }
+          />
+        );
       },
       filterFn: (row, id, value: string[]) => {
         const invoice = row.original;
@@ -210,7 +217,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="hover-scale h-8 w-8 p-0"
                 data-action-button="true"
               >
                 <Eye className="h-3.5 w-3.5" />
@@ -220,7 +227,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="hover-scale h-8 w-8 p-0"
                 data-action-button="true"
               >
                 <Edit className="h-3.5 w-3.5" />
@@ -229,7 +236,7 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="text-destructive hover:text-destructive/80 h-8 w-8 p-0"
+              className="hover-scale text-destructive hover:text-destructive/80 h-8 w-8 p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 handleDelete(invoice);

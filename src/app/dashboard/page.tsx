@@ -3,14 +3,10 @@ import {
   ArrowUpRight,
   BarChart3,
   Calendar,
-  Clock,
-  DollarSign,
   Edit,
   Eye,
   FileText,
   Plus,
-  TrendingDown,
-  TrendingUp,
   Users,
 } from "lucide-react";
 import Link from "next/link";
@@ -26,6 +22,7 @@ import type { StoredInvoiceStatus } from "~/types/invoice";
 import { RevenueChart } from "~/app/dashboard/_components/revenue-chart";
 import { InvoiceStatusChart } from "~/app/dashboard/_components/invoice-status-chart";
 import { MonthlyMetricsChart } from "~/app/dashboard/_components/monthly-metrics-chart";
+import { AnimatedStatsCard } from "~/app/dashboard/_components/animated-stats-card";
 
 // Hero section with clean mono design
 function DashboardHero({ firstName }: { firstName: string }) {
@@ -160,80 +157,79 @@ async function DashboardStats() {
     return value > 0 ? `+${value.toFixed(1)}%` : `${value.toFixed(1)}%`;
   };
 
+  // Debug logging to see actual values
+  console.log("Dashboard Stats Debug:", {
+    totalRevenue,
+    pendingAmount,
+    totalClients,
+    overdueInvoices: overdueInvoices.length,
+    revenueChange,
+    pendingChange,
+    clientChange,
+    overdueChange,
+    paidInvoicesCount: paidInvoices.length,
+    pendingInvoicesCount: pendingInvoices.length,
+  });
+
   const stats = [
     {
       title: "Total Revenue",
       value: `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      numericValue: totalRevenue,
+      isCurrency: true,
       change: formatTrend(revenueChange),
       trend: revenueChange >= 0 ? ("up" as const) : ("down" as const),
-      icon: DollarSign,
+      iconName: "DollarSign" as const,
       description: `From ${paidInvoices.length} paid invoices`,
     },
     {
       title: "Pending Amount",
       value: `$${pendingAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      numericValue: pendingAmount,
+      isCurrency: true,
       change: formatTrend(pendingChange),
       trend: pendingChange >= 0 ? ("up" as const) : ("down" as const),
-      icon: Clock,
+      iconName: "Clock" as const,
       description: `${pendingInvoices.length} invoices awaiting payment`,
     },
     {
       title: "Active Clients",
       value: totalClients.toString(),
+      numericValue: totalClients,
+      isCurrency: false,
       change: formatTrend(clientChange, true),
       trend: clientChange >= 0 ? ("up" as const) : ("down" as const),
-      icon: Users,
+      iconName: "Users" as const,
       description: "Total registered clients",
     },
     {
       title: "Overdue Invoices",
       value: overdueInvoices.length.toString(),
+      numericValue: overdueInvoices.length,
+      isCurrency: false,
       change: formatTrend(overdueChange, true),
       trend: overdueChange <= 0 ? ("up" as const) : ("down" as const),
-      icon: TrendingDown,
+      iconName: "TrendingDown" as const,
       description: "Invoices past due date",
     },
   ];
 
   return (
     <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat) => {
-        const Icon = stat.icon;
-        const TrendIcon = stat.trend === "up" ? TrendingUp : TrendingDown;
-        const isPositive = stat.trend === "up";
-
-        return (
-          <Card key={stat.title}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between space-y-0 pb-2">
-                <div className="flex items-center space-x-2">
-                  <Icon className="text-muted-foreground h-5 w-5" />
-                  <p className="text-muted-foreground text-sm font-medium">
-                    {stat.title}
-                  </p>
-                </div>
-                <div
-                  className="flex items-center space-x-1 text-xs"
-                  style={{
-                    color: isPositive
-                      ? "oklch(var(--chart-2))"
-                      : "oklch(var(--chart-3))",
-                  }}
-                >
-                  <TrendIcon className="h-3 w-3" />
-                  <span>{stat.change}</span>
-                </div>
-              </div>
-              <div className="space-y-1">
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-muted-foreground text-xs">
-                  {stat.description}
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+      {stats.map((stat, index) => (
+        <AnimatedStatsCard
+          key={stat.title}
+          title={stat.title}
+          value={stat.value}
+          numericValue={stat.numericValue}
+          isCurrency={stat.isCurrency}
+          iconName={stat.iconName}
+          change={stat.change}
+          trend={stat.trend}
+          description={stat.description}
+          delay={index * 100}
+        />
+      ))}
     </div>
   );
 }
@@ -327,7 +323,7 @@ function QuickActions() {
             <Link
               key={action.title}
               href={action.href}
-              className={`flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${
+              className={`hover-lift flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${
                 action.featured
                   ? "border-foreground/20 bg-muted/50 hover:bg-muted"
                   : "border-border bg-background hover:bg-muted/50"
@@ -420,13 +416,18 @@ async function CurrentWork() {
           </div>
 
           <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm" className="flex-1">
+            <Button
+              asChild
+              variant="outline"
+              size="sm"
+              className="hover-lift flex-1"
+            >
               <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
                 <Eye className="mr-2 h-4 w-4" />
                 View
               </Link>
             </Button>
-            <Button asChild size="sm" className="flex-1">
+            <Button asChild size="sm" className="hover-lift flex-1">
               <Link href={`/dashboard/invoices/${currentInvoice.id}/edit`}>
                 <Edit className="mr-2 h-4 w-4" />
                 Continue
@@ -509,13 +510,13 @@ async function RecentActivity() {
           </div>
         ) : (
           <div className="space-y-3">
-            {recentInvoices.map((invoice) => (
+            {recentInvoices.map((invoice, _index) => (
               <Link
                 key={invoice.id}
                 href={`/dashboard/invoices/${invoice.id}`}
                 className="block"
               >
-                <div className="bg-muted/50 hover:bg-muted border-foreground/20 rounded-lg border p-3 transition-colors">
+                <div className="recent-activity-item bg-muted/50 hover:bg-muted border-foreground/20 rounded-lg border p-3 transition-colors">
                   <div className="flex items-start gap-3">
                     <div className="bg-muted flex-shrink-0 rounded-lg p-2">
                       <FileText className="text-muted-foreground h-4 w-4" />
@@ -627,7 +628,7 @@ export default async function DashboardPage() {
   const firstName = session?.user?.name?.split(" ")[0] ?? "User";
 
   return (
-    <div className="space-y-8">
+    <div className="page-enter space-y-8">
       <DashboardHero firstName={firstName} />
 
       <HydrateClient>

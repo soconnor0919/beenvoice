@@ -1,26 +1,38 @@
 "use client";
 
-import { useState } from "react";
-import * as React from "react";
-import { useSession } from "next-auth/react";
 import {
+  AlertTriangle,
+  Building,
+  ChevronDown,
+  Database,
   Download,
+  Eye,
+  EyeOff,
+  FileText,
+  FileUp,
+  Info,
+  Key,
+  Shield,
   Upload,
   User,
-  Database,
-  AlertTriangle,
-  Shield,
-  FileText,
   Users,
-  Building,
-  Key,
-  Eye,
-  FileUp,
-  ChevronDown,
-  Info,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import * as React from "react";
+import { useState } from "react";
 
-import { api } from "~/trpc/react";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -34,22 +46,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { Badge } from "~/components/ui/badge";
-import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +55,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+import { api } from "~/trpc/react";
 
 export function SettingsContent() {
   const { data: session } = useSession();
@@ -300,7 +300,7 @@ export function SettingsContent() {
       {/* Profile & Account Overview */}
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Profile Section */}
-        <Card className="bg-card border-border border">
+        <Card className="form-section bg-card border-border border">
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
               <User className="text-primary h-5 w-5" />
@@ -337,6 +337,7 @@ export function SettingsContent() {
                 type="submit"
                 disabled={updateProfileMutation.isPending}
                 variant="default"
+                className="hover-lift"
               >
                 {updateProfileMutation.isPending
                   ? "Updating..."
@@ -347,7 +348,7 @@ export function SettingsContent() {
         </Card>
 
         {/* Data Overview */}
-        <Card className="bg-card border-border border">
+        <Card className="form-section bg-card border-border border">
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
               <Database className="text-primary h-5 w-5" />
@@ -359,12 +360,13 @@ export function SettingsContent() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {dataStatItems.map((item) => {
+              {dataStatItems.map((item, index) => {
                 const Icon = item.icon;
                 return (
                   <div
                     key={item.label}
-                    className="bg-card border p-4 transition-shadow hover:shadow-sm"
+                    className="hover-lift bg-card border p-4 transition-shadow hover:shadow-sm"
+                    style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">

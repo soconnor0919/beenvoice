@@ -493,7 +493,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
   return (
     <>
-      <div className="space-y-6 pb-32">
+      <div className="page-enter space-y-6 pb-32">
         <PageHeader
           title={
             invoiceId && invoiceId !== "new" ? "Edit Invoice" : "Create Invoice"
@@ -510,13 +510,18 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               variant="outline"
               onClick={handleDelete}
               disabled={loading || deleteInvoice.isPending}
-              className="text-destructive hover:bg-destructive/10 shadow-sm"
+              className="hover-lift text-destructive hover:bg-destructive/10 shadow-sm"
             >
               <Trash2 className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Delete Invoice</span>
             </Button>
           )}
-          <Button onClick={handleSubmit} disabled={loading} variant="default">
+          <Button
+            onClick={handleSubmit}
+            disabled={loading}
+            variant="default"
+            className="hover-lift"
+          >
             {loading ? (
               <>
                 <Clock className="h-4 w-4 animate-spin sm:mr-2" />
