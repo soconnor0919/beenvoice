@@ -213,9 +213,12 @@ async function DashboardStats() {
                   </p>
                 </div>
                 <div
-                  className={`flex items-center space-x-1 text-xs ${
-                    isPositive ? "text-green-600" : "text-red-600"
-                  }`}
+                  className="flex items-center space-x-1 text-xs"
+                  style={{
+                    color: isPositive
+                      ? "oklch(var(--chart-2))"
+                      : "oklch(var(--chart-3))",
+                  }}
                 >
                   <TrendIcon className="h-3 w-3" />
                   <span>{stat.change}</span>
@@ -449,16 +452,32 @@ async function RecentActivity() {
     )
     .slice(0, 5);
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case "paid":
-        return "bg-green-50 border-green-200 text-green-700";
+        return {
+          backgroundColor: "oklch(var(--chart-2) / 0.1)",
+          borderColor: "oklch(var(--chart-2) / 0.3)",
+          color: "oklch(var(--chart-2))",
+        };
       case "sent":
-        return "bg-blue-50 border-blue-200 text-blue-700";
+        return {
+          backgroundColor: "oklch(var(--chart-1) / 0.1)",
+          borderColor: "oklch(var(--chart-1) / 0.3)",
+          color: "oklch(var(--chart-1))",
+        };
       case "overdue":
-        return "bg-red-50 border-red-200 text-red-700";
+        return {
+          backgroundColor: "oklch(var(--chart-3) / 0.1)",
+          borderColor: "oklch(var(--chart-3) / 0.3)",
+          color: "oklch(var(--chart-3))",
+        };
       default:
-        return "bg-gray-50 border-gray-200 text-gray-700";
+        return {
+          backgroundColor: "hsl(var(--muted))",
+          borderColor: "hsl(var(--border))",
+          color: "hsl(var(--muted-foreground))",
+        };
     }
   };
 
@@ -513,7 +532,7 @@ async function RecentActivity() {
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
-                    <Badge className={getStatusColor(invoice.status)}>
+                    <Badge style={getStatusStyle(invoice.status)}>
                       {invoice.status}
                     </Badge>
                     <span className="font-semibold">

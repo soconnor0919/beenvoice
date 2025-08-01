@@ -43,12 +43,12 @@ export function InvoiceStatusChart({ invoices }: InvoiceStatusChartProps) {
     name: item.status.charAt(0).toUpperCase() + item.status.slice(1),
   }));
 
-  // Light pastel colors for different statuses
+  // Use theme-aware colors
   const COLORS = {
-    draft: "hsl(220 9% 46%)", // muted gray
-    sent: "hsl(210 40% 70%)", // light blue
-    paid: "hsl(142 76% 85%)", // light green
-    overdue: "hsl(0 84% 85%)", // light red
+    draft: "hsl(var(--muted-foreground))",
+    sent: "oklch(var(--chart-1))",
+    paid: "oklch(var(--chart-2))",
+    overdue: "oklch(var(--chart-3))",
   };
 
   const formatCurrency = (value: number) => {

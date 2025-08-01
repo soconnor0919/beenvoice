@@ -214,7 +214,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         ],
       }));
     }
-  }, [formData.defaultHourlyRate, formData.items]);
+  }, [formData.defaultHourlyRate]);
 
   // Update default hourly rate when client changes
   useEffect(() => {

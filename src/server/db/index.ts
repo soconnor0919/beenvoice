@@ -19,7 +19,12 @@ export const pool =
     ssl: env.NODE_ENV === "production" ? { rejectUnauthorized: false } : false,
     max: 20,
     idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 2000,
+    connectionTimeoutMillis: 10000,
+    acquireTimeoutMillis: 10000,
+    createTimeoutMillis: 10000,
+    destroyTimeoutMillis: 5000,
+    reapIntervalMillis: 1000,
+    createRetryIntervalMillis: 200,
   });
 if (env.NODE_ENV !== "production") globalForDb.pool = pool;
 

@@ -104,13 +104,13 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
         <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
           <p className="font-medium">{label}</p>
           <div className="space-y-1 text-sm">
-            <p style={{ color: "hsl(142 45% 45%)" }}>
+            <p style={{ color: "oklch(var(--chart-2))" }}>
               Paid: {data.paidInvoices}
             </p>
-            <p style={{ color: "hsl(210 40% 50%)" }}>
+            <p style={{ color: "oklch(var(--chart-1))" }}>
               Pending: {data.pendingInvoices}
             </p>
-            <p style={{ color: "hsl(0 65% 55%)" }}>
+            <p style={{ color: "oklch(var(--chart-3))" }}>
               Overdue: {data.overdueInvoices}
             </p>
             <p className="text-muted-foreground border-t pt-1">
@@ -158,19 +158,19 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
             <Bar
               dataKey="paidInvoices"
               stackId="a"
-              fill="hsl(142 76% 85%)"
+              fill="oklch(var(--chart-2))"
               radius={[0, 0, 0, 0]}
             />
             <Bar
               dataKey="pendingInvoices"
               stackId="a"
-              fill="hsl(210 40% 85%)"
+              fill="oklch(var(--chart-1))"
               radius={[0, 0, 0, 0]}
             />
             <Bar
               dataKey="overdueInvoices"
               stackId="a"
-              fill="hsl(0 84% 85%)"
+              fill="oklch(var(--chart-3))"
               radius={[2, 2, 0, 0]}
             />
           </BarChart>
@@ -182,21 +182,21 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
         <div className="flex items-center space-x-2">
           <div
             className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: "hsl(142 76% 85%)" }}
+            style={{ backgroundColor: "oklch(var(--chart-2))" }}
           />
           <span className="text-xs">Paid</span>
         </div>
         <div className="flex items-center space-x-2">
           <div
             className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: "hsl(210 40% 85%)" }}
+            style={{ backgroundColor: "oklch(var(--chart-1))" }}
           />
           <span className="text-xs">Pending</span>
         </div>
         <div className="flex items-center space-x-2">
           <div
             className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: "hsl(0 84% 85%)" }}
+            style={{ backgroundColor: "oklch(var(--chart-3))" }}
           />
           <span className="text-xs">Overdue</span>
         </div>
