@@ -227,6 +227,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         ],
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.defaultHourlyRate]);
 
   // Update default hourly rate when client changes
