@@ -3,6 +3,7 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   pdf,
 } from "@react-pdf/renderer";
@@ -388,12 +389,14 @@ const styles = StyleSheet.create({
 
   totalsContainer: {
     width: 240,
+    break: false,
   },
 
   totalsBox: {
     width: "100%",
     padding: 12,
     backgroundColor: "#f9fafb",
+    break: false,
   },
 
   totalRow: {
@@ -457,7 +460,7 @@ const styles = StyleSheet.create({
 
   footerLogo: {
     flexDirection: "row",
-    alignItems: "baseline",
+    alignItems: "center",
     gap: 4,
   },
 
@@ -589,10 +592,10 @@ function calculateItemsForPage(
 
   if (hasNotes) {
     // Last page needs space for totals and notes
-    availableHeight -= 100; // Totals + notes space (reduced)
+    availableHeight -= 200; // Totals + notes space (much more conservative)
   } else {
     // Regular page just needs totals space
-    availableHeight -= 65; // Totals space only (reduced)
+    availableHeight -= 150; // Totals space only (much more conservative)
   }
 
   // Table header takes space
@@ -641,10 +644,10 @@ function calculateItemsPerPage(
 
   if (hasNotes) {
     // Last page needs space for totals and notes
-    availableHeight -= 100; // Totals + notes space (reduced)
+    availableHeight -= 200; // Totals + notes space (much more conservative)
   } else {
     // Regular page just needs totals space
-    availableHeight -= 65; // Totals space only (reduced)
+    availableHeight -= 150; // Totals space only (much more conservative)
   }
 
   // Table header takes space
@@ -862,15 +865,14 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 const Footer: React.FC = () => (
   <View style={styles.footer} fixed>
     <View style={styles.footerLogo}>
-      <Text
+      <Image
+        src="/beenvoice-logo.png"
         style={{
-          fontSize: 12,
-          fontFamily: "Helvetica-Bold",
-          color: "#0f0f0f",
+          width: 120,
+          height: 18,
+          marginRight: 8,
         }}
-      >
-        beenvoice
-      </Text>
+      />
       <Text
         style={{
           fontSize: 9,
