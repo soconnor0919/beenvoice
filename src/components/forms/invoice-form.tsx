@@ -196,6 +196,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   ]);
 
   // Update the first line item when defaultHourlyRate changes (if it hasn't been manually edited)
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- formData.items intentionally excluded to prevent infinite loop
   useEffect(() => {
     if (
       formData.items.length === 1 &&
