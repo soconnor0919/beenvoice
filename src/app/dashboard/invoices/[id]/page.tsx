@@ -131,7 +131,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
       >
         <PDFDownloadButton invoiceId={invoice.id} variant="outline" />
         <Button asChild variant="default">
-          <Link href={`/dashboard/invoices/${invoice.id}`}>
+          <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
             <Edit className="h-5 w-5" />
             <span>Edit</span>
           </Link>

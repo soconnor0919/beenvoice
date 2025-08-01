@@ -143,19 +143,26 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     },
   });
 
-  // Single initialization effect - only runs once when data is ready
+  // Reset initialization when invoiceId changes
   useEffect(() => {
-    if (initialized) return;
+    setInitialized(false);
+  }, [invoiceId]);
 
-    const dataReady =
-      !loadingClients &&
-      !loadingBusinesses &&
-      (!invoiceId || invoiceId === "new" || !loadingInvoice);
-    if (!dataReady) return;
-
-    if (invoiceId && invoiceId !== "new" && existingInvoice) {
+  // Initialize form data when invoice data is loaded
+  useEffect(() => {
+    if (invoiceId && invoiceId !== "new" && existingInvoice && !initialized) {
       // Initialize with existing invoice data
-      const formDataToSet = {
+      const mappedItems =
+        existingInvoice.items?.map((item) => ({
+          id: crypto.randomUUID(),
+          date: new Date(item.date),
+          description: item.description,
+          hours: item.hours,
+          rate: item.rate,
+          amount: item.amount,
+        })) || [];
+
+      setFormData({
         invoiceNumber: existingInvoice.invoiceNumber,
         businessId: existingInvoice.businessId ?? "",
         clientId: existingInvoice.clientId,
@@ -166,43 +173,43 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         taxRate: existingInvoice.taxRate,
         defaultHourlyRate: null,
         items:
-          existingInvoice.items?.map((item) => ({
-            id: crypto.randomUUID(),
-            date: new Date(item.date),
-            description: item.description,
-            hours: item.hours,
-            rate: item.rate,
-            amount: item.amount,
-          })) || [],
-      };
-      setFormData(formDataToSet);
-    } else if ((!invoiceId || invoiceId === "new") && businesses) {
+          mappedItems.length > 0
+            ? mappedItems
+            : [
+                {
+                  id: crypto.randomUUID(),
+                  date: new Date(),
+                  description: "",
+                  hours: 1,
+                  rate: 0,
+                  amount: 0,
+                },
+              ],
+      });
+
+      firstItemEditedRef.current = false;
+      setInitialized(true);
+    } else if (
+      (!invoiceId || invoiceId === "new") &&
+      businesses &&
+      !initialized
+    ) {
       // New invoice - set default business
       const defaultBusiness = businesses.find((b) => b.isDefault);
       if (defaultBusiness) {
         setFormData((prev) => ({ ...prev, businessId: defaultBusiness.id }));
       } else if (businesses.length > 0) {
-        // If no default business, use the first one
         setFormData((prev) => ({ ...prev, businessId: businesses[0]!.id }));
       }
+      setInitialized(true);
     }
-
-    // Reset the first item edited flag when initializing
-    firstItemEditedRef.current = false;
-    setInitialized(true);
-  }, [
-    loadingClients,
-    loadingBusinesses,
-    loadingInvoice,
-    existingInvoice,
-    businesses,
-    invoiceId,
-    initialized,
-  ]);
+  }, [invoiceId, existingInvoice, businesses, initialized]);
 
   // Update the first line item when defaultHourlyRate changes (if it hasn't been manually edited)
+  // Only for new invoices, not existing ones being edited
   useEffect(() => {
     if (
+      (!invoiceId || invoiceId === "new") &&
       !firstItemEditedRef.current &&
       formData.items.length === 1 &&
       formData.items[0]?.description === "" &&
@@ -220,7 +227,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         ],
       }));
     }
-  }, [formData.defaultHourlyRate, formData.items]);
+  }, [formData.defaultHourlyRate]);
 
   // Update default hourly rate when client changes
   useEffect(() => {
@@ -353,6 +360,10 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     onSuccess: async () => {
       toast.success("Invoice updated successfully");
       await utils.invoices.getAll.invalidate();
+      // Invalidate the specific invoice cache to ensure fresh data on navigation
+      if (invoiceId && invoiceId !== "new") {
+        await utils.invoices.getById.invalidate({ id: invoiceId });
+      }
       // The update mutation returns { success: true }, so we use the current invoiceId
       if (invoiceId && invoiceId !== "new") {
         router.push(`/dashboard/invoices/${invoiceId}`);
