@@ -102,28 +102,22 @@ export function SettingsContent() {
     enabled: false,
   });
 
-  // Handle export data success/error
-  React.useEffect(() => {
-    if (exportDataQuery.data && !exportDataQuery.isFetching) {
-      const blob = new Blob([JSON.stringify(exportDataQuery.data, null, 2)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `beenvoice-backup-${new Date().toISOString().split("T")[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+  // Handle download logic
+  const handleDownload = React.useCallback((data: unknown) => {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `beenvoice-backup-${new Date().toISOString().split("T")[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 
-      toast.success("Data backup downloaded successfully");
-    }
-
-    if (exportDataQuery.error) {
-      toast.error(`Export failed: ${exportDataQuery.error.message}`);
-    }
-  }, [exportDataQuery.data, exportDataQuery.isFetching, exportDataQuery.error]);
+    toast.success("Data backup downloaded successfully");
+  }, []);
 
   const importDataMutation = api.settings.importData.useMutation({
     onSuccess: (result) => {
@@ -179,8 +173,17 @@ export function SettingsContent() {
     });
   };
 
-  const handleExportData = () => {
-    void exportDataQuery.refetch();
+  const handleExportData = async () => {
+    try {
+      const result = await exportDataQuery.refetch();
+      if (result.data) {
+        handleDownload(result.data);
+      }
+    } catch (error) {
+      toast.error(
+        `Export failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
+    }
   };
 
   // Type guard for backup data
@@ -355,10 +358,10 @@ export function SettingsContent() {
                 return (
                   <div
                     key={item.label}
-                    className="bg-card flex items-center justify-between  border p-4 transition-shadow hover:shadow-sm"
+                    className="bg-card flex items-center justify-between border p-4 transition-shadow hover:shadow-sm"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={` p-2 ${item.bgColor}`}>
+                      <div className={`p-2 ${item.bgColor}`}>
                         <Icon className={`h-4 w-4 ${item.color}`} />
                       </div>
                       <span className="font-medium">{item.label}</span>
@@ -617,7 +620,7 @@ export function SettingsContent() {
             </div>
 
             {/* Backup Information */}
-            <div className="border-border bg-muted/20  border p-4">
+            <div className="border-border bg-muted/20 border p-4">
               <h4 className="font-medium">Backup Information</h4>
               <ul className="text-muted-foreground mt-2 space-y-1 text-sm">
                 <li>• Regular backups protect your important business data</li>
@@ -646,7 +649,7 @@ export function SettingsContent() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div className="bg-destructive/10 border-destructive/20  border p-4">
+            <div className="bg-destructive/10 border-destructive/20 border p-4">
               <h4 className="text-destructive font-medium">
                 Delete All Account Data
               </h4>
@@ -672,7 +675,7 @@ export function SettingsContent() {
                       This action cannot be undone. This will permanently delete
                       all your:
                     </div>
-                    <ul className="border-border bg-muted/50 list-inside list-disc space-y-1  border p-3 text-sm">
+                    <ul className="border-border bg-muted/50 list-inside list-disc space-y-1 border p-3 text-sm">
                       <li>Client information and contact details</li>
                       <li>Business profiles and settings</li>
                       <li>Invoices and invoice line items</li>
