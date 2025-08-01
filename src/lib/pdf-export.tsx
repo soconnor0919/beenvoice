@@ -865,6 +865,7 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 const Footer: React.FC = () => (
   <View style={styles.footer} fixed>
     <View style={styles.footerLogo}>
+      {/* eslint-disable-next-line jsx-a11y/alt-text */}
       <Image
         src="/beenvoice-logo.png"
         style={{
