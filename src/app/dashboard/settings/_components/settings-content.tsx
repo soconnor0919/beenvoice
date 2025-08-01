@@ -15,8 +15,9 @@ import {
   Building,
   Key,
   Eye,
-  EyeOff,
   FileUp,
+  ChevronDown,
+  Info,
 } from "lucide-react";
 
 import { api } from "~/trpc/react";
@@ -28,6 +29,11 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
@@ -358,20 +364,23 @@ export function SettingsContent() {
                 return (
                   <div
                     key={item.label}
-                    className="bg-card flex items-center justify-between border p-4 transition-shadow hover:shadow-sm"
+                    className="bg-card border p-4 transition-shadow hover:shadow-sm"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 ${item.bgColor}`}>
-                        <Icon className={`h-4 w-4 ${item.color}`} />
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 ${item.bgColor}`}>
+                          <Icon className={`h-4 w-4 ${item.color}`} />
+                        </div>
+                        <span className="font-medium break-words">
+                          {item.label}
+                        </span>
                       </div>
-                      <span className="font-medium">{item.label}</span>
+                      <div className="text-right">
+                        <span className="text-foreground text-2xl font-bold">
+                          {item.value}
+                        </span>
+                      </div>
                     </div>
-                    <Badge
-                      variant="secondary"
-                      className="text-lg font-semibold"
-                    >
-                      {item.value}
-                    </Badge>
                   </div>
                 );
               })}
@@ -500,12 +509,12 @@ export function SettingsContent() {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
               <Button
                 onClick={handleExportData}
                 disabled={exportDataQuery.isFetching}
                 variant="outline"
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
                 <Download className="mr-2 h-4 w-4" />
                 {exportDataQuery.isFetching ? "Exporting..." : "Export Backup"}
@@ -516,7 +525,7 @@ export function SettingsContent() {
                 onOpenChange={setIsImportDialogOpen}
               >
                 <DialogTrigger asChild>
-                  <Button variant="outline" className="flex-1">
+                  <Button variant="outline" className="w-full sm:flex-1">
                     <Upload className="mr-2 h-4 w-4" />
                     Import Backup
                   </Button>
@@ -620,18 +629,38 @@ export function SettingsContent() {
             </div>
 
             {/* Backup Information */}
-            <div className="border-border bg-muted/20 border p-4">
-              <h4 className="font-medium">Backup Information</h4>
-              <ul className="text-muted-foreground mt-2 space-y-1 text-sm">
-                <li>• Regular backups protect your important business data</li>
-                <li>• Backup files contain all data in secure JSON format</li>
-                <li>
-                  • Import adds to existing data without replacing anything
-                </li>
-                <li>• Upload JSON files directly or paste content manually</li>
-                <li>• Store backup files in a secure, accessible location</li>
-              </ul>
-            </div>
+            <Collapsible>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-0">
+                  <div className="flex items-center gap-2">
+                    <Info className="h-4 w-4" />
+                    <span className="font-medium">Backup Information</span>
+                  </div>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-3">
+                <div className="border-border bg-muted/20 border p-4">
+                  <ul className="text-muted-foreground space-y-1 text-sm">
+                    <li>
+                      • Regular backups protect your important business data
+                    </li>
+                    <li>
+                      • Backup files contain all data in secure JSON format
+                    </li>
+                    <li>
+                      • Import adds to existing data without replacing anything
+                    </li>
+                    <li>
+                      • Upload JSON files directly or paste content manually
+                    </li>
+                    <li>
+                      • Store backup files in a secure, accessible location
+                    </li>
+                  </ul>
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
           </div>
         </CardContent>
       </Card>

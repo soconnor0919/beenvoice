@@ -191,7 +191,7 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
       </div>
 
       {/* Legend */}
-      <div className="flex justify-center space-x-4">
+      <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
         <div className="flex items-center space-x-2">
           <div
             className="h-3 w-3 rounded-full"

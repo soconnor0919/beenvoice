@@ -83,7 +83,7 @@ export default async function ClientDetailPage({
           <Card className="bg-card border-border border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="bg-primary/10  p-2">
+                <div className="bg-primary/10 p-2">
                   <Building className="text-primary h-5 w-5" />
                 </div>
                 <span>Contact Information</span>
@@ -94,7 +94,7 @@ export default async function ClientDetailPage({
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {client.email && (
                   <div className="flex items-center space-x-3">
-                    <div className="bg-primary/10  p-2">
+                    <div className="bg-primary/10 p-2">
                       <Mail className="text-primary h-4 w-4" />
                     </div>
                     <div>
@@ -108,7 +108,7 @@ export default async function ClientDetailPage({
 
                 {client.phone && (
                   <div className="flex items-center space-x-3">
-                    <div className="bg-primary/10  p-2">
+                    <div className="bg-primary/10 p-2">
                       <Phone className="text-primary h-4 w-4" />
                     </div>
                     <div>
@@ -126,7 +126,7 @@ export default async function ClientDetailPage({
                 <div>
                   <h3 className="mb-4 text-lg font-semibold">Client Address</h3>
                   <div className="flex items-start space-x-3">
-                    <div className="bg-primary/10  p-2">
+                    <div className="bg-primary/10 p-2">
                       <MapPin className="text-primary h-4 w-4" />
                     </div>
                     <div className="space-y-1 text-sm">
@@ -155,7 +155,7 @@ export default async function ClientDetailPage({
               <div>
                 <h3 className="mb-4 text-lg font-semibold">Client Details</h3>
                 <div className="flex items-center space-x-3">
-                  <div className="bg-primary/10  p-2">
+                  <div className="bg-primary/10 p-2">
                     <Calendar className="text-primary h-4 w-4" />
                   </div>
                   <div>
@@ -177,7 +177,7 @@ export default async function ClientDetailPage({
           <Card className="bg-card border-border border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="bg-primary/10  p-2">
+                <div className="bg-primary/10 p-2">
                   <DollarSign className="text-primary h-5 w-5" />
                 </div>
                 <span>Invoice Summary</span>
@@ -213,7 +213,7 @@ export default async function ClientDetailPage({
             <Card className="">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <div className="bg-primary/10  p-2">
+                  <div className="bg-primary/10 p-2">
                     <DollarSign className="text-primary h-5 w-5" />
                   </div>
                   <span>Recent Invoices</span>
@@ -224,46 +224,48 @@ export default async function ClientDetailPage({
                   {client.invoices.slice(0, 3).map((invoice) => (
                     <div
                       key={invoice.id}
-                      className="card-secondary hover:bg-muted/50 flex items-center justify-between  border p-3 transition-colors"
+                      className="card-secondary hover:bg-muted/50 border p-3 transition-colors"
                     >
-                      <div>
-                        <p className="text-foreground font-medium">
-                          {invoice.invoiceNumber}
-                        </p>
-                        <p className="text-muted-foreground text-sm">
-                          {formatDate(invoice.issueDate)}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-foreground font-semibold">
-                          {formatCurrency(invoice.totalAmount)}
-                        </p>
-                        <Badge
-                          variant={
-                            getEffectiveInvoiceStatus(
-                              invoice.status as StoredInvoiceStatus,
-                              invoice.dueDate,
-                            ) === "paid"
-                              ? "default"
-                              : getEffectiveInvoiceStatus(
-                                    invoice.status as StoredInvoiceStatus,
-                                    invoice.dueDate,
-                                  ) === "sent"
-                                ? "secondary"
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                          <p className="text-foreground font-medium break-words">
+                            {invoice.invoiceNumber}
+                          </p>
+                          <p className="text-muted-foreground text-sm">
+                            {formatDate(invoice.issueDate)}
+                          </p>
+                        </div>
+                        <div className="flex flex-shrink-0 items-center gap-2 self-start sm:flex-col sm:items-end sm:gap-1">
+                          <p className="text-foreground font-semibold">
+                            {formatCurrency(invoice.totalAmount)}
+                          </p>
+                          <Badge
+                            variant={
+                              getEffectiveInvoiceStatus(
+                                invoice.status as StoredInvoiceStatus,
+                                invoice.dueDate,
+                              ) === "paid"
+                                ? "default"
                                 : getEffectiveInvoiceStatus(
                                       invoice.status as StoredInvoiceStatus,
                                       invoice.dueDate,
-                                    ) === "overdue"
-                                  ? "destructive"
-                                  : "outline"
-                          }
-                          className="text-xs"
-                        >
-                          {getEffectiveInvoiceStatus(
-                            invoice.status as StoredInvoiceStatus,
-                            invoice.dueDate,
-                          )}
-                        </Badge>
+                                    ) === "sent"
+                                  ? "secondary"
+                                  : getEffectiveInvoiceStatus(
+                                        invoice.status as StoredInvoiceStatus,
+                                        invoice.dueDate,
+                                      ) === "overdue"
+                                    ? "destructive"
+                                    : "outline"
+                            }
+                            className="text-xs"
+                          >
+                            {getEffectiveInvoiceStatus(
+                              invoice.status as StoredInvoiceStatus,
+                              invoice.dueDate,
+                            )}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   ))}

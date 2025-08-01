@@ -324,28 +324,23 @@ function QuickActions() {
         {actions.map((action) => {
           const Icon = action.icon;
           return (
-            <Button
+            <Link
               key={action.title}
-              asChild
-              variant="outline"
-              className={`h-auto w-full justify-start p-4 ${
+              href={action.href}
+              className={`flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${
                 action.featured
                   ? "border-foreground/20 bg-muted/50 hover:bg-muted"
-                  : "hover:bg-muted/50"
+                  : "border-border bg-background hover:bg-muted/50"
               }`}
             >
-              <Link href={action.href}>
-                <div className="flex items-center space-x-3">
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                  <div className="text-left">
-                    <p className="font-semibold">{action.title}</p>
-                    <p className="text-muted-foreground text-sm">
-                      {action.description}
-                    </p>
-                  </div>
-                </div>
-              </Link>
-            </Button>
+              <Icon className="h-5 w-5 flex-shrink-0" />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold">{action.title}</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  {action.description}
+                </p>
+              </div>
+            </Link>
           );
         })}
       </CardContent>
@@ -408,17 +403,19 @@ async function CurrentWork() {
       <CardContent>
         <div className="space-y-4">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <h3 className="text-lg font-semibold break-words">
                 #{currentInvoice.invoiceNumber}
               </h3>
               <span className="text-primary text-2xl font-bold">
                 ${currentInvoice.totalAmount.toFixed(2)}
               </span>
             </div>
-            <div className="text-muted-foreground flex items-center justify-between text-sm">
-              <span>{currentInvoice.client?.name}</span>
-              <span>{totalHours.toFixed(1)} hours logged</span>
+            <div className="text-muted-foreground flex flex-col gap-1 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <span className="break-words">{currentInvoice.client?.name}</span>
+              <span className="text-xs sm:text-sm">
+                {totalHours.toFixed(1)} hours logged
+              </span>
             </div>
           </div>
 
@@ -490,8 +487,8 @@ async function RecentActivity() {
         </CardTitle>
         <Button variant="ghost" size="sm" asChild>
           <Link href="/dashboard/invoices">
-            View All
-            <ArrowUpRight className="ml-1 h-4 w-4" />
+            <span className="hidden sm:inline">View All</span>
+            <ArrowUpRight className="h-4 w-4 sm:ml-1" />
           </Link>
         </Button>
       </CardHeader>
@@ -518,26 +515,34 @@ async function RecentActivity() {
                 href={`/dashboard/invoices/${invoice.id}`}
                 className="block"
               >
-                <div className="hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="bg-muted rounded-lg p-2">
+                <div className="bg-muted/50 hover:bg-muted border-foreground/20 rounded-lg border p-3 transition-colors">
+                  <div className="flex items-start gap-3">
+                    <div className="bg-muted flex-shrink-0 rounded-lg p-2">
                       <FileText className="text-muted-foreground h-4 w-4" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium">#{invoice.invoiceNumber}</p>
-                      <p className="text-muted-foreground text-sm">
-                        {invoice.client?.name} •{" "}
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="min-w-0">
+                          <p className="truncate font-medium">
+                            #{invoice.invoiceNumber}
+                          </p>
+                          <p className="text-muted-foreground truncate text-sm">
+                            {invoice.client?.name}
+                          </p>
+                        </div>
+                        <div className="flex flex-shrink-0 items-center gap-2">
+                          <Badge style={getStatusStyle(invoice.status)}>
+                            {invoice.status}
+                          </Badge>
+                          <span className="text-primary font-semibold">
+                            ${invoice.totalAmount.toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <p className="text-muted-foreground text-xs">
                         {new Date(invoice.issueDate).toLocaleDateString()}
                       </p>
                     </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Badge style={getStatusStyle(invoice.status)}>
-                      {invoice.status}
-                    </Badge>
-                    <span className="font-semibold">
-                      ${invoice.totalAmount.toFixed(2)}
-                    </span>
                   </div>
                 </div>
               </Link>

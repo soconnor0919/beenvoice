@@ -146,10 +146,10 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
           <Card>
             <CardContent className="p-4 sm:p-6">
               <div className="space-y-4">
-                <div className="flex items-start justify-between gap-6">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
                   <div className="min-w-0 flex-1 space-y-2">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
-                      <h2 className="text-foreground truncate text-2xl font-bold">
+                      <h2 className="text-foreground text-2xl font-bold break-words">
                         {invoice.invoiceNumber}
                       </h2>
                       <StatusBadge status={getStatusType()} />
@@ -163,7 +163,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex-shrink-0 text-right">
+                  <div className="flex-shrink-0 text-left sm:text-right">
                     <p className="text-muted-foreground text-sm">
                       Total Amount
                     </p>
@@ -326,29 +326,33 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
             <CardContent className="space-y-4">
               {invoice.items.map((item) => (
                 <Card key={item.id} className="card-secondary">
-                  <CardContent className="py-2">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0 flex-1">
-                        <p className="text-foreground mb-2 text-base font-medium">
-                          {item.description}
-                        </p>
-                        <div className="text-muted-foreground text-sm">
-                          <span className="inline whitespace-nowrap">
-                            {formatDate(item.date).replace(/ /g, "\u00A0")}
-                          </span>
-                          <span className="inline whitespace-nowrap before:mx-2 before:content-['_|_']">
-                            {item.hours.toString().replace(/ /g, "\u00A0")}
-                            &nbsp;hours
-                          </span>
-                          <span className="inline whitespace-nowrap before:mx-2 before:content-['_|_']">
-                            @&nbsp;${item.rate}/hr
-                          </span>
+                  <CardContent className="p-3">
+                    <div className="space-y-3">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-foreground mb-2 text-base font-medium break-words">
+                            {item.description}
+                          </p>
+                          <div className="text-muted-foreground text-sm">
+                            <div className="flex flex-wrap gap-x-4 gap-y-1">
+                              <span className="whitespace-nowrap">
+                                {formatDate(item.date).replace(/ /g, "\u00A0")}
+                              </span>
+                              <span className="whitespace-nowrap">
+                                {item.hours.toString().replace(/ /g, "\u00A0")}
+                                &nbsp;hours
+                              </span>
+                              <span className="whitespace-nowrap">
+                                @&nbsp;${item.rate}/hr
+                              </span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-shrink-0 text-right">
-                        <p className="text-primary text-lg font-semibold">
-                          {formatCurrency(item.amount)}
-                        </p>
+                        <div className="flex-shrink-0 self-start">
+                          <p className="text-primary text-lg font-semibold">
+                            {formatCurrency(item.amount)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
@@ -356,16 +360,16 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               ))}
 
               {/* Totals */}
-              <div className="bg-muted/30 p-4">
+              <div className="bg-muted/30 rounded-lg p-4">
                 <div className="space-y-3">
-                  <div className="flex justify-between">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <span className="text-muted-foreground">Subtotal:</span>
                     <span className="font-medium">
                       {formatCurrency(subtotal)}
                     </span>
                   </div>
                   {invoice.taxRate > 0 && (
-                    <div className="flex justify-between">
+                    <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                       <span className="text-muted-foreground">
                         Tax ({invoice.taxRate}%):
                       </span>
@@ -375,7 +379,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
                     </div>
                   )}
                   <Separator />
-                  <div className="flex justify-between text-lg font-bold">
+                  <div className="flex flex-wrap justify-between gap-x-4 gap-y-1 text-lg font-bold">
                     <span>Total:</span>
                     <span className="text-primary">
                       {formatCurrency(total)}
