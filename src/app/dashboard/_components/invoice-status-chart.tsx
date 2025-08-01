@@ -45,10 +45,11 @@ export function InvoiceStatusChart({ invoices }: InvoiceStatusChartProps) {
 
   // Use theme-aware colors
   const COLORS = {
-    draft: "hsl(var(--muted-foreground))",
-    sent: "oklch(var(--chart-1))",
-    paid: "oklch(var(--chart-2))",
-    overdue: "oklch(var(--chart-3))",
+    draft: "hsl(0, 0%, 60%)", // grey
+    sent: "hsl(214, 100%, 50%)", // blue
+    pending: "hsl(45, 100%, 50%)", // yellow
+    paid: "hsl(142, 76%, 36%)", // green
+    overdue: "hsl(0, 84%, 60%)", // red
   };
 
   const formatCurrency = (value: number) => {
@@ -110,7 +111,7 @@ export function InvoiceStatusChart({ invoices }: InvoiceStatusChartProps) {
               cy="50%"
               innerRadius={40}
               outerRadius={80}
-              paddingAngle={2}
+              stroke="none"
               dataKey="count"
             >
               {chartData.map((entry, index) => (

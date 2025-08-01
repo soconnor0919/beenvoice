@@ -87,7 +87,7 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
       return (
         <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
           <p className="font-medium">{label}</p>
-          <p style={{ color: "oklch(var(--chart-1))" }}>
+          <p style={{ color: "hsl(0, 0%, 60%)" }}>
             Revenue: {formatCurrency(data.revenue)}
           </p>
           <p className="text-muted-foreground text-sm">
@@ -120,14 +120,10 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop
-                offset="5%"
-                stopColor="oklch(var(--chart-1))"
-                stopOpacity={0.4}
-              />
+              <stop offset="5%" stopColor="hsl(0, 0%, 60%)" stopOpacity={0.4} />
               <stop
                 offset="95%"
-                stopColor="oklch(var(--chart-1))"
+                stopColor="hsl(0, 0%, 60%)"
                 stopOpacity={0.05}
               />
             </linearGradient>
@@ -136,19 +132,19 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
             dataKey="monthLabel"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
+            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
             tickFormatter={formatCurrency}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="oklch(var(--chart-1))"
+            stroke="hsl(0, 0%, 60%)"
             strokeWidth={2}
             fill="url(#revenueGradient)"
           />
