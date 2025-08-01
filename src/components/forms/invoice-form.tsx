@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
@@ -118,6 +118,9 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const [initialized, setInitialized] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // Track if the first item has been manually edited
+  const firstItemEditedRef = useRef(false);
+
   // Data queries
   const { data: clients, isLoading: loadingClients } =
     api.clients.getAll.useQuery();
@@ -184,6 +187,8 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       }
     }
 
+    // Reset the first item edited flag when initializing
+    firstItemEditedRef.current = false;
     setInitialized(true);
   }, [
     loadingClients,
@@ -196,9 +201,9 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   ]);
 
   // Update the first line item when defaultHourlyRate changes (if it hasn't been manually edited)
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- formData.items intentionally excluded to prevent infinite loop
   useEffect(() => {
     if (
+      !firstItemEditedRef.current &&
       formData.items.length === 1 &&
       formData.items[0]?.description === "" &&
       formData.items[0]?.hours === 1
@@ -215,7 +220,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         ],
       }));
     }
-  }, [formData.defaultHourlyRate]);
+  }, [formData.defaultHourlyRate, formData.items]);
 
   // Update default hourly rate when client changes
   useEffect(() => {
@@ -273,6 +278,14 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     field: string,
     value: string | number | Date,
   ) => {
+    // Mark first item as manually edited if user is changing it
+    if (
+      idx === 0 &&
+      (field === "description" || field === "hours" || field === "rate")
+    ) {
+      firstItemEditedRef.current = true;
+    }
+
     setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) => {
