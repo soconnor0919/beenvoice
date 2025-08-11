@@ -624,16 +624,22 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                               updateField("businessId", value)
                             }
                           >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select your business" />
+                            <SelectTrigger
+                              aria-label="From Business"
+                              className="w-full"
+                            >
+                              <span className="min-w-0 flex-1 truncate text-left">
+                                <SelectValue placeholder="Select your business (nickname shown)" />
+                              </span>
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="w-[--radix-select-trigger-width] min-w-[--radix-select-trigger-width]">
                               {businesses?.map((business) => (
                                 <SelectItem
                                   key={business.id}
                                   value={business.id}
+                                  className="truncate"
                                 >
-                                  {business.name}
+                                  <span className="block truncate">{`${business.name}${business.nickname ? ` (${business.nickname})` : ""}`}</span>
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -647,13 +653,24 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                               updateField("clientId", value)
                             }
                           >
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a client" />
+                            <SelectTrigger
+                              aria-label="Bill To Client"
+                              className="w-full"
+                            >
+                              <span className="min-w-0 flex-1 truncate text-left">
+                                <SelectValue placeholder="Select a client" />
+                              </span>
                             </SelectTrigger>
-                            <SelectContent>
+                            <SelectContent className="w-[--radix-select-trigger-width] min-w-[--radix-select-trigger-width]">
                               {clients?.map((client) => (
-                                <SelectItem key={client.id} value={client.id}>
-                                  {client.name}
+                                <SelectItem
+                                  key={client.id}
+                                  value={client.id}
+                                  className="truncate"
+                                >
+                                  <span className="block truncate">
+                                    {client.name}
+                                  </span>
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -789,10 +806,18 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Business:</span>
+                      <span className="text-muted-foreground">
+                        Business (nickname shown):
+                      </span>
                       <span className="font-medium">
-                        {businesses?.find((b) => b.id === formData.businessId)
-                          ?.name ?? "Not selected"}
+                        {(() => {
+                          const b = businesses?.find(
+                            (b) => b.id === formData.businessId,
+                          );
+                          return b
+                            ? `${b.name}${b.nickname ? ` (${b.nickname})` : ""}`
+                            : "Not selected";
+                        })()}
                       </span>
                     </div>
                   </div>

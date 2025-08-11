@@ -46,6 +46,7 @@ interface BusinessFormProps {
 
 interface FormData {
   name: string;
+  nickname: string;
   email: string;
   phone: string;
   addressLine1: string;
@@ -64,6 +65,7 @@ interface FormData {
 
 interface FormErrors {
   name?: string;
+  nickname?: string;
   email?: string;
   phone?: string;
   addressLine1?: string;
@@ -80,6 +82,7 @@ interface FormErrors {
 
 const initialFormData: FormData = {
   name: "",
+  nickname: "",
   email: "",
   phone: "",
   addressLine1: "",
@@ -153,6 +156,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
     if (business && mode === "edit") {
       setFormData({
         name: business.name,
+        nickname: business.nickname ?? "",
         email: business.email ?? "",
         phone: business.phone ?? "",
         addressLine1: business.addressLine1 ?? "",
@@ -197,6 +201,10 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
     // Required fields
     if (!formData.name.trim()) {
       newErrors.name = VALIDATION_MESSAGES.required;
+    }
+    // Nickname validation (optional, max 255 chars)
+    if (formData.nickname && formData.nickname.length > 255) {
+      newErrors.nickname = "Nickname must be 255 characters or less";
     }
 
     // Email validation
@@ -280,6 +288,8 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       // Format website URL before submission
       const dataToSubmit = {
         ...formData,
+        name: formData.name.trim(),
+        nickname: formData.nickname.trim(),
         website: formData.website ? formatWebsiteUrl(formData.website) : "",
       };
 
@@ -287,6 +297,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
         // Create business data (excluding email config fields)
         const businessData = {
           name: dataToSubmit.name,
+          nickname: dataToSubmit.nickname,
           email: dataToSubmit.email,
           phone: dataToSubmit.phone,
           addressLine1: dataToSubmit.addressLine1,
@@ -320,6 +331,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
         // Update business data (excluding email config fields)
         const businessData = {
           name: dataToSubmit.name,
+          nickname: dataToSubmit.nickname,
           email: dataToSubmit.email,
           phone: dataToSubmit.phone,
           addressLine1: dataToSubmit.addressLine1,
@@ -442,7 +454,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center">
                     <Building className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
@@ -472,6 +484,29 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                     />
                     {errors.name && (
                       <p className="text-destructive text-sm">{errors.name}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="nickname" className="text-sm font-medium">
+                      Nickname
+                      <span className="text-muted-foreground ml-1 text-xs font-normal">
+                        (Optional)
+                      </span>
+                    </Label>
+                    <Input
+                      id="nickname"
+                      value={formData.nickname}
+                      onChange={(e) =>
+                        handleInputChange("nickname", e.target.value)
+                      }
+                      placeholder="e.g., Personal, Work, LLC"
+                      disabled={isSubmitting}
+                    />
+                    {errors.nickname && (
+                      <p className="text-destructive text-sm">
+                        {errors.nickname}
+                      </p>
                     )}
                   </div>
 
@@ -569,7 +604,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center">
                     <svg
                       className="text-muted-foreground h-5 w-5"
                       fill="none"
@@ -617,7 +652,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center">
                     <Mail className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
@@ -632,7 +667,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
               <CardContent className="space-y-6">
                 {/* Current Status */}
                 {mode === "edit" && (
-                  <div className="flex items-center justify-between  bg-gray-50 p-4">
+                  <div className="flex items-center justify-between bg-gray-50 p-4">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">
                         Current Status:
@@ -806,7 +841,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
             <Card className="bg-card border-border border">
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className="bg-muted flex h-10 w-10 items-center justify-center ">
+                  <div className="bg-muted flex h-10 w-10 items-center justify-center">
                     <Star className="text-muted-foreground h-5 w-5" />
                   </div>
                   <div>
@@ -818,7 +853,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-muted border-border/40 flex items-center justify-between  border p-4">
+                <div className="bg-muted border-border/40 flex items-center justify-between border p-4">
                   <div className="space-y-0.5">
                     <Label
                       htmlFor="isDefault"
@@ -848,7 +883,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="bg-primary/10  p-2">
+            <div className="bg-primary/10 p-2">
               <FileText className="text-primary h-5 w-5" />
             </div>
             <div>

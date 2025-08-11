@@ -165,6 +165,7 @@ export default function SendEmailPage() {
           business: invoiceData.business
             ? {
                 name: invoiceData.business.name,
+                nickname: invoiceData.business.nickname,
                 email: invoiceData.business.email,
               }
             : undefined,

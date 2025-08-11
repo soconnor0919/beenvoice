@@ -20,6 +20,7 @@ interface InvoiceData {
   notes?: string | null;
   business?: {
     name: string;
+    nickname?: string | null;
     email?: string | null;
     phone?: string | null;
     addressLine1?: string | null;

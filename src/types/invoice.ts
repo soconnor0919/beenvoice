@@ -26,6 +26,7 @@ export interface InvoiceWithRelations extends Invoice {
   business: {
     id: string;
     name: string;
+    nickname: string | null;
     email: string | null;
   } | null;
   invoiceItems: Array<{

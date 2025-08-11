@@ -188,7 +188,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
               <div className="flex items-start justify-between">
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="bg-primary/10  p-2">
+                    <div className="bg-primary/10 p-2">
                       <FileText className="text-primary h-6 w-6" />
                     </div>
                     <div>
@@ -239,7 +239,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                   >
                     {isExportingPDF ? (
                       <>
-                        <div className="mr-2 h-4 w-4 animate-spin  border-2 border-white border-t-transparent" />
+                        <div className="mr-2 h-4 w-4 animate-spin border-2 border-white border-t-transparent" />
                         Generating PDF...
                       </>
                     ) : (
@@ -326,7 +326,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border-border overflow-hidden  border">
+              <div className="border-border overflow-hidden border">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
@@ -479,7 +479,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Danger Zone */}
-          <Card className="bg-card border-border border border-destructive/20">
+          <Card className="bg-card border-destructive/20 border">
             <CardHeader>
               <CardTitle className="text-destructive">Danger Zone</CardTitle>
             </CardHeader>

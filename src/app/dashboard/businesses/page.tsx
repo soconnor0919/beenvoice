@@ -31,7 +31,7 @@ export default async function BusinessesPage() {
       </PageHeader>
 
       <HydrateClient>
-        <Suspense fallback={<DataTableSkeleton columns={6} rows={5} />}>
+        <Suspense fallback={<DataTableSkeleton columns={7} rows={5} />}>
           <BusinessesTable />
         </Suspense>
       </HydrateClient>

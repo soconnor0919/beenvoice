@@ -6,7 +6,17 @@ import { invoices } from "~/server/db/schema";
 import { sql } from "drizzle-orm";
 
 const businessSchema = z.object({
-  name: z.string().min(1, "Business name is required"),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Business name is required")
+    .max(255, "Business name must be 255 characters or less"),
+  nickname: z
+    .string()
+    .trim()
+    .max(255, "Nickname must be 255 characters or less")
+    .optional()
+    .or(z.literal("")),
   email: z.string().email().optional().or(z.literal("")),
   phone: z.string().optional().or(z.literal("")),
   addressLine1: z.string().optional().or(z.literal("")),
@@ -96,7 +106,54 @@ export const businessesRouter = createTRPCRouter({
       const [newBusiness] = await ctx.db
         .insert(businesses)
         .values({
-          ...input,
+          name: input.name.trim(),
+          nickname:
+            input.nickname && input.nickname.trim() !== ""
+              ? input.nickname.trim()
+              : null,
+          email:
+            input.email && input.email.trim() !== ""
+              ? input.email.trim()
+              : null,
+          phone:
+            input.phone && input.phone.trim() !== ""
+              ? input.phone.trim()
+              : null,
+          addressLine1:
+            input.addressLine1 && input.addressLine1.trim() !== ""
+              ? input.addressLine1.trim()
+              : null,
+          addressLine2:
+            input.addressLine2 && input.addressLine2.trim() !== ""
+              ? input.addressLine2.trim()
+              : null,
+          city:
+            input.city && input.city.trim() !== "" ? input.city.trim() : null,
+          state:
+            input.state && input.state.trim() !== ""
+              ? input.state.trim()
+              : null,
+          postalCode:
+            input.postalCode && input.postalCode.trim() !== ""
+              ? input.postalCode.trim()
+              : null,
+          country:
+            input.country && input.country.trim() !== ""
+              ? input.country.trim()
+              : null,
+          website:
+            input.website && input.website.trim() !== ""
+              ? input.website.trim()
+              : null,
+          taxId:
+            input.taxId && input.taxId.trim() !== ""
+              ? input.taxId.trim()
+              : null,
+          logoUrl:
+            input.logoUrl && input.logoUrl.trim() !== ""
+              ? input.logoUrl.trim()
+              : null,
+          isDefault: input.isDefault ?? false,
           createdById: ctx.session.user.id,
         })
         .returning();
@@ -126,7 +183,56 @@ export const businessesRouter = createTRPCRouter({
       const [updatedBusiness] = await ctx.db
         .update(businesses)
         .set({
-          ...updateData,
+          name: (updateData.name ?? "").trim(),
+          nickname:
+            updateData.nickname && updateData.nickname.trim() !== ""
+              ? updateData.nickname.trim()
+              : null,
+          email:
+            updateData.email && updateData.email.trim() !== ""
+              ? updateData.email.trim()
+              : null,
+          phone:
+            updateData.phone && updateData.phone.trim() !== ""
+              ? updateData.phone.trim()
+              : null,
+          addressLine1:
+            updateData.addressLine1 && updateData.addressLine1.trim() !== ""
+              ? updateData.addressLine1.trim()
+              : null,
+          addressLine2:
+            updateData.addressLine2 && updateData.addressLine2.trim() !== ""
+              ? updateData.addressLine2.trim()
+              : null,
+          city:
+            updateData.city && updateData.city.trim() !== ""
+              ? updateData.city.trim()
+              : null,
+          state:
+            updateData.state && updateData.state.trim() !== ""
+              ? updateData.state.trim()
+              : null,
+          postalCode:
+            updateData.postalCode && updateData.postalCode.trim() !== ""
+              ? updateData.postalCode.trim()
+              : null,
+          country:
+            updateData.country && updateData.country.trim() !== ""
+              ? updateData.country.trim()
+              : null,
+          website:
+            updateData.website && updateData.website.trim() !== ""
+              ? updateData.website.trim()
+              : null,
+          taxId:
+            updateData.taxId && updateData.taxId.trim() !== ""
+              ? updateData.taxId.trim()
+              : null,
+          logoUrl:
+            updateData.logoUrl && updateData.logoUrl.trim() !== ""
+              ? updateData.logoUrl.trim()
+              : null,
+          isDefault: updateData.isDefault ?? false,
           updatedAt: new Date(),
         })
         .where(

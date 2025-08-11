@@ -22,6 +22,7 @@ import { toast } from "sonner";
 interface Business {
   id: string;
   name: string;
+  nickname: string | null;
   email: string | null;
   phone: string | null;
   addressLine1: string | null;
@@ -61,6 +62,11 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
 
   const utils = api.useUtils();
 
+  const searchableBusinesses = businesses.map((b) => ({
+    ...b,
+    searchValue: `${b.name} ${b.nickname ?? ""}`.trim(),
+  }));
+
   const deleteBusinessMutation = api.businesses.delete.useMutation({
     onSuccess: () => {
       toast.success("Business deleted successfully");
@@ -91,7 +97,7 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
         const business = row.original;
         return (
           <div className="flex items-center gap-3">
-            <div className="bg-primary/10 hidden  p-2 sm:flex">
+            <div className="bg-primary/10 hidden p-2 sm:flex">
               <Building className="text-primary h-4 w-4" />
             </div>
             <div className="min-w-0">
@@ -102,6 +108,17 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
             </div>
           </div>
         );
+      },
+    },
+    {
+      accessorKey: "nickname",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Nickname" />
+      ),
+      cell: ({ row }) => row.original.nickname ?? "—",
+      meta: {
+        headerClassName: "hidden sm:table-cell",
+        cellClassName: "hidden sm:table-cell",
       },
     },
     {
@@ -176,6 +193,15 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
       },
     },
     {
+      accessorKey: "searchValue",
+      header: "Search",
+      cell: () => null,
+      meta: {
+        headerClassName: "hidden",
+        cellClassName: "hidden",
+      },
+    },
+    {
       id: "actions",
       cell: ({ row }) => {
         const business = row.original;
@@ -210,9 +236,9 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
     <>
       <DataTable
         columns={columns}
-        data={businesses}
-        searchKey="name"
-        searchPlaceholder="Search businesses..."
+        data={searchableBusinesses}
+        searchKey="searchValue"
+        searchPlaceholder="Search by name or nickname..."
         onRowClick={handleRowClick}
       />
 

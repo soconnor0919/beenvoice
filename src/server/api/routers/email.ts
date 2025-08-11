@@ -77,7 +77,7 @@ export const emailRouter = createTRPCRouter({
       // Create email content
       const subject =
         input.customSubject ??
-        `Invoice ${invoice.invoiceNumber} from ${invoice.business?.name ?? "Your Business"}`;
+        `Invoice ${invoice.invoiceNumber} from ${invoice.business ? `${invoice.business.name}${invoice.business.nickname ? ` (${invoice.business.nickname})` : ""}` : "Your Business"}`;
 
       const userName =
         invoice.business?.emailFromName ??
@@ -124,7 +124,11 @@ export const emailRouter = createTRPCRouter({
         // Use business's custom Resend setup
         resendInstance = new Resend(invoice.business.resendApiKey);
         const fromName =
-          invoice.business.emailFromName ?? invoice.business.name ?? userName;
+          invoice.business.emailFromName ??
+          (invoice.business.nickname
+            ? `${invoice.business.name} (${invoice.business.nickname})`
+            : invoice.business.name) ??
+          userName;
         fromEmail = `${fromName} <noreply@${invoice.business.resendDomain}>`;
       } else if (env.RESEND_DOMAIN) {
         // Use system Resend configuration

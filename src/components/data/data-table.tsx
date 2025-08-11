@@ -98,6 +98,7 @@ export function DataTable<TData, TValue>({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [globalFilter, setGlobalFilter] = React.useState("");
+  const [searchInput, setSearchInput] = React.useState("");
 
   // Mobile detection hook
   const [isMobile, setIsMobile] = React.useState(false);
@@ -171,6 +172,19 @@ export function DataTable<TData, TValue>({
     table.setPageSize(isMobile ? 5 : pageSize);
   }, [isMobile, pageSize, table]);
 
+  // Debounce search input updates to the table's global filter
+  React.useEffect(() => {
+    const timeout = setTimeout(() => {
+      setGlobalFilter(searchInput);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
+  // Keep search input in sync when globalFilter is changed externally (e.g., "Clear filters")
+  React.useEffect(() => {
+    setSearchInput(globalFilter ?? "");
+  }, [globalFilter]);
+
   const pageSizeOptions = [5, 10, 20, 30, 50, 100];
 
   // Handle row click
@@ -223,8 +237,8 @@ export function DataTable<TData, TValue>({
                   <Search className="text-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
                   <Input
                     placeholder={searchPlaceholder}
-                    value={globalFilter ?? ""}
-                    onChange={(event) => setGlobalFilter(event.target.value)}
+                    value={searchInput ?? ""}
+                    onChange={(event) => setSearchInput(event.target.value)}
                     className="h-9 w-full pr-3 pl-9"
                   />
                 </div>

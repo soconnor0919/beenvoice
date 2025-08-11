@@ -45,7 +45,7 @@ export default async function BusinessDetailPage({
   return (
     <div className="space-y-6 pb-32">
       <PageHeader
-        title={business.name}
+        title={`${business.name}${business.nickname ? ` (${business.nickname})` : ""}`}
         description="View business details and information"
         variant="gradient"
       >
@@ -69,7 +69,7 @@ export default async function BusinessDetailPage({
           <Card className="bg-card border-border border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="bg-primary/10  p-2">
+                <div className="bg-primary/10 p-2">
                   <Building className="text-primary h-5 w-5" />
                 </div>
                 <span>Business Information</span>
@@ -84,7 +84,7 @@ export default async function BusinessDetailPage({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {business.email && (
                     <div className="flex items-center space-x-3">
-                      <div className="bg-primary/10  p-2">
+                      <div className="bg-primary/10 p-2">
                         <Mail className="text-primary h-4 w-4" />
                       </div>
                       <div>
@@ -100,7 +100,7 @@ export default async function BusinessDetailPage({
 
                   {business.phone && (
                     <div className="flex items-center space-x-3">
-                      <div className="bg-primary/10  p-2">
+                      <div className="bg-primary/10 p-2">
                         <Phone className="text-primary h-4 w-4" />
                       </div>
                       <div>
@@ -116,7 +116,7 @@ export default async function BusinessDetailPage({
 
                   {business.website && (
                     <div className="flex items-center space-x-3">
-                      <div className="bg-primary/10  p-2">
+                      <div className="bg-primary/10 p-2">
                         <Globe className="text-primary h-4 w-4" />
                       </div>
                       <div>
@@ -137,7 +137,7 @@ export default async function BusinessDetailPage({
 
                   {business.taxId && (
                     <div className="flex items-center space-x-3">
-                      <div className="bg-primary/10  p-2">
+                      <div className="bg-primary/10 p-2">
                         <Hash className="text-primary h-4 w-4" />
                       </div>
                       <div>
@@ -162,7 +162,7 @@ export default async function BusinessDetailPage({
                       Business Address
                     </h3>
                     <div className="flex items-start space-x-3">
-                      <div className="bg-primary/10  p-2">
+                      <div className="bg-primary/10 p-2">
                         <MapPin className="text-primary h-4 w-4" />
                       </div>
                       <div className="space-y-1 text-sm">
@@ -205,7 +205,7 @@ export default async function BusinessDetailPage({
                 <h3 className="mb-4 text-lg font-semibold">Business Details</h3>
                 <div className="space-y-4">
                   <div className="flex items-center space-x-3">
-                    <div className="bg-primary/10  p-2">
+                    <div className="bg-primary/10 p-2">
                       <Calendar className="text-primary h-4 w-4" />
                     </div>
                     <div>
@@ -218,10 +218,31 @@ export default async function BusinessDetailPage({
                     </div>
                   </div>
 
+                  {business.nickname && (
+                    <div className="flex items-center space-x-3">
+                      <div className="bg-primary/10 p-2">
+                        <Building className="text-primary h-4 w-4" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-muted-foreground text-sm font-medium">
+                            Nickname
+                          </p>
+                          <Badge variant="outline" className="text-xs">
+                            Internal only
+                          </Badge>
+                        </div>
+                        <p className="text-foreground text-sm">
+                          {business.nickname}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Default Business Badge */}
                   {business.isDefault && (
                     <div className="flex items-center space-x-3">
-                      <div className="bg-primary/10  p-2">
+                      <div className="bg-primary/10 p-2">
                         <Building className="text-primary h-4 w-4" />
                       </div>
                       <div>
@@ -248,7 +269,7 @@ export default async function BusinessDetailPage({
           <Card className="bg-card border-border border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <div className="bg-primary/10  p-2">
+                <div className="bg-primary/10 p-2">
                   <Building className="text-primary h-5 w-5" />
                 </div>
                 <span>Quick Actions</span>

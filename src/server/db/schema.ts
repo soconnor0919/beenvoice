@@ -143,6 +143,7 @@ export const businesses = createTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     name: d.varchar({ length: 255 }).notNull(),
+    nickname: d.varchar({ length: 255 }),
     email: d.varchar({ length: 255 }),
     phone: d.varchar({ length: 50 }),
     addressLine1: d.varchar({ length: 255 }),
@@ -172,6 +173,7 @@ export const businesses = createTable(
   (t) => [
     index("business_created_by_idx").on(t.createdById),
     index("business_name_idx").on(t.name),
+    index("business_nickname_idx").on(t.nickname),
     index("business_email_idx").on(t.email),
     index("business_is_default_idx").on(t.isDefault),
   ],

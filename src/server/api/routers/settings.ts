@@ -25,6 +25,7 @@ const ClientBackupSchema = z.object({
 
 const BusinessBackupSchema = z.object({
   name: z.string(),
+  nickname: z.string().optional(),
   email: z.string().optional(),
   phone: z.string().optional(),
   addressLine1: z.string().optional(),
@@ -51,6 +52,7 @@ const InvoiceItemBackupSchema = z.object({
 const InvoiceBackupSchema = z.object({
   invoiceNumber: z.string(),
   businessName: z.string().optional(),
+  businessNickname: z.string().optional(),
   clientName: z.string(),
   issueDate: z.string().transform((str) => new Date(str)),
   dueDate: z.string().transform((str) => new Date(str)),
@@ -205,6 +207,7 @@ export const settingsRouter = createTRPCRouter({
       columns: {
         id: true,
         name: true,
+        nickname: true,
         email: true,
         phone: true,
         addressLine1: true,
@@ -232,6 +235,7 @@ export const settingsRouter = createTRPCRouter({
         business: {
           columns: {
             name: true,
+            nickname: true,
           },
         },
         items: {
@@ -269,6 +273,7 @@ export const settingsRouter = createTRPCRouter({
       })),
       businesses: userBusinesses.map((business) => ({
         name: business.name,
+        nickname: business.nickname ?? undefined,
         email: business.email ?? undefined,
         phone: business.phone ?? undefined,
         addressLine1: business.addressLine1 ?? undefined,
@@ -285,6 +290,7 @@ export const settingsRouter = createTRPCRouter({
       invoices: userInvoices.map((invoice) => ({
         invoiceNumber: invoice.invoiceNumber,
         businessName: invoice.business?.name,
+        businessNickname: invoice.business?.nickname,
         clientName: invoice.client.name,
         issueDate: invoice.issueDate,
         dueDate: invoice.dueDate,
@@ -337,6 +343,9 @@ export const settingsRouter = createTRPCRouter({
 
           if (newBusiness) {
             businessIdMap.set(businessData.name, newBusiness.id);
+            if (businessData.nickname) {
+              businessIdMap.set(businessData.nickname, newBusiness.id);
+            }
           }
         }
 
@@ -347,9 +356,14 @@ export const settingsRouter = createTRPCRouter({
             throw new Error(`Client ${invoiceData.clientName} not found`);
           }
 
-          const businessId = invoiceData.businessName
-            ? businessIdMap.get(invoiceData.businessName)
-            : null;
+          const businessId = invoiceData.businessNickname
+            ? (businessIdMap.get(invoiceData.businessNickname) ??
+              (invoiceData.businessName
+                ? (businessIdMap.get(invoiceData.businessName) ?? null)
+                : null))
+            : invoiceData.businessName
+              ? (businessIdMap.get(invoiceData.businessName) ?? null)
+              : null;
 
           const [newInvoice] = await tx
             .insert(invoices)
