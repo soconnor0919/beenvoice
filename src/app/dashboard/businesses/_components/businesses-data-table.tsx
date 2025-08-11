@@ -43,17 +43,6 @@ interface BusinessesDataTableProps {
   businesses: Business[];
 }
 
-const formatAddress = (business: Business) => {
-  const parts = [
-    business.addressLine1,
-    business.addressLine2,
-    business.city,
-    business.state,
-    business.postalCode,
-  ].filter(Boolean);
-  return parts.join(", ") || "—";
-};
-
 export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
   const router = useRouter();
   const [businessToDelete, setBusinessToDelete] = useState<Business | null>(
@@ -103,7 +92,7 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
             <div className="min-w-0">
               <p className="truncate font-medium">{business.name}</p>
               <p className="text-muted-foreground truncate text-sm">
-                {business.email ?? "—"}
+                {business.nickname ?? "—"}
               </p>
             </div>
           </div>
@@ -111,11 +100,11 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
       },
     },
     {
-      accessorKey: "nickname",
+      accessorKey: "email",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Nickname" />
+        <DataTableColumnHeader column={column} title="Email" />
       ),
-      cell: ({ row }) => row.original.nickname ?? "—",
+      cell: ({ row }) => row.original.email ?? "—",
       meta: {
         headerClassName: "hidden sm:table-cell",
         cellClassName: "hidden sm:table-cell",
@@ -130,26 +119,6 @@ export function BusinessesDataTable({ businesses }: BusinessesDataTableProps) {
       meta: {
         headerClassName: "hidden md:table-cell",
         cellClassName: "hidden md:table-cell",
-      },
-    },
-    {
-      id: "address",
-      header: "Address",
-      cell: ({ row }) => formatAddress(row.original),
-      meta: {
-        headerClassName: "hidden lg:table-cell",
-        cellClassName: "hidden lg:table-cell",
-      },
-    },
-    {
-      accessorKey: "taxId",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tax ID" />
-      ),
-      cell: ({ row }) => row.original.taxId ?? "—",
-      meta: {
-        headerClassName: "hidden xl:table-cell",
-        cellClassName: "hidden xl:table-cell",
       },
     },
     {

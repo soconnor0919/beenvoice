@@ -123,29 +123,18 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
 
   // Update email configuration mutation
   const updateEmailConfig = api.businesses.updateEmailConfig.useMutation({
-    onSuccess: () => {
-      toast.success("Email configuration updated successfully");
-    },
     onError: (error) => {
       toast.error(`Failed to update email configuration: ${error.message}`);
     },
   });
 
   const createBusiness = api.businesses.create.useMutation({
-    onSuccess: () => {
-      toast.success("Business created successfully");
-      router.push("/dashboard/businesses");
-    },
     onError: (error) => {
       toast.error(error.message || "Failed to create business");
     },
   });
 
   const updateBusiness = api.businesses.update.useMutation({
-    onSuccess: () => {
-      toast.success("Business updated successfully");
-      router.push("/dashboard/businesses");
-    },
     onError: (error) => {
       toast.error(error.message || "Failed to update business");
     },
@@ -203,69 +192,87 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       newErrors.name = VALIDATION_MESSAGES.required;
     }
     // Nickname validation (optional, max 255 chars)
-    if (formData.nickname && formData.nickname.length > 255) {
+    if (formData.nickname && formData.nickname.trim().length > 255) {
       newErrors.nickname = "Nickname must be 255 characters or less";
     }
 
     // Email validation
-    if (formData.email && !isValidEmail(formData.email)) {
+    if (formData.email.trim() && !isValidEmail(formData.email.trim())) {
       newErrors.email = VALIDATION_MESSAGES.email;
     }
 
     // Phone validation (basic check for US format)
-    if (formData.phone) {
+    if (formData.phone.trim()) {
       const phoneDigits = formData.phone.replace(/\D/g, "");
       if (phoneDigits.length > 0 && phoneDigits.length < 10) {
         newErrors.phone = VALIDATION_MESSAGES.phone;
       }
     }
 
-    // Address validation if any address field is filled
-    const hasAddressData =
-      formData.addressLine1 ||
-      formData.city ||
-      formData.state ||
-      formData.postalCode;
+    // Address validation if any address field is filled (excluding country as it has a default)
+    const hasAddressData = !!(
+      formData.addressLine1.trim() ||
+      formData.city.trim() ||
+      formData.state.trim() ||
+      formData.postalCode.trim()
+    );
 
-    if (hasAddressData) {
-      if (!formData.addressLine1)
+    // Also check if country was explicitly changed from default
+    const hasNonDefaultCountry =
+      formData.country.trim() && formData.country.trim() !== "United States";
+    const hasAnyAddressInput = hasAddressData || hasNonDefaultCountry;
+
+    // Only validate address if user has actually entered address data
+    if (hasAnyAddressInput) {
+      if (!formData.addressLine1.trim())
         newErrors.addressLine1 = VALIDATION_MESSAGES.required;
-      if (!formData.city) newErrors.city = VALIDATION_MESSAGES.required;
-      if (!formData.country) newErrors.country = VALIDATION_MESSAGES.required;
+      if (!formData.city.trim()) newErrors.city = VALIDATION_MESSAGES.required;
+      if (!formData.country.trim())
+        newErrors.country = VALIDATION_MESSAGES.required;
 
-      if (formData.country === "United States") {
-        if (!formData.state) newErrors.state = VALIDATION_MESSAGES.required;
-        if (!formData.postalCode)
+      // Only require US-specific fields if country is United States AND we have actual address data
+      if (formData.country.trim() === "United States" && hasAddressData) {
+        if (!formData.state.trim())
+          newErrors.state = VALIDATION_MESSAGES.required;
+        if (!formData.postalCode.trim())
           newErrors.postalCode = VALIDATION_MESSAGES.required;
       }
     }
 
     // Email configuration validation
     // API Key validation
-    if (formData.resendApiKey && !formData.resendApiKey.startsWith("re_")) {
+    if (
+      formData.resendApiKey.trim() &&
+      !formData.resendApiKey.trim().startsWith("re_")
+    ) {
       newErrors.resendApiKey = "Resend API key should start with 're_'";
     }
 
     // Domain validation
-    if (formData.resendDomain) {
+    if (formData.resendDomain.trim()) {
       const domainRegex =
         /^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.([a-zA-Z]{2,})+$/;
-      if (!domainRegex.test(formData.resendDomain)) {
+      if (!domainRegex.test(formData.resendDomain.trim())) {
         newErrors.resendDomain =
           "Please enter a valid domain (e.g., yourdomain.com)";
       }
     }
 
     // If API key is provided, domain must also be provided
-    if (formData.resendApiKey && !formData.resendDomain) {
+    if (formData.resendApiKey.trim() && !formData.resendDomain.trim()) {
       newErrors.resendDomain = "Domain is required when API key is provided";
     }
 
-    // If domain is provided, API key must also be provided
+    // If domain is provided, API key must also be provided (unless there's already one on the server)
+    // In edit mode, if domain comes from server and API key field is empty, don't require new API key
+    const userEnteredDomain =
+      formData.resendDomain.trim() !== (emailConfig?.resendDomain ?? "");
+
     if (
-      formData.resendDomain &&
-      !formData.resendApiKey &&
-      !emailConfig?.hasApiKey
+      formData.resendDomain.trim() &&
+      !formData.resendApiKey.trim() &&
+      !emailConfig?.hasApiKey &&
+      (mode === "create" || userEnteredDomain)
     ) {
       newErrors.resendApiKey = "API key is required when domain is provided";
     }
@@ -289,7 +296,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
       const dataToSubmit = {
         ...formData,
         name: formData.name.trim(),
-        nickname: formData.nickname.trim(),
+        nickname: formData.nickname.trim() || undefined,
         website: formData.website ? formatWebsiteUrl(formData.website) : "",
       };
 
@@ -313,20 +320,24 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
 
         const newBusiness = await createBusiness.mutateAsync(businessData);
 
-        // Update email configuration separately if any email fields are provided
-        if (
-          newBusiness &&
-          (formData.resendApiKey ||
-            formData.resendDomain ||
-            formData.emailFromName)
-        ) {
+        // Update email configuration separately if any email fields have values
+        const newApiKey = formData.resendApiKey.trim();
+        const newDomain = formData.resendDomain.trim();
+        const newFromName = formData.emailFromName.trim();
+
+        const hasEmailData = newApiKey || newDomain || newFromName;
+
+        if (newBusiness && hasEmailData) {
           await updateEmailConfig.mutateAsync({
             id: newBusiness.id,
-            resendApiKey: formData.resendApiKey || undefined,
-            resendDomain: formData.resendDomain || undefined,
-            emailFromName: formData.emailFromName || undefined,
+            resendApiKey: newApiKey || undefined,
+            resendDomain: newDomain || undefined,
+            emailFromName: newFromName || undefined,
           });
         }
+
+        toast.success("Business created successfully");
+        router.push("/dashboard/businesses");
       } else {
         // Update business data (excluding email config fields)
         const businessData = {
@@ -350,19 +361,31 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
           ...businessData,
         });
 
-        // Update email configuration separately if any email fields are provided
-        if (
-          formData.resendApiKey ||
-          formData.resendDomain ||
-          formData.emailFromName
-        ) {
+        // Only update email configuration if there are actual changes or new values
+        const currentApiKey = emailConfig?.hasApiKey ? "EXISTING" : "";
+        const currentDomain = emailConfig?.resendDomain ?? "";
+        const currentFromName = emailConfig?.emailFromName ?? "";
+
+        const newApiKey = formData.resendApiKey.trim();
+        const newDomain = formData.resendDomain.trim();
+        const newFromName = formData.emailFromName.trim();
+
+        const hasEmailChanges =
+          (newApiKey && newApiKey !== currentApiKey) ||
+          newDomain !== currentDomain ||
+          newFromName !== currentFromName;
+
+        if (hasEmailChanges) {
           await updateEmailConfig.mutateAsync({
             id: businessId!,
-            resendApiKey: formData.resendApiKey || undefined,
-            resendDomain: formData.resendDomain || undefined,
-            emailFromName: formData.emailFromName || undefined,
+            resendApiKey: newApiKey || undefined,
+            resendDomain: newDomain || undefined,
+            emailFromName: newFromName || undefined,
           });
         }
+
+        toast.success("Business updated successfully");
+        router.push("/dashboard/businesses");
       }
     } finally {
       setIsSubmitting(false);
@@ -667,7 +690,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
               <CardContent className="space-y-6">
                 {/* Current Status */}
                 {mode === "edit" && (
-                  <div className="flex items-center justify-between bg-gray-50 p-4">
+                  <div className="bg-muted/50 flex items-center justify-between p-4">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium">
                         Current Status:
@@ -688,7 +711,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                       )}
                     </div>
                     {emailConfig?.resendDomain && (
-                      <span className="text-sm text-gray-600">
+                      <span className="text-muted-foreground text-sm">
                         Domain: {emailConfig.resendDomain}
                       </span>
                     )}
@@ -742,7 +765,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
                         }
                         placeholder={
                           mode === "edit" && emailConfig?.hasApiKey
-                            ? "Enter new API key to update"
+                            ? "••••••••••••••••••••••••••••••••"
                             : "re_..."
                         }
                         className={

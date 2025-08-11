@@ -108,19 +108,41 @@ export const clientsRouter = createTRPCRouter({
     .input(createClientSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        // Clean up empty strings to null, but preserve required fields
-        const cleanInput = Object.fromEntries(
-          Object.entries(input).map(([key, value]) => [
-            key,
-            value === "" ? null : value,
-          ]),
-        );
-
         const [client] = await ctx.db
           .insert(clients)
           .values({
-            name: input.name, // Ensure name is included
-            ...cleanInput,
+            name: input.name.trim(),
+            email:
+              input.email && input.email.trim() !== ""
+                ? input.email.trim()
+                : null,
+            phone:
+              input.phone && input.phone.trim() !== ""
+                ? input.phone.trim()
+                : null,
+            addressLine1:
+              input.addressLine1 && input.addressLine1.trim() !== ""
+                ? input.addressLine1.trim()
+                : null,
+            addressLine2:
+              input.addressLine2 && input.addressLine2.trim() !== ""
+                ? input.addressLine2.trim()
+                : null,
+            city:
+              input.city && input.city.trim() !== "" ? input.city.trim() : null,
+            state:
+              input.state && input.state.trim() !== ""
+                ? input.state.trim()
+                : null,
+            postalCode:
+              input.postalCode && input.postalCode.trim() !== ""
+                ? input.postalCode.trim()
+                : null,
+            country:
+              input.country && input.country.trim() !== ""
+                ? input.country.trim()
+                : null,
+            defaultHourlyRate: input.defaultHourlyRate ?? null,
             createdById: ctx.session.user.id,
           })
           .returning();
@@ -168,18 +190,59 @@ export const clientsRouter = createTRPCRouter({
           });
         }
 
-        // Clean up empty strings to null
-        const cleanData = Object.fromEntries(
-          Object.entries(data).map(([key, value]) => [
-            key,
-            value === "" ? null : value,
-          ]),
-        );
-
         const [updatedClient] = await ctx.db
           .update(clients)
           .set({
-            ...cleanData,
+            name: data.name ? data.name.trim() : undefined,
+            email:
+              data.email !== undefined
+                ? data.email && data.email.trim() !== ""
+                  ? data.email.trim()
+                  : null
+                : undefined,
+            phone:
+              data.phone !== undefined
+                ? data.phone && data.phone.trim() !== ""
+                  ? data.phone.trim()
+                  : null
+                : undefined,
+            addressLine1:
+              data.addressLine1 !== undefined
+                ? data.addressLine1 && data.addressLine1.trim() !== ""
+                  ? data.addressLine1.trim()
+                  : null
+                : undefined,
+            addressLine2:
+              data.addressLine2 !== undefined
+                ? data.addressLine2 && data.addressLine2.trim() !== ""
+                  ? data.addressLine2.trim()
+                  : null
+                : undefined,
+            city:
+              data.city !== undefined
+                ? data.city && data.city.trim() !== ""
+                  ? data.city.trim()
+                  : null
+                : undefined,
+            state:
+              data.state !== undefined
+                ? data.state && data.state.trim() !== ""
+                  ? data.state.trim()
+                  : null
+                : undefined,
+            postalCode:
+              data.postalCode !== undefined
+                ? data.postalCode && data.postalCode.trim() !== ""
+                  ? data.postalCode.trim()
+                  : null
+                : undefined,
+            country:
+              data.country !== undefined
+                ? data.country && data.country.trim() !== ""
+                  ? data.country.trim()
+                  : null
+                : undefined,
+            defaultHourlyRate: data.defaultHourlyRate ?? undefined,
             updatedAt: new Date(),
           })
           .where(eq(clients.id, id))
