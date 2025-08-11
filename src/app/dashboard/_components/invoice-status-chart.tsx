@@ -1,6 +1,7 @@
 "use client";
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
 import type { StoredInvoiceStatus } from "~/types/invoice";
 
@@ -51,6 +52,12 @@ export function InvoiceStatusChart({ invoices }: InvoiceStatusChartProps) {
     paid: "hsl(142, 76%, 36%)", // green
     overdue: "hsl(0, 84%, 60%)", // red
   };
+  // Animation / motion preferences
+  const { prefersReducedMotion, animationSpeedMultiplier } =
+    useAnimationPreferences();
+  const pieAnimationDuration = Math.round(
+    600 / (animationSpeedMultiplier || 1),
+  );
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -113,6 +120,9 @@ export function InvoiceStatusChart({ invoices }: InvoiceStatusChartProps) {
               outerRadius={80}
               stroke="none"
               dataKey="count"
+              isAnimationActive={!prefersReducedMotion}
+              animationDuration={pieAnimationDuration}
+              animationEasing="ease-out"
             >
               {chartData.map((entry, index) => (
                 <Cell

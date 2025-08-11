@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
 import type { StoredInvoiceStatus } from "~/types/invoice";
+import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 interface Invoice {
   id: string;
@@ -99,6 +100,8 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
     return null;
   };
 
+  const { prefersReducedMotion, animationSpeedMultiplier } =
+    useAnimationPreferences();
   if (chartData.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -147,6 +150,11 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
             stroke="hsl(0, 0%, 60%)"
             strokeWidth={2}
             fill="url(#revenueGradient)"
+            isAnimationActive={!prefersReducedMotion}
+            animationDuration={Math.round(
+              600 / (animationSpeedMultiplier ?? 1),
+            )}
+            animationEasing="ease-out"
           />
         </AreaChart>
       </ResponsiveContainer>

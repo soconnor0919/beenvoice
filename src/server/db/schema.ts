@@ -24,6 +24,9 @@ export const users = createTable("user", (d) => ({
   image: d.varchar({ length: 255 }),
   resetToken: d.varchar({ length: 255 }),
   resetTokenExpiry: d.timestamp(),
+  // User UI/animation preferences
+  prefersReducedMotion: d.boolean().default(false).notNull(),
+  animationSpeedMultiplier: d.real().default(1).notNull(),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({

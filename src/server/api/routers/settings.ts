@@ -91,6 +91,50 @@ export const settingsRouter = createTRPCRouter({
     return user;
   }),
 
+  // Get animation preferences
+  getAnimationPreferences: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, ctx.session.user.id),
+      columns: {
+        prefersReducedMotion: true,
+        animationSpeedMultiplier: true,
+      },
+    });
+
+    return {
+      prefersReducedMotion: user?.prefersReducedMotion ?? false,
+      animationSpeedMultiplier: user?.animationSpeedMultiplier ?? 1,
+    };
+  }),
+
+  // Update animation preferences
+  updateAnimationPreferences: protectedProcedure
+    .input(
+      z.object({
+        prefersReducedMotion: z.boolean().optional(),
+        animationSpeedMultiplier: z
+          .number()
+          .min(0.25, "Minimum 0.25x")
+          .max(4, "Maximum 4x")
+          .optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(users)
+        .set({
+          ...(input.prefersReducedMotion !== undefined && {
+            prefersReducedMotion: input.prefersReducedMotion,
+          }),
+          ...(input.animationSpeedMultiplier !== undefined && {
+            animationSpeedMultiplier: input.animationSpeedMultiplier,
+          }),
+        })
+        .where(eq(users.id, ctx.session.user.id));
+
+      return { success: true };
+    }),
+
   // Update user profile
   updateProfile: protectedProcedure
     .input(

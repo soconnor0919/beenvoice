@@ -229,15 +229,20 @@ body {
 }
 
 .animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
+  /* 0.6s ≈ slow * 1.2 */
+  animation: fade-in-up calc(var(--animation-speed-slow) * 1.2)
+    var(--animation-easing) forwards;
 }
 
 .animate-text-shimmer {
-  animation: text-shimmer 2s ease-in-out infinite;
+  /* 2s ≈ slow * 4 */
+  animation: text-shimmer calc(var(--animation-speed-slow) * 4) ease-in-out
+    infinite;
 }
 
 .animate-float {
-  animation: float 3s ease-in-out infinite;
+  /* 3s ≈ slow * 6 */
+  animation: float calc(var(--animation-speed-slow) * 6) ease-in-out infinite;
 }
 
 .animation-delay-300 {
@@ -466,6 +471,16 @@ li[data-sonner-toast] button:hover,
   }
 }
 
+/* User toggle: force reduced motion even if system preference allows motion */
+html.user-reduce-motion *,
+html.user-reduce-motion *::before,
+html.user-reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
 /* ========================================
    BASE KEYFRAMES
    ======================================== */
@@ -659,15 +674,21 @@ li[data-sonner-toast] button:hover,
 }
 
 .animate-bounce {
-  animation: bounce 1s var(--animation-easing);
+  /* 1s ≈ slow * 2 */
+  animation: bounce calc(var(--animation-speed-slow) * 2)
+    var(--animation-easing);
 }
 
 .animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* 2s ≈ slow * 4 */
+  animation: pulse calc(var(--animation-speed-slow) * 4)
+    cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .animate-count-up {
-  animation: countUp 0.8s var(--animation-easing);
+  /* 0.8s ≈ slow * 1.6 */
+  animation: countUp calc(var(--animation-speed-slow) * 1.6)
+    var(--animation-easing);
 }
 
 /* Stagger Animation Delays */
@@ -744,7 +765,8 @@ li[data-sonner-toast] button:hover,
     hsl(var(--muted)) 100%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
+  /* 1.5s ≈ slow * 3 */
+  animation: shimmer calc(var(--animation-speed-slow) * 3) ease-in-out infinite;
 }
 
 .skeleton-text {
@@ -783,7 +805,9 @@ li[data-sonner-toast] button:hover,
    ======================================== */
 
 .page-enter {
-  animation: fadeInUp 0.6s var(--animation-easing);
+  /* 0.6s ≈ slow * 1.2 */
+  animation: fadeInUp calc(var(--animation-speed-slow) * 1.2)
+    var(--animation-easing);
 }
 
 .page-enter-stagger > * {
@@ -904,7 +928,9 @@ li[data-sonner-toast] button:hover,
 
 /* Status Badge Pulse for Pending States */
 .status-pending {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  /* 2s ≈ slow * 4 */
+  animation: pulse calc(var(--animation-speed-slow) * 4)
+    cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Button Loading States */
@@ -924,7 +950,8 @@ li[data-sonner-toast] button:hover,
   border: 2px solid currentColor;
   border-radius: 50%;
   border-top-color: transparent;
-  animation: spin 0.8s linear infinite;
+  /* 0.8s ≈ slow * 1.6 */
+  animation: spin calc(var(--animation-speed-slow) * 1.6) linear infinite;
 }
 
 @keyframes spin {
@@ -938,7 +965,9 @@ li[data-sonner-toast] button:hover,
    ======================================== */
 
 .success-state {
-  animation: successPulse 0.6s var(--animation-easing);
+  /* 0.6s ≈ slow * 1.2 */
+  animation: successPulse calc(var(--animation-speed-slow) * 1.2)
+    var(--animation-easing);
 }
 
 @keyframes successPulse {
@@ -957,7 +986,8 @@ li[data-sonner-toast] button:hover,
 }
 
 .error-state {
-  animation: errorShake 0.5s var(--animation-easing);
+  /* 0.5s = slow * 1 */
+  animation: errorShake var(--animation-speed-slow) var(--animation-easing);
 }
 
 @keyframes errorShake {
@@ -1076,4 +1106,64 @@ li[data-sonner-toast] button:hover,
 
 .will-animate.animation-done {
   will-change: auto;
+}
+
+/* =========================================================
+   Reduced Motion Alternative (subtle fade / blur entrance)
+   Applied when html has .user-reduce-motion (user preference)
+   Large motion & long-running animations are removed; brief
+   opacity/blur transitions are allowed for context.
+   ========================================================= */
+
+html.user-reduce-motion .rm-soft-enter {
+  opacity: 0;
+  filter: blur(6px);
+}
+
+html.user-reduce-motion .rm-soft-enter.rm-visible {
+  transition:
+    opacity var(--animation-speed-normal) var(--animation-easing),
+    filter var(--animation-speed-normal) var(--animation-easing);
+  opacity: 1;
+  filter: blur(0);
+}
+
+/* Replace standard entrance animations with subtle fade */
+html.user-reduce-motion .page-enter,
+html.user-reduce-motion .page-enter-stagger > *,
+html.user-reduce-motion .stats-card,
+html.user-reduce-motion .invoice-item,
+html.user-reduce-motion .recent-activity-item,
+html.user-reduce-motion .form-section,
+html.user-reduce-motion .animate-on-load {
+  animation: none !important;
+  opacity: 1 !important;
+  filter: none !important;
+  transition:
+    opacity var(--animation-speed-fast) var(--animation-easing),
+    filter var(--animation-speed-fast) var(--animation-easing);
+}
+
+/* Neutralize pulsing / spinning (provide static state) */
+html.user-reduce-motion .status-pending,
+html.user-reduce-motion .button-loading::after,
+html.user-reduce-motion .animate-pulse,
+html.user-reduce-motion .animate-bounce {
+  animation: none !important;
+}
+
+/* Optional: allow a very quick keyframe for blur-in if needed */
+@keyframes reducedBlurIn {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+html.user-reduce-motion .allow-reduced-motion-effect {
+  animation: reducedBlurIn var(--animation-speed-fast) var(--animation-easing);
 }

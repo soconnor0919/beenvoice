@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
 import type { StoredInvoiceStatus } from "~/types/invoice";
+import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 interface Invoice {
   id: string;
@@ -86,6 +87,13 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
         year: "2-digit",
       }),
     }));
+
+  // Animation / motion preferences
+  const { prefersReducedMotion, animationSpeedMultiplier } =
+    useAnimationPreferences();
+  const barAnimationDuration = Math.round(
+    500 / (animationSpeedMultiplier || 1),
+  );
 
   const CustomTooltip = ({
     active,
@@ -167,24 +175,36 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
               stackId="a"
               fill="hsl(0, 0%, 60%)"
               radius={[0, 0, 0, 0]}
+              isAnimationActive={!prefersReducedMotion}
+              animationDuration={barAnimationDuration}
+              animationEasing="ease-out"
             />
             <Bar
               dataKey="paidInvoices"
               stackId="a"
               fill="var(--chart-2)"
               radius={[0, 0, 0, 0]}
+              isAnimationActive={!prefersReducedMotion}
+              animationDuration={barAnimationDuration}
+              animationEasing="ease-out"
             />
             <Bar
               dataKey="pendingInvoices"
               stackId="a"
               fill="var(--chart-1)"
               radius={[0, 0, 0, 0]}
+              isAnimationActive={!prefersReducedMotion}
+              animationDuration={barAnimationDuration}
+              animationEasing="ease-out"
             />
             <Bar
               dataKey="overdueInvoices"
               stackId="a"
               fill="var(--chart-3)"
               radius={[2, 2, 0, 0]}
+              isAnimationActive={!prefersReducedMotion}
+              animationDuration={barAnimationDuration}
+              animationEasing="ease-out"
             />
           </BarChart>
         </ResponsiveContainer>

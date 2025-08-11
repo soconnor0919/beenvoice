@@ -59,6 +59,9 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
+import { Switch } from "~/components/ui/switch";
+import { Slider } from "~/components/ui/slider";
+import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 export function SettingsContent() {
   const { data: session } = useSession();
@@ -75,6 +78,25 @@ export function SettingsContent() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Animation preferences via provider (centralized)
+  const {
+    prefersReducedMotion,
+    animationSpeedMultiplier,
+    updatePreferences,
+    isUpdating: animationPrefsUpdating,
+    setPrefersReducedMotion,
+    setAnimationSpeedMultiplier,
+  } = useAnimationPreferences();
+
+  const handleSaveAnimationPreferences = (e: React.FormEvent) => {
+    e.preventDefault();
+    updatePreferences({
+      prefersReducedMotion,
+      animationSpeedMultiplier,
+    });
+    toast.success("Animation preferences updated");
+  };
 
   // Queries
   const { data: profile, refetch: refetchProfile } =
@@ -270,6 +292,8 @@ export function SettingsContent() {
       setName(profile.name);
     }
   }, [profile?.name, name]);
+
+  // (Removed direct DOM mutation; provider handles applying preferences globally)
 
   const dataStatItems = [
     {
@@ -493,6 +517,99 @@ export function SettingsContent() {
               {changePasswordMutation.isPending
                 ? "Changing Password..."
                 : "Change Password"}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {/* Accessibility & Animation */}
+      <Card className="bg-card border-border border">
+        <CardHeader>
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <Info className="text-primary h-5 w-5" />
+            Accessibility & Animation
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSaveAnimationPreferences} className="space-y-6">
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1.5">
+                <Label>Reduce Motion</Label>
+                <p className="text-muted-foreground text-xs leading-snug">
+                  Turn this on to reduce or remove non-essential animations and
+                  transitions.
+                </p>
+              </div>
+              <Switch
+                checked={prefersReducedMotion}
+                onCheckedChange={(checked) =>
+                  setPrefersReducedMotion(Boolean(checked))
+                }
+                aria-label="Toggle reduced motion"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="mb-0">Animation Speed Multiplier</Label>
+                <span className="text-muted-foreground text-xs font-medium">
+                  {prefersReducedMotion
+                    ? "1.00x (locked)"
+                    : `${animationSpeedMultiplier.toFixed(2)}x`}
+                </span>
+              </div>
+              <p className="text-muted-foreground text-xs leading-snug">
+                Adjust global animation duration scaling. Lower values (0.25×,
+                0.5×, 0.75×) slow animations; higher values (2×, 3×, 4×) speed
+                them up.
+              </p>
+              <div className="flex flex-col gap-2">
+                {/* Slider (desktop / larger screens) */}
+                <div className="hidden sm:block">
+                  <Slider
+                    value={[animationSpeedMultiplier]}
+                    min={0.25}
+                    max={4}
+                    step={0.25}
+                    ticks={[0.25, 0.5, 0.75, 1, 2, 3, 4]}
+                    formatTick={(t) => (t === 1 ? "1x" : `${t}x`)}
+                    onValueChange={(v: number[]) =>
+                      setAnimationSpeedMultiplier(v[0] ?? 1)
+                    }
+                    aria-label="Animation speed multiplier"
+                    className="mt-1"
+                    disabled={prefersReducedMotion}
+                  />
+                </div>
+                {/* Dropdown fallback (small screens) */}
+                <div className="block sm:hidden">
+                  <select
+                    className="bg-background border-border text-foreground w-full rounded-md border px-2 py-2 text-sm disabled:opacity-60"
+                    value={animationSpeedMultiplier}
+                    disabled={prefersReducedMotion}
+                    onChange={(e) =>
+                      setAnimationSpeedMultiplier(
+                        parseFloat(e.target.value) || 1,
+                      )
+                    }
+                    aria-label="Animation speed multiplier select"
+                  >
+                    {[0.25, 0.5, 0.75, 1, 2, 3, 4].map((v) => (
+                      <option key={v} value={v}>
+                        {v === 1 ? "1x (default)" : `${v}x`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              type="submit"
+              disabled={animationPrefsUpdating}
+              variant="default"
+            >
+              {animationPrefsUpdating ? "Saving..." : "Save Preferences"}
             </Button>
           </form>
         </CardContent>
