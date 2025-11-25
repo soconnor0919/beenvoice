@@ -63,7 +63,7 @@ export function CurrentOpenInvoiceCard() {
               No open invoice found. Create a new invoice to start tracking your
               time.
             </p>
-            <Button asChild variant="brand">
+            <Button asChild variant="default">
               <Link href="/dashboard/invoices/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create New Invoice
@@ -133,7 +133,7 @@ export function CurrentOpenInvoiceCard() {
               View
             </Link>
           </Button>
-          <Button asChild variant="brand" size="sm" className="flex-1">
+          <Button asChild variant="default" size="sm" className="flex-1">
             <Link href={`/dashboard/invoices/${currentInvoice.id}`}>
               <Edit className="mr-2 h-3 w-3" />
               Continue

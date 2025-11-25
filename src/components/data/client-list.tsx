@@ -102,7 +102,7 @@ export function ClientList() {
         </CardHeader>
         <CardContent className="text-center">
           <Link href="/dashboard/clients/new">
-            <Button variant="brand" className="h-12 w-full">
+            <Button variant="default" className="h-12 w-full">
               <Plus className="mr-2 h-4 w-4" />
               Add Your First Client
             </Button>
@@ -131,7 +131,7 @@ export function ClientList() {
           </div>
         </div>
         <Link href="/dashboard/clients/new">
-          <Button variant="brand" className="h-12 w-full sm:w-auto">
+          <Button variant="default" className="h-12 w-full sm:w-auto">
             <Plus className="mr-2 h-4 w-4" />
             Add Client
           </Button>

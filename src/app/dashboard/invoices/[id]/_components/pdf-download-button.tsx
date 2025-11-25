@@ -9,7 +9,7 @@ import { Download, Loader2 } from "lucide-react";
 
 interface PDFDownloadButtonProps {
   invoiceId: string;
-  variant?: "default" | "outline" | "ghost" | "icon";
+  variant?: "default" | "outline" | "ghost" | "icon" | "secondary";
   className?: string;
 }
 

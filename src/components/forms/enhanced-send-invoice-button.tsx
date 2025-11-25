@@ -7,7 +7,7 @@ import { Send, Loader2, Mail, MailCheck } from "lucide-react";
 
 interface EnhancedSendInvoiceButtonProps {
   invoiceId: string;
-  variant?: "default" | "outline" | "ghost" | "icon";
+  variant?: "default" | "outline" | "ghost" | "icon" | "secondary";
   className?: string;
   showResend?: boolean;
   size?: "default" | "sm" | "lg" | "icon";
