@@ -21,24 +21,36 @@ function downloadBlob(blob: Blob, filename: string): void {
     // First try using file-saver
     saveAs(blob, filename);
   } catch (error) {
-    // Fallback to manual download
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.style.display = "none";
+    console.warn("file-saver failed, using fallback method:", error);
 
-    // Add MIME type hint to link
-    if (blob.type) {
-      link.type = blob.type;
+    try {
+      // Fallback to manual download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.style.display = "none";
+
+      // Add MIME type hint to link
+      if (blob.type) {
+        link.type = blob.type;
+      }
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log("PDF download initiated successfully via fallback method");
+
+      // Clean up the object URL
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        console.log("Object URL cleaned up");
+      }, 1000);
+    } catch (fallbackError) {
+      console.error("Both download methods failed:", fallbackError);
+      throw new Error("Unable to download PDF file");
     }
-
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Clean up the object URL
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 }
 
