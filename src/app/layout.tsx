@@ -8,6 +8,8 @@ import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/sonner";
 import { AnimationPreferencesProvider } from "~/components/providers/animation-preferences-provider";
 
+import { ThemeProvider } from "~/components/providers/theme-provider";
+
 export const metadata: Metadata = {
   title: "beenvoice - Invoicing Made Simple",
   description:
@@ -36,12 +38,19 @@ export default function RootLayout({
       </head>
       <Analytics />
       <body className="bg-background text-foreground relative min-h-screen overflow-x-hidden font-sans antialiased">
-        <TRPCReactProvider>
-          <AnimationPreferencesProvider>
-            {children}
-          </AnimationPreferencesProvider>
-        </TRPCReactProvider>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TRPCReactProvider>
+            <AnimationPreferencesProvider>
+              {children}
+            </AnimationPreferencesProvider>
+            <Toaster />
+          </TRPCReactProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

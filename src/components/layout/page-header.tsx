@@ -52,7 +52,7 @@ export function PageHeader({
           )}
         </div>
         {children && (
-          <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3 [&>*]:h-8 [&>*]:px-2 [&>*]:text-sm sm:[&>*]:h-10 sm:[&>*]:px-4 sm:[&>*]:text-base [&>*>span]:hidden sm:[&>*>span]:inline [&>*>svg]:mr-0 sm:[&>*>svg]:mr-2">
+          <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3">
             {children}
           </div>
         )}

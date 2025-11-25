@@ -77,12 +77,12 @@ export function PDFDownloadButton({
     >
       {isGenerating ? (
         <>
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           <span>Generating PDF...</span>
         </>
       ) : (
         <>
-          <Download className="h-5 w-5" />
+          <Download className="mr-2 h-5 w-5" />
           <span>Download PDF</span>
         </>
       )}

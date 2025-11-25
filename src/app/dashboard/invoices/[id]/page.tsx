@@ -136,7 +136,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
         />
         <Button asChild variant="default" className="hover-lift">
           <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-            <Edit className="h-5 w-5" />
+            <Edit className="mr-2 h-5 w-5" />
             <span>Edit</span>
           </Link>
         </Button>
@@ -329,7 +329,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
             </CardHeader>
             <CardContent className="space-y-4">
               {invoice.items.map((item, _index) => (
-                <Card key={item.id} className="invoice-item card-secondary">
+                <Card key={item.id} className="invoice-item bg-secondary">
                   <CardContent className="p-3">
                     <div className="space-y-3">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
@@ -364,7 +364,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               ))}
 
               {/* Totals */}
-              <div className="bg-muted/30 rounded-lg p-4">
+              <div className="bg-secondary rounded-lg p-4">
                 <div className="space-y-3">
                   <div className="flex flex-wrap justify-between gap-x-4 gap-y-1">
                     <span className="text-muted-foreground">Subtotal:</span>
@@ -411,7 +411,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
 
         {/* Right Column - Actions */}
         <div className="space-y-6">
-          <Card className="sticky top-6">
+          <Card className="sticky top-20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Check className="h-5 w-5" />
@@ -419,7 +419,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button asChild variant="outline" className="w-full">
+              <Button asChild variant="secondary" className="w-full">
                 <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit Invoice
@@ -427,7 +427,11 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               </Button>
 
               {invoice.items && invoice.client && (
-                <PDFDownloadButton invoiceId={invoice.id} className="w-full" />
+                <PDFDownloadButton
+                  invoiceId={invoice.id}
+                  className="w-full"
+                  variant="secondary"
+                />
               )}
 
               {/* Send Invoice Button - Show for draft, sent, and overdue */}
@@ -435,6 +439,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
                 <EnhancedSendInvoiceButton
                   invoiceId={invoice.id}
                   className="w-full"
+                  variant="secondary"
                 />
               )}
 
@@ -444,6 +449,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
                   invoiceId={invoice.id}
                   className="w-full"
                   showResend={true}
+                  variant="secondary"
                 />
               )}
 
@@ -453,7 +459,8 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
                 <Button
                   onClick={handleMarkAsPaid}
                   disabled={updateStatus.isPending}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                  variant="secondary"
+                  className="w-full"
                 >
                   {updateStatus.isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -465,7 +472,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
               )}
 
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={handleDelete}
                 disabled={deleteInvoice.isPending}
                 className="text-destructive hover:bg-destructive/10 w-full"

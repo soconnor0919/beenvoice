@@ -124,7 +124,7 @@ function SortableLineItem({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "bg-card border-border hidden border p-4 md:block",
+        "bg-secondary hidden rounded-lg p-4 md:block",
         isDragging && "opacity-50",
       )}
     >
@@ -144,12 +144,7 @@ function SortableLineItem({
               variant="ghost"
               size="sm"
               onClick={() => onMoveUp(index)}
-              className={cn(
-                "h-6 w-6 p-0 transition-colors",
-                isFirst
-                  ? "text-muted-foreground/50 cursor-not-allowed"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
+              className="h-6 w-6 p-0"
               disabled={isFirst}
               aria-label="Move up"
             >
@@ -160,12 +155,7 @@ function SortableLineItem({
               variant="ghost"
               size="sm"
               onClick={() => onMoveDown(index)}
-              className={cn(
-                "h-6 w-6 p-0 transition-colors",
-                isLast
-                  ? "text-muted-foreground/50 cursor-not-allowed"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
+              className="h-6 w-6 p-0"
               disabled={isLast}
               aria-label="Move down"
             >
@@ -232,10 +222,7 @@ function SortableLineItem({
               variant="ghost"
               size="sm"
               onClick={() => onRemove(index)}
-              className={cn(
-                "text-muted-foreground hover:text-destructive h-8 w-8 p-0 transition-colors",
-                !canRemove && "cursor-not-allowed opacity-50",
-              )}
+              className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
               disabled={!canRemove}
               aria-label="Remove item"
             >
@@ -266,7 +253,7 @@ function MobileLineItem({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
-      className="bg-card border-border space-y-3 border md:hidden"
+      className="border-border bg-card overflow-hidden rounded-lg border md:hidden"
     >
       <div className="bg-secondary space-y-3 p-4">
         {/* Description */}
@@ -317,19 +304,14 @@ function MobileLineItem({
       </div>
 
       {/* Bottom section with controls, item name, and total */}
-      <div className="flex items-center justify-between rounded-b-lg border-t border-gray-400/60 bg-gray-200/30 px-4 py-2 dark:border-gray-500/60 dark:bg-gray-600/40">
+      <div className="border-border bg-muted/50 flex items-center justify-between border-t px-4 py-2">
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={() => onMoveUp(index)}
-            className={cn(
-              "h-8 w-8 p-0 transition-colors",
-              isFirst
-                ? "text-muted-foreground/50 cursor-not-allowed"
-                : "text-muted-foreground hover:text-foreground",
-            )}
+            className="h-8 w-8 p-0"
             disabled={isFirst}
             aria-label="Move up"
           >
@@ -340,12 +322,7 @@ function MobileLineItem({
             variant="ghost"
             size="sm"
             onClick={() => onMoveDown(index)}
-            className={cn(
-              "h-8 w-8 p-0 transition-colors",
-              isLast
-                ? "text-muted-foreground/50 cursor-not-allowed"
-                : "text-muted-foreground hover:text-foreground",
-            )}
+            className="h-8 w-8 p-0"
             disabled={isLast}
             aria-label="Move down"
           >
@@ -356,10 +333,7 @@ function MobileLineItem({
             variant="ghost"
             size="sm"
             onClick={() => onRemove(index)}
-            className={cn(
-              "text-muted-foreground hover:text-destructive h-8 w-8 p-0 transition-colors",
-              !canRemove && "cursor-not-allowed opacity-50",
-            )}
+            className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
             disabled={!canRemove}
             aria-label="Remove item"
           >

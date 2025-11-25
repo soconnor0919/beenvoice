@@ -55,7 +55,7 @@ export function AnimatedStatsCard({
   void numericValue;
 
   return (
-    <Card className="stats-card">
+    <Card>
       <CardContent className="p-6">
         <div className="flex items-center justify-between space-y-0 pb-2">
           <div className="flex items-center space-x-2">

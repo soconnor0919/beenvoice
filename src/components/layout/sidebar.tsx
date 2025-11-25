@@ -44,9 +44,9 @@ export function Sidebar() {
                       key={link.href}
                       href={link.href}
                       aria-current={pathname === link.href ? "page" : undefined}
-                      className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
+                      className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
                         pathname === link.href
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                       }`}
                     >

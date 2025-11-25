@@ -507,21 +507,16 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         >
           {invoiceId && invoiceId !== "new" && (
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={handleDelete}
               disabled={loading || deleteInvoice.isPending}
-              className="hover-lift text-destructive hover:bg-destructive/10 shadow-sm"
+              className="text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Delete Invoice</span>
             </Button>
           )}
-          <Button
-            onClick={handleSubmit}
-            disabled={loading}
-            variant="default"
-            className="hover-lift"
-          >
+          <Button onClick={handleSubmit} disabled={loading} variant="secondary">
             {loading ? (
               <>
                 <Clock className="h-4 w-4 animate-spin sm:mr-2" />
@@ -564,7 +559,6 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                             value={formData.invoiceNumber}
                             placeholder="INV-2024-001"
                             disabled
-                            className="bg-muted/50"
                           />
                         </div>
                         <div className="space-y-2">
@@ -831,16 +825,16 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       <FloatingActionBar
         leftContent={
           <div className="flex items-center space-x-3">
-            <div className="bg-primary/10 p-2">
+            <div className="p-2">
               <FileText className="text-primary h-5 w-5" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-foreground font-medium">
                 {invoiceId && invoiceId !== "new"
                   ? "Edit Invoice"
                   : "Create Invoice"}
               </p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="text-muted-foreground text-sm">
                 Update invoice details
               </p>
             </div>
@@ -849,7 +843,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       >
         {invoiceId && invoiceId !== "new" && (
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={handleDelete}
             disabled={loading || deleteInvoice.isPending}
@@ -862,7 +856,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         <Button
           onClick={handleSubmit}
           disabled={loading}
-          variant="default"
+          variant="secondary"
           size="sm"
         >
           {loading ? (

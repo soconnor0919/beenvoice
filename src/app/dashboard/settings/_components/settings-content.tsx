@@ -12,6 +12,7 @@ import {
   FileUp,
   Info,
   Key,
+  Palette,
   Shield,
   Upload,
   User,
@@ -61,6 +62,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { Switch } from "~/components/ui/switch";
 import { Slider } from "~/components/ui/slider";
+import { ThemeSelector } from "./theme-selector";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 export function SettingsContent() {
@@ -389,7 +391,7 @@ export function SettingsContent() {
                 return (
                   <div
                     key={item.label}
-                    className="hover-lift bg-card border p-4 transition-shadow hover:shadow-sm"
+                    className="bg-card rounded-lg border p-4 transition-shadow hover:shadow-sm"
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
                     <div className="flex items-center justify-between">
@@ -615,11 +617,27 @@ export function SettingsContent() {
         </CardContent>
       </Card>
 
+      {/* Appearance Settings */}
+      <Card className="bg-card border-border border">
+        <CardHeader>
+          <CardTitle className="text-foreground flex items-center gap-2">
+            <Palette className="text-primary h-5 w-5" />
+            Appearance
+          </CardTitle>
+          <CardDescription>
+            Customize the look and feel of the application
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ThemeSelector />
+        </CardContent>
+      </Card>
+
       {/* Data Management */}
       <Card className="bg-card border-border border">
         <CardHeader>
           <CardTitle className="text-foreground flex items-center gap-2">
-            <Shield className="text-icon-indigo h-5 w-5" />
+            <Shield className="text-primary h-5 w-5" />
             Data Management
           </CardTitle>
           <CardDescription>
@@ -785,10 +803,10 @@ export function SettingsContent() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="bg-card border-border border border-l-4 border-l-red-500">
+      <Card className="bg-card border-border border-l-destructive border border-l-4">
         <CardHeader>
           <CardTitle className="text-destructive flex items-center gap-2">
-            <AlertTriangle className="text-icon-red h-5 w-5" />
+            <AlertTriangle className="text-destructive h-5 w-5" />
             Danger Zone
           </CardTitle>
           <CardDescription>
@@ -823,7 +841,7 @@ export function SettingsContent() {
                       This action cannot be undone. This will permanently delete
                       all your:
                     </div>
-                    <ul className="border-border bg-muted/50 list-inside list-disc space-y-1 border p-3 text-sm">
+                    <ul className="border-border bg-muted/50 list-inside list-disc space-y-1 rounded-lg border p-3 text-sm">
                       <li>Client information and contact details</li>
                       <li>Business profiles and settings</li>
                       <li>Invoices and invoice line items</li>

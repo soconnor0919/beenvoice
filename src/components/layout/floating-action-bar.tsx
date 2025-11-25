@@ -71,7 +71,7 @@ export function FloatingActionBar({
           <CardContent className="flex items-center justify-between p-4">
             {/* Left content */}
             {leftContent && (
-              <div className="animate-fade-in flex flex-1 items-center gap-3">
+              <div className="text-card-foreground animate-fade-in flex flex-1 items-center gap-3">
                 {leftContent}
               </div>
             )}

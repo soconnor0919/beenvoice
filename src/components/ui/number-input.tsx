@@ -76,7 +76,7 @@ export function NumberInput({
   return (
     <div
       className={cn(
-        "bg-background flex h-9 items-center justify-center  text-sm shadow-none",
+        "bg-background border-input flex h-9 items-center justify-center rounded-md border text-sm shadow-none",
         widthClass,
         disabled && "cursor-not-allowed opacity-50",
         className,
@@ -86,7 +86,7 @@ export function NumberInput({
         type="button"
         onClick={handleDecrement}
         disabled={disabled || value <= min}
-        className="text-muted-foreground hover:text-foreground flex h-6 w-6 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
+        className="text-muted-foreground hover:text-foreground flex h-full w-8 items-center justify-center rounded-l-md disabled:cursor-not-allowed disabled:opacity-50"
       >
         −
       </button>
@@ -113,7 +113,7 @@ export function NumberInput({
         type="button"
         onClick={handleIncrement}
         disabled={disabled || (max !== undefined && value >= max)}
-        className="text-muted-foreground hover:text-foreground flex h-6 w-6 items-center justify-center disabled:cursor-not-allowed disabled:opacity-50"
+        className="text-muted-foreground hover:text-foreground flex h-full w-8 items-center justify-center rounded-r-md disabled:cursor-not-allowed disabled:opacity-50"
       >
         +
       </button>

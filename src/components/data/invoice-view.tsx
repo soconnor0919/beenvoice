@@ -192,10 +192,10 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                       <FileText className="text-primary h-6 w-6" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      <h2 className="text-foreground text-2xl font-bold">
                         {invoice.invoiceNumber}
                       </h2>
-                      <p className="text-gray-600 dark:text-gray-300">
+                      <p className="text-muted-foreground">
                         Professional Invoice
                       </p>
                     </div>
@@ -203,18 +203,14 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
 
                   <div className="grid grid-cols-2 gap-6 text-sm">
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Issue Date
-                      </span>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <span className="text-muted-foreground">Issue Date</span>
+                      <p className="text-foreground font-medium">
                         {formatDate(invoice.issueDate)}
                       </p>
                     </div>
                     <div>
-                      <span className="text-gray-500 dark:text-gray-400">
-                        Due Date
-                      </span>
-                      <p className="font-medium text-gray-900 dark:text-white">
+                      <span className="text-muted-foreground">Due Date</span>
+                      <p className="text-foreground font-medium">
                         {formatDate(invoice.dueDate)}
                       </p>
                     </div>
@@ -234,7 +230,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                   <Button
                     onClick={handlePDFExport}
                     disabled={isExportingPDF}
-                    variant="brand"
+                    variant="default"
                     className="transform-none"
                   >
                     {isExportingPDF ? (
@@ -264,29 +260,29 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-foreground text-lg font-semibold">
                   {invoice.client?.name}
                 </h3>
               </div>
 
               <div className="grid grid-cols-1 gap-4 text-sm md:grid-cols-2">
                 {invoice.client?.email && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <Mail className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <Mail className="text-muted-foreground h-4 w-4" />
                     {invoice.client.email}
                   </div>
                 )}
                 {invoice.client?.phone && (
-                  <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
-                    <Phone className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <div className="text-muted-foreground flex items-center gap-2">
+                    <Phone className="text-muted-foreground h-4 w-4" />
                     {invoice.client.phone}
                   </div>
                 )}
                 {(invoice.client?.addressLine1 ??
                   invoice.client?.city ??
                   invoice.client?.state) && (
-                  <div className="flex items-start gap-2 text-gray-600 md:col-span-2 dark:text-gray-300">
-                    <MapPin className="mt-0.5 h-4 w-4 flex-shrink-0 text-gray-400 dark:text-gray-500" />
+                  <div className="text-muted-foreground flex items-start gap-2 md:col-span-2">
+                    <MapPin className="text-muted-foreground mt-0.5 h-4 w-4 flex-shrink-0" />
                     <div>
                       {invoice.client?.addressLine1 && (
                         <div>{invoice.client.addressLine1}</div>
@@ -318,7 +314,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           </Card>
 
           {/* Invoice Items */}
-          <Card className="bg-card border-border border">
+          <Card className="bg-secondary border-border border">
             <CardHeader>
               <CardTitle className="text-primary flex items-center gap-2">
                 <Clock className="h-5 w-5" />
@@ -326,52 +322,25 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="border-border overflow-hidden border">
-                <table className="w-full">
-                  <thead className="bg-muted">
-                    <tr>
-                      <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
-                        Date
-                      </th>
-                      <th className="text-muted-foreground px-4 py-3 text-left text-sm font-semibold">
-                        Description
-                      </th>
-                      <th className="text-muted-foreground px-4 py-3 text-right text-sm font-semibold">
-                        Hours
-                      </th>
-                      <th className="text-muted-foreground px-4 py-3 text-right text-sm font-semibold">
-                        Rate
-                      </th>
-                      <th className="text-muted-foreground px-4 py-3 text-right text-sm font-semibold">
-                        Amount
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {invoice.items?.map((item, index) => (
-                      <tr
-                        key={item.id || index}
-                        className="border-border hover:bg-muted/50 border-t"
-                      >
-                        <td className="text-foreground px-4 py-3 text-sm">
-                          {formatDate(item.date)}
-                        </td>
-                        <td className="text-foreground px-4 py-3 text-sm">
-                          {item.description}
-                        </td>
-                        <td className="text-foreground px-4 py-3 text-right text-sm">
-                          {item.hours}
-                        </td>
-                        <td className="text-foreground px-4 py-3 text-right text-sm">
-                          {formatCurrency(item.rate)}
-                        </td>
-                        <td className="text-foreground px-4 py-3 text-right text-sm font-medium">
-                          {formatCurrency(item.amount)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="space-y-2">
+                {invoice.items?.map((item, index) => (
+                  <div
+                    key={item.id || index}
+                    className="bg-background flex items-center justify-between rounded-lg p-4"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-muted-foreground text-sm">
+                        {formatDate(item.date)}
+                      </div>
+                      <div className="text-foreground font-medium">
+                        {item.description}
+                      </div>
+                    </div>
+                    <div className="text-foreground text-right font-medium">
+                      {formatCurrency(item.amount)}
+                    </div>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -383,7 +352,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <CardTitle className="text-primary">Notes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">
+                <p className="text-muted-foreground whitespace-pre-wrap">
                   {invoice.notes}
                 </p>
               </CardContent>
@@ -394,7 +363,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Status Actions */}
-          <Card className="bg-card border-border border">
+          <Card className="bg-secondary border-border border">
             <CardHeader>
               <CardTitle className="text-primary">Status Actions</CardTitle>
             </CardHeader>
@@ -403,7 +372,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <Button
                   onClick={() => handleStatusUpdate("sent")}
                   disabled={updateStatus.isPending}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                  className="w-full"
                 >
                   <Send className="mr-2 h-4 w-4" />
                   Mark as Sent
@@ -414,7 +383,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <Button
                   onClick={() => handleStatusUpdate("paid")}
                   disabled={updateStatus.isPending}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                  className="w-full"
                 >
                   <DollarSign className="mr-2 h-4 w-4" />
                   Mark as Paid
@@ -425,7 +394,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <Button
                   onClick={() => handleStatusUpdate("paid")}
                   disabled={updateStatus.isPending}
-                  className="bg-primary text-primary-foreground hover:bg-primary/90 w-full"
+                  className="w-full"
                 >
                   <DollarSign className="mr-2 h-4 w-4" />
                   Mark as Paid
@@ -449,20 +418,18 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-300">
-                    Subtotal
-                  </span>
-                  <span className="font-medium dark:text-white">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-foreground font-medium">
                     {formatCurrency(invoice.totalAmount)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-300">Tax</span>
-                  <span className="font-medium dark:text-white">$0.00</span>
+                  <span className="text-muted-foreground">Tax</span>
+                  <span className="text-foreground font-medium">$0.00</span>
                 </div>
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
-                  <span className="dark:text-white">Total</span>
+                  <span className="text-foreground">Total</span>
                   <span className="text-primary">
                     {formatCurrency(invoice.totalAmount)}
                   </span>
@@ -486,8 +453,8 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
             <CardContent>
               <Button
                 onClick={handleDelete}
-                variant="outline"
-                className="border-destructive/20 text-destructive hover:bg-destructive/10 w-full"
+                variant="destructive"
+                className="w-full"
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete Invoice
@@ -501,10 +468,10 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent className="bg-card border-border border">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800 dark:text-white">
+            <DialogTitle className="text-foreground text-xl font-bold">
               Delete Invoice
             </DialogTitle>
-            <DialogDescription className="text-gray-600 dark:text-gray-300">
+            <DialogDescription className="text-muted-foreground">
               Are you sure you want to delete this invoice? This action cannot
               be undone and will permanently remove the invoice and all its
               data.
