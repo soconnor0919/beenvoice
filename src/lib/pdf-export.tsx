@@ -10,6 +10,59 @@ import {
 import { saveAs } from "file-saver";
 import React from "react";
 
+// Fallback download function for better browser compatibility
+function downloadBlob(blob: Blob, filename: string): void {
+  // Enhanced debugging for download process
+  console.log("Download Debug Info:", {
+    blobSize: blob.size,
+    blobType: blob.type,
+    filename: filename,
+    userAgent: navigator.userAgent,
+  });
+
+  try {
+    // Validate blob before download
+    if (!blob || blob.size === 0) {
+      throw new Error("Invalid blob for download");
+    }
+
+    // First try using file-saver
+    saveAs(blob, filename);
+    console.log("PDF download initiated successfully via file-saver");
+  } catch (error) {
+    console.warn("file-saver failed, using fallback method:", error);
+
+    try {
+      // Fallback to manual download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      link.style.display = "none";
+
+      // Add MIME type hint to link
+      if (blob.type) {
+        link.type = blob.type;
+      }
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      console.log("PDF download initiated successfully via fallback method");
+
+      // Clean up the object URL
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+        console.log("Object URL cleaned up");
+      }, 1000);
+    } catch (fallbackError) {
+      console.error("Both download methods failed:", fallbackError);
+      throw new Error("Unable to download PDF file");
+    }
+  }
+}
+
 interface InvoiceData {
   invoiceNumber: string;
   issueDate: Date;
@@ -1043,19 +1096,36 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
     }
 
     // Generate PDF blob
-    const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    const originalBlob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
 
     // Validate blob
-    if (!blob || blob.size === 0) {
+    if (!originalBlob || originalBlob.size === 0) {
       throw new Error("Generated PDF is empty");
+    }
+
+    // Create a new blob with explicit MIME type to ensure proper PDF handling
+    const blob = new Blob([originalBlob], { type: "application/pdf" });
+
+    // Enhanced debugging
+    console.log("PDF Generation Debug Info:", {
+      originalBlobSize: originalBlob.size,
+      originalBlobType: originalBlob.type,
+      newBlobSize: blob.size,
+      newBlobType: blob.type,
+      invoiceNumber: invoice.invoiceNumber,
+    });
+
+    // Validate MIME type is set correctly
+    if (blob.type !== "application/pdf") {
+      console.warn("MIME type not set correctly, forcing application/pdf");
     }
 
     // Create filename with timestamp for uniqueness
     const timestamp = new Date().toISOString().slice(0, 10);
     const filename = `Invoice_${invoice.invoiceNumber}_${timestamp}.pdf`;
 
-    // Download the PDF
-    saveAs(blob, filename);
+    // Download the PDF with fallback support
+    downloadBlob(blob, filename);
   } catch (error) {
     // Log the actual error for debugging
     console.error("PDF generation error:", error);
@@ -1082,12 +1152,15 @@ export async function generateInvoicePDFBlob(
     }
 
     // Generate PDF blob
-    const blob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    const originalBlob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
 
     // Validate blob
-    if (!blob || blob.size === 0) {
+    if (!originalBlob || originalBlob.size === 0) {
       throw new Error("Generated PDF is empty");
     }
+
+    // Create a new blob with explicit MIME type to ensure proper PDF handling
+    const blob = new Blob([originalBlob], { type: "application/pdf" });
 
     return blob;
   } catch (error) {
