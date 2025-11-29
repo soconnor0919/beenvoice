@@ -1,7 +1,7 @@
 "use client";
 
 import { MenuIcon, X } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "~/components/ui/button";
@@ -15,7 +15,7 @@ interface SidebarTriggerProps {
 
 export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
   const pathname = usePathname();
-  const { status } = useSession();
+  const { isPending } = authClient.useSession();
 
   return (
     <>
@@ -46,7 +46,7 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                   {section.title}
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  {status === "loading" ? (
+                  {isPending ? (
                     <>
                       {Array.from({ length: section.links.length }).map(
                         (_, i) => (
@@ -70,11 +70,10 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                           aria-current={
                             pathname === link.href ? "page" : undefined
                           }
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
-                            pathname === link.href
+                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${pathname === link.href
                               ? "bg-primary/10 text-primary"
                               : "text-foreground hover:bg-muted"
-                          }`}
+                            }`}
                           onClick={onToggle}
                         >
                           <Icon className="h-4 w-4" />

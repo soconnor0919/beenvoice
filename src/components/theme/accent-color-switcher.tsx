@@ -40,6 +40,7 @@ export function AccentColorSwitcher() {
   }, [colorTheme, savedCustomColor]);
 
   const handleColorChange = (color: { name: string; hex: string }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
     setColorTheme(color.name.toLowerCase() as any);
   };
 
@@ -74,8 +75,8 @@ export function AccentColorSwitcher() {
               className={cn(
                 "h-10 w-10 rounded-lg border-2",
                 colorTheme === color.name.toLowerCase() &&
-                  !isCustom &&
-                  "border-primary ring-primary ring-2 ring-offset-2",
+                !isCustom &&
+                "border-primary ring-primary ring-2 ring-offset-2",
                 isCustom && "opacity-50",
               )}
               onClick={() => handleColorChange(color)}

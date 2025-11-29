@@ -17,18 +17,11 @@ export function Logo({ className, size = "md", animated = true }: LogoProps) {
     xl: "text-4xl",
   };
 
-  const LogoContent = () => (
-    <div className={cn("flex items-center", sizeClasses[size], className)}>
-      <span className="text-primary font-bold tracking-tight">$</span>
-      <span className="inline-block w-2"></span>
-      <span className="text-foreground font-bold tracking-tight">been</span>
-      <span className="text-foreground/70 font-bold tracking-tight">voice</span>
-    </div>
-  );
-
   if (!animated) {
-    return <LogoContent />;
+    return <LogoContent className={className} size={size} sizeClasses={sizeClasses} />;
   }
+
+
 
   return (
     <motion.div
@@ -68,5 +61,24 @@ export function Logo({ className, size = "md", animated = true }: LogoProps) {
         voice
       </motion.span>
     </motion.div>
+  );
+}
+
+function LogoContent({
+  className,
+  size,
+  sizeClasses,
+}: {
+  className?: string;
+  size: "sm" | "md" | "lg" | "xl";
+  sizeClasses: Record<string, string>;
+}) {
+  return (
+    <div className={cn("flex items-center", sizeClasses[size], className)}>
+      <span className="text-primary font-bold tracking-tight">$</span>
+      <span className="inline-block w-2"></span>
+      <span className="text-foreground font-bold tracking-tight">been</span>
+      <span className="text-foreground/70 font-bold tracking-tight">voice</span>
+    </div>
   );
 }

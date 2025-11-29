@@ -1,19 +1,19 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export function AuthRedirect() {
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const router = useRouter();
 
   useEffect(() => {
     // Only redirect if we're sure the user is authenticated
-    if (status === "authenticated" && session?.user) {
+    if (!isPending && session?.user) {
       router.push("/dashboard");
     }
-  }, [session, status, router]);
+  }, [session, isPending, router]);
 
   // This component doesn't render anything
   return null;

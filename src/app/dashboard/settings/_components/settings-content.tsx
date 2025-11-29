@@ -18,7 +18,7 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 import * as React from "react";
 import { useState } from "react";
 
@@ -66,7 +66,7 @@ import { AppearanceSettings } from "./appearance-settings";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 export function SettingsContent() {
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const [name, setName] = useState("");
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [importData, setImportData] = useState("");

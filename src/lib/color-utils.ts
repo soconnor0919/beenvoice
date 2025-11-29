@@ -36,9 +36,8 @@ export function generateAccentColors(hex: string) {
     "--popover": `oklch(1 ${base.c * 0.02} ${base.h})`,
     "--popover-foreground": `oklch(0.1 ${base.c * 0.1} ${base.h})`,
     "--primary": `oklch(0.6 ${base.c} ${base.h})`,
-    "--primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${
-      base.c * 0.2
-    } ${base.h})`,
+    "--primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${base.c * 0.2
+      } ${base.h})`,
     "--secondary": `oklch(0.9 ${base.c * 0.4} ${base.h})`,
     "--secondary-foreground": `oklch(0.1 ${base.c * 0.8} ${base.h})`,
     "--muted": `oklch(0.95 ${base.c * 0.2} ${base.h})`,
@@ -57,9 +56,8 @@ export function generateAccentColors(hex: string) {
     "--sidebar": `oklch(0.98 ${base.c * 0.05} ${base.h})`,
     "--sidebar-foreground": `oklch(0.1 ${base.c * 0.1} ${base.h})`,
     "--sidebar-primary": `oklch(0.6 ${base.c} ${base.h})`,
-    "--sidebar-primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${
-      base.c * 0.2
-    } ${base.h})`,
+    "--sidebar-primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${base.c * 0.2
+      } ${base.h})`,
     "--sidebar-accent": `oklch(0.9 ${base.c * 0.4} ${base.h})`,
     "--sidebar-accent-foreground": `oklch(0.1 ${base.c * 0.8} ${base.h})`,
     "--sidebar-border": `oklch(0.9 ${base.c * 0.3} ${base.h})`,
@@ -77,13 +75,11 @@ export function generateAccentColors(hex: string) {
     "--popover": `oklch(0.17 ${base.c * 0.2} ${base.h})`,
     "--popover-foreground": `oklch(0.95 ${base.c * 0.05} ${base.h})`,
     "--primary": `oklch(0.7 ${base.c} ${base.h})`,
-    "--primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${
-      base.c * 0.2
-    } ${base.h})`,
+    "--primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${base.c * 0.2
+      } ${base.h})`,
     "--secondary": `oklch(0.3 ${base.c * 0.7} ${base.h})`,
-    "--secondary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${
-      base.c * 0.2
-    } ${base.h})`,
+    "--secondary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${base.c * 0.2
+      } ${base.h})`,
     "--muted": `oklch(0.25 ${base.c * 0.3} ${base.h})`,
     "--muted-foreground": `oklch(0.7 ${base.c * 0.2} ${base.h})`,
     "--accent": `oklch(0.3 ${base.c * 0.5} ${base.h})`,
@@ -100,9 +96,8 @@ export function generateAccentColors(hex: string) {
     "--sidebar": `oklch(0.1 ${base.c * 0.1} ${base.h})`,
     "--sidebar-foreground": `oklch(0.95 ${base.c * 0.05} ${base.h})`,
     "--sidebar-primary": `oklch(0.7 ${base.c} ${base.h})`,
-    "--sidebar-primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${
-      base.c * 0.2
-    } ${base.h})`,
+    "--sidebar-primary-foreground": `oklch(${base.l > 0.6 ? 0.1 : 0.98} ${base.c * 0.2
+      } ${base.h})`,
     "--sidebar-accent": `oklch(0.3 ${base.c * 0.7} ${base.h})`,
     "--sidebar-accent-foreground": `oklch(0.95 ${base.c * 0.05} ${base.h})`,
     "--sidebar-border": `oklch(0.28 ${base.c * 0.4} ${base.h})`,
@@ -195,7 +190,7 @@ function multiplyMatrix(
   matrix: number[][],
   vector: number[],
 ): [number, number, number] {
-  const result = new Array(matrix.length).fill(0);
+  const result = new Array(matrix.length).fill(0) as number[];
   for (let i = 0; i < matrix.length; i++) {
     for (let j = 0; j < vector.length; j++) {
       result[i]! += matrix[i]![j]! * vector[j]!;

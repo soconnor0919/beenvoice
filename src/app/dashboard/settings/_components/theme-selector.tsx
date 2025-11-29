@@ -41,6 +41,7 @@ export function ThemeSelector() {
                     "h-8 w-8 rounded-full border-2",
                     colorTheme === t.name && "border-primary",
                   )}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument
                   onClick={() => setColorTheme(t.name as any)}
                   style={{ backgroundColor: t.hex }}
                 >

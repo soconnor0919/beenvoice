@@ -23,7 +23,38 @@ export function LegalModal({ type, trigger }: LegalModalProps) {
   const isTerms = type === "terms";
   const title = isTerms ? "Terms of Service" : "Privacy Policy";
 
-  const TermsContent = () => (
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <span className="inline" onClick={() => setOpen(true)}>
+        {trigger}
+      </span>
+      <DialogContent className="max-h-[80vh] max-w-6xl">
+        <DialogHeader>
+          <DialogTitle className="flex items-center justify-between">
+            {title}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setOpen(false)}
+              className="h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogTitle>
+        </DialogHeader>
+        <ScrollArea className="h-full max-h-[60vh] pr-4">
+          {isTerms ? <TermsContent /> : <PrivacyContent />}
+        </ScrollArea>
+        <div className="flex justify-end pt-4">
+          <Button onClick={() => setOpen(false)}>Close</Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function TermsContent() {
+  return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -169,8 +200,10 @@ export function LegalModal({ type, trigger }: LegalModalProps) {
       </Card>
     </div>
   );
+}
 
-  const PrivacyContent = () => (
+function PrivacyContent() {
+  return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
@@ -313,34 +346,5 @@ export function LegalModal({ type, trigger }: LegalModalProps) {
         </CardContent>
       </Card>
     </div>
-  );
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <span className="inline" onClick={() => setOpen(true)}>
-        {trigger}
-      </span>
-      <DialogContent className="max-h-[80vh] max-w-6xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
-            {title}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setOpen(false)}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </DialogTitle>
-        </DialogHeader>
-        <ScrollArea className="h-full max-h-[60vh] pr-4">
-          {isTerms ? <TermsContent /> : <PrivacyContent />}
-        </ScrollArea>
-        <div className="flex justify-end pt-4">
-          <Button onClick={() => setOpen(false)}>Close</Button>
-        </div>
-      </DialogContent>
-    </Dialog>
   );
 }

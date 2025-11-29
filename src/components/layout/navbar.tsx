@@ -1,15 +1,17 @@
 "use client";
-import { signOut, useSession } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 import Link from "next/link";
 import { useState } from "react";
 import { Logo } from "~/components/branding/logo";
 import { SidebarTrigger } from "~/components/navigation/sidebar-trigger";
 import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 export function Navbar() {
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const router = useRouter();
 
   // Get current open invoice for quick access
   // const { data: currentInvoice } = api.invoices.getCurrentOpen.useQuery();
@@ -27,7 +29,7 @@ export function Navbar() {
           </Link>
         </div>
         <div className="flex items-center gap-2 md:gap-4">
-          {status === "loading" ? (
+          {isPending ? (
             <>
               <Skeleton className="bg-muted/20 hidden h-5 w-20 sm:inline" />
               <Skeleton className="bg-muted/20 h-8 w-16" />
@@ -40,7 +42,10 @@ export function Navbar() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={async () => {
+                  await authClient.signOut();
+                  router.push("/");
+                }}
                 className="text-xs md:text-sm"
               >
                 Sign Out

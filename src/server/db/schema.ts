@@ -1,6 +1,6 @@
 import { relations, sql } from "drizzle-orm";
-import { index, primaryKey, pgTableCreator } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
+import { index, pgTableCreator } from "drizzle-orm/pg-core";
+
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -17,14 +17,16 @@ export const users = createTable("user", (d) => ({
     .notNull()
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  name: d.varchar({ length: 255 }),
-  email: d.varchar({ length: 255 }).notNull(),
-  password: d.varchar({ length: 255 }),
-  emailVerified: d.timestamp().default(sql`CURRENT_TIMESTAMP`),
+  name: d.varchar({ length: 255 }).notNull(),
+  email: d.varchar({ length: 255 }).notNull().unique(),
+  emailVerified: d.boolean().default(false).notNull(),
   image: d.varchar({ length: 255 }),
-  resetToken: d.varchar({ length: 255 }),
+  createdAt: d.timestamp().notNull().defaultNow(),
+  updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  password: d.varchar({ length: 255 }), // Matched DB: varchar(255)
+  resetToken: d.varchar({ length: 255 }), // Matched DB: varchar(255)
   resetTokenExpiry: d.timestamp(),
-  // User UI/animation preferences
+  // Custom fields
   prefersReducedMotion: d.boolean().default(false).notNull(),
   animationSpeedMultiplier: d.real().default(1).notNull(),
 }));
@@ -34,31 +36,31 @@ export const usersRelations = relations(users, ({ many }) => ({
   clients: many(clients),
   businesses: many(businesses),
   invoices: many(invoices),
+  sessions: many(sessions), // Added missing relation
 }));
 
 export const accounts = createTable(
   "account",
   (d) => ({
+    id: d.text().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()), // Matched DB: text
     userId: d
       .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    type: d.varchar({ length: 255 }).$type<AdapterAccount["type"]>().notNull(),
-    provider: d.varchar({ length: 255 }).notNull(),
-    providerAccountId: d.varchar({ length: 255 }).notNull(),
-    refresh_token: d.text(),
-    access_token: d.text(),
-    expires_at: d.integer(),
-    token_type: d.varchar({ length: 255 }),
+    accountId: d.varchar({ length: 255 }).notNull(),
+    providerId: d.varchar({ length: 255 }).notNull(),
+    accessToken: d.text(),
+    refreshToken: d.text(),
+    accessTokenExpiresAt: d.timestamp(),
+    refreshTokenExpiresAt: d.timestamp(),
     scope: d.varchar({ length: 255 }),
-    id_token: d.text(),
-    session_state: d.varchar({ length: 255 }),
+    idToken: d.text(),
+    password: d.text(), // Matched DB: text
+    createdAt: d.timestamp().notNull().defaultNow(),
+    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
   }),
   (t) => [
-    primaryKey({
-      columns: [t.provider, t.providerAccountId],
-    }),
-    index("account_user_id_idx").on(t.userId),
+    index("account_userId_idx").on(t.userId),
   ],
 );
 
@@ -69,12 +71,17 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   (d) => ({
-    sessionToken: d.varchar({ length: 255 }).notNull().primaryKey(),
+    id: d.text().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()), // Matched DB: text
     userId: d
       .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
-    expires: d.timestamp().notNull(),
+    token: d.varchar({ length: 255 }).notNull().unique(),
+    expiresAt: d.timestamp().notNull(),
+    ipAddress: d.text(), // Matched DB: text
+    userAgent: d.text(), // Matched DB: text
+    createdAt: d.timestamp().notNull().defaultNow(),
+    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
   }),
   (t) => [index("session_userId_idx").on(t.userId)],
 );
@@ -86,11 +93,14 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verification_token",
   (d) => ({
+    id: d.text().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()), // Matched DB: text
     identifier: d.varchar({ length: 255 }).notNull(),
-    token: d.varchar({ length: 255 }).notNull(),
-    expires: d.timestamp().notNull(),
+    value: d.varchar({ length: 255 }).notNull(),
+    expiresAt: d.timestamp().notNull(),
+    createdAt: d.timestamp().notNull().defaultNow(),
+    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
   }),
-  (t) => [primaryKey({ columns: [t.identifier, t.token] })],
+  (t) => [index("verification_token_identifier_idx").on(t.identifier)],
 );
 
 // Invoicing app tables

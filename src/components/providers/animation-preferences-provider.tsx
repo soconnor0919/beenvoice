@@ -53,7 +53,7 @@ import React, {
   useState,
 } from "react";
 import { api } from "~/trpc/react";
-import { useSession } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 
 type AnimationPreferences = {
   prefersReducedMotion: boolean;
@@ -175,7 +175,7 @@ export function AnimationPreferencesProvider({
   autoSync = true,
 }: AnimationPreferencesProviderProps) {
   const updateMutation = api.settings.updateAnimationPreferences.useMutation();
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
   const isAuthed = !!session?.user;
   // Server query only when authenticated
   const { data: serverPrefs } = api.settings.getAnimationPreferences.useQuery(
@@ -216,8 +216,8 @@ export function AnimationPreferencesProvider({
       DEFAULT_PREFERS_REDUCED;
     const finalSpeed = clampSpeed(
       stored?.animationSpeedMultiplier ??
-        initial?.animationSpeedMultiplier ??
-        DEFAULT_SPEED,
+      initial?.animationSpeedMultiplier ??
+      DEFAULT_SPEED,
     );
 
     setPrefersReducedMotion(finalPrefers);

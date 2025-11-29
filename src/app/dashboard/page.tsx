@@ -16,7 +16,8 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
 import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
-import { auth } from "~/server/auth";
+import { auth } from "~/lib/auth";
+import { headers } from "next/headers";
 import { HydrateClient, api } from "~/trpc/server";
 import type { StoredInvoiceStatus } from "~/types/invoice";
 import { RevenueChart } from "~/app/dashboard/_components/revenue-chart";
@@ -126,15 +127,15 @@ async function DashboardStats() {
   const pendingChange =
     lastMonthInvoices.length > 0
       ? ((pendingInvoices.length -
-          lastMonthInvoices.filter((invoice) => {
-            const status = getEffectiveInvoiceStatus(
-              invoice.status as StoredInvoiceStatus,
-              invoice.dueDate,
-            );
-            return status === "sent" || status === "overdue";
-          }).length) /
-          lastMonthInvoices.length) *
-        100
+        lastMonthInvoices.filter((invoice) => {
+          const status = getEffectiveInvoiceStatus(
+            invoice.status as StoredInvoiceStatus,
+            invoice.dueDate,
+          );
+          return status === "sent" || status === "overdue";
+        }).length) /
+        lastMonthInvoices.length) *
+      100
       : pendingInvoices.length > 0
         ? 100
         : 0;
@@ -323,11 +324,10 @@ function QuickActions() {
             <Link
               key={action.title}
               href={action.href}
-              className={`hover-lift flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${
-                action.featured
-                  ? "border-foreground/20 bg-muted/50 hover:bg-muted"
-                  : "border-border bg-background hover:bg-muted/50"
-              }`}
+              className={`hover-lift flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${action.featured
+                ? "border-foreground/20 bg-muted/50 hover:bg-muted"
+                : "border-border bg-background hover:bg-muted/50"
+                }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               <div className="min-w-0 flex-1">
@@ -624,7 +624,9 @@ function CardSkeleton() {
 }
 
 export default async function DashboardPage() {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const firstName = session?.user?.name?.split(" ")[0] ?? "User";
 
   return (

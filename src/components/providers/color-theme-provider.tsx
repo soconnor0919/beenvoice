@@ -114,8 +114,11 @@ export function ColorThemeProvider({
       const savedColorTheme = localStorage.getItem("color-theme") as ColorTheme | null;
 
       if (isCustom && savedThemeData) {
-        const themeData = JSON.parse(savedThemeData);
-        if (themeData && themeData.color && themeData.colors) {
+        const themeData = JSON.parse(savedThemeData) as {
+          color: string;
+          colors: Record<string, string>;
+        };
+        if (themeData?.color && themeData.colors) {
           setColorTheme("custom", themeData.color);
           return;
         }

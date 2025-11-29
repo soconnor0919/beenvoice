@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
@@ -31,16 +31,15 @@ function SignInForm() {
     e.preventDefault();
     setLoading(true);
 
-    const result = await signIn("credentials", {
+    const { error } = await authClient.signIn.email({
       email,
       password,
-      redirect: false,
     });
 
     setLoading(false);
 
-    if (result?.error) {
-      toast.error("Invalid email or password");
+    if (error) {
+      toast.error(error.message ?? "Invalid email or password");
     } else {
       toast.success("Signed in successfully!");
       router.push(callbackUrl);

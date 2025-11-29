@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { authClient } from "~/lib/auth-client";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
 import { LogOut, User } from "lucide-react";
@@ -10,7 +10,7 @@ import { navigationConfig } from "~/lib/navigation";
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { data: session, isPending } = authClient.useSession();
 
   return (
     <aside className="bg-sidebar border-sidebar-border text-sidebar-foreground fixed top-[4rem] bottom-0 left-0 z-20 hidden w-64 flex-col justify-between border-r p-6 md:flex">
@@ -24,7 +24,7 @@ export function Sidebar() {
               {section.title}
             </div>
             <div className="flex flex-col gap-0.5">
-              {status === "loading" ? (
+              {isPending ? (
                 <>
                   {Array.from({ length: section.links.length }).map((_, i) => (
                     <div
@@ -44,11 +44,10 @@ export function Sidebar() {
                       key={link.href}
                       href={link.href}
                       aria-current={pathname === link.href ? "page" : undefined}
-                      className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-                        pathname === link.href
+                      className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${pathname === link.href
                           ? "bg-sidebar-accent text-sidebar-accent-foreground"
                           : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      }`}
+                        }`}
                     >
                       <Icon className="h-4 w-4" />
                       {link.name}
@@ -63,7 +62,7 @@ export function Sidebar() {
 
       {/* User Section */}
       <div className="border-sidebar-border border-t pt-4">
-        {status === "loading" ? (
+        {isPending ? (
           <div className="space-y-3">
             <Skeleton className="bg-sidebar-accent/20 h-8 w-full" />
             <Skeleton className="bg-sidebar-accent/20 h-8 w-full" />
@@ -80,7 +79,7 @@ export function Sidebar() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => signOut()}
+              onClick={() => authClient.signOut()}
               className="text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent w-full justify-start px-3"
             >
               <LogOut className="mr-2 h-4 w-4" />

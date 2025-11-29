@@ -265,7 +265,7 @@ function SelectContentWithSearch({
         )}
         <SelectScrollUpButton />
         <SelectPrimitive.Viewport className="p-1">
-          {filteredOptions && filteredOptions.length === 0 ? (
+          {filteredOptions?.length === 0 ? (
             <div className="text-muted-foreground px-3 py-2 text-sm select-none">
               No results found
             </div>

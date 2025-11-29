@@ -78,7 +78,7 @@ export const invoicesRouter = createTRPCRouter({
       });
 
       // Return null if no draft invoice exists
-      if (!currentInvoice || currentInvoice.status !== "draft") {
+      if (currentInvoice?.status !== "draft") {
         return null;
       }
 

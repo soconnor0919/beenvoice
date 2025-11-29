@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Define public routes that don't require authentication
@@ -20,12 +20,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check for session token in cookies (Auth.js v5 cookie names)
+  // Check for session token in cookies (Better Auth cookie names)
   const sessionToken =
-    request.cookies.get("authjs.session-token")?.value ??
-    request.cookies.get("__Secure-authjs.session-token")?.value ??
-    request.cookies.get("next-auth.session-token")?.value ??
-    request.cookies.get("__Secure-next-auth.session-token")?.value;
+    request.cookies.get("better-auth.session_token")?.value ??
+    request.cookies.get("__Secure-better-auth.session_token")?.value;
 
   // If no session token, redirect to sign-in
   if (!sessionToken) {

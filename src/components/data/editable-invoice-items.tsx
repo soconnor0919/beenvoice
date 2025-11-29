@@ -87,9 +87,8 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`card-secondary  transition-colors ${
-        isDragging ? "opacity-50 shadow-lg" : ""
-      }`}
+      className={`card-secondary  transition-colors ${isDragging ? "opacity-50 shadow-lg" : ""
+        }`}
     >
       {/* Desktop Layout - Hidden on Mobile */}
       <div className="hidden items-center gap-3 p-4 md:grid md:grid-cols-12">
@@ -287,6 +286,7 @@ export function EditableInvoiceItems({
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsClient(true);
   }, []);
 
