@@ -1,11 +1,9 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: postgres:17-alpine
     container_name: beenvoice-db
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+    env_file:
+      - .env.local
     volumes:
       - beenvoice_pg_data:/var/lib/postgresql/data
     ports:
@@ -15,30 +13,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: beenvoice-app:latest
-    container_name: beenvoice-app
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      NODE_ENV: production
-      # no memory constraint
-      AUTH_SECRET: ${AUTH_SECRET}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      RESEND_DOMAIN: ${RESEND_DOMAIN}
-      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      DB_DISABLE_SSL: "true"
-      PORT: ${PORT}
-      HOSTNAME: 0.0.0.0
-      SKIP_ENV_VALIDATION: "1"
-    ports:
-      - "${PORT:-3000}:3000"
-    restart: unless-stopped
 
 volumes:
   beenvoice_pg_data:

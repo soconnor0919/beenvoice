@@ -62,8 +62,7 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { Switch } from "~/components/ui/switch";
 import { Slider } from "~/components/ui/slider";
-import { ModeSwitcher } from "./mode-switcher";
-import { ColorThemeSelector } from "./color-theme-selector";
+import { AppearanceSettings } from "./appearance-settings";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 export function SettingsContent() {
@@ -630,8 +629,7 @@ export function SettingsContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <ModeSwitcher />
-          <ColorThemeSelector />
+          <AppearanceSettings />
         </CardContent>
       </Card>
 

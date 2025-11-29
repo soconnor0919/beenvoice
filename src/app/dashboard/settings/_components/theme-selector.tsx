@@ -1,55 +1,61 @@
 "use client";
 
-import { useTheme } from "next-themes";
-import { Check, Palette } from "lucide-react";
+import * as React from "react";
+import { Check } from "lucide-react";
+import { cn } from "~/lib/utils";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { Button } from "~/components/ui/button";
+import { useColorTheme } from "~/components/providers/color-theme-provider";
+
+const themes = [
+  { name: "slate", hex: "#64748b" },
+  { name: "blue", hex: "#3b82f6" },
+  { name: "green", hex: "#22c55e" },
+  { name: "rose", hex: "#be123c" },
+  { name: "orange", hex: "#ea580c" },
+];
 
 export function ThemeSelector() {
-  const { theme, setTheme } = useTheme();
-
-  const themes = [
-    { name: "light", label: "Light" },
-    { name: "dark", label: "Dark" },
-    { name: "theme-sunset", label: "Sunset" },
-    { name: "theme-forest", label: "Forest" },
-  ];
+  const { colorTheme, setColorTheme } = useColorTheme();
 
   return (
-    <div className="flex items-center justify-between">
-      <div className="space-y-1.5">
-        <label className="font-medium">Theme</label>
-        <p className="text-muted-foreground text-xs leading-snug">
-          Select a theme for the application.
-        </p>
-      </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" className="w-40 justify-between">
-            <span>
-              {themes.find((t) => t.name === theme)?.label ?? "Light"}
-            </span>
-            <Palette className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
+    <div className="space-y-1.5">
+      <label className="font-medium">Theme</label>
+      <p className="text-muted-foreground text-xs leading-snug">
+        Select a theme for the application.
+      </p>
+      <div className="flex items-center gap-2 pt-2">
+        <TooltipProvider>
           {themes.map((t) => (
-            <DropdownMenuItem
-              key={t.name}
-              className="flex justify-between"
-              onClick={() => setTheme(t.name)}
-            >
-              <span>{t.label}</span>
-              {theme === t.name && <Check className="h-4 w-4" />}
-            </DropdownMenuItem>
+            <Tooltip key={t.name}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className={cn(
+                    "h-8 w-8 rounded-full border-2",
+                    colorTheme === t.name && "border-primary",
+                  )}
+                  onClick={() => setColorTheme(t.name as any)}
+                  style={{ backgroundColor: t.hex }}
+                >
+                  {colorTheme === t.name && (
+                    <Check className="h-4 w-4 text-white" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="capitalize">{t.name}</p>
+              </TooltipContent>
+            </Tooltip>
           ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+        </TooltipProvider>
+      </div>
     </div>
   );
 }

@@ -12,7 +12,10 @@ export const env = createEnv({
         ? z.string()
         : z.string().optional(),
     DATABASE_URL: z.string().url(),
-    RESEND_API_KEY: z.string().min(1),
+    RESEND_API_KEY:
+      process.env.NODE_ENV === "production"
+        ? z.string().min(1)
+        : z.string().min(1).optional(),
     RESEND_DOMAIN: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])

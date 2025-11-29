@@ -25,7 +25,7 @@ A modern, professional invoicing application built for freelancers and small bus
 - **Authentication**: NextAuth.js with email/password
 - **UI Components**: shadcn/ui with Tailwind CSS
 - **Styling**: Geist font family
-- **Package Manager**: Bun (with npm fallback)
+- **Package Manager**: Bun
 
 ## 📦 Installation
 
@@ -44,11 +44,8 @@ A modern, professional invoicing application built for freelancers and small bus
 
 2. **Install dependencies**
    ```bash
-   # Using Bun (recommended)
+   ```bash
    bun install
-
-   # Or using npm
-   npm install
    ```
 
 3. **Set up environment variables**

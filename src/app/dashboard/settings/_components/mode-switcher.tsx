@@ -1,6 +1,6 @@
 "use client";
 
-import { useTheme } from "next-themes";
+import { useTheme } from "~/components/providers/theme-provider";
 import { Sun, Moon, Laptop } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
@@ -9,13 +9,19 @@ export function ModeSwitcher() {
 
   return (
     <div className="flex items-center justify-between">
-       <div className="space-y-1.5">
+      <div className="space-y-1.5">
         <label className="font-medium">Appearance</label>
         <p className="text-muted-foreground text-xs leading-snug">
-          Select a light or dark mode, or sync with your system.
+          {theme === "system"
+            ? "Follows system preference"
+            : `Currently in ${theme} mode`}
         </p>
       </div>
-      <Tabs defaultValue={theme} onValueChange={setTheme} className="w-auto">
+      <Tabs
+        value={theme}
+        onValueChange={(value) => setTheme(value as "light" | "dark" | "system")}
+        className="w-auto"
+      >
         <TabsList>
           <TabsTrigger value="light">
             <Sun className="h-4 w-4" />
