@@ -16,10 +16,7 @@ export const pool =
   globalForDb.pool ??
   new Pool({
     connectionString: env.DATABASE_URL,
-    ssl:
-      env.NODE_ENV === "production" && !env.DB_DISABLE_SSL
-        ? { rejectUnauthorized: false }
-        : false,
+    ssl: false,
     max: 20,
     idleTimeoutMillis: 30000,
   });
