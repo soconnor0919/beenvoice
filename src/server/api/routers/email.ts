@@ -108,9 +108,7 @@ export const emailRouter = createTRPCRouter({
         customMessage: input.customMessage,
         userName,
         userEmail,
-        baseUrl: process.env.NEXT_PUBLIC_APP_URL
-          ? process.env.NEXT_PUBLIC_APP_URL
-          : "http://localhost:3000",
+        baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
       });
 
       // Determine Resend instance and email configuration to use

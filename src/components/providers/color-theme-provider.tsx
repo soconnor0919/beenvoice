@@ -49,12 +49,7 @@ export function ColorThemeProvider({
 
   const updateThemeMutation = api.settings.updateTheme.useMutation();
 
-  // Sync from DB when available
-  React.useEffect(() => {
-    if (dbTheme) {
-      setColorTheme(dbTheme.colorTheme, dbTheme.customColor);
-    }
-  }, [dbTheme]);
+
 
   const setColorTheme = React.useCallback(
     (theme: ColorTheme, customColor?: string) => {
@@ -130,6 +125,13 @@ export function ColorThemeProvider({
     },
     [modeTheme, defaultColorTheme],
   );
+
+  // Sync from DB when available
+  React.useEffect(() => {
+    if (dbTheme) {
+      setColorTheme(dbTheme.colorTheme, dbTheme.customColor);
+    }
+  }, [dbTheme, setColorTheme]);
 
   // Effect to trigger DB update when state changes (debounced or direct)
   // We do this separately to avoid putting mutation in the setColorTheme callback dependencies if possible
