@@ -41,7 +41,7 @@ if [ -z "$TARGET_DB_URL" ]; then
 fi
 
 echo "Configuration:"
-echo "  Source: Production (Found in env/arg)"
+echo "  Source: $PROD_DB_URL"
 echo "  Target: $TARGET_DB_URL"
 echo
 echo "⚠️  WARNING: This will OVERWRITE the target database at the above URL."
@@ -55,13 +55,13 @@ fi
 
 echo "Cloning database..."
 
-# Pipe pg_dump from a temporary container to another temporary container running psql
-# This avoids needing local tools and ensures consistent environment
-docker run --rm -i postgres:17-alpine pg_dump "$PROD_DB_URL" \
+# Use local pg_dump and psql directly
+# This assumes pg_dump and psql are installed on the host machine
+pg_dump "$PROD_DB_URL" \
   --clean --if-exists \
   --no-owner --no-privileges \
   --format=plain \
-  | docker run --rm -i postgres:17-alpine psql "$TARGET_DB_URL"
+  | psql "$TARGET_DB_URL"
 
 if [ $? -eq 0 ]; then
   echo "✅ Database cloned successfully!"
