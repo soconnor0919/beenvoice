@@ -14,6 +14,7 @@ export const auth = betterAuth({
             verification: schema.verificationTokens,
         },
     }),
+    trustedOrigins: ["https://beenvoice.soconnor.dev"],
     emailAndPassword: {
         enabled: true,
         password: {
