@@ -1,6 +1,5 @@
 import "~/styles/globals.css";
 
-import { Analytics } from "@vercel/analytics/next";
 import { type Metadata } from "next";
 import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 
@@ -136,7 +135,6 @@ export default function RootLayout({
           }}
         />
       </head>
-      <Analytics />
       <body className="bg-background text-foreground relative min-h-screen overflow-x-hidden font-sans antialiased">
         <ThemeProvider>
           <ColorThemeProvider>

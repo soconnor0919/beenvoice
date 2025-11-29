@@ -108,11 +108,9 @@ export const emailRouter = createTRPCRouter({
         customMessage: input.customMessage,
         userName,
         userEmail,
-        baseUrl: process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : process.env.NODE_ENV === "production"
-            ? "https://beenvoice.app"
-            : "http://localhost:3000",
+        baseUrl: process.env.NEXT_PUBLIC_APP_URL
+          ? process.env.NEXT_PUBLIC_APP_URL
+          : "http://localhost:3000",
       });
 
       // Determine Resend instance and email configuration to use

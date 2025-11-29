@@ -198,12 +198,19 @@ Update the logo and colors in:
 
 ## 🚀 Deployment
 
-### Vercel (Recommended)
+### Deployment
 
-1. Push your code to GitHub
-2. Connect your repository to Vercel
-3. Set environment variables in Vercel dashboard
-4. Deploy automatically on push
+You can deploy this application to any platform that supports Next.js (Docker, Coolify, Railway, etc.).
+
+1. Build the application:
+```bash
+bun run build
+```
+
+2. Start the server:
+```bash
+bun start
+```
 
 ### Other Platforms
 
