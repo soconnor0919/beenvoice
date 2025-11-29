@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     // Send password reset email using Resend
     try {
       const resend = new Resend(env.RESEND_API_KEY);
-      const resetUrl = `${process.env.NEXTAUTH_URL ?? "http://localhost:3000"}/auth/reset-password?token=${resetToken}`;
+      const resetUrl = `${process.env.BETTER_AUTH_URL ?? "http://localhost:3000"}/auth/reset-password?token=${resetToken}`;
 
       const emailTemplate = generatePasswordResetEmailTemplate({
         userEmail: email,
