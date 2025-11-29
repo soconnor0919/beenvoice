@@ -29,6 +29,9 @@ export const users = createTable("user", (d) => ({
   // Custom fields
   prefersReducedMotion: d.boolean().default(false).notNull(),
   animationSpeedMultiplier: d.real().default(1).notNull(),
+  colorTheme: d.varchar({ length: 50 }).default("slate").notNull(),
+  customColor: d.varchar({ length: 50 }),
+  theme: d.varchar({ length: 20 }).default("system").notNull(),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({

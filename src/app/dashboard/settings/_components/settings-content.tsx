@@ -64,6 +64,7 @@ import { Switch } from "~/components/ui/switch";
 import { Slider } from "~/components/ui/slider";
 import { AppearanceSettings } from "./appearance-settings";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export function SettingsContent() {
   const { data: session } = authClient.useSession();
@@ -322,57 +323,284 @@ export function SettingsContent() {
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Profile & Account Overview */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Profile Section */}
-        <Card className="form-section bg-card border-border border">
+    <Tabs defaultValue="general" className="space-y-4">
+      <TabsList className="bg-muted/50 grid w-full grid-cols-3 lg:w-[400px]">
+        <TabsTrigger value="general">General</TabsTrigger>
+        <TabsTrigger value="preferences">Preferences</TabsTrigger>
+        <TabsTrigger value="data">Data</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="general" className="space-y-8">
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Profile Section */}
+          <Card className="form-section bg-card border-border border">
+            <CardHeader>
+              <CardTitle className="text-foreground flex items-center gap-2">
+                <User className="text-primary h-5 w-5" />
+                Profile Information
+              </CardTitle>
+              <CardDescription>
+                Update your personal account details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleUpdateProfile} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    value={session?.user?.email ?? ""}
+                    disabled
+                    className="bg-muted"
+                  />
+                  <p className="text-muted-foreground text-sm">
+                    Email address cannot be changed
+                  </p>
+                </div>
+                <Button
+                  type="submit"
+                  disabled={updateProfileMutation.isPending}
+                  variant="default"
+                  className="hover-lift"
+                >
+                  {updateProfileMutation.isPending
+                    ? "Updating..."
+                    : "Save Changes"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Security Settings */}
+          <Card className="bg-card border-border border">
+            <CardHeader>
+              <CardTitle className="text-foreground flex items-center gap-2">
+                <Key className="text-primary h-5 w-5" />
+                Security Settings
+              </CardTitle>
+              <CardDescription>
+                Change your password and manage account security
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleChangePassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Current Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="current-password"
+                      type={showCurrentPassword ? "text" : "password"}
+                      value={currentPassword}
+                      onChange={(e) => setCurrentPassword(e.target.value)}
+                      placeholder="Enter your current password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    >
+                      {showCurrentPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="new-password"
+                      type={showNewPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Enter your new password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <p className="text-muted-foreground text-sm">
+                    Password must be at least 8 characters long
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Confirm New Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirm-password"
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your new password"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={changePasswordMutation.isPending}
+                  variant="default"
+                >
+                  {changePasswordMutation.isPending
+                    ? "Changing Password..."
+                    : "Change Password"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="preferences" className="space-y-8">
+        {/* Appearance Settings */}
+        <Card className="bg-card border-border border">
           <CardHeader>
             <CardTitle className="text-foreground flex items-center gap-2">
-              <User className="text-primary h-5 w-5" />
-              Profile Information
+              <Palette className="text-primary h-5 w-5" />
+              Appearance
             </CardTitle>
             <CardDescription>
-              Update your personal account details
+              Customize the look and feel of the application
             </CardDescription>
           </CardHeader>
+          <CardContent className="space-y-6">
+            <AppearanceSettings />
+          </CardContent>
+        </Card>
+
+        {/* Accessibility & Animation */}
+        <Card className="bg-card border-border border">
+          <CardHeader>
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <Info className="text-primary h-5 w-5" />
+              Accessibility & Animation
+            </CardTitle>
+          </CardHeader>
           <CardContent>
-            <form onSubmit={handleUpdateProfile} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Enter your full name"
+            <form onSubmit={handleSaveAnimationPreferences} className="space-y-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1.5">
+                  <Label>Reduce Motion</Label>
+                  <p className="text-muted-foreground text-xs leading-snug">
+                    Turn this on to reduce or remove non-essential animations and
+                    transitions.
+                  </p>
+                </div>
+                <Switch
+                  checked={prefersReducedMotion}
+                  onCheckedChange={(checked) =>
+                    setPrefersReducedMotion(Boolean(checked))
+                  }
+                  aria-label="Toggle reduced motion"
                 />
               </div>
+
               <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  value={session?.user?.email ?? ""}
-                  disabled
-                  className="bg-muted"
-                />
-                <p className="text-muted-foreground text-sm">
-                  Email address cannot be changed
+                <div className="flex items-center justify-between">
+                  <Label className="mb-0">Animation Speed Multiplier</Label>
+                  <span className="text-muted-foreground text-xs font-medium">
+                    {prefersReducedMotion
+                      ? "1.00x (locked)"
+                      : `${animationSpeedMultiplier.toFixed(2)}x`}
+                  </span>
+                </div>
+                <p className="text-muted-foreground text-xs leading-snug">
+                  Adjust global animation duration scaling. Lower values (0.25×,
+                  0.5×, 0.75×) slow animations; higher values (2×, 3×, 4×) speed
+                  them up.
                 </p>
+                <div className="flex flex-col gap-2">
+                  {/* Slider (desktop / larger screens) */}
+                  <div className="hidden sm:block">
+                    <Slider
+                      value={[animationSpeedMultiplier]}
+                      min={0.25}
+                      max={4}
+                      step={0.25}
+                      ticks={[0.25, 0.5, 0.75, 1, 2, 3, 4]}
+                      formatTick={(t) => (t === 1 ? "1x" : `${t}x`)}
+                      onValueChange={(v: number[]) =>
+                        setAnimationSpeedMultiplier(v[0] ?? 1)
+                      }
+                      aria-label="Animation speed multiplier"
+                      className="mt-1"
+                      disabled={prefersReducedMotion}
+                    />
+                  </div>
+                  {/* Dropdown fallback (small screens) */}
+                  <div className="block sm:hidden">
+                    <select
+                      className="bg-background border-border text-foreground w-full rounded-md border px-2 py-2 text-sm disabled:opacity-60"
+                      value={animationSpeedMultiplier}
+                      disabled={prefersReducedMotion}
+                      onChange={(e) =>
+                        setAnimationSpeedMultiplier(
+                          parseFloat(e.target.value) || 1,
+                        )
+                      }
+                      aria-label="Animation speed multiplier select"
+                    >
+                      {[0.25, 0.5, 0.75, 1, 2, 3, 4].map((v) => (
+                        <option key={v} value={v}>
+                          {v === 1 ? "1x (default)" : `${v}x`}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
+
               <Button
                 type="submit"
-                disabled={updateProfileMutation.isPending}
+                disabled={animationPrefsUpdating}
                 variant="default"
-                className="hover-lift"
               >
-                {updateProfileMutation.isPending
-                  ? "Updating..."
-                  : "Save Changes"}
+                {animationPrefsUpdating ? "Saving..." : "Save Preferences"}
               </Button>
             </form>
           </CardContent>
         </Card>
+      </TabsContent>
 
+      <TabsContent value="data" className="space-y-8">
         {/* Data Overview */}
         <Card className="form-section bg-card border-border border">
           <CardHeader>
@@ -415,475 +643,229 @@ export function SettingsContent() {
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Security Settings */}
-      <Card className="bg-card border-border border">
-        <CardHeader>
-          <CardTitle className="text-foreground flex items-center gap-2">
-            <Key className="text-primary h-5 w-5" />
-            Security Settings
-          </CardTitle>
-          <CardDescription>
-            Change your password and manage account security
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleChangePassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="current-password">Current Password</Label>
-              <div className="relative">
-                <Input
-                  id="current-password"
-                  type={showCurrentPassword ? "text" : "password"}
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder="Enter your current password"
-                />
+        {/* Data Management */}
+        <Card className="bg-card border-border border">
+          <CardHeader>
+            <CardTitle className="text-foreground flex items-center gap-2">
+              <Shield className="text-primary h-5 w-5" />
+              Data Management
+            </CardTitle>
+            <CardDescription>
+              Backup, restore, or manage your account data
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
-                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  onClick={handleExportData}
+                  disabled={exportDataQuery.isFetching}
+                  variant="outline"
+                  className="w-full sm:flex-1"
                 >
-                  {showCurrentPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  <Download className="mr-2 h-4 w-4" />
+                  {exportDataQuery.isFetching ? "Exporting..." : "Export Backup"}
                 </Button>
-              </div>
-            </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <div className="relative">
-                <Input
-                  id="new-password"
-                  type={showNewPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter your new password"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
-                  onClick={() => setShowNewPassword(!showNewPassword)}
+                <Dialog
+                  open={isImportDialogOpen}
+                  onOpenChange={setIsImportDialogOpen}
                 >
-                  {showNewPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                Password must be at least 8 characters long
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <div className="relative">
-                <Input
-                  id="confirm-password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Confirm your new password"
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute top-1/2 right-2 h-6 w-6 -translate-y-1/2 p-0"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={changePasswordMutation.isPending}
-              variant="default"
-            >
-              {changePasswordMutation.isPending
-                ? "Changing Password..."
-                : "Change Password"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Accessibility & Animation */}
-      <Card className="bg-card border-border border">
-        <CardHeader>
-          <CardTitle className="text-foreground flex items-center gap-2">
-            <Info className="text-primary h-5 w-5" />
-            Accessibility & Animation
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSaveAnimationPreferences} className="space-y-6">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1.5">
-                <Label>Reduce Motion</Label>
-                <p className="text-muted-foreground text-xs leading-snug">
-                  Turn this on to reduce or remove non-essential animations and
-                  transitions.
-                </p>
-              </div>
-              <Switch
-                checked={prefersReducedMotion}
-                onCheckedChange={(checked) =>
-                  setPrefersReducedMotion(Boolean(checked))
-                }
-                aria-label="Toggle reduced motion"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="mb-0">Animation Speed Multiplier</Label>
-                <span className="text-muted-foreground text-xs font-medium">
-                  {prefersReducedMotion
-                    ? "1.00x (locked)"
-                    : `${animationSpeedMultiplier.toFixed(2)}x`}
-                </span>
-              </div>
-              <p className="text-muted-foreground text-xs leading-snug">
-                Adjust global animation duration scaling. Lower values (0.25×,
-                0.5×, 0.75×) slow animations; higher values (2×, 3×, 4×) speed
-                them up.
-              </p>
-              <div className="flex flex-col gap-2">
-                {/* Slider (desktop / larger screens) */}
-                <div className="hidden sm:block">
-                  <Slider
-                    value={[animationSpeedMultiplier]}
-                    min={0.25}
-                    max={4}
-                    step={0.25}
-                    ticks={[0.25, 0.5, 0.75, 1, 2, 3, 4]}
-                    formatTick={(t) => (t === 1 ? "1x" : `${t}x`)}
-                    onValueChange={(v: number[]) =>
-                      setAnimationSpeedMultiplier(v[0] ?? 1)
-                    }
-                    aria-label="Animation speed multiplier"
-                    className="mt-1"
-                    disabled={prefersReducedMotion}
-                  />
-                </div>
-                {/* Dropdown fallback (small screens) */}
-                <div className="block sm:hidden">
-                  <select
-                    className="bg-background border-border text-foreground w-full rounded-md border px-2 py-2 text-sm disabled:opacity-60"
-                    value={animationSpeedMultiplier}
-                    disabled={prefersReducedMotion}
-                    onChange={(e) =>
-                      setAnimationSpeedMultiplier(
-                        parseFloat(e.target.value) || 1,
-                      )
-                    }
-                    aria-label="Animation speed multiplier select"
-                  >
-                    {[0.25, 0.5, 0.75, 1, 2, 3, 4].map((v) => (
-                      <option key={v} value={v}>
-                        {v === 1 ? "1x (default)" : `${v}x`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              disabled={animationPrefsUpdating}
-              variant="default"
-            >
-              {animationPrefsUpdating ? "Saving..." : "Save Preferences"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Appearance Settings */}
-      <Card className="bg-card border-border border">
-        <CardHeader>
-          <CardTitle className="text-foreground flex items-center gap-2">
-            <Palette className="text-primary h-5 w-5" />
-            Appearance
-          </CardTitle>
-          <CardDescription>
-            Customize the look and feel of the application
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <AppearanceSettings />
-        </CardContent>
-      </Card>
-
-      {/* Data Management */}
-      <Card className="bg-card border-border border">
-        <CardHeader>
-          <CardTitle className="text-foreground flex items-center gap-2">
-            <Shield className="text-primary h-5 w-5" />
-            Data Management
-          </CardTitle>
-          <CardDescription>
-            Backup, restore, or manage your account data
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <Button
-                onClick={handleExportData}
-                disabled={exportDataQuery.isFetching}
-                variant="outline"
-                className="w-full sm:flex-1"
-              >
-                <Download className="mr-2 h-4 w-4" />
-                {exportDataQuery.isFetching ? "Exporting..." : "Export Backup"}
-              </Button>
-
-              <Dialog
-                open={isImportDialogOpen}
-                onOpenChange={setIsImportDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full sm:flex-1">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Import Backup
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Import Backup Data</DialogTitle>
-                    <DialogDescription>
-                      Upload your backup JSON file or paste the contents below.
-                      This will add the data to your existing account.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    {/* Import Method Selector */}
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        variant={
-                          importMethod === "file" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setImportMethod("file")}
-                        className="flex-1"
-                      >
-                        <FileUp className="mr-2 h-4 w-4" />
-                        Upload File
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={
-                          importMethod === "paste" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setImportMethod("paste")}
-                        className="flex-1"
-                      >
-                        <FileText className="mr-2 h-4 w-4" />
-                        Paste Content
-                      </Button>
-                    </div>
-
-                    {/* File Upload Method */}
-                    {importMethod === "file" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="backup-file">Select Backup File</Label>
-                        <Input
-                          id="backup-file"
-                          type="file"
-                          accept=".json"
-                          onChange={handleFileUpload}
-                          disabled={importDataMutation.isPending}
-                        />
-                        <p className="text-muted-foreground text-sm">
-                          Select the JSON backup file you previously exported.
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Manual Paste Method */}
-                    {importMethod === "paste" && (
-                      <div className="space-y-2">
-                        <Label htmlFor="backup-content">Backup Content</Label>
-                        <Textarea
-                          id="backup-content"
-                          placeholder="Paste your backup JSON data here..."
-                          value={importData}
-                          onChange={(e) => setImportData(e.target.value)}
-                          rows={12}
-                          className="font-mono text-sm"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setIsImportDialogOpen(false);
-                        setImportData("");
-                        setImportMethod("file");
-                      }}
-                    >
-                      Cancel
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="w-full sm:flex-1">
+                      <Upload className="mr-2 h-4 w-4" />
+                      Import Backup
                     </Button>
-                    {importMethod === "paste" && (
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Import Backup Data</DialogTitle>
+                      <DialogDescription>
+                        Upload your backup JSON file or paste the contents below.
+                        This will add the data to your existing account.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      {/* Import Method Selector */}
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={
+                            importMethod === "file" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setImportMethod("file")}
+                          className="flex-1"
+                        >
+                          <FileUp className="mr-2 h-4 w-4" />
+                          Upload File
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={
+                            importMethod === "paste" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() => setImportMethod("paste")}
+                          className="flex-1"
+                        >
+                          <FileText className="mr-2 h-4 w-4" />
+                          Paste Content
+                        </Button>
+                      </div>
+
+                      {/* File Upload Method */}
+                      {importMethod === "file" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="backup-file">Select Backup File</Label>
+                          <Input
+                            id="backup-file"
+                            type="file"
+                            accept=".json"
+                            onChange={handleFileUpload}
+                            disabled={importDataMutation.isPending}
+                          />
+                          <p className="text-muted-foreground text-sm">
+                            Select the JSON backup file you previously exported.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Manual Paste Method */}
+                      {importMethod === "paste" && (
+                        <div className="space-y-2">
+                          <Label htmlFor="backup-content">Backup Content</Label>
+                          <Textarea
+                            id="backup-content"
+                            placeholder="Paste your backup JSON data here..."
+                            value={importData}
+                            onChange={(e) => setImportData(e.target.value)}
+                            rows={12}
+                            className="font-mono text-sm"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    <DialogFooter>
                       <Button
-                        onClick={handleImportData}
-                        disabled={
-                          !importData.trim() || importDataMutation.isPending
-                        }
-                        variant="default"
+                        variant="outline"
+                        onClick={() => {
+                          setIsImportDialogOpen(false);
+                          setImportData("");
+                          setImportMethod("file");
+                        }}
                       >
-                        {importDataMutation.isPending
-                          ? "Importing..."
-                          : "Import Data"}
+                        Cancel
                       </Button>
-                    )}
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </div>
+                      {importMethod === "paste" && (
+                        <Button
+                          onClick={handleImportData}
+                          disabled={
+                            !importData.trim() || importDataMutation.isPending
+                          }
+                          variant="default"
+                        >
+                          {importDataMutation.isPending
+                            ? "Importing..."
+                            : "Import Data"}
+                        </Button>
+                      )}
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
 
-            {/* Backup Information */}
-            <Collapsible>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="w-full justify-between p-0">
-                  <div className="flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    <span className="font-medium">Backup Information</span>
+              {/* Backup Information */}
+              <Collapsible>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-0">
+                    <div className="flex items-center gap-2">
+                      <Info className="h-4 w-4" />
+                      <span className="font-medium">Backup Information</span>
+                    </div>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3">
+                  <div className="border-border bg-muted/20 border p-4">
+                    <ul className="text-muted-foreground space-y-1 text-sm">
+                      <li>
+                        • Regular backups protect your important business data
+                      </li>
+                      <li>
+                        • Backup files contain all data in secure JSON format
+                      </li>
+                      <li>
+                        • Import adds to existing data without replacing anything
+                      </li>
+                      <li>
+                        • Upload JSON files directly or paste content manually
+                      </li>
+                      <li>
+                        • Store backup files in a secure, accessible location
+                      </li>
+                    </ul>
                   </div>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-3">
-                <div className="border-border bg-muted/20 border p-4">
-                  <ul className="text-muted-foreground space-y-1 text-sm">
-                    <li>
-                      • Regular backups protect your important business data
-                    </li>
-                    <li>
-                      • Backup files contain all data in secure JSON format
-                    </li>
-                    <li>
-                      • Import adds to existing data without replacing anything
-                    </li>
-                    <li>
-                      • Upload JSON files directly or paste content manually
-                    </li>
-                    <li>
-                      • Store backup files in a secure, accessible location
-                    </li>
-                  </ul>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Danger Zone */}
-      <Card className="bg-card border-border border-l-destructive border border-l-4">
-        <CardHeader>
-          <CardTitle className="text-destructive flex items-center gap-2">
-            <AlertTriangle className="text-destructive h-5 w-5" />
-            Danger Zone
-          </CardTitle>
-          <CardDescription>
-            Irreversible actions that permanently affect your account
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="bg-destructive/10 border-destructive/20 border p-4">
-              <h4 className="text-destructive font-medium">
-                Delete All Account Data
-              </h4>
-              <p className="text-muted-foreground mt-2 text-sm">
-                This will permanently delete all your clients, businesses,
-                invoices, and related data. This action cannot be undone and
-                your data cannot be recovered.
-              </p>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
+          </CardContent>
+        </Card>
 
+        {/* Delete Account (Danger Zone) */}
+        <Card className="border-destructive/50 bg-destructive/5 border">
+          <CardHeader>
+            <CardTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Danger Zone
+            </CardTitle>
+            <CardDescription className="text-destructive/80">
+              Irreversible actions for your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="w-full">
-                  <AlertTriangle className="mr-2 h-4 w-4" />
+                <Button variant="destructive" className="w-full sm:w-auto">
                   Delete All Data
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription className="space-y-4">
-                    <div>
-                      This action cannot be undone. This will permanently delete
-                      all your:
-                    </div>
-                    <ul className="border-border bg-muted/50 list-inside list-disc space-y-1 rounded-lg border p-3 text-sm">
-                      <li>Client information and contact details</li>
-                      <li>Business profiles and settings</li>
-                      <li>Invoices and invoice line items</li>
-                      <li>All related data and records</li>
-                    </ul>
-                    <div className="space-y-2">
-                      <div className="font-medium">
-                        Type{" "}
-                        <span className="bg-muted rounded px-2 py-1 font-mono text-sm">
-                          delete all my data
-                        </span>{" "}
-                        to confirm:
-                      </div>
-                      <Input
-                        value={deleteConfirmText}
-                        onChange={(e) => setDeleteConfirmText(e.target.value)}
-                        placeholder="Type delete all my data"
-                        className="font-mono"
-                      />
-                    </div>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete your
+                    account and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
+                <div className="my-4 space-y-2">
+                  <Label htmlFor="confirm-delete">
+                    Type <span className="font-bold">delete all my data</span> to
+                    confirm
+                  </Label>
+                  <Input
+                    id="confirm-delete"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder="delete all my data"
+                  />
+                </div>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleDeleteAllData}
-                    disabled={
-                      deleteConfirmText !== "delete all my data" ||
-                      deleteDataMutation.isPending
-                    }
-                    className="bg-destructive hover:bg-destructive/90"
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    disabled={deleteConfirmText !== "delete all my data"}
                   >
-                    {deleteDataMutation.isPending
-                      ? "Deleting..."
-                      : "Delete Forever"}
+                    Delete Account
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 }

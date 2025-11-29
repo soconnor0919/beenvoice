@@ -135,6 +135,46 @@ export const settingsRouter = createTRPCRouter({
       return { success: true };
     }),
 
+  // Get theme preferences
+  getTheme: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, ctx.session.user.id),
+      columns: {
+        colorTheme: true,
+        customColor: true,
+        theme: true,
+      },
+    });
+
+    return {
+      colorTheme: (user?.colorTheme as "slate" | "blue" | "green" | "rose" | "orange" | "custom") ?? "slate",
+      customColor: user?.customColor ?? undefined,
+      theme: (user?.theme as "light" | "dark" | "system") ?? "system",
+    };
+  }),
+
+  // Update theme preferences
+  updateTheme: protectedProcedure
+    .input(
+      z.object({
+        colorTheme: z.enum(["slate", "blue", "green", "rose", "orange", "custom"]).optional(),
+        customColor: z.string().optional(),
+        theme: z.enum(["light", "dark", "system"]).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(users)
+        .set({
+          ...(input.colorTheme && { colorTheme: input.colorTheme }),
+          ...(input.customColor !== undefined && { customColor: input.customColor }),
+          ...(input.theme && { theme: input.theme }),
+        })
+        .where(eq(users.id, ctx.session.user.id));
+
+      return { success: true };
+    }),
+
   // Update user profile
   updateProfile: protectedProcedure
     .input(

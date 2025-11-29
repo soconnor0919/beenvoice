@@ -136,16 +136,16 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-background text-foreground relative min-h-screen overflow-x-hidden font-sans antialiased">
-        <ThemeProvider>
-          <ColorThemeProvider>
-            <TRPCReactProvider>
+        <TRPCReactProvider>
+          <ThemeProvider>
+            <ColorThemeProvider>
               <AnimationPreferencesProvider>
                 {children}
               </AnimationPreferencesProvider>
               <Toaster />
-            </TRPCReactProvider>
-          </ColorThemeProvider>
-        </ThemeProvider>
+            </ColorThemeProvider>
+          </ThemeProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

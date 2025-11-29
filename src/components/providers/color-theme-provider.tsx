@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useTheme } from "./theme-provider";
 import { generateAccentColors } from "~/lib/color-utils";
+import { api } from "~/trpc/react";
+import { authClient } from "~/lib/auth-client";
 
 type ColorTheme = "slate" | "blue" | "green" | "rose" | "orange" | "custom";
 
@@ -38,6 +40,22 @@ export function ColorThemeProvider({
   const [customColor, setCustomColor] = React.useState<string | undefined>();
   const { theme: modeTheme } = useTheme();
 
+  // Auth & DB Sync
+  const { data: session } = authClient.useSession();
+  const { data: dbTheme } = api.settings.getTheme.useQuery(undefined, {
+    enabled: !!session?.user,
+    staleTime: Infinity, // Only fetch once on mount/auth
+  });
+
+  const updateThemeMutation = api.settings.updateTheme.useMutation();
+
+  // Sync from DB when available
+  React.useEffect(() => {
+    if (dbTheme) {
+      setColorTheme(dbTheme.colorTheme, dbTheme.customColor);
+    }
+  }, [dbTheme]);
+
   const setColorTheme = React.useCallback(
     (theme: ColorTheme, customColor?: string) => {
       const root = document.documentElement;
@@ -72,7 +90,7 @@ export function ColorThemeProvider({
           setColorThemeState("custom");
           setCustomColor(customColor);
 
-          // Persist custom theme
+          // Persist custom theme locally
           const themeData = {
             color: customColor,
             timestamp: Date.now(),
@@ -88,6 +106,7 @@ export function ColorThemeProvider({
           setCustomColor(undefined);
           root.classList.add(defaultColorTheme);
           localStorage.setItem("color-theme", defaultColorTheme);
+          return; // Don't sync failed theme
         }
       } else {
         // Apply preset color theme by setting the appropriate class
@@ -99,15 +118,52 @@ export function ColorThemeProvider({
         localStorage.removeItem("customThemeColor");
         localStorage.removeItem("isCustomTheme");
 
-        // Persist preset theme
+        // Persist preset theme locally
         localStorage.setItem("color-theme", theme);
       }
+
+      // Sync to DB if authenticated
+      // We check session inside the callback or pass it as dependency
+      // But since this is a callback, we'll use the mutation directly if we can
+      // However, we need to avoid infinite loops if the DB update triggers a re-render
+      // The mutation is stable.
     },
     [modeTheme, defaultColorTheme],
   );
 
-  // Load saved theme on mount
+  // Effect to trigger DB update when state changes (debounced or direct)
+  // We do this separately to avoid putting mutation in the setColorTheme callback dependencies if possible
+  // But actually, calling it in setColorTheme is better for direct user action.
+  // The issue is `setColorTheme` is called by the `useEffect` that syncs FROM DB.
+  // So we need to distinguish between "user set theme" and "synced from DB".
+  // For now, we'll just let it be. If the DB sync calls setColorTheme, it will update state.
+  // If we add a DB update call here, it might be redundant but harmless if the value is same.
+  // BETTER APPROACH: Only call mutation when user interacts.
+  // But `setColorTheme` is exposed to consumers.
+  // Let's wrap the exposed `setColorTheme` to include the DB call.
+
+  const handleSetColorTheme = React.useCallback(
+    (theme: ColorTheme, customColor?: string) => {
+      setColorTheme(theme, customColor);
+
+      // Optimistic update is already done by setColorTheme (local state)
+      // Now sync to DB
+      if (session?.user) {
+        updateThemeMutation.mutate({
+          colorTheme: theme,
+          customColor: theme === "custom" ? customColor : undefined,
+        });
+      }
+    },
+    [setColorTheme, session?.user, updateThemeMutation]
+  );
+
+  // Load saved theme on mount (Local Storage Fallback)
   React.useEffect(() => {
+    // If we have DB data, that takes precedence (handled by other effect)
+    // But initially or if offline/unauth, use local storage
+    if (dbTheme) return;
+
     try {
       const isCustom = localStorage.getItem("isCustomTheme") === "true";
       const savedThemeData = localStorage.getItem("customThemeColor");
@@ -133,7 +189,7 @@ export function ColorThemeProvider({
       console.error("Failed to load theme:", error);
       setColorTheme(defaultColorTheme);
     }
-  }, [setColorTheme, defaultColorTheme]);
+  }, [setColorTheme, defaultColorTheme, dbTheme]);
 
   // Re-apply custom theme when mode changes
   React.useEffect(() => {
@@ -145,10 +201,10 @@ export function ColorThemeProvider({
   const value = React.useMemo(
     () => ({
       colorTheme,
-      setColorTheme,
+      setColorTheme: handleSetColorTheme, // Expose the wrapper
       customColor,
     }),
-    [colorTheme, customColor, setColorTheme],
+    [colorTheme, customColor, handleSetColorTheme],
   );
 
   return (
