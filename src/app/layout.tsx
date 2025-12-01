@@ -9,6 +9,7 @@ import { AnimationPreferencesProvider } from "~/components/providers/animation-p
 
 import { ThemeProvider } from "~/components/providers/theme-provider";
 import { ColorThemeProvider } from "~/components/providers/color-theme-provider";
+import { UmamiScript } from "~/components/analytics/umami-script";
 
 export const metadata: Metadata = {
   title: "beenvoice - Invoicing Made Simple",
@@ -143,6 +144,7 @@ export default function RootLayout({
                 {children}
               </AnimationPreferencesProvider>
               <Toaster />
+              <UmamiScript />
             </ColorThemeProvider>
           </ThemeProvider>
         </TRPCReactProvider>

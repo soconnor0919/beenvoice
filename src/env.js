@@ -31,6 +31,8 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url().optional(),
+    NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
+    NEXT_PUBLIC_UMAMI_SCRIPT_URL: z.string().url().optional(),
   },
 
   /**
@@ -46,6 +48,8 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     DB_DISABLE_SSL: process.env.DB_DISABLE_SSL,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
+    NEXT_PUBLIC_UMAMI_SCRIPT_URL: process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
