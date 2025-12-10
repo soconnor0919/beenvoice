@@ -8,8 +8,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
-import type { StoredInvoiceStatus } from "~/types/invoice";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
 interface Invoice {
@@ -21,49 +19,16 @@ interface Invoice {
 }
 
 interface RevenueChartProps {
-  invoices: Invoice[];
+  data: {
+    month: string;
+    revenue: number;
+    monthLabel: string;
+  }[];
 }
 
-export function RevenueChart({ invoices }: RevenueChartProps) {
-  // Process invoice data to create monthly revenue data
-  const monthlyData = invoices
-    .filter(
-      (invoice) =>
-        getEffectiveInvoiceStatus(
-          invoice.status as StoredInvoiceStatus,
-          invoice.dueDate,
-        ) === "paid",
-    )
-    .reduce(
-      (acc, invoice) => {
-        const date = new Date(invoice.issueDate);
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-
-        acc[monthKey] ??= {
-          month: monthKey,
-          revenue: 0,
-          count: 0,
-        };
-
-        acc[monthKey].revenue += invoice.totalAmount;
-        acc[monthKey].count += 1;
-
-        return acc;
-      },
-      {} as Record<string, { month: string; revenue: number; count: number }>,
-    );
-
-  // Convert to array and sort by month
-  const chartData = Object.values(monthlyData)
-    .sort((a, b) => a.month.localeCompare(b.month))
-    .slice(-6) // Show last 6 months
-    .map((item) => ({
-      ...item,
-      monthLabel: new Date(item.month + "-01").toLocaleDateString("en-US", {
-        month: "short",
-        year: "2-digit",
-      }),
-    }));
+export function RevenueChart({ data }: RevenueChartProps) {
+  // Use data directly
+  const chartData = data;
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -80,7 +45,7 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
     label,
   }: {
     active?: boolean;
-    payload?: Array<{ payload: { revenue: number; count: number } }>;
+    payload?: Array<{ payload: { revenue: number } }>;
     label?: string;
   }) => {
     if (active && payload?.length) {
@@ -92,7 +57,7 @@ export function RevenueChart({ invoices }: RevenueChartProps) {
             Revenue: {formatCurrency(data.revenue)}
           </p>
           <p className="text-muted-foreground text-sm">
-            {data.count} invoice{data.count !== 1 ? "s" : ""}
+            {/* Count not available in aggregated view currently */}
           </p>
         </div>
       );

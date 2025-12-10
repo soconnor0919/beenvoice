@@ -74,6 +74,12 @@ export default {
         "navbar-foreground": "var(--navbar-foreground)",
         "navbar-border": "var(--navbar-border)",
       },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        "subtle-spin": "spin-slow 20s linear infinite",
+        "subtle-wave": "wave 15s ease-in-out infinite alternate",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -83,10 +89,16 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+        "spin-slow": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
+        wave: {
+          "0%": { transform: "translate(0, 0) scale(1)" },
+          "33%": { transform: "translate(30px, -50px) scale(1.1)" },
+          "66%": { transform: "translate(-20px, 20px) scale(0.9)" },
+          "100%": { transform: "translate(20px, -30px) scale(1.05)" },
+        },
       },
       borderRadius: {
         lg: `var(--radius)`,

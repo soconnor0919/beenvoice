@@ -6,6 +6,7 @@ import { PageHeader } from "~/components/layout/page-header";
 import { Plus, Upload } from "lucide-react";
 import { InvoicesDataTable } from "./_components/invoices-data-table";
 import { DataTableSkeleton } from "~/components/data/data-table";
+import { Card, CardContent } from "~/components/ui/card";
 
 // Invoices Table Component
 async function InvoicesTable() {
@@ -16,7 +17,7 @@ async function InvoicesTable() {
 
 export default async function InvoicesPage() {
   return (
-    <div className="page-enter space-y-8">
+    <div className="page-enter space-y-6">
       <PageHeader
         title="Invoices"
         description="Manage your invoices and track payments"

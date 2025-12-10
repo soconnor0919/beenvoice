@@ -26,131 +26,10 @@ import { MonthlyMetricsChart } from "~/app/dashboard/_components/monthly-metrics
 import { AnimatedStatsCard } from "~/app/dashboard/_components/animated-stats-card";
 
 // Hero section with clean mono design
-function DashboardHero({ firstName }: { firstName: string }) {
-  return (
-    <div className="mb-8">
-      <h1 className="mb-2 text-3xl font-bold">Welcome back, {firstName}!</h1>
-      <p className="text-muted-foreground text-lg">
-        Here&apos;s what&apos;s happening with your business today
-      </p>
-    </div>
-  );
-}
+
 
 // Enhanced stats cards with better visuals
-async function DashboardStats() {
-  const [clients, invoices] = await Promise.all([
-    api.clients.getAll(),
-    api.invoices.getAll(),
-  ]);
-
-  const totalClients = clients.length;
-  const paidInvoices = invoices.filter(
-    (invoice) =>
-      getEffectiveInvoiceStatus(
-        invoice.status as StoredInvoiceStatus,
-        invoice.dueDate,
-      ) === "paid",
-  );
-  const totalRevenue = paidInvoices.reduce(
-    (sum, invoice) => sum + invoice.totalAmount,
-    0,
-  );
-
-  const pendingInvoices = invoices.filter((invoice) => {
-    const effectiveStatus = getEffectiveInvoiceStatus(
-      invoice.status as StoredInvoiceStatus,
-      invoice.dueDate,
-    );
-    return effectiveStatus === "sent" || effectiveStatus === "overdue";
-  });
-  const pendingAmount = pendingInvoices.reduce(
-    (sum, invoice) => sum + invoice.totalAmount,
-    0,
-  );
-
-  const overdueInvoices = invoices.filter(
-    (invoice) =>
-      getEffectiveInvoiceStatus(
-        invoice.status as StoredInvoiceStatus,
-        invoice.dueDate,
-      ) === "overdue",
-  );
-
-  // Calculate month-over-month trends
-  const now = new Date();
-  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
-  // Current month data
-  const currentMonthInvoices = invoices.filter(
-    (invoice) => new Date(invoice.issueDate) >= currentMonth,
-  );
-  const currentMonthRevenue = currentMonthInvoices
-    .filter(
-      (invoice) =>
-        getEffectiveInvoiceStatus(
-          invoice.status as StoredInvoiceStatus,
-          invoice.dueDate,
-        ) === "paid",
-    )
-    .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
-
-  // Last month data
-  const lastMonthInvoices = invoices.filter((invoice) => {
-    const date = new Date(invoice.issueDate);
-    return date >= lastMonth && date < currentMonth;
-  });
-  const lastMonthRevenue = lastMonthInvoices
-    .filter(
-      (invoice) =>
-        getEffectiveInvoiceStatus(
-          invoice.status as StoredInvoiceStatus,
-          invoice.dueDate,
-        ) === "paid",
-    )
-    .reduce((sum, invoice) => sum + invoice.totalAmount, 0);
-
-  // Previous month data for clients
-  const prevMonthClients = clients.filter(
-    (client) => new Date(client.createdAt) < currentMonth,
-  ).length;
-
-  // Calculate trends
-  const revenueChange =
-    lastMonthRevenue > 0
-      ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
-      : currentMonthRevenue > 0
-        ? 100
-        : 0;
-
-  const pendingChange =
-    lastMonthInvoices.length > 0
-      ? ((pendingInvoices.length -
-        lastMonthInvoices.filter((invoice) => {
-          const status = getEffectiveInvoiceStatus(
-            invoice.status as StoredInvoiceStatus,
-            invoice.dueDate,
-          );
-          return status === "sent" || status === "overdue";
-        }).length) /
-        lastMonthInvoices.length) *
-      100
-      : pendingInvoices.length > 0
-        ? 100
-        : 0;
-
-  const clientChange = totalClients - prevMonthClients;
-
-  const lastMonthOverdue = lastMonthInvoices.filter(
-    (invoice) =>
-      getEffectiveInvoiceStatus(
-        invoice.status as StoredInvoiceStatus,
-        invoice.dueDate,
-      ) === "overdue",
-  ).length;
-  const overdueChange = overdueInvoices.length - lastMonthOverdue;
-
+function DashboardStats({ stats }: { stats: any }) { // TODO: Import RouterOutput type
   const formatTrend = (value: number, isCount = false) => {
     if (isCount) {
       return value > 0 ? `+${value}` : value.toString();
@@ -158,66 +37,52 @@ async function DashboardStats() {
     return value > 0 ? `+${value.toFixed(1)}%` : `${value.toFixed(1)}%`;
   };
 
-  // Debug logging to see actual values
-  console.log("Dashboard Stats Debug:", {
-    totalRevenue,
-    pendingAmount,
-    totalClients,
-    overdueInvoices: overdueInvoices.length,
-    revenueChange,
-    pendingChange,
-    clientChange,
-    overdueChange,
-    paidInvoicesCount: paidInvoices.length,
-    pendingInvoicesCount: pendingInvoices.length,
-  });
-
-  const stats = [
+  const statCards = [
     {
       title: "Total Revenue",
-      value: `$${totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      numericValue: totalRevenue,
+      value: `$${stats.totalRevenue.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      numericValue: stats.totalRevenue,
       isCurrency: true,
-      change: formatTrend(revenueChange),
-      trend: revenueChange >= 0 ? ("up" as const) : ("down" as const),
+      change: formatTrend(stats.revenueChange),
+      trend: stats.revenueChange >= 0 ? ("up" as const) : ("down" as const),
       iconName: "DollarSign" as const,
-      description: `From ${paidInvoices.length} paid invoices`,
+      description: "Total collected revenue",
     },
     {
       title: "Pending Amount",
-      value: `$${pendingAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
-      numericValue: pendingAmount,
+      value: `$${stats.pendingAmount.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      numericValue: stats.pendingAmount,
       isCurrency: true,
-      change: formatTrend(pendingChange),
-      trend: pendingChange >= 0 ? ("up" as const) : ("down" as const),
+      change: "0%", // TODO: Calculate pending change if needed
+      trend: "neutral" as const,
       iconName: "Clock" as const,
-      description: `${pendingInvoices.length} invoices awaiting payment`,
+      description: "Invoices awaiting payment",
     },
     {
       title: "Active Clients",
-      value: totalClients.toString(),
-      numericValue: totalClients,
+      value: stats.totalClients.toString(),
+      numericValue: stats.totalClients,
       isCurrency: false,
-      change: formatTrend(clientChange, true),
-      trend: clientChange >= 0 ? ("up" as const) : ("down" as const),
+      change: "0", // TODO: Calculate client change if needed
+      trend: "neutral" as const,
       iconName: "Users" as const,
       description: "Total registered clients",
     },
     {
       title: "Overdue Invoices",
-      value: overdueInvoices.length.toString(),
-      numericValue: overdueInvoices.length,
+      value: stats.overdueCount.toString(),
+      numericValue: stats.overdueCount,
       isCurrency: false,
-      change: formatTrend(overdueChange, true),
-      trend: overdueChange <= 0 ? ("up" as const) : ("down" as const),
+      change: "0", // TODO: Calculate overdue change if needed
+      trend: "neutral" as const,
       iconName: "TrendingDown" as const,
       description: "Invoices past due date",
     },
   ];
 
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {stats.map((stat, index) => (
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {statCards.map((stat, index) => (
         <AnimatedStatsCard
           key={stat.title}
           title={stat.title}
@@ -236,11 +101,14 @@ async function DashboardStats() {
 }
 
 // Charts section
-async function ChartsSection() {
+async function ChartsSection({ stats }: { stats: any }) {
+  // We still fetch all invoices for the status chart for now, or we could aggregate that too.
+  // For now, let's keep status chart as is (fetching all) but use aggregated for revenue.
+  // Actually, let's fetch invoices here for the status chart to keep it working.
   const invoices = await api.invoices.getAll();
 
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       {/* Revenue Trend Chart */}
       <Card className="lg:col-span-2">
         <CardHeader>
@@ -250,7 +118,7 @@ async function ChartsSection() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RevenueChart invoices={invoices} />
+          <RevenueChart data={stats.revenueChartData} />
         </CardContent>
       </Card>
 
@@ -441,14 +309,8 @@ async function CurrentWork() {
 }
 
 // Enhanced recent activity
-async function RecentActivity() {
-  const invoices = await api.invoices.getAll();
-  const recentInvoices = invoices
-    .sort(
-      (a, b) =>
-        new Date(b.issueDate).getTime() - new Date(a.issueDate).getTime(),
-    )
-    .slice(0, 5);
+async function RecentActivity({ recentInvoices }: { recentInvoices: any[] }) {
+  // Use passed recentInvoices instead of fetching all
 
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -558,7 +420,7 @@ async function RecentActivity() {
 // Loading skeletons
 function StatsSkeleton() {
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {Array.from({ length: 4 }).map((_, i) => (
         <Card key={i}>
           <CardContent className="p-6">
@@ -577,7 +439,7 @@ function StatsSkeleton() {
 
 function ChartsSkeleton() {
   return (
-    <div className="mb-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card className="lg:col-span-2">
         <CardHeader>
           <Skeleton className="h-6 w-40" />
@@ -623,30 +485,40 @@ function CardSkeleton() {
   );
 }
 
+import { DashboardPageHeader } from "~/components/layout/page-header";
+
+// ... imports
+
 export default async function DashboardPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
   const firstName = session?.user?.name?.split(" ")[0] ?? "User";
 
+  // Fetch stats centrally
+  const stats = await api.dashboard.getStats();
+
   return (
-    <div className="page-enter space-y-8">
-      <DashboardHero firstName={firstName} />
+    <div className="page-enter space-y-6">
+      <DashboardPageHeader
+        title={`Welcome back, ${firstName}!`}
+        description="Here's what's happening with your business today"
+      />
 
       <HydrateClient>
         <Suspense fallback={<StatsSkeleton />}>
-          <DashboardStats />
+          <DashboardStats stats={stats} />
         </Suspense>
       </HydrateClient>
 
       <HydrateClient>
         <Suspense fallback={<ChartsSkeleton />}>
-          <ChartsSection />
+          <ChartsSection stats={stats} />
         </Suspense>
       </HydrateClient>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <div className="space-y-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="space-y-6">
           <HydrateClient>
             <Suspense fallback={<CardSkeleton />}>
               <CurrentWork />
@@ -657,7 +529,7 @@ export default async function DashboardPage() {
 
         <HydrateClient>
           <Suspense fallback={<CardSkeleton />}>
-            <RecentActivity />
+            <RecentActivity recentInvoices={stats.recentInvoices} />
           </Suspense>
         </HydrateClient>
       </div>

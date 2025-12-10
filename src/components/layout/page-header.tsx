@@ -1,4 +1,5 @@
 import React from "react";
+import { DashboardBreadcrumbs } from "~/components/navigation/dashboard-breadcrumbs";
 
 interface PageHeaderProps {
   title: string;
@@ -39,24 +40,51 @@ export function PageHeader({
   };
 
   return (
-    <div className={`animate-fade-in-down mb-8 ${className}`}>
-      <div className="flex items-start justify-between gap-4">
-        <div className="animate-fade-in-up space-y-1">
-          <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
-          {description && (
-            <p
-              className={`animate-fade-in-up animate-delay-100 text-muted-foreground ${getDescriptionSpacing()} text-lg`}
-            >
-              {description}
-            </p>
-          )}
-        </div>
-        {children && (
-          <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3">
-            {children}
+    <div className={`animate-fade-in-down mb-6 ${className}`}>
+      {variant === "large-gradient" || variant === "gradient" ? (
+        <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden relative">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+          <div className="p-6 relative">
+            <DashboardBreadcrumbs className="mb-4" />
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1">
+                <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
+                {description && (
+                  <p className={`text-muted-foreground ${getDescriptionSpacing()} text-lg`}>
+                    {description}
+                  </p>
+                )}
+              </div>
+              {children && (
+                <div className="flex flex-shrink-0 gap-2 sm:gap-3">
+                  {children}
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <DashboardBreadcrumbs className="mb-2 sm:mb-4" />
+          <div className="flex items-start justify-between gap-4">
+            <div className="animate-fade-in-up space-y-1">
+              <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
+              {description && (
+                <p
+                  className={`animate-fade-in-up animate-delay-100 text-muted-foreground ${getDescriptionSpacing()} text-lg`}
+                >
+                  {description}
+                </p>
+              )}
+            </div>
+            {children && (
+              <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3">
+                {children}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }

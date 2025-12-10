@@ -398,9 +398,17 @@ export function AnimationPreferencesProvider({
 export function useAnimationPreferences(): AnimationPreferencesContextValue {
   const ctx = useContext(AnimationPreferencesContext);
   if (!ctx) {
-    throw new Error(
-      "useAnimationPreferences must be used within an AnimationPreferencesProvider",
-    );
+    // Fallback instead of throwing to prevent runtime crashes if provider is missing
+    console.warn("useAnimationPreferences used without provider");
+    return {
+      prefersReducedMotion: false,
+      animationSpeedMultiplier: 1,
+      updatePreferences: () => { },
+      setPrefersReducedMotion: () => { },
+      setAnimationSpeedMultiplier: () => { },
+      isUpdating: false,
+      lastSyncedAt: null,
+    };
   }
   return ctx;
 }

@@ -6,6 +6,7 @@ import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/sonner";
 import { AnimationPreferencesProvider } from "~/components/providers/animation-preferences-provider";
+import { MotionBackground } from "~/components/layout/motion-background";
 
 import { ThemeProvider } from "~/components/providers/theme-provider";
 import { ColorThemeProvider } from "~/components/providers/color-theme-provider";
@@ -141,6 +142,7 @@ export default function RootLayout({
           <ThemeProvider>
             <ColorThemeProvider>
               <AnimationPreferencesProvider>
+                <MotionBackground />
                 {children}
               </AnimationPreferencesProvider>
               <Toaster />

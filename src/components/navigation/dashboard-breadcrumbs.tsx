@@ -32,7 +32,9 @@ const SPECIAL_SEGMENTS: Record<string, string> = {
   dashboard: "Dashboard",
 };
 
-export function DashboardBreadcrumbs() {
+import { cn } from "~/lib/utils";
+
+export function DashboardBreadcrumbs({ className }: { className?: string }) {
   const pathname = usePathname();
   const segments = pathname.split("/").filter(Boolean);
 
@@ -144,7 +146,7 @@ export function DashboardBreadcrumbs() {
   if (breadcrumbs.length === 0) return null;
 
   return (
-    <Breadcrumb className="mb-4 sm:mb-6">
+    <Breadcrumb className={cn("mb-4 sm:mb-6", className)}>
       <BreadcrumbList className="flex-nowrap overflow-hidden">
         <BreadcrumbItem>
           <BreadcrumbLink asChild>

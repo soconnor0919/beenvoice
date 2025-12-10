@@ -3,6 +3,7 @@
 import {
   TrendingDown,
   TrendingUp,
+  Minus,
   DollarSign,
   Clock,
   Users,
@@ -15,7 +16,7 @@ interface AnimatedStatsCardProps {
   title: string;
   value: string;
   change: string;
-  trend: "up" | "down";
+  trend: "up" | "down" | "neutral";
   iconName: IconName;
   description: string;
   delay?: number;
@@ -42,8 +43,13 @@ export function AnimatedStatsCard({
   numericValue,
 }: AnimatedStatsCardProps) {
   const Icon = iconMap[iconName];
-  const TrendIcon = trend === "up" ? TrendingUp : TrendingDown;
+
+  let TrendIcon = Minus;
+  if (trend === "up") TrendIcon = TrendingUp;
+  if (trend === "down") TrendIcon = TrendingDown;
+
   const isPositive = trend === "up";
+  const isNeutral = trend === "neutral";
 
   // For now, always use the formatted value prop to ensure correct display
   // Animation can be added back once the basic display is working correctly
@@ -65,9 +71,11 @@ export function AnimatedStatsCard({
           <div
             className="flex items-center space-x-1 text-xs"
             style={{
-              color: isPositive
-                ? "oklch(var(--chart-2))"
-                : "oklch(var(--chart-3))",
+              color: isNeutral
+                ? "hsl(var(--muted-foreground))"
+                : isPositive
+                  ? "oklch(var(--chart-2))"
+                  : "oklch(var(--chart-3))",
             }}
           >
             <TrendIcon className="h-3 w-3" />

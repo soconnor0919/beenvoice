@@ -4,10 +4,11 @@ import { PageHeader } from "~/components/layout/page-header";
 import { Button } from "~/components/ui/button";
 import { HydrateClient } from "~/trpc/server";
 import { ClientsTable } from "./_components/clients-table";
+import { Card, CardContent } from "~/components/ui/card";
 
 export default async function ClientsPage() {
   return (
-    <div className="page-enter space-y-8">
+    <div className="page-enter space-y-6">
       <PageHeader
         title="Clients"
         description="Manage your clients and their information."

@@ -16,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, FileText } from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
@@ -130,13 +130,18 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
       cell: ({ row }) => {
         const invoice = row.original;
         return (
-          <div className="max-w-[80px] min-w-0 sm:max-w-[200px] lg:max-w-[300px]">
-            <p className="truncate font-medium">
-              {invoice.client?.name ?? "—"}
-            </p>
-            <p className="text-muted-foreground truncate text-xs sm:text-sm">
-              {invoice.invoiceNumber}
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary/10 hidden p-2 sm:flex">
+              <FileText className="text-primary h-4 w-4" />
+            </div>
+            <div className="max-w-[80px] min-w-0 sm:max-w-[200px] lg:max-w-[300px]">
+              <p className="truncate font-medium">
+                {invoice.client?.name ?? "—"}
+              </p>
+              <p className="text-muted-foreground truncate text-xs sm:text-sm">
+                {invoice.invoiceNumber}
+              </p>
+            </div>
           </div>
         );
       },
