@@ -24,12 +24,13 @@ import { RevenueChart } from "~/app/dashboard/_components/revenue-chart";
 import { InvoiceStatusChart } from "~/app/dashboard/_components/invoice-status-chart";
 import { MonthlyMetricsChart } from "~/app/dashboard/_components/monthly-metrics-chart";
 import { AnimatedStatsCard } from "~/app/dashboard/_components/animated-stats-card";
+import type { DashboardStats, RecentInvoice } from "./types";
 
 // Hero section with clean mono design
 
 
 // Enhanced stats cards with better visuals
-function DashboardStats({ stats }: { stats: any }) { // TODO: Import RouterOutput type
+function DashboardStats({ stats }: { stats: DashboardStats }) { // TODO: Import RouterOutput type
   const formatTrend = (value: number, isCount = false) => {
     if (isCount) {
       return value > 0 ? `+${value}` : value.toString();
@@ -101,7 +102,7 @@ function DashboardStats({ stats }: { stats: any }) { // TODO: Import RouterOutpu
 }
 
 // Charts section
-async function ChartsSection({ stats }: { stats: any }) {
+async function ChartsSection({ stats }: { stats: DashboardStats }) {
   // We still fetch all invoices for the status chart for now, or we could aggregate that too.
   // For now, let's keep status chart as is (fetching all) but use aggregated for revenue.
   // Actually, let's fetch invoices here for the status chart to keep it working.
@@ -309,7 +310,7 @@ async function CurrentWork() {
 }
 
 // Enhanced recent activity
-async function RecentActivity({ recentInvoices }: { recentInvoices: any[] }) {
+async function RecentActivity({ recentInvoices }: { recentInvoices: RecentInvoice[] }) {
   // Use passed recentInvoices instead of fetching all
 
   const getStatusStyle = (status: string) => {

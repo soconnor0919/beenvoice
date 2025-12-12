@@ -111,7 +111,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         clientId: existingInvoice.clientId,
         issueDate: new Date(existingInvoice.issueDate),
         dueDate: new Date(existingInvoice.dueDate),
-        status: existingInvoice.status as any,
+        status: existingInvoice.status as "draft" | "sent" | "paid",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
         defaultHourlyRate: null,
@@ -119,7 +119,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       });
       setInitialized(true);
     } else if ((!invoiceId || invoiceId === "new") && businesses && !initialized) {
-      const defaultBusiness = businesses.find((b) => b.isDefault) || businesses[0];
+      const defaultBusiness = businesses.find((b) => b.isDefault) ?? businesses[0];
       if (defaultBusiness) setFormData((prev) => ({ ...prev, businessId: defaultBusiness.id }));
       setInitialized(true);
     }
@@ -140,14 +140,16 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     }));
   };
   const removeItem = (idx: number) => { if (formData.items.length > 1) setFormData((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) })); };
-  const updateItem = (idx: number, field: string, value: any) => {
+  const updateItem = (idx: number, field: string, value: string | number | Date) => {
     setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) => {
         if (i === idx) {
-          const u: any = { ...item, [field]: value };
-          if (field === "hours" || field === "rate") u.amount = u.hours * u.rate;
-          return u;
+          const updated = { ...item, [field]: value };
+          if (field === "hours" || field === "rate") {
+            updated.amount = updated.hours * updated.rate;
+          }
+          return updated;
         }
         return item;
       })
@@ -238,7 +240,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     } finally { setLoading(false); }
   };
 
-  const updateField = (field: keyof InvoiceFormData, value: any) => setFormData(p => ({ ...p, [field]: value }));
+  const updateField = <K extends keyof InvoiceFormData>(field: K, value: InvoiceFormData[K]) => setFormData(p => ({ ...p, [field]: value }));
   const handleDelete = () => setDeleteDialogOpen(true);
   const confirmDelete = () => { if (invoiceId) deleteInvoice.mutate({ id: invoiceId }); };
 
@@ -277,7 +279,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                       // Explicitly prioritize client rate, then business rate, then 0
                       const clientRate = selectedClient && 'defaultHourlyRate' in selectedClient ? selectedClient.defaultHourlyRate : null;
                       const businessRate = currentBusiness && 'defaultHourlyRate' in currentBusiness ? currentBusiness.defaultHourlyRate : null;
-                      const rateToSet = clientRate ?? businessRate ?? 0;
+                      const rateToSet: number = (clientRate ?? businessRate ?? 0) as number;
 
                       updateField("defaultHourlyRate", rateToSet);
                     }}
@@ -294,8 +296,8 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               <CardHeader><CardTitle className="flex gap-2 text-base"><Tag className="w-4 h-4" /> Invoice Config</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Issue Date</Label><DatePicker date={formData.issueDate} onDateChange={(d) => updateField("issueDate", d || new Date())} className="w-full" /></div>
-                  <div className="space-y-2"><Label>Due Date</Label><DatePicker date={formData.dueDate} onDateChange={(d) => updateField("dueDate", d || new Date())} className="w-full" /></div>
+                  <div className="space-y-2"><Label>Issue Date</Label><DatePicker date={formData.issueDate} onDateChange={(d) => updateField("issueDate", d ?? new Date())} className="w-full" /></div>
+                  <div className="space-y-2"><Label>Due Date</Label><DatePicker date={formData.dueDate} onDateChange={(d) => updateField("dueDate", d ?? new Date())} className="w-full" /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Tax Rate</Label><NumberInput value={formData.taxRate} onChange={(v) => updateField("taxRate", v)} suffix="%" className="w-full" /></div>
