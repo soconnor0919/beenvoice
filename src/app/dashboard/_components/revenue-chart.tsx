@@ -88,10 +88,10 @@ export function RevenueChart({ data }: RevenueChartProps) {
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(0, 0%, 60%)" stopOpacity={0.4} />
+              <stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.4} />
               <stop
                 offset="95%"
-                stopColor="hsl(0, 0%, 60%)"
+                stopColor="hsl(217, 91%, 60%)"
                 stopOpacity={0.05}
               />
             </linearGradient>
@@ -100,19 +100,19 @@ export function RevenueChart({ data }: RevenueChartProps) {
             dataKey="monthLabel"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
           />
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+            tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
             tickFormatter={formatCurrency}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area
             type="monotone"
             dataKey="revenue"
-            stroke="hsl(0, 0%, 60%)"
+            stroke="hsl(217, 91%, 60%)"
             strokeWidth={2}
             fill="url(#revenueGradient)"
             isAnimationActive={!prefersReducedMotion}

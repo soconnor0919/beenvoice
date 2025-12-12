@@ -48,18 +48,24 @@ function SignInForm() {
   }
 
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
-      <Card className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border md:shadow-lg">
+    <div className="flex min-h-screen items-center justify-center relative overflow-hidden">
+      {/* Blob Background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none flex items-center justify-center">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="w-[800px] h-[800px] bg-neutral-400/30 dark:bg-neutral-500/20 rounded-full blur-3xl animate-blob"></div>
+      </div>
+
+      <Card className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border md:shadow-2xl md:bg-background/80 md:backdrop-blur-xl md:border-border/50 md:rounded-3xl">
         <CardContent className="grid h-full p-0 md:grid-cols-2">
           {/* Hero Section - Hidden on mobile */}
-          <div className="bg-muted relative hidden md:flex md:flex-col md:justify-center md:p-12">
+          <div className="bg-primary/5 relative hidden md:flex md:flex-col md:justify-center md:p-12 border-r border-border/50">
             <div className="space-y-8">
               <div className="space-y-4">
                 <Logo size="xl" />
                 <div className="space-y-3">
-                  <h1 className="text-3xl font-bold lg:text-4xl">
+                  <h1 className="text-3xl font-bold lg:text-4xl font-heading">
                     Welcome back to your
-                    <span className="text-primary"> invoicing workspace</span>
+                    <span className="text-primary italic"> invoicing workspace</span>
                   </h1>
                   <p className="text-muted-foreground text-lg">
                     Continue managing your clients and creating professional
@@ -68,13 +74,13 @@ function SignInForm() {
                 </div>
               </div>
 
-              <div className="grid gap-4">
+              <div className="grid gap-6">
                 <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
+                  <div className="bg-primary/10 rounded-xl p-3">
                     <Users className="text-primary h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-semibold">Client Management</h3>
+                    <h3 className="font-semibold text-foreground">Client Management</h3>
                     <p className="text-muted-foreground text-sm">
                       Organize and track all your clients in one place
                     </p>
@@ -82,11 +88,11 @@ function SignInForm() {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
+                  <div className="bg-primary/10 rounded-xl p-3">
                     <FileText className="text-primary h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-semibold">Professional Invoices</h3>
+                    <h3 className="font-semibold text-foreground">Professional Invoices</h3>
                     <p className="text-muted-foreground text-sm">
                       Beautiful templates that get you paid faster
                     </p>
@@ -94,11 +100,11 @@ function SignInForm() {
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
+                  <div className="bg-primary/10 rounded-xl p-3">
                     <TrendingUp className="text-primary h-5 w-5" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-semibold">Payment Tracking</h3>
+                    <h3 className="font-semibold text-foreground">Payment Tracking</h3>
                     <p className="text-muted-foreground text-sm">
                       Monitor your income with real-time insights
                     </p>
@@ -117,7 +123,7 @@ function SignInForm() {
               </div>
 
               <div className="space-y-2 text-center md:text-left">
-                <h1 className="text-2xl font-bold">Sign In</h1>
+                <h1 className="text-3xl font-bold font-heading">Sign In</h1>
                 <p className="text-muted-foreground">
                   Enter your credentials to access your account
                 </p>
@@ -135,7 +141,7 @@ function SignInForm() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       autoFocus
-                      className="h-11 pl-10"
+                      className="h-11 pl-10 bg-background/50 border-border/60 focus:bg-background transition-all"
                       placeholder="m@example.com"
                     />
                   </div>
@@ -159,7 +165,7 @@ function SignInForm() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
-                      className="h-11 pl-10"
+                      className="h-11 pl-10 bg-background/50 border-border/60 focus:bg-background transition-all"
                       placeholder="Enter your password"
                     />
                   </div>
@@ -167,7 +173,7 @@ function SignInForm() {
 
                 <Button
                   type="submit"
-                  className="h-11 w-full"
+                  className="h-11 w-full rounded-xl text-base shadow-lg shadow-primary/20 hover:shadow-primary/30"
                   disabled={loading}
                 >
                   {loading ? (

@@ -46,11 +46,11 @@ export function InvoiceStatusChart({ invoices }: InvoiceStatusChartProps) {
 
   // Use theme-aware colors
   const COLORS = {
-    draft: "hsl(0, 0%, 60%)", // grey
-    sent: "hsl(214, 100%, 50%)", // blue
-    pending: "hsl(45, 100%, 50%)", // yellow
-    paid: "hsl(142, 76%, 36%)", // green
-    overdue: "hsl(0, 84%, 60%)", // red
+    draft: "hsl(0, 0%, 60%)", // neutral grey - matches monthly metrics chart
+    sent: "hsl(217, 91%, 60%)", // vibrant blue
+    pending: "hsl(217, 91%, 60%)", // blue
+    paid: "hsl(142, 71%, 45%)", // vibrant green
+    overdue: "hsl(var(--destructive))", // red
   };
   // Animation / motion preferences
   const { prefersReducedMotion, animationSpeedMultiplier } =

@@ -118,17 +118,17 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
         <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
           <p className="font-medium">{label}</p>
           <div className="space-y-1 text-sm">
-            <p style={{ color: "var(--chart-2)" }}>Paid: {data.paidInvoices}</p>
-            <p style={{ color: "var(--chart-1)" }}>
+            <p className="text-primary font-medium">Paid: {data.paidInvoices}</p>
+            <p className="text-primary/80">
               Pending: {data.pendingInvoices}
             </p>
-            <p style={{ color: "var(--chart-3)" }}>
+            <p className="text-destructive">
               Overdue: {data.overdueInvoices}
             </p>
-            <p style={{ color: "hsl(0, 0%, 60%)" }}>
+            <p className="text-muted-foreground">
               Draft: {data.draftInvoices}
             </p>
-            <p className="text-muted-foreground border-t pt-1">
+            <p className="text-foreground font-medium border-t pt-1">
               Total: {data.totalInvoices}
             </p>
           </div>
@@ -182,7 +182,7 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
             <Bar
               dataKey="paidInvoices"
               stackId="a"
-              fill="var(--chart-2)"
+              fill="hsl(142, 71%, 45%)"
               radius={[0, 0, 0, 0]}
               isAnimationActive={!prefersReducedMotion}
               animationDuration={barAnimationDuration}
@@ -191,7 +191,8 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
             <Bar
               dataKey="pendingInvoices"
               stackId="a"
-              fill="var(--chart-1)"
+              fill="hsl(217, 91%, 60%)"
+              fillOpacity={0.6}
               radius={[0, 0, 0, 0]}
               isAnimationActive={!prefersReducedMotion}
               animationDuration={barAnimationDuration}
@@ -200,7 +201,7 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
             <Bar
               dataKey="overdueInvoices"
               stackId="a"
-              fill="var(--chart-3)"
+              fill="hsl(var(--destructive))"
               radius={[2, 2, 0, 0]}
               isAnimationActive={!prefersReducedMotion}
               animationDuration={barAnimationDuration}
@@ -222,21 +223,20 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
         <div className="flex items-center space-x-2">
           <div
             className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: "var(--chart-2)" }}
+            style={{ backgroundColor: "hsl(142, 71%, 45%)" }}
           />
           <span className="text-xs">Paid</span>
         </div>
         <div className="flex items-center space-x-2">
           <div
             className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: "var(--chart-1)" }}
+            style={{ backgroundColor: "hsl(217, 91%, 60%)", opacity: 0.6 }}
           />
           <span className="text-xs">Pending</span>
         </div>
         <div className="flex items-center space-x-2">
           <div
-            className="h-3 w-3 rounded-full"
-            style={{ backgroundColor: "var(--chart-3)" }}
+            className="h-3 w-3 rounded-full bg-destructive"
           />
           <span className="text-xs">Overdue</span>
         </div>

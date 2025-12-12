@@ -5,6 +5,7 @@ import { Sidebar } from "~/components/layout/sidebar";
 import { SidebarProvider, useSidebar } from "~/components/layout/sidebar-provider";
 import { cn } from "~/lib/utils";
 import { Menu } from "lucide-react";
+import { Logo } from "~/components/branding/logo";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
 import { DashboardBreadcrumbs } from "~/components/navigation/dashboard-breadcrumbs";
@@ -21,15 +22,22 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Mobile Sidebar (Sheet) */}
-            <div className="md:hidden fixed top-4 left-4 z-50">
+            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b z-50 px-4 flex items-center">
                 <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
                     <SheetTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-10 w-10 bg-background shadow-sm">
+                        <Button variant="outline" size="icon" className="h-10 w-10 bg-background shadow-sm" suppressHydrationWarning>
                             <Menu className="h-5 w-5" />
                             <span className="sr-only">Toggle menu</span>
                         </Button>
                     </SheetTrigger>
+                    {/* Mobile Link / Logo */}
+                    <div className="ml-4 flex items-center gap-2">
+                        <Logo size="sm" />
+                    </div>
                     <SheetContent side="left" className="p-0 w-72">
+                        <div className="sr-only">
+                            <h2 id="mobile-nav-title">Navigation Menu</h2>
+                        </div>
                         <Sidebar mobile onClose={() => setIsMobileOpen(false)} />
                     </SheetContent>
                 </Sheet>
@@ -39,7 +47,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             <main
                 suppressHydrationWarning
                 className={cn(
-                    "flex-1 min-h-screen transition-all duration-300 ease-in-out",
+                    "flex-1 min-h-screen min-w-0 transition-all duration-300 ease-in-out",
                     // Desktop margins based on collapsed state
                     "md:ml-0",
                     // Sidebar is fixed at left: 1rem (16px), width: 16rem (256px) or 4rem (64px)

@@ -119,12 +119,14 @@ function SortableLineItem({
       ref={setNodeRef}
       style={style}
       layout
+      // Add ID here for scrolling
+      id={`invoice-item-${index}`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "bg-secondary hidden rounded-lg p-4 md:block",
+        "bg-secondary hidden rounded-lg p-4 md:block transition-all",
         isDragging && "opacity-50",
       )}
     >
@@ -249,6 +251,11 @@ function MobileLineItem({
   return (
     <motion.div
       layout
+      // Add ID here for scrolling (mobile uses same ID since only one is shown usually via CSS)
+      // But safer to differentiate or handle duplicates? 
+      // Actually, IDs must be unique. Let's rely on the structure that only one is visible.
+      // Or just duplicate ID knowing it's slightly invalid but functional if one is `display:none`.
+      id={`invoice-item-${index}-mobile`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}

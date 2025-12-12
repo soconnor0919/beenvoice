@@ -160,21 +160,27 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={cn("w-full justify-start p-0 hover:bg-transparent", collapsed && "justify-center")}>
-                  <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "w-full")}>
+                  {/* FIXED: Changed div to span to prevent hydration error */}
+                  <span className={cn("flex items-center gap-3", collapsed ? "justify-center" : "w-full")}>
                     <Avatar className="h-9 w-9 border border-border">
                       <AvatarImage src={getGravatarUrl(session.user.email)} alt={session.user.name ?? "User"} />
                       <AvatarFallback>{session.user.name?.[0] ?? "U"}</AvatarFallback>
                     </Avatar>
                     {!collapsed && (
-                      <div className="flex-1 min-w-0 text-left">
-                        <p className="text-sm font-medium truncate">{session.user.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{session.user.email}</p>
-                      </div>
+                      <span className="flex-1 min-w-0 text-left">
+                        <span className="block text-sm font-medium truncate">{session.user.name}</span>
+                        <span className="block text-xs text-muted-foreground truncate">{session.user.email}</span>
+                      </span>
                     )}
-                  </div>
+                  </span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent side="right" align="end" className="w-56" sideOffset={10}>
+              <DropdownMenuContent
+                side="right"
+                align="end"
+                className="w-56 bg-background/80 backdrop-blur-xl border-border/50"
+                sideOffset={10}
+              >
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{session.user.name}</p>
@@ -212,7 +218,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     <aside
       className={cn(
         "fixed top-4 bottom-4 left-4 z-30 hidden md:flex flex-col",
-        "bg-card border border-border shadow-xl rounded-xl transition-all duration-300 ease-in-out",
+        "bg-background/80 backdrop-blur-xl border-border/50 border shadow-xl rounded-3xl transition-all duration-300 ease-in-out",
         isCollapsed ? "w-16" : "w-64"
       )}
     >

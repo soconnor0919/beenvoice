@@ -13,12 +13,15 @@ interface FloatingActionBarProps {
   className?: string;
 }
 
+import { useSidebar } from "~/components/layout/sidebar-provider";
+
 export function FloatingActionBar({
   leftContent,
   children,
   className,
 }: FloatingActionBarProps) {
   const [isDocked, setIsDocked] = useState(false);
+  const { isCollapsed } = useSidebar();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,9 +51,10 @@ export function FloatingActionBar({
     <div
       className={cn(
         // Base positioning - always at bottom
-        "fixed right-0 left-0 z-50",
+        "fixed right-0 z-50 transition-all duration-300 ease-in-out",
         // Safe area and sidebar adjustments
-        "pb-safe-area-inset-bottom md:left-64",
+        "pb-safe-area-inset-bottom left-0",
+        isCollapsed ? "md:left-24" : "md:left-[18rem]",
         // Conditional centering based on dock state
         isDocked ? "flex justify-center" : "",
         // Dynamic bottom positioning

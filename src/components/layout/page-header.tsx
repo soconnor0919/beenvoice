@@ -46,7 +46,8 @@ export function PageHeader({
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
           <div className="p-6 relative">
             <DashboardBreadcrumbs className="mb-4" />
-            <div className="flex items-start justify-between gap-4">
+            {/* UPDATED: flex-col on mobile to prevent squishing, row on sm+ */}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="space-y-1">
                 <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
                 {description && (
@@ -56,7 +57,7 @@ export function PageHeader({
                 )}
               </div>
               {children && (
-                <div className="flex flex-shrink-0 gap-2 sm:gap-3">
+                <div className="flex flex-shrink-0 gap-2 sm:gap-3 w-full sm:w-auto">
                   {children}
                 </div>
               )}
@@ -66,7 +67,8 @@ export function PageHeader({
       ) : (
         <>
           <DashboardBreadcrumbs className="mb-2 sm:mb-4" />
-          <div className="flex items-start justify-between gap-4">
+          {/* UPDATED: flex-col on mobile to prevent squishing, row on sm+ */}
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="animate-fade-in-up space-y-1">
               <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
               {description && (
@@ -78,7 +80,7 @@ export function PageHeader({
               )}
             </div>
             {children && (
-              <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3">
+              <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3 w-full sm:w-auto">
                 {children}
               </div>
             )}
