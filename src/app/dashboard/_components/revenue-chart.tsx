@@ -10,13 +10,7 @@ import {
 } from "recharts";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
-interface Invoice {
-  id: string;
-  totalAmount: number;
-  issueDate: Date | string;
-  status: string;
-  dueDate: Date | string;
-}
+
 
 interface RevenueChartProps {
   data: {
@@ -25,6 +19,41 @@ interface RevenueChartProps {
     monthLabel: string;
   }[];
 }
+
+const CustomTooltip = ({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ payload: { revenue: number } }>;
+  label?: string;
+}) => {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(value);
+  };
+
+  if (active && payload?.length) {
+    const data = payload[0]!.payload;
+    return (
+      <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
+        <p className="font-medium">{label}</p>
+        <p style={{ color: "hsl(0, 0%, 60%)" }}>
+          Revenue: {formatCurrency(data.revenue)}
+        </p>
+        <p className="text-muted-foreground text-sm">
+          {/* Count not available in aggregated view currently */}
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
 
 export function RevenueChart({ data }: RevenueChartProps) {
   // Use data directly
@@ -37,32 +66,6 @@ export function RevenueChart({ data }: RevenueChartProps) {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
-  };
-
-  const CustomTooltip = ({
-    active,
-    payload,
-    label,
-  }: {
-    active?: boolean;
-    payload?: Array<{ payload: { revenue: number } }>;
-    label?: string;
-  }) => {
-    if (active && payload?.length) {
-      const data = payload[0]!.payload;
-      return (
-        <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
-          <p className="font-medium">{label}</p>
-          <p style={{ color: "hsl(0, 0%, 60%)" }}>
-            Revenue: {formatCurrency(data.revenue)}
-          </p>
-          <p className="text-muted-foreground text-sm">
-            {/* Count not available in aggregated view currently */}
-          </p>
-        </div>
-      );
-    }
-    return null;
   };
 
   const { prefersReducedMotion, animationSpeedMultiplier } =

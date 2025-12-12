@@ -3,9 +3,7 @@
 import * as React from "react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { List, Calendar as CalendarIcon, Plus } from "lucide-react";
+import { List, Calendar as CalendarIcon } from "lucide-react";
 import { InvoiceLineItems } from "../invoice-line-items";
 import { InvoiceCalendarView } from "../invoice-calendar-view";
 import type { InvoiceFormData } from "./types";
@@ -19,7 +17,7 @@ interface InvoiceWorkspaceProps {
     updateItem: (index: number, field: string, value: string | number | Date) => void;
     moveItemUp: (index: number) => void;
     moveItemDown: (index: number) => void;
-    reorderItems: (items: any[]) => void;
+    reorderItems: (items: InvoiceFormData['items']) => void;
     className?: string;
 }
 

@@ -11,7 +11,6 @@ import {
   Shield,
   BarChart3,
   Rocket,
-  ChevronRight,
 } from "lucide-react";
 
 export default function HomePage() {

@@ -6,7 +6,6 @@ import { PageHeader } from "~/components/layout/page-header";
 import { Plus, Upload } from "lucide-react";
 import { InvoicesDataTable } from "./_components/invoices-data-table";
 import { DataTableSkeleton } from "~/components/data/data-table";
-import { Card, CardContent } from "~/components/ui/card";
 
 // Invoices Table Component
 async function InvoicesTable() {

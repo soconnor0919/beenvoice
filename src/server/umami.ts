@@ -10,14 +10,14 @@ type UmamiPayload = {
         url: string;
         website: string;
         name: string;
-        data?: Record<string, any>;
+        data?: Record<string, unknown>;
     };
     type: "event";
 };
 
 export async function trackServerEvent(
     eventName: string,
-    eventData?: Record<string, any>,
+    eventData?: Record<string, unknown>,
 ) {
     if (!env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || !env.NEXT_PUBLIC_UMAMI_SCRIPT_URL) {
         console.warn("Umami not configured, skipping server-side event tracking");

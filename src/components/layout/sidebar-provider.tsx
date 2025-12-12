@@ -20,7 +20,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
     React.useEffect(() => {
         const saved = localStorage.getItem("sidebar-collapsed");
         if (saved) {
-            setIsCollapsed(JSON.parse(saved));
+            setIsCollapsed(JSON.parse(saved) as boolean);
         }
     }, []);
 

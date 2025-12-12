@@ -403,9 +403,9 @@ export function useAnimationPreferences(): AnimationPreferencesContextValue {
     return {
       prefersReducedMotion: false,
       animationSpeedMultiplier: 1,
-      updatePreferences: () => { },
-      setPrefersReducedMotion: () => { },
-      setAnimationSpeedMultiplier: () => { },
+      updatePreferences: () => { /* no-op fallback */ },
+      setPrefersReducedMotion: () => { /* no-op fallback */ },
+      setAnimationSpeedMultiplier: () => { /* no-op fallback */ },
       isUpdating: false,
       lastSyncedAt: null,
     };
