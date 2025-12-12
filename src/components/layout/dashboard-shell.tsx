@@ -8,7 +8,6 @@ import { Menu } from "lucide-react";
 import { Logo } from "~/components/branding/logo";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
-import { DashboardBreadcrumbs } from "~/components/navigation/dashboard-breadcrumbs";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
     const { isCollapsed } = useSidebar();

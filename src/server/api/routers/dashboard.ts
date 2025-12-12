@@ -1,7 +1,6 @@
-import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 import { invoices, clients } from "~/server/db/schema";
-import { eq, and, desc, sql, gte, lt } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 
 export const dashboardRouter = createTRPCRouter({
     getStats: protectedProcedure.query(async ({ ctx }) => {

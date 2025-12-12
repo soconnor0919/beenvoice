@@ -4,11 +4,8 @@ import * as React from "react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea";
-import { Separator } from "~/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import {
   Select,
@@ -20,13 +17,11 @@ import {
 import { DatePicker } from "~/components/ui/date-picker";
 import { NumberInput } from "~/components/ui/number-input";
 import { PageHeader } from "~/components/layout/page-header";
-import { FloatingActionBar } from "~/components/layout/floating-action-bar";
 import { InvoiceLineItems } from "./invoice-line-items";
 import { InvoiceCalendarView } from "./invoice-calendar-view";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { FileText, DollarSign, Check, Save, Clock, Trash2, Calendar as CalendarIcon, Tag, User, List } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { Save, Calendar as CalendarIcon, Tag, User, List } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -63,7 +58,6 @@ function InvoiceFormSkeleton() {
 
 export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
-  const utils = api.useUtils();
 
   // State
   const [formData, setFormData] = useState<InvoiceFormData>({
@@ -85,7 +79,6 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const [initialized, setInitialized] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
-  const firstItemEditedRef = useRef(false);
 
   // Queries (Same as before)
   const { data: clients, isLoading: loadingClients } = api.clients.getAll.useQuery();

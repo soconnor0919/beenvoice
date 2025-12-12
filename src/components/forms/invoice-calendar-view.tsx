@@ -14,10 +14,9 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { NumberInput } from "~/components/ui/number-input";
-import { Plus, Trash2, Clock, DollarSign, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
+import { Plus, Trash2, Clock, Calendar as CalendarIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "~/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "~/components/ui/tabs";
+
 
 interface InvoiceItem {
     id: string;
@@ -47,7 +46,7 @@ export function InvoiceCalendarView({
     onAddItem,
     onRemoveItem,
     className,
-    defaultHourlyRate,
+    defaultHourlyRate: _defaultHourlyRate,
 }: InvoiceCalendarViewProps) {
     const [date, setDate] = React.useState<Date | undefined>(undefined); // Start unselected
     const [viewDate, setViewDate] = React.useState<Date>(new Date()); // Controls the view (month/week)

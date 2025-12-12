@@ -7,12 +7,8 @@ import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
 import {
   LogOut,
-  User,
-  ChevronLeft,
-  ChevronRight,
   PanelLeftClose,
   PanelLeftOpen,
-  Settings
 } from "lucide-react";
 import { navigationConfig } from "~/lib/navigation";
 import { useSidebar } from "./sidebar-provider";
@@ -65,7 +61,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
 
         {/* Navigation */}
         <nav className={cn("flex flex-col px-2 gap-6 mt-4", collapsed && "items-center")}>
-          {navigationConfig.map((section, sectionIndex) => (
+          {navigationConfig.map((section) => (
             <div key={section.title}>
               {!collapsed && (
                 <div className="px-2 mb-2 text-xs font-semibold text-muted-foreground/60 tracking-wider uppercase">
