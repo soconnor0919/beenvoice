@@ -4,12 +4,12 @@ import * as React from "react";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, subWeeks, addWeeks, subMonths, addMonths } from "date-fns";
 import { Calendar } from "~/components/ui/calendar";
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "~/components/ui/dialog";
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetFooter,
+} from "~/components/ui/sheet";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -51,7 +51,7 @@ export function InvoiceCalendarView({
     const [date, setDate] = React.useState<Date | undefined>(undefined); // Start unselected
     const [viewDate, setViewDate] = React.useState<Date>(new Date()); // Controls the view (month/week)
     const [view, setView] = React.useState<"month" | "week">("month");
-    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [sheetOpen, setSheetOpen] = React.useState(false);
     // Derived state for selected date items - solves cursor jumping
     const selectedDateItems = React.useMemo(() => {
         if (!date) return [];
@@ -76,9 +76,7 @@ export function InvoiceCalendarView({
     const handleSelectDate = (newDate: Date | undefined) => {
         if (!newDate) return;
         setDate(newDate);
-        // Optionally update viewDate to match selection if desired, but user wants them decoupled during nav
-        // setViewDate(newDate); 
-        setDialogOpen(true);
+        setSheetOpen(true);
     };
 
     const handleAddNewItem = () => {
@@ -92,8 +90,8 @@ export function InvoiceCalendarView({
     const currentWeekEnd = endOfWeek(viewDate);
     const weekDays = eachDayOfInterval({ start: currentWeekStart, end: currentWeekEnd });
 
-    const handleCloseDialog = (isOpen: boolean) => {
-        setDialogOpen(isOpen);
+    const handleCloseSheet = (isOpen: boolean) => {
+        setSheetOpen(isOpen);
         if (!isOpen) {
             setDate(undefined);
         }
@@ -280,95 +278,104 @@ export function InvoiceCalendarView({
                 )}
             </div>
 
-            {/* Dialog for Day Details - Now consistently used and rounded */}
-            <Dialog
-                open={dialogOpen}
-                onOpenChange={handleCloseDialog}
+            {/* Sheet for Day Details */}
+            <Sheet
+                open={sheetOpen}
+                onOpenChange={handleCloseSheet}
             >
-                <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-[600px] rounded-3xl">
-                    <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-xl">
-                            <div className="bg-primary/10 p-2 rounded-full">
-                                <CalendarIcon className="w-5 h-5 text-primary" />
+                <SheetContent side="right" className="w-[400px] sm:w-[540px] flex flex-col gap-0 p-0 sm:max-w-[540px]">
+                    <SheetHeader className="p-6 border-b">
+                        <SheetTitle className="flex items-center gap-3 text-2xl">
+                            <div className="bg-primary/10 p-2.5 rounded-full">
+                                <CalendarIcon className="w-6 h-6 text-primary" />
                             </div>
                             {date ? format(date, "EEEE, MMMM do") : "Details"}
-                        </DialogTitle>
-                    </DialogHeader>
+                        </SheetTitle>
+                    </SheetHeader>
 
-                    <div className="space-y-6 py-4">
-                        {date && selectedDateItems.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 bg-secondary/20 rounded-3xl border border-dashed border-border">
-                                <Clock className="w-12 h-12 text-muted-foreground/30" />
-                                <div className="space-y-1">
-                                    <p className="font-medium text-foreground">No hours logged</p>
-                                    <p className="text-sm text-muted-foreground">Add time entries for this day.</p>
-                                </div>
-                                <Button onClick={handleAddNewItem} variant="secondary" className="mt-2 text-primary">
-                                    Start Logging
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {selectedDateItems.map(({ item, index }) => (
-                                    <div key={item.id} className="group relative bg-card hover:bg-accent/10 transition-colors p-4 rounded-2xl border shadow-sm space-y-3">
-                                        <div className="flex gap-4">
-                                            <div className="flex-1 space-y-1.5">
-                                                <Label className="text-xs font-semibold text-muted-foreground">Description</Label>
-                                                <Input
-                                                    value={item.description}
-                                                    onChange={(e) => onUpdateItem(index, "description", e.target.value)}
-                                                    placeholder="What did you work on?"
-                                                    className="bg-background/50 border-transparent focus:border-input focus:bg-background transition-all"
-                                                />
-                                            </div>
-                                        </div>
-                                        <div className="flex items-end gap-3">
-                                            <div className="w-24 space-y-1.5">
-                                                <Label className="text-xs font-semibold text-muted-foreground">Hours</Label>
-                                                <NumberInput
-                                                    value={item.hours}
-                                                    onChange={v => onUpdateItem(index, "hours", v)}
-                                                    step={0.25}
-                                                    min={0}
-                                                    className="bg-background/50"
-                                                />
-                                            </div>
-                                            <div className="w-28 space-y-1.5">
-                                                <Label className="text-xs font-semibold text-muted-foreground">Rate ($/hr)</Label>
-                                                <NumberInput
-                                                    value={item.rate}
-                                                    onChange={v => onUpdateItem(index, "rate", v)}
-                                                    prefix="$"
-                                                    min={0}
-                                                    className="bg-background/50"
-                                                />
-                                            </div>
-                                            <div className="flex-1 flex justify-end items-center pb-2 text-sm font-medium text-muted-foreground">
-                                                <span>${(item.hours * item.rate).toFixed(2)}</span>
-                                            </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
-                                                onClick={() => onRemoveItem(index)}
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </Button>
-                                        </div>
+                    <div className="flex-1 overflow-y-auto p-6">
+                        <div className="space-y-6">
+                            {date && selectedDateItems.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-16 text-center space-y-4 bg-secondary/20 rounded-3xl border border-dashed border-border/60">
+                                    <div className="bg-background p-4 rounded-full shadow-sm">
+                                        <Clock className="w-8 h-8 text-muted-foreground/50" />
                                     </div>
-                                ))}
-                                <Button variant="outline" onClick={handleAddNewItem} className="w-full border-dashed py-6 rounded-xl hover:bg-accent/40 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all">
-                                    <Plus className="w-4 h-4 mr-2" />
-                                    Add Another Entry
-                                </Button>
-                            </div>
-                        )}
+                                    <div className="space-y-1">
+                                        <p className="font-semibold text-lg text-foreground">No hours logged</p>
+                                        <p className="text-sm text-muted-foreground/80 max-w-[200px]">There are no time entries recorded for this day yet.</p>
+                                    </div>
+                                    <Button onClick={handleAddNewItem} className="mt-2" size="lg">
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Log Time
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="space-y-4">
+                                    {selectedDateItems.map(({ item, index }) => (
+                                        <div key={item.id} className="group relative bg-card hover:bg-accent/10 transition-colors p-5 rounded-2xl border shadow-sm space-y-4">
+                                            <div className="flex gap-4">
+                                                <div className="flex-1 space-y-1.5">
+                                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Description</Label>
+                                                    <Input
+                                                        value={item.description}
+                                                        onChange={(e) => onUpdateItem(index, "description", e.target.value)}
+                                                        placeholder="What did you work on?"
+                                                        className="bg-muted/30 border-transparent focus:border-input focus:bg-background transition-all font-medium"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex items-end gap-3">
+                                                <div className="w-28 space-y-1.5">
+                                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Hours</Label>
+                                                    <NumberInput
+                                                        value={item.hours}
+                                                        onChange={v => onUpdateItem(index, "hours", v)}
+                                                        step={0.25}
+                                                        min={0}
+                                                        className="bg-muted/30"
+                                                    />
+                                                </div>
+                                                <div className="w-32 space-y-1.5">
+                                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Rate</Label>
+                                                    <NumberInput
+                                                        value={item.rate}
+                                                        onChange={v => onUpdateItem(index, "rate", v)}
+                                                        prefix="$"
+                                                        min={0}
+                                                        className="bg-muted/30"
+                                                    />
+                                                </div>
+                                                <div className="flex-1 flex justify-end items-center pb-2 text-sm font-medium text-muted-foreground">
+                                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
+                                                        ${(item.hours * item.rate).toFixed(2)}
+                                                    </span>
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
+                                                    onClick={() => onRemoveItem(index)}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <Button variant="outline" onClick={handleAddNewItem} className="w-full border-dashed py-8 rounded-xl hover:bg-accent/50 hover:border-primary/50 text-muted-foreground hover:text-primary transition-all gap-2 group">
+                                        <div className="bg-muted group-hover:bg-primary/10 p-1 rounded-md transition-colors">
+                                            <Plus className="w-4 h-4" />
+                                        </div>
+                                        <span>Add Another Entry</span>
+                                    </Button>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    <DialogFooter>
-                        <Button className="w-full sm:w-auto rounded-xl" onClick={() => handleCloseDialog(false)}>Done</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    <SheetFooter className="p-6 border-t bg-muted/10 mt-auto">
+                        <Button className="w-full sm:w-full rounded-xl h-12 text-base shadow-md" size="lg" onClick={() => handleCloseSheet(false)}>Done</Button>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

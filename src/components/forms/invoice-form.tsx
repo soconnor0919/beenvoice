@@ -33,7 +33,8 @@ import {
 import { STATUS_OPTIONS } from "./invoice/types";
 import type { InvoiceFormData, InvoiceItem } from "./invoice/types";
 
-// ... (Imports and Interfaces identical to previous)
+import { CountUp } from "~/components/ui/count-up";
+
 
 interface InvoiceFormProps {
   invoiceId?: string;
@@ -314,9 +315,9 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           {/* ITEMS TAB */}
           <TabsContent value="items" className="focus-visible:outline-none mt-6">
             <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-primary/5 border-primary/20"><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Total</span><span className="text-2xl font-bold">${totals.total.toFixed(2)}</span></CardContent></Card>
-              <Card><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Subtotal</span><span className="text-xl font-semibold">${totals.subtotal.toFixed(2)}</span></CardContent></Card>
-              <Card><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Hours</span><span className="text-xl font-semibold">{formData.items.reduce((s, i) => s + i.hours, 0)}h</span></CardContent></Card>
+              <Card className="bg-primary/5 border-primary/20"><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Total</span><span className="text-2xl font-bold font-mono"><CountUp value={totals.total} prefix="$" /></span></CardContent></Card>
+              <Card><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Subtotal</span><span className="text-xl font-semibold font-mono"><CountUp value={totals.subtotal} prefix="$" /></span></CardContent></Card>
+              <Card><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Hours</span><span className="text-xl font-semibold font-mono"><CountUp value={formData.items.reduce((s, i) => s + i.hours, 0)} suffix="h" /></span></CardContent></Card>
             </div>
             <Card>
               <CardHeader><CardTitle className="flex gap-2"><List className="w-5 h-5" /> Invoice Items</CardTitle></CardHeader>

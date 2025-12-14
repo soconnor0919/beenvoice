@@ -126,19 +126,19 @@ function SortableLineItem({
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2, ease: "easeOut" }}
       className={cn(
-        "bg-secondary hidden rounded-lg p-4 md:block transition-all",
-        isDragging && "opacity-50",
+        "bg-card border hidden rounded-xl p-4 md:block transition-all shadow-sm group hover:border-primary/20",
+        isDragging && "opacity-50 shadow-md rotate-1 scale-[1.01] z-50 ring-2 ring-primary/20",
       )}
     >
       <div className="flex items-start gap-3">
         {/* Drag Handle and Arrow Controls */}
         <div className="mt-1 flex flex-col items-center gap-1">
           <div
-            className="cursor-grab active:cursor-grabbing"
+            className="cursor-grab active:cursor-grabbing p-2 hover:bg-muted rounded-md transition-colors mt-2"
             {...attributes}
             {...listeners}
           >
-            <GripVertical className="text-muted-foreground h-4 w-4" />
+            <GripVertical className="text-muted-foreground/50 hover:text-foreground h-4 w-4 transition-colors" />
           </div>
           <div className="flex flex-col gap-0.5">
             <Button
@@ -174,7 +174,7 @@ function SortableLineItem({
               value={item.description}
               onChange={(e) => onUpdate(index, "description", e.target.value)}
               placeholder="Describe the work performed..."
-              className="w-full text-sm font-medium"
+              className="w-full text-sm font-medium border-transparent bg-transparent hover:bg-muted/50 focus:bg-background focus:ring-1 focus:ring-ring transition-all rounded-md px-2 -ml-2"
             />
           </div>
 
@@ -262,7 +262,7 @@ function MobileLineItem({
       transition={{ duration: 0.2, ease: "easeOut" }}
       className="border-border bg-card overflow-hidden rounded-lg border md:hidden"
     >
-      <div className="bg-secondary space-y-3 p-4">
+      <div className="space-y-3 p-4">
         {/* Description */}
         <div className="space-y-1">
           <Label className="text-muted-foreground text-xs">Description</Label>
@@ -447,17 +447,15 @@ export function InvoiceLineItems({
       {/* Add Item Button */}
       <div className="px-3 pt-3">
         <div className="border-t pt-6">
-          <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onAddItem}
-              className="w-full"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Add Line Item
-            </Button>
-          </motion.div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onAddItem}
+            className="w-full border-dashed border-border py-8 text-muted-foreground hover:text-primary hover:bg-accent/50 hover:border-primary/50 transition-all"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Line Item
+          </Button>
         </div>
       </div>
     </div>
