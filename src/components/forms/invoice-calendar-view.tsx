@@ -52,9 +52,18 @@ export function InvoiceCalendarView({
     const [viewDate, setViewDate] = React.useState<Date>(new Date()); // Controls the view (month/week)
     const [view, setView] = React.useState<"month" | "week">("month");
     const [dialogOpen, setDialogOpen] = React.useState(false);
-    const [selectedDateItems, setSelectedDateItems] = React.useState<{ item: InvoiceItem; index: number }[]>([]);
+    // Derived state for selected date items - solves cursor jumping
+    const selectedDateItems = React.useMemo(() => {
+        if (!date) return [];
+        return items
+            .map((item, index) => ({ item, index }))
+            .filter((wrapper) => {
+                const itemDate = new Date(wrapper.item.date);
+                return isSameDay(itemDate, date);
+            });
+    }, [items, date]);
 
-    // Function to get items for the selected date
+    // Helper to get items for any date (for calendar view)
     const getItemsForDate = React.useCallback((targetDate: Date) => {
         return items
             .map((item, index) => ({ item, index }))
@@ -69,17 +78,8 @@ export function InvoiceCalendarView({
         setDate(newDate);
         // Optionally update viewDate to match selection if desired, but user wants them decoupled during nav
         // setViewDate(newDate); 
-        const dateItems = getItemsForDate(newDate);
-        setSelectedDateItems(dateItems);
         setDialogOpen(true);
     };
-
-    // refresh selected items when main items change
-    React.useEffect(() => {
-        if (date && dialogOpen) {
-            setSelectedDateItems(getItemsForDate(date));
-        }
-    }, [items, date, dialogOpen, getItemsForDate]);
 
     const handleAddNewItem = () => {
         if (date) {

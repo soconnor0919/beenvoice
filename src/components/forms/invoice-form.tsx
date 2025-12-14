@@ -114,7 +114,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: existingInvoice.status as "draft" | "sent" | "paid",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
-        defaultHourlyRate: null,
+        defaultHourlyRate: existingInvoice.client?.defaultHourlyRate ?? null,
         items: mappedItems.length > 0 ? mappedItems : [{ id: crypto.randomUUID(), date: new Date(), description: "", hours: 1, rate: 0, amount: 0 }],
       });
       setInitialized(true);
@@ -251,7 +251,10 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       <div className="page-enter space-y-6 pb-32">
         <PageHeader title={invoiceId !== "new" ? "Edit Invoice" : "Create Invoice"} description="Manage your invoice" variant="gradient">
           {invoiceId !== "new" && <Button variant="secondary" onClick={handleDelete} className="text-destructive">Delete</Button>}
-          <Button onClick={handleSubmit} variant="secondary"><Save className="mr-2 h-4 w-4" /> Save</Button>
+          <Button onClick={handleSubmit} variant="secondary" disabled={loading}>
+            <Save className="mr-2 h-4 w-4" />
+            {loading ? "Saving..." : "Save"}
+          </Button>
         </PageHeader>
 
         <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
