@@ -98,13 +98,13 @@ export function DatePicker({
           <Button
             variant="ghost"
             disabled={disabled}
-            className="absolute top-1/2 right-2 size-6 -translate-y-1/2"
+            className="absolute top-1/2 right-2 size-6 p-0 -translate-y-1/2 text-primary/80 hover:text-primary transition-colors z-20"
           >
-            <CalendarIcon className="size-3.5" />
+            <CalendarIcon className="size-4" />
             <span className="sr-only">Select date</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="end">
+        <PopoverContent className="w-auto overflow-hidden p-0 rounded-xl" align="end">
           <Calendar
             mode="single"
             selected={date}

@@ -255,8 +255,8 @@ export function InvoiceCalendarView({
                                         {dayItems.length > 0 ? (
                                             dayItems.map(({ item }, i) => (
                                                 <div key={i} className="bg-background rounded-xl p-2 text-xs shadow-sm border">
-                                                    <div className="font-medium truncate">{item.description || "No description"}</div>
-                                                    <div className="text-muted-foreground">{item.hours}h</div>
+                                                    <div className="font-medium line-clamp-2 text-wrap break-words">{item.description || "No description"}</div>
+                                                    <div className="text-muted-foreground whitespace-nowrap">{item.hours}h</div>
                                                 </div>
                                             ))
                                         ) : (
@@ -285,11 +285,11 @@ export function InvoiceCalendarView({
             >
                 <SheetContent side="right" className="w-[400px] sm:w-[540px] flex flex-col gap-0 p-0 sm:max-w-[540px]">
                     <SheetHeader className="p-6 border-b">
-                        <SheetTitle className="flex items-center gap-3 text-2xl">
-                            <div className="bg-primary/10 p-2.5 rounded-full">
+                        <SheetTitle className="flex items-center gap-3 text-2xl flex-wrap">
+                            <div className="bg-primary/10 p-2.5 rounded-full flex-shrink-0">
                                 <CalendarIcon className="w-6 h-6 text-primary" />
                             </div>
-                            {date ? format(date, "EEEE, MMMM do") : "Details"}
+                            <span className="break-words text-left">{date ? format(date, "EEEE, MMMM do") : "Details"}</span>
                         </SheetTitle>
                     </SheetHeader>
 
@@ -312,50 +312,48 @@ export function InvoiceCalendarView({
                             ) : (
                                 <div className="space-y-4">
                                     {selectedDateItems.map(({ item, index }) => (
-                                        <div key={item.id} className="bg-card border rounded-xl p-4 transition-all shadow-sm group hover:border-primary/20">
-                                            <div className="flex-1 space-y-3">
+                                        <div key={item.id} className="border-border bg-card overflow-hidden rounded-lg border group hover:border-primary/50 transition-colors">
+                                            <div className="space-y-3 p-4">
                                                 {/* Description */}
-                                                <div>
+                                                <div className="space-y-1">
+                                                    <Label className="text-muted-foreground text-xs">Description</Label>
                                                     <Input
                                                         value={item.description}
                                                         onChange={(e) => onUpdateItem(index, "description", e.target.value)}
                                                         placeholder="Describe the work performed..."
-                                                        className="w-full text-sm font-medium"
+                                                        className="pl-3 text-sm"
                                                     />
                                                 </div>
 
-                                                {/* Controls Row */}
-                                                <div className="flex flex-wrap items-center gap-3">
-                                                    {/* Hours */}
-                                                    <NumberInput
-                                                        value={item.hours}
-                                                        onChange={v => onUpdateItem(index, "hours", v)}
-                                                        step={0.25}
-                                                        min={0}
-                                                        width="auto"
-                                                        className="h-9 flex-1 min-w-[100px] font-mono"
-                                                        suffix="h"
-                                                    />
-
-                                                    {/* Rate */}
-                                                    <NumberInput
-                                                        value={item.rate}
-                                                        onChange={v => onUpdateItem(index, "rate", v)}
-                                                        prefix="$"
-                                                        min={0}
-                                                        step={1}
-                                                        width="auto"
-                                                        className="h-9 flex-1 min-w-[100px] font-mono"
-                                                    />
-
-                                                    {/* Amount */}
-                                                    <div className="ml-auto">
-                                                        <span className="text-primary font-semibold">
-                                                            ${(item.hours * item.rate).toFixed(2)}
-                                                        </span>
+                                                {/* Hours and Rate in a row */}
+                                                <div className="grid grid-cols-2 gap-3">
+                                                    <div className="space-y-1">
+                                                        <Label className="text-muted-foreground text-xs">Hours</Label>
+                                                        <NumberInput
+                                                            value={item.hours}
+                                                            onChange={v => onUpdateItem(index, "hours", v)}
+                                                            step={0.25}
+                                                            min={0}
+                                                            width="full"
+                                                        />
                                                     </div>
+                                                    <div className="space-y-1">
+                                                        <Label className="text-muted-foreground text-xs">Rate</Label>
+                                                        <NumberInput
+                                                            value={item.rate}
+                                                            onChange={v => onUpdateItem(index, "rate", v)}
+                                                            prefix="$"
+                                                            min={0}
+                                                            step={1}
+                                                            width="full"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                                    {/* Actions */}
+                                            {/* Bottom section with controls, item name, and total */}
+                                            <div className="border-border bg-muted/50 flex items-center justify-between border-t px-4 py-2">
+                                                <div className="flex items-center gap-2">
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
@@ -365,6 +363,17 @@ export function InvoiceCalendarView({
                                                     >
                                                         <Trash2 className="h-4 w-4" />
                                                     </Button>
+                                                </div>
+                                                <div className="flex-1 px-3 text-center">
+                                                    <span className="text-muted-foreground block text-sm font-medium">
+                                                        Item #{index + 1}
+                                                    </span>
+                                                </div>
+                                                <div className="flex flex-col items-end">
+                                                    <span className="text-muted-foreground text-xs">Total</span>
+                                                    <span className="text-primary text-lg font-bold">
+                                                        ${(item.hours * item.rate).toFixed(2)}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

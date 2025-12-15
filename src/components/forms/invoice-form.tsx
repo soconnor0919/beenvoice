@@ -134,7 +134,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   }, [formData.items, formData.taxRate]);
 
   // Handlers (addItem, updateItem etc. - same as before)
-  const addItem = (date?: Date | unknown) => {
+  const addItem = (date?: unknown) => {
     const validDate = date instanceof Date ? date : new Date();
     setFormData((prev) => ({
       ...prev,

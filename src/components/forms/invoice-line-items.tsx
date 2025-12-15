@@ -1,26 +1,8 @@
 "use client";
 
 import {
-  closestCenter,
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import {
   ChevronDown,
   ChevronUp,
-  GripVertical,
   Plus,
   Trash2,
 } from "lucide-react";
@@ -73,73 +55,30 @@ interface LineItemRowProps {
   isLast: boolean;
 }
 
-interface SortableLineItemProps {
-  item: InvoiceItem;
-  index: number;
-  canRemove: boolean;
-  onRemove: (index: number) => void;
-  onUpdate: (
-    index: number,
-    field: string,
-    value: string | number | Date,
-  ) => void;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  isFirst: boolean;
-  isLast: boolean;
-}
-
-function SortableLineItem({
-  item,
-  index,
-  canRemove,
-  onRemove,
-  onUpdate,
-  onMoveUp,
-  onMoveDown,
-  isFirst,
-  isLast,
-}: SortableLineItemProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: item.id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  };
-
-  return (
-    <motion.div
-      ref={setNodeRef}
-      style={style}
-      layout
-      // Add ID here for scrolling
-      id={`invoice-item-${index}`}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className={cn(
-        "bg-card border hidden rounded-xl p-4 md:block transition-all shadow-sm group hover:border-primary/20",
-        isDragging && "opacity-50 shadow-md rotate-1 scale-[1.01] z-50 ring-2 ring-primary/20",
-      )}
-    >
-      <div className="flex items-start gap-3">
-        {/* Drag Handle and Arrow Controls */}
-        <div className="mt-1 flex flex-col items-center gap-1">
-          <div
-            className="cursor-grab active:cursor-grabbing p-2 hover:bg-muted rounded-md transition-colors mt-2"
-            {...attributes}
-            {...listeners}
-          >
-            <GripVertical className="text-muted-foreground/50 hover:text-foreground h-4 w-4 transition-colors" />
-          </div>
+const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
+  (
+    {
+      item,
+      index,
+      canRemove,
+      onRemove,
+      onUpdate,
+      onMoveUp,
+      onMoveDown,
+      isFirst,
+      isLast,
+    },
+    ref,
+  ) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "bg-card border hidden rounded-xl p-4 md:block transition-all shadow-sm group hover:border-primary/20",
+        )}
+      >
+        <div className="flex items-center gap-3">
+          {/* Arrow Controls */}
           <div className="flex flex-col gap-0.5">
             <Button
               type="button"
@@ -164,80 +103,81 @@ function SortableLineItem({
               <ChevronDown className="h-3 w-3" />
             </Button>
           </div>
-        </div>
 
-        {/* Main Content */}
-        <div className="flex-1 space-y-3">
-          {/* Description */}
-          <div>
-            <Input
-              value={item.description}
-              onChange={(e) => onUpdate(index, "description", e.target.value)}
-              placeholder="Describe the work performed..."
-              className="w-full text-sm font-medium"
-            />
-          </div>
-
-          {/* Controls Row */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Date */}
-            <DatePicker
-              date={item.date}
-              onDateChange={(date) =>
-                onUpdate(index, "date", date ?? new Date())
-              }
-              size="sm"
-              className="w-full sm:w-[180px]"
-              inputClassName="h-9"
-            />
-
-            {/* Hours */}
-            <NumberInput
-              value={item.hours}
-              onChange={(value) => onUpdate(index, "hours", value)}
-              min={0}
-              step={0.25}
-              width="auto"
-              className="h-9 flex-1 min-w-[100px] font-mono"
-              suffix="h"
-            />
-
-            {/* Rate */}
-            <NumberInput
-              value={item.rate}
-              onChange={(value) => onUpdate(index, "rate", value)}
-              min={0}
-              step={1}
-              prefix="$"
-              width="auto"
-              className="h-9 flex-1 min-w-[100px] font-mono"
-            />
-
-            {/* Amount */}
-            <div className="ml-auto">
-              <span className="text-primary font-semibold">
-                ${(item.hours * item.rate).toFixed(2)}
-              </span>
+          {/* Main Content */}
+          <div className="flex-1 space-y-3">
+            {/* Description */}
+            <div>
+              <Input
+                value={item.description}
+                onChange={(e) => onUpdate(index, "description", e.target.value)}
+                placeholder="Describe the work performed..."
+                className="w-full text-sm font-medium"
+              />
             </div>
 
-            {/* Actions */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onRemove(index)}
-              className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
-              disabled={!canRemove}
-              aria-label="Remove item"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            {/* Controls Row */}
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Date */}
+              <DatePicker
+                date={item.date}
+                onDateChange={(date) =>
+                  onUpdate(index, "date", date ?? new Date())
+                }
+                size="sm"
+                className="w-full sm:w-[180px]"
+                inputClassName="h-9"
+              />
+
+              {/* Hours */}
+              <NumberInput
+                value={item.hours}
+                onChange={(value) => onUpdate(index, "hours", value)}
+                min={0}
+                step={0.25}
+                width="auto"
+                className="h-9 flex-1 min-w-[100px] font-mono"
+                suffix="h"
+              />
+
+              {/* Rate */}
+              <NumberInput
+                value={item.rate}
+                onChange={(value) => onUpdate(index, "rate", value)}
+                min={0}
+                step={1}
+                prefix="$"
+                width="auto"
+                className="h-9 flex-1 min-w-[100px] font-mono"
+              />
+
+              {/* Amount */}
+              <div className="ml-auto">
+                <span className="text-primary font-semibold">
+                  ${(item.hours * item.rate).toFixed(2)}
+                </span>
+              </div>
+
+              {/* Actions */}
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => onRemove(index)}
+                className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+                disabled={!canRemove}
+                aria-label="Remove item"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
-    </motion.div>
-  );
-}
+    );
+  },
+);
+LineItemCard.displayName = "LineItemCard";
 
 function MobileLineItem({
   item,
@@ -253,10 +193,6 @@ function MobileLineItem({
   return (
     <motion.div
       layout
-      // Add ID here for scrolling (mobile uses same ID since only one is shown usually via CSS)
-      // But safer to differentiate or handle duplicates? 
-      // Actually, IDs must be unique. Let's rely on the structure that only one is visible.
-      // Or just duplicate ID knowing it's slightly invalid but functional if one is `display:none`.
       id={`invoice-item-${index}-mobile`}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -308,6 +244,7 @@ function MobileLineItem({
               step={1}
               prefix="$"
               width="full"
+              className="font-mono"
             />
           </div>
         </div>
@@ -375,77 +312,54 @@ export function InvoiceLineItems({
   onUpdateItem,
   onMoveUp,
   onMoveDown,
-  onReorderItems,
   className,
 }: InvoiceLineItemsProps) {
   const canRemoveItems = items.length > 1;
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (active.id !== over?.id) {
-      const oldIndex = items.findIndex((item) => item.id === active.id);
-      const newIndex = items.findIndex((item) => item.id === over?.id);
-
-      const newItems = arrayMove(items, oldIndex, newIndex);
-      onReorderItems(newItems);
-    }
-  }
-
   return (
     <div className={cn("space-y-2", className)}>
-      {/* Desktop Cards with Drag and Drop */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={items.map((item) => item.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <AnimatePresence>
-            <div className="space-y-2">
-              {items.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  {/* Desktop/Tablet Card with Drag and Drop */}
-                  <SortableLineItem
-                    item={item}
-                    index={index}
-                    canRemove={canRemoveItems}
-                    onRemove={onRemoveItem}
-                    onUpdate={onUpdateItem}
-                    onMoveUp={onMoveUp}
-                    onMoveDown={onMoveDown}
-                    isFirst={index === 0}
-                    isLast={index === items.length - 1}
-                  />
+      <AnimatePresence>
+        <div className="space-y-2">
+          {items.map((item, index) => (
+            <React.Fragment key={item.id}>
+              {/* Desktop/Tablet Card */}
+              <motion.div
+                layout
+                id={`invoice-item-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+              >
+                <LineItemCard
+                  item={item}
+                  index={index}
+                  canRemove={canRemoveItems}
+                  onRemove={onRemoveItem}
+                  onUpdate={onUpdateItem}
+                  onMoveUp={onMoveUp}
+                  onMoveDown={onMoveDown}
+                  isFirst={index === 0}
+                  isLast={index === items.length - 1}
+                />
+              </motion.div>
 
-                  {/* Mobile Card */}
-                  <MobileLineItem
-                    item={item}
-                    index={index}
-                    canRemove={canRemoveItems}
-                    onRemove={onRemoveItem}
-                    onUpdate={onUpdateItem}
-                    onMoveUp={onMoveUp}
-                    onMoveDown={onMoveDown}
-                    isFirst={index === 0}
-                    isLast={index === items.length - 1}
-                  />
-                </React.Fragment>
-              ))}
-            </div>
-          </AnimatePresence>
-        </SortableContext>
-      </DndContext>
+              {/* Mobile Card */}
+              <MobileLineItem
+                item={item}
+                index={index}
+                canRemove={canRemoveItems}
+                onRemove={onRemoveItem}
+                onUpdate={onUpdateItem}
+                onMoveUp={onMoveUp}
+                onMoveDown={onMoveDown}
+                isFirst={index === 0}
+                isLast={index === items.length - 1}
+              />
+            </React.Fragment>
+          ))}
+        </div>
+      </AnimatePresence>
 
       {/* Add Item Button */}
       <div className="px-3 pt-3">
