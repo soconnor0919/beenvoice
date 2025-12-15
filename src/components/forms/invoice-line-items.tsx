@@ -174,7 +174,7 @@ function SortableLineItem({
               value={item.description}
               onChange={(e) => onUpdate(index, "description", e.target.value)}
               placeholder="Describe the work performed..."
-              className="w-full text-sm font-medium border-transparent bg-transparent hover:bg-muted/50 focus:bg-background focus:ring-1 focus:ring-ring transition-all rounded-md px-2 -ml-2"
+              className="w-full text-sm font-medium"
             />
           </div>
 
@@ -187,7 +187,8 @@ function SortableLineItem({
                 onUpdate(index, "date", date ?? new Date())
               }
               size="sm"
-              className="h-9 w-36"
+              className="w-full sm:w-[180px]"
+              inputClassName="h-9"
             />
 
             {/* Hours */}
@@ -197,7 +198,8 @@ function SortableLineItem({
               min={0}
               step={0.25}
               width="auto"
-              className="h-9 w-32"
+              className="h-9 flex-1 min-w-[100px] font-mono"
+              suffix="h"
             />
 
             {/* Rate */}
@@ -208,7 +210,7 @@ function SortableLineItem({
               step={1}
               prefix="$"
               width="auto"
-              className="h-9 w-32"
+              className="h-9 flex-1 min-w-[100px] font-mono"
             />
 
             {/* Amount */}
@@ -281,6 +283,7 @@ function MobileLineItem({
             date={item.date}
             onDateChange={(date) => onUpdate(index, "date", date ?? new Date())}
             size="sm"
+            inputClassName="h-9"
           />
         </div>
 

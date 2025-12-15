@@ -36,10 +36,6 @@ yarn-error.log*
 .env
 .env*.local
 .env*.production
-.env*.vercel
-
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo

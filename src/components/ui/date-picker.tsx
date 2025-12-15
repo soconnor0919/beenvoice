@@ -34,6 +34,7 @@ interface DatePickerProps {
   disabled?: boolean;
   id?: string;
   size?: "sm" | "md" | "lg";
+  inputClassName?: string;
 }
 
 export function DatePicker({
@@ -41,6 +42,7 @@ export function DatePicker({
   onDateChange,
   placeholder = "Tomorrow or next week",
   className,
+  inputClassName,
   disabled = false,
   id,
   size = "md",
@@ -58,8 +60,8 @@ export function DatePicker({
   const inputWidthClass = className?.includes("w-full")
     ? "w-full"
     : className?.includes("w-32") ||
-        className?.includes("w-28") ||
-        className?.includes("w-36")
+      className?.includes("w-28") ||
+      className?.includes("w-36")
       ? className
       : "w-full md:w-32 md:min-w-32";
 
@@ -75,7 +77,7 @@ export function DatePicker({
         value={value}
         placeholder={placeholder}
         disabled={disabled}
-        className={cn("bg-background pr-10", sizeClasses[size], "w-full")}
+        className={cn("bg-background pr-10", sizeClasses[size], "w-full", inputClassName)}
         onChange={(e) => {
           setValue(e.target.value);
           const parsedDate = parseDate(e.target.value);

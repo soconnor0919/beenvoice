@@ -36,8 +36,13 @@ export function NumberInput({
     value ? value.toFixed(2) : "0.00",
   );
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
   React.useEffect(() => {
-    setDisplayValue(value ? value.toFixed(2) : "0.00");
+    // Only update display value if the input is NOT focused
+    if (document.activeElement !== inputRef.current) {
+      setDisplayValue(value ? value.toFixed(2) : "0.00");
+    }
   }, [value]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,6 +100,7 @@ export function NumberInput({
           <span className="text-muted-foreground text-xs">{prefix}</span>
         )}
         <input
+          ref={inputRef}
           id={id}
           type="text"
           inputMode="decimal"

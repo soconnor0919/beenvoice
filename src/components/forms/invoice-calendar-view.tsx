@@ -312,52 +312,60 @@ export function InvoiceCalendarView({
                             ) : (
                                 <div className="space-y-4">
                                     {selectedDateItems.map(({ item, index }) => (
-                                        <div key={item.id} className="group relative bg-card hover:bg-accent/10 transition-colors p-5 rounded-2xl border shadow-sm space-y-4">
-                                            <div className="flex gap-4">
-                                                <div className="flex-1 space-y-1.5">
-                                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Description</Label>
+                                        <div key={item.id} className="bg-card border rounded-xl p-4 transition-all shadow-sm group hover:border-primary/20">
+                                            <div className="flex-1 space-y-3">
+                                                {/* Description */}
+                                                <div>
                                                     <Input
                                                         value={item.description}
                                                         onChange={(e) => onUpdateItem(index, "description", e.target.value)}
-                                                        placeholder="What did you work on?"
-                                                        className="bg-muted/30 border-transparent focus:border-input focus:bg-background transition-all font-medium"
+                                                        placeholder="Describe the work performed..."
+                                                        className="w-full text-sm font-medium"
                                                     />
                                                 </div>
-                                            </div>
-                                            <div className="flex items-end gap-3">
-                                                <div className="w-28 space-y-1.5">
-                                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Hours</Label>
+
+                                                {/* Controls Row */}
+                                                <div className="flex flex-wrap items-center gap-3">
+                                                    {/* Hours */}
                                                     <NumberInput
                                                         value={item.hours}
                                                         onChange={v => onUpdateItem(index, "hours", v)}
                                                         step={0.25}
                                                         min={0}
-                                                        className="bg-muted/30"
+                                                        width="auto"
+                                                        className="h-9 flex-1 min-w-[100px] font-mono"
+                                                        suffix="h"
                                                     />
-                                                </div>
-                                                <div className="w-32 space-y-1.5">
-                                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Rate</Label>
+
+                                                    {/* Rate */}
                                                     <NumberInput
                                                         value={item.rate}
                                                         onChange={v => onUpdateItem(index, "rate", v)}
                                                         prefix="$"
                                                         min={0}
-                                                        className="bg-muted/30"
+                                                        step={1}
+                                                        width="auto"
+                                                        className="h-9 flex-1 min-w-[100px] font-mono"
                                                     />
+
+                                                    {/* Amount */}
+                                                    <div className="ml-auto">
+                                                        <span className="text-primary font-semibold">
+                                                            ${(item.hours * item.rate).toFixed(2)}
+                                                        </span>
+                                                    </div>
+
+                                                    {/* Actions */}
+                                                    <Button
+                                                        type="button"
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => onRemoveItem(index)}
+                                                        className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+                                                    >
+                                                        <Trash2 className="h-4 w-4" />
+                                                    </Button>
                                                 </div>
-                                                <div className="flex-1 flex justify-end items-center pb-2 text-sm font-medium text-muted-foreground">
-                                                    <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-bold">
-                                                        ${(item.hours * item.rate).toFixed(2)}
-                                                    </span>
-                                                </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-10 w-10 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl"
-                                                    onClick={() => onRemoveItem(index)}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
                                             </div>
                                         </div>
                                     ))}

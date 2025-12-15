@@ -105,7 +105,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         hours: item.hours,
         rate: item.rate,
         amount: item.amount,
-      })) || [];
+      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
       setFormData({
         invoiceNumber: existingInvoice.invoiceNumber,
         businessId: existingInvoice.businessId ?? "",
@@ -134,10 +134,11 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   }, [formData.items, formData.taxRate]);
 
   // Handlers (addItem, updateItem etc. - same as before)
-  const addItem = (date?: Date) => {
+  const addItem = (date?: Date | unknown) => {
+    const validDate = date instanceof Date ? date : new Date();
     setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { id: crypto.randomUUID(), date: date ?? new Date(), description: "", hours: 1, rate: prev.defaultHourlyRate ?? 0, amount: prev.defaultHourlyRate ?? 0 }],
+      items: [...prev.items, { id: crypto.randomUUID(), date: validDate, description: "", hours: 1, rate: prev.defaultHourlyRate ?? 0, amount: prev.defaultHourlyRate ?? 0 }],
     }));
   };
   const removeItem = (idx: number) => { if (formData.items.length > 1) setFormData((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) })); };
@@ -232,7 +233,9 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: formData.status,
         notes: formData.notes,
         taxRate: formData.taxRate,
-        items: formData.items.map(i => ({ date: i.date, description: i.description, hours: i.hours, rate: i.rate, amount: i.hours * i.rate })),
+        items: formData.items
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+          .map(i => ({ date: i.date, description: i.description, hours: i.hours, rate: i.rate, amount: i.hours * i.rate })),
       };
       if (invoiceId && invoiceId !== "new" && invoiceId !== undefined) await updateInvoice.mutateAsync({ id: invoiceId, ...payload });
       else await createInvoice.mutateAsync(payload);
