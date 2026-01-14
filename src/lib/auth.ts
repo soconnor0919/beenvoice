@@ -49,6 +49,11 @@ export const auth = betterAuth({
                                 clientId: process.env.AUTHENTIK_CLIENT_ID,
                                 clientSecret: process.env.AUTHENTIK_CLIENT_SECRET,
                                 discoveryEndpoint: `${process.env.AUTHENTIK_ISSUER}/.well-known/openid-configuration`,
+                                // Explicit endpoints to bypass discovery issues
+                                authorizationEndpoint: "https://auth.soconnor.dev/application/o/authorize/",
+                                tokenEndpoint: "https://auth.soconnor.dev/application/o/token/",
+                                userInfoEndpoint: "https://auth.soconnor.dev/application/o/userinfo/",
+                                jwksEndpoint: "https://auth.soconnor.dev/application/o/beenvoice/jwks/",
                                 scopes: ["openid", "email", "profile"],
                                 pkce: true,
                             },
