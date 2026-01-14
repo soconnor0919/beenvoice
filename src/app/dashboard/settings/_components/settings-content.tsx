@@ -62,12 +62,12 @@ import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
 import { Switch } from "~/components/ui/switch";
 import { Slider } from "~/components/ui/slider";
-import { AppearanceSettings } from "./appearance-settings";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 
 export function SettingsContent() {
   const { data: session } = authClient.useSession();
+  // const session = { user: null } as any;
   const [name, setName] = useState("");
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [importData, setImportData] = useState("");
@@ -294,7 +294,10 @@ export function SettingsContent() {
     if (profile?.name && !name) {
       setName(profile.name);
     }
-  }, [profile?.name, name]);
+    if (session?.user) {
+      setName(session.user.name ?? "");
+    }
+  }, [session, profile?.name, name]);
 
   // (Removed direct DOM mutation; provider handles applying preferences globally)
 
@@ -490,21 +493,7 @@ export function SettingsContent() {
       </TabsContent>
 
       <TabsContent value="preferences" className="space-y-8">
-        {/* Appearance Settings */}
-        <Card className="bg-card border-border border">
-          <CardHeader>
-            <CardTitle className="text-foreground flex items-center gap-2">
-              <Palette className="text-primary h-5 w-5" />
-              Appearance
-            </CardTitle>
-            <CardDescription>
-              Customize the look and feel of the application
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <AppearanceSettings />
-          </CardContent>
-        </Card>
+        {/* Theme follows system preferences automatically via CSS media queries */}
 
         {/* Accessibility & Animation */}
         <Card className="bg-card border-border border">

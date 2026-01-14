@@ -53,7 +53,6 @@ import React, {
   useState,
 } from "react";
 import { api } from "~/trpc/react";
-import { authClient } from "~/lib/auth-client";
 
 type AnimationPreferences = {
   prefersReducedMotion: boolean;
@@ -175,15 +174,16 @@ export function AnimationPreferencesProvider({
   autoSync = true,
 }: AnimationPreferencesProviderProps) {
   const updateMutation = api.settings.updateAnimationPreferences.useMutation();
-  const { data: session } = authClient.useSession();
-  const isAuthed = !!session?.user;
-  // Server query only when authenticated
+
+  // Server query - tRPC will handle authentication internally
+  // The query will only succeed if the user is authenticated
   const { data: serverPrefs } = api.settings.getAnimationPreferences.useQuery(
     undefined,
     {
-      enabled: isAuthed,
+      enabled: true, // Let tRPC handle auth
       refetchOnWindowFocus: false,
       staleTime: 60_000,
+      retry: false, // Don't retry if not authenticated
     },
   );
 
@@ -279,7 +279,7 @@ export function AnimationPreferencesProvider({
       // Optionally sync to server
       const shouldSync = opts?.sync ?? autoSync;
 
-      if (shouldSync && isAuthed) {
+      if (shouldSync && serverPrefs) { // If serverPrefs exists, user is authenticated
         pendingSyncRef.current = {
           prefersReducedMotion: patch.prefersReducedMotion,
           animationSpeedMultiplier: patch.animationSpeedMultiplier,
@@ -315,7 +315,7 @@ export function AnimationPreferencesProvider({
       animationSpeedMultiplier,
       autoSync,
       updateMutation,
-      isAuthed,
+      serverPrefs,
     ],
   );
 
@@ -323,7 +323,7 @@ export function AnimationPreferencesProvider({
   useEffect(() => {
     if (!isHydratedRef.current) return;
     if (serverHydratedRef.current) return;
-    if (!isAuthed || !serverPrefs) return;
+    if (!serverPrefs) return; // No server prefs means not authenticated or not loaded yet
 
     const localIsDefault =
       prefersReducedMotion === DEFAULT_PREFERS_REDUCED &&
@@ -348,7 +348,6 @@ export function AnimationPreferencesProvider({
     performUpdate,
     prefersReducedMotion,
     animationSpeedMultiplier,
-    isAuthed,
   ]);
 
   const updatePreferences = useCallback<

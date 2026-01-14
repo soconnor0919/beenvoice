@@ -6,8 +6,8 @@ import { Inter, Playfair_Display, Geist_Mono } from "next/font/google";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/sonner";
 import { AnimationPreferencesProvider } from "~/components/providers/animation-preferences-provider";
-import { ThemeProvider } from "~/components/providers/theme-provider";
-import { ColorThemeProvider } from "~/components/providers/color-theme-provider";
+
+
 import { UmamiScript } from "~/components/analytics/umami-script";
 
 export const metadata: Metadata = {
@@ -51,17 +51,13 @@ export default function RootLayout({
         </div>
 
         <TRPCReactProvider>
-          <ThemeProvider>
-            <ColorThemeProvider>
-              <AnimationPreferencesProvider>
-                <div className="relative z-10">
-                  {children}
-                </div>
-              </AnimationPreferencesProvider>
-              <Toaster />
-              <UmamiScript />
-            </ColorThemeProvider>
-          </ThemeProvider>
+          <AnimationPreferencesProvider>
+            <div className="relative z-10">
+              {children}
+            </div>
+          </AnimationPreferencesProvider>
+          <Toaster />
+          <UmamiScript />
         </TRPCReactProvider>
       </body>
     </html>

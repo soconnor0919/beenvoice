@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 import {
   users,
   clients,
@@ -92,7 +92,15 @@ export const settingsRouter = createTRPCRouter({
   }),
 
   // Get animation preferences
-  getAnimationPreferences: protectedProcedure.query(async ({ ctx }) => {
+  getAnimationPreferences: publicProcedure.query(async ({ ctx }) => {
+    // Return defaults if not authenticated
+    if (!ctx.session?.user?.id) {
+      return {
+        prefersReducedMotion: false,
+        animationSpeedMultiplier: 1,
+      };
+    }
+
     const user = await ctx.db.query.users.findFirst({
       where: eq(users.id, ctx.session.user.id),
       columns: {

@@ -16,6 +16,7 @@ interface SidebarTriggerProps {
 export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
   const pathname = usePathname();
   const { isPending } = authClient.useSession();
+  // const isPending = false;
 
   return (
     <>
@@ -71,8 +72,8 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                             pathname === link.href ? "page" : undefined
                           }
                           className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${pathname === link.href
-                              ? "bg-primary/10 text-primary"
-                              : "text-foreground hover:bg-muted"
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground hover:bg-muted"
                             }`}
                           onClick={onToggle}
                         >

@@ -22,6 +22,10 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     DB_DISABLE_SSL: z.coerce.boolean().optional(),
+    // SSO / Authentik (optional)
+    AUTHENTIK_ISSUER: z.string().url().optional(),
+    AUTHENTIK_CLIENT_ID: z.string().optional(),
+    AUTHENTIK_CLIENT_SECRET: z.string().optional(),
   },
 
   /**
@@ -47,6 +51,9 @@ export const env = createEnv({
     RESEND_DOMAIN: process.env.RESEND_DOMAIN,
     NODE_ENV: process.env.NODE_ENV,
     DB_DISABLE_SSL: process.env.DB_DISABLE_SSL,
+    AUTHENTIK_ISSUER: process.env.AUTHENTIK_ISSUER,
+    AUTHENTIK_CLIENT_ID: process.env.AUTHENTIK_CLIENT_ID,
+    AUTHENTIK_CLIENT_SECRET: process.env.AUTHENTIK_CLIENT_SECRET,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_UMAMI_SCRIPT_URL: process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL,

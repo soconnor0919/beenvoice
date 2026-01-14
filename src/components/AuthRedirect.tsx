@@ -6,6 +6,7 @@ import { useEffect } from "react";
 
 export function AuthRedirect() {
   const { data: session, isPending } = authClient.useSession();
+  // const session = { user: null }; const isPending = false;
   const router = useRouter();
 
   useEffect(() => {

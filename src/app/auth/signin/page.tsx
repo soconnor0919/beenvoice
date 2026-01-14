@@ -17,6 +17,7 @@ import {
   Users,
   FileText,
   TrendingUp,
+  Shield,
 } from "lucide-react";
 
 function SignInForm() {
@@ -45,6 +46,15 @@ function SignInForm() {
       router.push(callbackUrl);
       router.refresh();
     }
+  }
+
+  async function handleSocialSignIn() {
+    setLoading(true);
+    await authClient.signIn.sso({
+      providerId: "authentik",
+      callbackURL: callbackUrl,
+    });
+    setLoading(false);
   }
 
   return (
@@ -127,6 +137,30 @@ function SignInForm() {
                 <p className="text-muted-foreground">
                   Enter your credentials to access your account
                 </p>
+              </div>
+
+              <div className="space-y-4">
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="w-full h-11 relative rounded-xl"
+                  onClick={handleSocialSignIn}
+                  disabled={loading}
+                >
+                  <Shield className="mr-2 h-4 w-4" />
+                  Sign in with Authentik
+                </Button>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/50" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background px-2 text-muted-foreground">
+                      Or continue with
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <form onSubmit={handleSignIn} className="space-y-4">

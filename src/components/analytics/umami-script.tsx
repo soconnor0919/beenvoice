@@ -4,6 +4,10 @@ import Script from "next/script";
 import { env } from "~/env";
 
 export function UmamiScript() {
+    if (process.env.NODE_ENV === "development") {
+        return null;
+    }
+
     if (!env.NEXT_PUBLIC_UMAMI_WEBSITE_ID || !env.NEXT_PUBLIC_UMAMI_SCRIPT_URL) {
         return null;
     }

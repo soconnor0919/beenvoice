@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
+import { sso } from "@better-auth/sso";
 import { db } from "~/server/db";
 import * as schema from "~/server/db/schema";
 
@@ -28,5 +29,28 @@ export const auth = betterAuth({
             },
         },
     },
-    plugins: [nextCookies()],
+    plugins: [
+        nextCookies(),
+        sso({
+            // Only configure default SSO if Authentik credentials are provided
+            defaultSSO:
+                process.env.AUTHENTIK_ISSUER &&
+                    process.env.AUTHENTIK_CLIENT_ID &&
+                    process.env.AUTHENTIK_CLIENT_SECRET
+                    ? [
+                        {
+                            providerId: "authentik",
+                            domain: "beenvoice.soconnor.dev",
+                            oidcConfig: {
+                                issuer: process.env.AUTHENTIK_ISSUER,
+                                clientId: process.env.AUTHENTIK_CLIENT_ID,
+                                clientSecret: process.env.AUTHENTIK_CLIENT_SECRET,
+                                discoveryEndpoint: `${process.env.AUTHENTIK_ISSUER}/.well-known/openid-configuration`,
+                                pkce: true,
+                            },
+                        },
+                    ]
+                    : [],
+        }),
+    ],
 });

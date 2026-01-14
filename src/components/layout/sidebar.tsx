@@ -34,6 +34,7 @@ interface SidebarProps {
 export function Sidebar({ mobile, onClose }: SidebarProps) {
   const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
+  // const session = { user: null } as any; const isPending = false;
   const { isCollapsed, toggleCollapse } = useSidebar();
 
   // If mobile, always expanded

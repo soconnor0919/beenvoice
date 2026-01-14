@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 
 export function Navbar() {
   const { data: session, isPending } = authClient.useSession();
+  // const session = { user: null } as any; const isPending = false;
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const router = useRouter();
 
