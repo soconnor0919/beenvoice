@@ -17,6 +17,7 @@ import {
   Upload,
   User,
   Users,
+  Link as LinkIcon,
 } from "lucide-react";
 import { authClient } from "~/lib/auth-client";
 import * as React from "react";
@@ -81,6 +82,20 @@ export function SettingsContent() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLinking, setIsLinking] = useState(false);
+
+  const handleLinkAuthentik = async () => {
+    setIsLinking(true);
+    try {
+      await authClient.linkSocial({
+        provider: "authentik",
+        callbackURL: "/dashboard/settings",
+      });
+    } catch (error) {
+      toast.error("Failed to link account");
+      setIsLinking(false);
+    }
+  };
 
   // Animation preferences via provider (centralized)
   const {
@@ -487,6 +502,43 @@ export function SettingsContent() {
                     : "Change Password"}
                 </Button>
               </form>
+            </CardContent>
+          </Card>
+
+          {/* Connected Accounts */}
+          <Card className="bg-card border-border border">
+            <CardHeader>
+              <CardTitle className="text-foreground flex items-center gap-2">
+                <LinkIcon className="text-primary h-5 w-5" />
+                Connected Accounts
+              </CardTitle>
+              <CardDescription>
+                Manage your linked social accounts and SSO providers
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between rounded-lg border p-4">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10">
+                      <Shield className="h-5 w-5 text-blue-500" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="font-medium leading-none">Authentik SSO</p>
+                      <p className="text-muted-foreground text-sm">
+                        Connect your corporate account
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    disabled={isLinking}
+                    onClick={handleLinkAuthentik}
+                  >
+                    {isLinking ? "Connecting..." : "Connect"}
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
