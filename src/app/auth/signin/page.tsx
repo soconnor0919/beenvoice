@@ -61,7 +61,7 @@ function SignInForm() {
       });
 
       const result = await authClient.signIn.sso({
-        providerId: "authentik",
+        domain: "beenvoice.soconnor.dev",
         callbackURL: callbackUrl,
       });
 
