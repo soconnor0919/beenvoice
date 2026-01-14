@@ -52,6 +52,16 @@ function getClient(): AuthClientType {
 // Export a Proxy that lazy-loads the client
 export const authClient = new Proxy({} as AuthClientType, {
     get(_target, prop) {
+        // Always ensure we're in the browser before accessing the client
+        if (typeof window === "undefined") {
+            // During SSR, return safe defaults for common properties
+            if (prop === "useSession") {
+                return () => ({ data: null, isPending: false, error: null });
+            }
+            return undefined;
+        }
+
+        // In the browser, get the real client
         const client = getClient();
         const value = client[prop as keyof AuthClientType];
         return typeof value === "function" ? value.bind(client) : value;
