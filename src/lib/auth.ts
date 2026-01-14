@@ -19,6 +19,10 @@ export const auth = betterAuth({
         "https://beenvoice.soconnor.dev",
         "https://auth.soconnor.dev", // Authentik IdP for OIDC discovery
     ],
+    accountLinking: {
+        enabled: true,
+        trustedProviders: ["authentik"],
+    },
     emailAndPassword: {
         enabled: true,
         password: {
