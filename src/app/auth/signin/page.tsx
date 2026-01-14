@@ -49,26 +49,15 @@ function SignInForm() {
   }
 
   async function handleSocialSignIn() {
-    console.log("[SIGN IN PAGE] SSO button clicked");
-    console.log("[SIGN IN PAGE] authClient:", authClient);
-    console.log("[SIGN IN PAGE] authClient.signIn:", authClient.signIn);
-
     setLoading(true);
     try {
-      console.log("[SIGN IN PAGE] Calling authClient.signIn.sso with:", {
-        providerId: "authentik",
-        callbackURL: callbackUrl,
-      });
-
-      const result = await authClient.signIn.sso({
+      await authClient.signIn.sso({
         domain: "beenvoice.soconnor.dev",
         callbackURL: callbackUrl,
       });
-
-      console.log("[SIGN IN PAGE] SSO result:", result);
+      // The signIn.sso method will automatically redirect to the SSO provider
     } catch (error) {
-      console.error("[SIGN IN PAGE] SSO error:", error);
-    } finally {
+      console.error("[SSO Error]", error);
       setLoading(false);
     }
   }
