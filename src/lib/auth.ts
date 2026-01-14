@@ -13,6 +13,7 @@ export const auth = betterAuth({
             session: schema.sessions,
             account: schema.accounts,
             verification: schema.verificationTokens,
+            ssoProvider: schema.ssoProviders,
         },
     }),
     trustedOrigins: [
@@ -60,6 +61,9 @@ export const auth = betterAuth({
                                 jwksEndpoint: "https://auth.soconnor.dev/application/o/beenvoice/jwks/",
                                 scopes: ["openid", "email", "profile"],
                                 pkce: true,
+                                mapping: {
+                                    emailVerified: "email_verified",
+                                },
                             },
                         },
                     ]

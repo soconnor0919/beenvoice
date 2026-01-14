@@ -106,6 +106,21 @@ export const verificationTokens = createTable(
   (t) => [index("verification_token_identifier_idx").on(t.identifier)],
 );
 
+export const ssoProviders = createTable(
+  "sso_provider",
+  (d) => ({
+    id: d.varchar({ length: 255 }).notNull().primaryKey().$defaultFn(() => crypto.randomUUID()),
+    providerId: d.varchar({ length: 255 }).notNull().unique(),
+    userId: d.varchar({ length: 255 }).notNull().references(() => users.id),
+    redirectURI: d.varchar({ length: 255 }).notNull().default(""), // Added detailed fields
+    oidcConfig: d.text(),
+    samlConfig: d.text(),
+    createdAt: d.timestamp().notNull().defaultNow(),
+    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  }),
+  (t) => [index("sso_provider_user_id_idx").on(t.userId)],
+);
+
 // Invoicing app tables
 export const clients = createTable(
   "client",
