@@ -35,7 +35,6 @@ import type { InvoiceFormData, InvoiceItem } from "./invoice/types";
 
 import { CountUp } from "~/components/ui/count-up";
 
-
 interface InvoiceFormProps {
   invoiceId?: string;
 }
@@ -48,10 +47,11 @@ function InvoiceFormSkeleton() {
         description="Loading invoice form"
         variant="gradient"
       />
-      <div className="bg-muted p-1 rounded-xl h-12 w-full animate-pulse" /> {/* Tabs Skeleton */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-        <div className="h-[200px] bg-muted animate-pulse rounded-xl" />
-        <div className="h-[200px] bg-muted animate-pulse rounded-xl" />
+      <div className="bg-muted h-12 w-full animate-pulse rounded-xl p-1" />{" "}
+      {/* Tabs Skeleton */}
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="bg-muted h-[200px] animate-pulse rounded-xl" />
+        <div className="bg-muted h-[200px] animate-pulse rounded-xl" />
       </div>
     </div>
   );
@@ -59,6 +59,7 @@ function InvoiceFormSkeleton() {
 
 export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
+  const utils = api.useUtils();
 
   // State
   const [formData, setFormData] = useState<InvoiceFormData>({
@@ -72,7 +73,14 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     taxRate: 0,
     defaultHourlyRate: null,
     items: [
-      { id: crypto.randomUUID(), date: new Date(), description: "", hours: 1, rate: 0, amount: 0 },
+      {
+        id: crypto.randomUUID(),
+        date: new Date(),
+        description: "",
+        hours: 1,
+        rate: 0,
+        amount: 0,
+      },
     ],
   });
 
@@ -82,30 +90,44 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const [activeTab, setActiveTab] = useState("details");
 
   // Queries (Same as before)
-  const { data: clients, isLoading: loadingClients } = api.clients.getAll.useQuery();
-  const { data: businesses, isLoading: loadingBusinesses } = api.businesses.getAll.useQuery();
-  const { data: existingInvoice, isLoading: loadingInvoice } = api.invoices.getById.useQuery(
-    { id: invoiceId! }, { enabled: !!invoiceId && invoiceId !== "new" },
-  );
+  const { data: clients, isLoading: loadingClients } =
+    api.clients.getAll.useQuery();
+  const { data: businesses, isLoading: loadingBusinesses } =
+    api.businesses.getAll.useQuery();
+  const { data: existingInvoice, isLoading: loadingInvoice } =
+    api.invoices.getById.useQuery(
+      { id: invoiceId! },
+      { enabled: !!invoiceId && invoiceId !== "new" },
+    );
 
   const deleteInvoice = api.invoices.delete.useMutation({
-    onSuccess: () => { toast.success("Invoice deleted"); router.push("/dashboard/invoices"); },
+    onSuccess: () => {
+      toast.success("Invoice deleted");
+      router.push("/dashboard/invoices");
+    },
     onError: (e) => toast.error(e.message ?? "Failed to delete"),
   });
 
   // Init Effects (Same as before)
-  useEffect(() => { setInitialized(false); }, [invoiceId]);
+  useEffect(() => {
+    setInitialized(false);
+  }, [invoiceId]);
   useEffect(() => {
     if (invoiceId && invoiceId !== "new" && existingInvoice && !initialized) {
       // ... (Mapping logic same as before)
-      const mappedItems: InvoiceItem[] = existingInvoice.items?.map((item) => ({
-        id: crypto.randomUUID(),
-        date: new Date(item.date),
-        description: item.description,
-        hours: item.hours,
-        rate: item.rate,
-        amount: item.amount,
-      })).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()) || [];
+      const mappedItems: InvoiceItem[] =
+        existingInvoice.items
+          ?.map((item) => ({
+            id: crypto.randomUUID(),
+            date: new Date(item.date),
+            description: item.description,
+            hours: item.hours,
+            rate: item.rate,
+            amount: item.amount,
+          }))
+          .sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          ) || [];
       setFormData({
         invoiceNumber: existingInvoice.invoiceNumber,
         businessId: existingInvoice.businessId ?? "",
@@ -116,18 +138,39 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
         defaultHourlyRate: existingInvoice.client?.defaultHourlyRate ?? null,
-        items: mappedItems.length > 0 ? mappedItems : [{ id: crypto.randomUUID(), date: new Date(), description: "", hours: 1, rate: 0, amount: 0 }],
+        items:
+          mappedItems.length > 0
+            ? mappedItems
+            : [
+                {
+                  id: crypto.randomUUID(),
+                  date: new Date(),
+                  description: "",
+                  hours: 1,
+                  rate: 0,
+                  amount: 0,
+                },
+              ],
       });
       setInitialized(true);
-    } else if ((!invoiceId || invoiceId === "new") && businesses && !initialized) {
-      const defaultBusiness = businesses.find((b) => b.isDefault) ?? businesses[0];
-      if (defaultBusiness) setFormData((prev) => ({ ...prev, businessId: defaultBusiness.id }));
+    } else if (
+      (!invoiceId || invoiceId === "new") &&
+      businesses &&
+      !initialized
+    ) {
+      const defaultBusiness =
+        businesses.find((b) => b.isDefault) ?? businesses[0];
+      if (defaultBusiness)
+        setFormData((prev) => ({ ...prev, businessId: defaultBusiness.id }));
       setInitialized(true);
     }
   }, [invoiceId, existingInvoice, businesses, initialized]);
 
   const totals = React.useMemo(() => {
-    const subtotal = formData.items.reduce((sum, item) => sum + item.hours * item.rate, 0);
+    const subtotal = formData.items.reduce(
+      (sum, item) => sum + item.hours * item.rate,
+      0,
+    );
     const taxAmount = (subtotal * formData.taxRate) / 100;
     const total = subtotal + taxAmount;
     return { subtotal, taxAmount, total };
@@ -138,11 +181,31 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     const validDate = date instanceof Date ? date : new Date();
     setFormData((prev) => ({
       ...prev,
-      items: [...prev.items, { id: crypto.randomUUID(), date: validDate, description: "", hours: 1, rate: prev.defaultHourlyRate ?? 0, amount: prev.defaultHourlyRate ?? 0 }],
+      items: [
+        ...prev.items,
+        {
+          id: crypto.randomUUID(),
+          date: validDate,
+          description: "",
+          hours: 1,
+          rate: prev.defaultHourlyRate ?? 0,
+          amount: prev.defaultHourlyRate ?? 0,
+        },
+      ],
     }));
   };
-  const removeItem = (idx: number) => { if (formData.items.length > 1) setFormData((prev) => ({ ...prev, items: prev.items.filter((_, i) => i !== idx) })); };
-  const updateItem = (idx: number, field: string, value: string | number | Date) => {
+  const removeItem = (idx: number) => {
+    if (formData.items.length > 1)
+      setFormData((prev) => ({
+        ...prev,
+        items: prev.items.filter((_, i) => i !== idx),
+      }));
+  };
+  const updateItem = (
+    idx: number,
+    field: string,
+    value: string | number | Date,
+  ) => {
     setFormData((prev) => ({
       ...prev,
       items: prev.items.map((item, i) => {
@@ -154,7 +217,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           return updated;
         }
         return item;
-      })
+      }),
     }));
   };
   const moveItemUp = (idx: number) => {
@@ -181,25 +244,48 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       return { ...prev, items: newItems };
     });
   };
-  const reorderItems = (newItems: InvoiceItem[]) => setFormData(prev => ({ ...prev, items: newItems }));
+  const reorderItems = (newItems: InvoiceItem[]) =>
+    setFormData((prev) => ({ ...prev, items: newItems }));
 
   const createInvoice = api.invoices.create.useMutation({
-    onSuccess: (inv) => { toast.success("Created"); router.push(`/dashboard/invoices/${inv.id}`); },
+    onSuccess: (inv) => {
+      toast.success("Created");
+      void utils.invoices.getAll.invalidate();
+      router.push(`/dashboard/invoices/${inv.id}`);
+    },
     onError: (e) => toast.error(e.message),
   });
   const updateInvoice = api.invoices.update.useMutation({
-    onSuccess: () => { toast.success("Updated"); router.push(invoiceId === "new" ? "/dashboard/invoices" : `/dashboard/invoices/${invoiceId}`); },
+    onSuccess: () => {
+      toast.success("Updated");
+      if (invoiceId && invoiceId !== "new") {
+        void utils.invoices.getById.invalidate({ id: invoiceId });
+      }
+      void utils.invoices.getAll.invalidate();
+      router.push(
+        invoiceId === "new"
+          ? "/dashboard/invoices"
+          : `/dashboard/invoices/${invoiceId}`,
+      );
+    },
     onError: (e) => toast.error(e.message),
   });
 
   const handleSubmit = async () => {
     setLoading(true);
-    if (!formData.clientId) { toast.error("Select Client"); setLoading(false); return; }
+    if (!formData.clientId) {
+      toast.error("Select Client");
+      setLoading(false);
+      return;
+    }
 
     // Validate Items - Check for empty description
     let invalidItemIndex = -1;
     for (let i = 0; i < formData.items.length; i++) {
-      if (!formData.items[i]?.description || formData.items[i]?.description.trim() === "") {
+      if (
+        !formData.items[i]?.description ||
+        formData.items[i]?.description.trim() === ""
+      ) {
         invalidItemIndex = i;
         break;
       }
@@ -212,12 +298,22 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
       // Timeout to allow tab switch rendering
       setTimeout(() => {
-        const element = document.getElementById(`invoice-item-${invalidItemIndex}`);
+        const element = document.getElementById(
+          `invoice-item-${invalidItemIndex}`,
+        );
         if (element) {
           element.scrollIntoView({ behavior: "smooth", block: "center" });
           // Optional: Highlight effect
           element.classList.add("ring-2", "ring-destructive", "ring-offset-2");
-          setTimeout(() => element.classList.remove("ring-2", "ring-destructive", "ring-offset-2"), 2000);
+          setTimeout(
+            () =>
+              element.classList.remove(
+                "ring-2",
+                "ring-destructive",
+                "ring-offset-2",
+              ),
+            2000,
+          );
         }
       }, 100);
       return;
@@ -234,27 +330,61 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         notes: formData.notes,
         taxRate: formData.taxRate,
         items: formData.items
-          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-          .map(i => ({ date: i.date, description: i.description, hours: i.hours, rate: i.rate, amount: i.hours * i.rate })),
+          .sort(
+            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+          )
+          .map((i) => ({
+            date: i.date,
+            description: i.description,
+            hours: i.hours,
+            rate: i.rate,
+            amount: i.hours * i.rate,
+          })),
       };
-      if (invoiceId && invoiceId !== "new" && invoiceId !== undefined) await updateInvoice.mutateAsync({ id: invoiceId, ...payload });
+      if (invoiceId && invoiceId !== "new" && invoiceId !== undefined)
+        await updateInvoice.mutateAsync({ id: invoiceId, ...payload });
       else await createInvoice.mutateAsync(payload);
     } catch (e) {
       console.error(e);
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateField = <K extends keyof InvoiceFormData>(field: K, value: InvoiceFormData[K]) => setFormData(p => ({ ...p, [field]: value }));
+  const updateField = <K extends keyof InvoiceFormData>(
+    field: K,
+    value: InvoiceFormData[K],
+  ) => setFormData((p) => ({ ...p, [field]: value }));
   const handleDelete = () => setDeleteDialogOpen(true);
-  const confirmDelete = () => { if (invoiceId) deleteInvoice.mutate({ id: invoiceId }); };
+  const confirmDelete = () => {
+    if (invoiceId) deleteInvoice.mutate({ id: invoiceId });
+  };
 
-  if (!initialized || loadingClients || loadingBusinesses || (invoiceId && invoiceId !== "new" && loadingInvoice)) return <InvoiceFormSkeleton />;
+  if (
+    !initialized ||
+    loadingClients ||
+    loadingBusinesses ||
+    (invoiceId && invoiceId !== "new" && loadingInvoice)
+  )
+    return <InvoiceFormSkeleton />;
 
   return (
     <>
       <div className="page-enter space-y-6 pb-32">
-        <PageHeader title={invoiceId !== "new" ? "Edit Invoice" : "Create Invoice"} description="Manage your invoice" variant="gradient">
-          {invoiceId !== "new" && <Button variant="secondary" onClick={handleDelete} className="text-destructive">Delete</Button>}
+        <PageHeader
+          title={invoiceId !== "new" ? "Edit Invoice" : "Create Invoice"}
+          description="Manage your invoice"
+          variant="gradient"
+        >
+          {invoiceId !== "new" && (
+            <Button
+              variant="secondary"
+              onClick={handleDelete}
+              className="text-destructive"
+            >
+              Delete
+            </Button>
+          )}
           <Button onClick={handleSubmit} variant="secondary" disabled={loading}>
             <Save className="mr-2 h-4 w-4" />
             {loading ? "Saving..." : "Save"}
@@ -263,16 +393,38 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
         <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
           {/* TAB SELECTOR: w-full, p-1, visible background */}
-          <TabsList className="grid w-full grid-cols-3 bg-muted p-1 rounded-xl h-auto">
-            <TabsTrigger value="details" className="rounded-lg py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">Details</TabsTrigger>
-            <TabsTrigger value="items" className="rounded-lg py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">Items</TabsTrigger>
-            <TabsTrigger value="timesheet" className="rounded-lg py-2.5 data-[state=active]:bg-background data-[state=active]:shadow-sm">Timesheet</TabsTrigger>
+          <TabsList className="bg-muted grid h-auto w-full grid-cols-3 rounded-xl p-1">
+            <TabsTrigger
+              value="details"
+              className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
+            >
+              Details
+            </TabsTrigger>
+            <TabsTrigger
+              value="items"
+              className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
+            >
+              Items
+            </TabsTrigger>
+            <TabsTrigger
+              value="timesheet"
+              className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
+            >
+              Timesheet
+            </TabsTrigger>
           </TabsList>
 
           {/* DETAILS TAB */}
-          <TabsContent value="details" className="grid grid-cols-1 lg:grid-cols-2 gap-6 focus-visible:outline-none mt-6">
+          <TabsContent
+            value="details"
+            className="mt-6 grid grid-cols-1 gap-6 focus-visible:outline-none lg:grid-cols-2"
+          >
             <Card className="h-fit">
-              <CardHeader><CardTitle className="flex gap-2 text-base"><User className="w-4 h-4" /> Client Details</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="flex gap-2 text-base">
+                  <User className="h-4 w-4" /> Client Details
+                </CardTitle>
+              </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label>Client</Label>
@@ -281,61 +433,207 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     onValueChange={(v) => {
                       updateField("clientId", v);
                       // Auto-fill Hourly Rate
-                      const selectedClient = clients?.find(c => c.id === v);
-                      const currentBusiness = businesses?.find(b => b.id === formData.businessId);
+                      const selectedClient = clients?.find((c) => c.id === v);
+                      const currentBusiness = businesses?.find(
+                        (b) => b.id === formData.businessId,
+                      );
                       // Explicitly prioritize client rate, then business rate, then 0
-                      const clientRate = selectedClient && 'defaultHourlyRate' in selectedClient ? selectedClient.defaultHourlyRate : null;
-                      const businessRate = currentBusiness && 'defaultHourlyRate' in currentBusiness ? currentBusiness.defaultHourlyRate : null;
-                      const rateToSet: number = (clientRate ?? businessRate ?? 0) as number;
+                      const clientRate =
+                        selectedClient && "defaultHourlyRate" in selectedClient
+                          ? selectedClient.defaultHourlyRate
+                          : null;
+                      const businessRate =
+                        currentBusiness &&
+                        "defaultHourlyRate" in currentBusiness
+                          ? currentBusiness.defaultHourlyRate
+                          : null;
+                      const rateToSet: number = (clientRate ??
+                        businessRate ??
+                        0) as number;
 
                       updateField("defaultHourlyRate", rateToSet);
                     }}
                   >
-                    <SelectTrigger className="w-full"><SelectValue placeholder="Select Client" /></SelectTrigger>
-                    <SelectContent>{clients?.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clients?.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2"><Label>Business</Label><Select value={formData.businessId} onValueChange={(v) => updateField("businessId", v)}><SelectTrigger className="w-full"><SelectValue placeholder="Select Business" /></SelectTrigger><SelectContent>{businesses?.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2">
+                  <Label>Business</Label>
+                  <Select
+                    value={formData.businessId}
+                    onValueChange={(v) => updateField("businessId", v)}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select Business" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {businesses?.map((b) => (
+                        <SelectItem key={b.id} value={b.id}>
+                          {b.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardContent>
             </Card>
 
             <Card className="h-fit">
-              <CardHeader><CardTitle className="flex gap-2 text-base"><Tag className="w-4 h-4" /> Invoice Config</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="flex gap-2 text-base">
+                  <Tag className="h-4 w-4" /> Invoice Config
+                </CardTitle>
+              </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Issue Date</Label><DatePicker date={formData.issueDate} onDateChange={(d) => updateField("issueDate", d ?? new Date())} className="w-full" /></div>
-                  <div className="space-y-2"><Label>Due Date</Label><DatePicker date={formData.dueDate} onDateChange={(d) => updateField("dueDate", d ?? new Date())} className="w-full" /></div>
+                  <div className="space-y-2">
+                    <Label>Issue Date</Label>
+                    <DatePicker
+                      date={formData.issueDate}
+                      onDateChange={(d) =>
+                        updateField("issueDate", d ?? new Date())
+                      }
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Due Date</Label>
+                    <DatePicker
+                      date={formData.dueDate}
+                      onDateChange={(d) =>
+                        updateField("dueDate", d ?? new Date())
+                      }
+                      className="w-full"
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Tax Rate</Label><NumberInput value={formData.taxRate} onChange={(v) => updateField("taxRate", v)} suffix="%" className="w-full" /></div>
-                  <div className="space-y-2"><Label>Hourly Rate</Label><NumberInput value={formData.defaultHourlyRate ?? 0} onChange={(v) => updateField("defaultHourlyRate", v)} prefix="$" disabled={!formData.clientId} className="w-full" /></div>
+                  <div className="space-y-2">
+                    <Label>Tax Rate</Label>
+                    <NumberInput
+                      value={formData.taxRate}
+                      onChange={(v) => updateField("taxRate", v)}
+                      suffix="%"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Hourly Rate</Label>
+                    <NumberInput
+                      value={formData.defaultHourlyRate ?? 0}
+                      onChange={(v) => updateField("defaultHourlyRate", v)}
+                      prefix="$"
+                      disabled={!formData.clientId}
+                      className="w-full"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2"><Label>Status</Label><Select value={formData.status} onValueChange={(v: "draft" | "sent" | "paid") => updateField("status", v)}><SelectTrigger className="w-full"><SelectValue /></SelectTrigger><SelectContent>{STATUS_OPTIONS.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent></Select></div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(v: "draft" | "sent" | "paid") =>
+                      updateField("status", v)
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {STATUS_OPTIONS.map((o) => (
+                        <SelectItem key={o.value} value={o.value}>
+                          {o.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* ITEMS TAB */}
-          <TabsContent value="items" className="focus-visible:outline-none mt-6">
-            <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-primary/5 border-primary/20"><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Total</span><span className="text-2xl font-bold font-mono"><CountUp value={totals.total} prefix="$" /></span></CardContent></Card>
-              <Card><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Subtotal</span><span className="text-xl font-semibold font-mono"><CountUp value={totals.subtotal} prefix="$" /></span></CardContent></Card>
-              <Card><CardContent className="p-4 flex justify-between items-center"><span className="text-muted-foreground">Hours</span><span className="text-xl font-semibold font-mono"><CountUp value={formData.items.reduce((s, i) => s + i.hours, 0)} suffix="h" /></span></CardContent></Card>
+          <TabsContent
+            value="items"
+            className="mt-6 focus-visible:outline-none"
+          >
+            <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+              <Card className="bg-primary/5 border-primary/20">
+                <CardContent className="flex items-center justify-between p-4">
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="font-mono text-2xl font-bold">
+                    <CountUp value={totals.total} prefix="$" />
+                  </span>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between p-4">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-mono text-xl font-semibold">
+                    <CountUp value={totals.subtotal} prefix="$" />
+                  </span>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="flex items-center justify-between p-4">
+                  <span className="text-muted-foreground">Hours</span>
+                  <span className="font-mono text-xl font-semibold">
+                    <CountUp
+                      value={formData.items.reduce((s, i) => s + i.hours, 0)}
+                      suffix="h"
+                    />
+                  </span>
+                </CardContent>
+              </Card>
             </div>
             <Card>
-              <CardHeader><CardTitle className="flex gap-2"><List className="w-5 h-5" /> Invoice Items</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="flex gap-2">
+                  <List className="h-5 w-5" /> Invoice Items
+                </CardTitle>
+              </CardHeader>
               <CardContent>
-                <InvoiceLineItems items={formData.items} onAddItem={addItem} onRemoveItem={removeItem} onUpdateItem={updateItem} onMoveUp={moveItemUp} onMoveDown={moveItemDown} onReorderItems={reorderItems} />
+                <InvoiceLineItems
+                  items={formData.items}
+                  onAddItem={addItem}
+                  onRemoveItem={removeItem}
+                  onUpdateItem={updateItem}
+                  onMoveUp={moveItemUp}
+                  onMoveDown={moveItemDown}
+                  onReorderItems={reorderItems}
+                />
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* TIMESHEET TAB */}
-          <TabsContent value="timesheet" className="focus-visible:outline-none mt-6">
+          <TabsContent
+            value="timesheet"
+            className="mt-6 focus-visible:outline-none"
+          >
             <Card className="min-h-[600px] w-full">
-              <CardHeader><CardTitle className="flex gap-2"><CalendarIcon className="w-5 h-5" /> Timesheet</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle className="flex gap-2">
+                  <CalendarIcon className="h-5 w-5" /> Timesheet
+                </CardTitle>
+              </CardHeader>
               <CardContent className="p-0 sm:p-0">
-                <InvoiceCalendarView items={formData.items} onAddItem={addItem} onRemoveItem={removeItem} onUpdateItem={updateItem} defaultHourlyRate={formData.defaultHourlyRate} />
+                <InvoiceCalendarView
+                  items={formData.items}
+                  onAddItem={addItem}
+                  onRemoveItem={removeItem}
+                  onUpdateItem={updateItem}
+                  defaultHourlyRate={formData.defaultHourlyRate}
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -343,7 +641,23 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       </div>
 
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent><DialogHeader><DialogTitle>Delete?</DialogTitle><DialogDescription>Cannot be undone.</DialogDescription></DialogHeader><DialogFooter><Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>Cancel</Button><Button variant="destructive" onClick={confirmDelete}>Delete</Button></DialogFooter></DialogContent>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete?</DialogTitle>
+            <DialogDescription>Cannot be undone.</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
       </Dialog>
     </>
   );
