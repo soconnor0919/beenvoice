@@ -49,12 +49,28 @@ function SignInForm() {
   }
 
   async function handleSocialSignIn() {
+    console.log("[SIGN IN PAGE] SSO button clicked");
+    console.log("[SIGN IN PAGE] authClient:", authClient);
+    console.log("[SIGN IN PAGE] authClient.signIn:", authClient.signIn);
+
     setLoading(true);
-    await authClient.signIn.sso({
-      providerId: "authentik",
-      callbackURL: callbackUrl,
-    });
-    setLoading(false);
+    try {
+      console.log("[SIGN IN PAGE] Calling authClient.signIn.sso with:", {
+        providerId: "authentik",
+        callbackURL: callbackUrl,
+      });
+
+      const result = await authClient.signIn.sso({
+        providerId: "authentik",
+        callbackURL: callbackUrl,
+      });
+
+      console.log("[SIGN IN PAGE] SSO result:", result);
+    } catch (error) {
+      console.error("[SIGN IN PAGE] SSO error:", error);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
