@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { nextCookies } from "better-auth/next-js";
-import { sso } from "@better-auth/sso";
+import { genericOAuth } from "better-auth/plugins";
 import { db } from "~/server/db";
 import * as schema from "~/server/db/schema";
 
@@ -39,35 +39,21 @@ export const auth = betterAuth({
     },
     plugins: [
         nextCookies(),
-        sso({
-            // Only configure default SSO if Authentik credentials are provided
-            defaultSSO:
-                process.env.AUTHENTIK_ISSUER &&
-                    process.env.AUTHENTIK_CLIENT_ID &&
-                    process.env.AUTHENTIK_CLIENT_SECRET
-                    ? [
-                        {
-                            providerId: "authentik",
-                            domain: "beenvoice.soconnor.dev",
-                            oidcConfig: {
-                                issuer: process.env.AUTHENTIK_ISSUER,
-                                clientId: process.env.AUTHENTIK_CLIENT_ID,
-                                clientSecret: process.env.AUTHENTIK_CLIENT_SECRET,
-                                discoveryEndpoint: `${process.env.AUTHENTIK_ISSUER}/.well-known/openid-configuration`,
-                                // Explicit endpoints to bypass discovery issues
-                                authorizationEndpoint: "https://auth.soconnor.dev/application/o/authorize/",
-                                tokenEndpoint: "https://auth.soconnor.dev/application/o/token/",
-                                userInfoEndpoint: "https://auth.soconnor.dev/application/o/userinfo/",
-                                jwksEndpoint: "https://auth.soconnor.dev/application/o/beenvoice/jwks/",
-                                scopes: ["openid", "email", "profile"],
-                                pkce: true,
-                                mapping: {
-                                    emailVerified: "email_verified",
-                                },
-                            },
-                        },
-                    ]
-                    : [],
+        genericOAuth({
+            config: [
+                {
+                    providerId: "authentik",
+                    clientId: process.env.AUTHENTIK_CLIENT_ID!,
+                    clientSecret: process.env.AUTHENTIK_CLIENT_SECRET!,
+                    discoveryUrl: `${process.env.AUTHENTIK_ISSUER}/.well-known/openid-configuration`,
+                    // Explicit endpoints to ensure correct routing in production
+                    authorizationUrl: "https://auth.soconnor.dev/application/o/authorize/",
+                    tokenUrl: "https://auth.soconnor.dev/application/o/token/",
+                    userInfoUrl: "https://auth.soconnor.dev/application/o/userinfo/",
+                    scopes: ["openid", "email", "profile"],
+                    pkce: true,
+                },
+            ],
         }),
     ],
 });

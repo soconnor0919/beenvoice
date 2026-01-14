@@ -51,8 +51,8 @@ function SignInForm() {
   async function handleSocialSignIn() {
     setLoading(true);
     try {
-      await authClient.signIn.sso({
-        domain: "beenvoice.soconnor.dev",
+      await authClient.signIn.oauth2({
+        providerId: "authentik",
         callbackURL: callbackUrl,
       });
       // The signIn.sso method will automatically redirect to the SSO provider

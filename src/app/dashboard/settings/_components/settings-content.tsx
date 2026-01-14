@@ -87,8 +87,8 @@ export function SettingsContent() {
   const handleLinkAuthentik = async () => {
     setIsLinking(true);
     try {
-      await authClient.signIn.sso({
-        domain: "beenvoice.soconnor.dev",
+      await authClient.signIn.oauth2({
+        providerId: "authentik",
         callbackURL: "/dashboard/settings",
       });
     } catch (error) {

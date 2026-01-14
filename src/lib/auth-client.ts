@@ -1,15 +1,12 @@
 "use client";
 
 import { createAuthClient } from "better-auth/react";
-import { ssoClient } from "@better-auth/sso/client";
+import { genericOAuthClient } from "better-auth/client/plugins";
 
 /**
- * Auth client for better-auth with SSO support.
- * 
- * Better-auth handles SSR internally, so we can just create the client directly.
+ * Auth client configuration
  */
-
 export const authClient = createAuthClient({
     baseURL: process.env.NEXT_PUBLIC_APP_URL,
-    plugins: [ssoClient()],
+    plugins: [genericOAuthClient()],
 });
