@@ -49,6 +49,7 @@ export const auth = betterAuth({
                                 clientId: process.env.AUTHENTIK_CLIENT_ID,
                                 clientSecret: process.env.AUTHENTIK_CLIENT_SECRET,
                                 discoveryEndpoint: `${process.env.AUTHENTIK_ISSUER}/.well-known/openid-configuration`,
+                                scopes: ["openid", "email", "profile"],
                                 pkce: true,
                             },
                         },
