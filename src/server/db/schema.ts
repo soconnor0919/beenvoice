@@ -334,6 +334,7 @@ export const expenses = createTable(
     category: d.varchar({ length: 100 }),
     billable: d.boolean().default(false).notNull(),
     reimbursable: d.boolean().default(false).notNull(),
+    taxDeductible: d.boolean().default(false).notNull(),
     notes: d.varchar({ length: 500 }),
     createdById: d
       .varchar({ length: 255 })

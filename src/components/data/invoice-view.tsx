@@ -423,18 +423,24 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Subtotal</span>
                   <span className="text-foreground font-medium">
-                    {formatCurrency(invoice.totalAmount)}
+                    {formatCurrency(invoice.totalAmount, invoice.currency)}
                   </span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax</span>
-                  <span className="text-foreground font-medium">$0.00</span>
-                </div>
+                {(invoice.taxRate ?? 0) > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      Tax ({((invoice.taxRate ?? 0) * 100).toFixed(1)}%)
+                    </span>
+                    <span className="text-foreground font-medium">
+                      {formatCurrency(invoice.totalAmount * (invoice.taxRate ?? 0), invoice.currency)}
+                    </span>
+                  </div>
+                )}
                 <Separator />
                 <div className="flex justify-between text-lg font-bold">
                   <span className="text-foreground">Total</span>
                   <span className="text-primary">
-                    {formatCurrency(invoice.totalAmount)}
+                    {formatCurrency(invoice.totalAmount * (1 + (invoice.taxRate ?? 0)), invoice.currency)}
                   </span>
                 </div>
               </div>

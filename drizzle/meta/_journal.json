@@ -16,5 +16,12 @@
       "tag": "0001_supreme_the_enforcers",
       "breakpoints": true
     }
+    ,{
+      "idx": 2,
+      "version": "7",
+      "when": 1775400000000,
+      "tag": "0002_tax_deductible",
+      "breakpoints": true
+    }
   ]
 }

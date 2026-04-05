@@ -39,6 +39,7 @@ interface ExpenseFormData {
   category: string;
   billable: boolean;
   reimbursable: boolean;
+  taxDeductible: boolean;
   notes: string;
   clientId: string;
 }
@@ -51,6 +52,7 @@ const defaultForm: ExpenseFormData = {
   category: "",
   billable: false,
   reimbursable: false,
+  taxDeductible: false,
   notes: "",
   clientId: "",
 };
@@ -89,6 +91,7 @@ export default function ExpensesPage() {
       category: expense.category ?? "",
       billable: expense.billable,
       reimbursable: expense.reimbursable,
+      taxDeductible: expense.taxDeductible ?? false,
       notes: expense.notes ?? "",
       clientId: expense.clientId ?? "",
     });
@@ -97,13 +100,14 @@ export default function ExpensesPage() {
   const handleSubmit = () => {
     if (!form.description.trim()) { toast.error("Description is required"); return; }
     if (form.amount <= 0) { toast.error("Amount must be greater than 0"); return; }
-    const payload = { ...form, clientId: form.clientId || undefined, category: form.category || undefined, notes: form.notes || undefined };
+    const payload = { ...form, clientId: form.clientId || undefined, category: form.category || undefined, notes: form.notes || undefined, taxDeductible: form.taxDeductible };
     if (editId) update.mutate({ id: editId, ...payload });
     else create.mutate(payload);
   };
 
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
   const billableTotal = expenses.filter((e) => e.billable).reduce((s, e) => s + e.amount, 0);
+  const deductibleTotal = expenses.filter((e) => e.taxDeductible).reduce((s, e) => s + e.amount, 0);
 
   return (
     <div className="page-enter space-y-6 pb-6">
@@ -114,7 +118,7 @@ export default function ExpensesPage() {
       </PageHeader>
 
       {/* Summary cards */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Total</p>
@@ -127,7 +131,13 @@ export default function ExpensesPage() {
             <p className="text-primary mt-1 text-2xl font-bold">{formatCurrency(billableTotal)}</p>
           </CardContent>
         </Card>
-        <Card className="col-span-2 sm:col-span-1">
+        <Card>
+          <CardContent className="p-4">
+            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Deductible</p>
+            <p className="mt-1 text-2xl font-bold text-green-600">{formatCurrency(deductibleTotal)}</p>
+          </CardContent>
+        </Card>
+        <Card>
           <CardContent className="p-4">
             <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Count</p>
             <p className="mt-1 text-2xl font-bold">{expenses.length}</p>
@@ -159,6 +169,7 @@ export default function ExpensesPage() {
                       <p className="font-medium">{expense.description}</p>
                       {expense.billable && <Badge variant="secondary" className="text-xs">Billable</Badge>}
                       {expense.reimbursable && <Badge variant="outline" className="text-xs">Reimbursable</Badge>}
+                      {expense.taxDeductible && <Badge variant="outline" className="text-xs text-green-600 border-green-300">Tax Deductible</Badge>}
                       {expense.category && <Badge variant="outline" className="text-xs">{expense.category}</Badge>}
                     </div>
                     <p className="text-muted-foreground mt-0.5 text-xs">
@@ -229,7 +240,7 @@ export default function ExpensesPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex gap-6">
+            <div className="flex flex-wrap gap-6">
               <label className="flex cursor-pointer items-center gap-2">
                 <Checkbox checked={form.billable} onCheckedChange={(v) => setForm((p) => ({ ...p, billable: !!v }))} />
                 <span className="text-sm">Billable</span>
@@ -237,6 +248,10 @@ export default function ExpensesPage() {
               <label className="flex cursor-pointer items-center gap-2">
                 <Checkbox checked={form.reimbursable} onCheckedChange={(v) => setForm((p) => ({ ...p, reimbursable: !!v }))} />
                 <span className="text-sm">Reimbursable</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2">
+                <Checkbox checked={form.taxDeductible} onCheckedChange={(v) => setForm((p) => ({ ...p, taxDeductible: !!v }))} />
+                <span className="text-sm">Tax Deductible</span>
               </label>
             </div>
             <div className="space-y-2">

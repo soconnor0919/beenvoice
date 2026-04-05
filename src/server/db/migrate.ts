@@ -160,6 +160,16 @@ async function isMigrationApplied(client: Pool, tag: string): Promise<boolean> {
     `);
     return parseInt(rows[0]?.count ?? "0") > 0;
   }
+  if (tag === "0002_tax_deductible") {
+    // 0002 adds taxDeductible to beenvoice_expense
+    const { rows } = await client.query<{ count: string }>(`
+      SELECT COUNT(*)::text AS count FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'beenvoice_expense'
+        AND column_name = 'taxDeductible'
+    `);
+    return parseInt(rows[0]?.count ?? "0") > 0;
+  }
   // Unknown migration — assume not applied so it runs
   return false;
 }

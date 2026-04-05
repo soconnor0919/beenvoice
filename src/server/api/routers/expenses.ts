@@ -15,6 +15,7 @@ const createExpenseSchema = z.object({
   category: z.string().optional().or(z.literal("")),
   billable: z.boolean().default(false),
   reimbursable: z.boolean().default(false),
+  taxDeductible: z.boolean().default(false),
   notes: z.string().optional().or(z.literal("")),
   clientId: z.string().optional().or(z.literal("")),
   businessId: z.string().optional().or(z.literal("")),
