@@ -8,8 +8,6 @@ README.md
 *.log
 .env*
 !.env.example
-drizzle/*.sql
-drizzle/*-journal
 .vscode
 .idea
 coverage
