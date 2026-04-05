@@ -21,7 +21,15 @@ import { InvoiceLineItems } from "./invoice-line-items";
 import { InvoiceCalendarView } from "./invoice-calendar-view";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { Save, Calendar as CalendarIcon, Tag, User, List } from "lucide-react";
+import { Save, Calendar as CalendarIcon, Tag, User, List, FileText, ChevronDown } from "lucide-react";
+import { SUPPORTED_CURRENCIES } from "~/lib/currency";
+import { Textarea } from "~/components/ui/textarea";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -71,6 +79,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     status: "draft",
     notes: "",
     taxRate: 0,
+    currency: "USD",
     defaultHourlyRate: null,
     items: [
       {
@@ -92,6 +101,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   // Queries (Same as before)
   const { data: clients, isLoading: loadingClients } =
     api.clients.getAll.useQuery();
+  const { data: noteTemplates } = api.invoiceTemplates.getByType.useQuery({ type: "notes" });
   const { data: businesses, isLoading: loadingBusinesses } =
     api.businesses.getAll.useQuery();
   const { data: existingInvoice, isLoading: loadingInvoice } =
@@ -137,6 +147,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: existingInvoice.status as "draft" | "sent" | "paid",
         notes: existingInvoice.notes ?? "",
         taxRate: existingInvoice.taxRate,
+        currency: existingInvoice.currency ?? "USD",
         defaultHourlyRate: existingInvoice.client?.defaultHourlyRate ?? null,
         items:
           mappedItems.length > 0
@@ -329,6 +340,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         status: formData.status,
         notes: formData.notes,
         taxRate: formData.taxRate,
+        currency: formData.currency,
         items: formData.items
           .sort(
             (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
@@ -432,26 +444,23 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     value={formData.clientId}
                     onValueChange={(v) => {
                       updateField("clientId", v);
-                      // Auto-fill Hourly Rate
                       const selectedClient = clients?.find((c) => c.id === v);
                       const currentBusiness = businesses?.find(
                         (b) => b.id === formData.businessId,
                       );
-                      // Explicitly prioritize client rate, then business rate, then 0
                       const clientRate =
                         selectedClient && "defaultHourlyRate" in selectedClient
                           ? selectedClient.defaultHourlyRate
                           : null;
                       const businessRate =
-                        currentBusiness &&
-                        "defaultHourlyRate" in currentBusiness
+                        currentBusiness && "defaultHourlyRate" in currentBusiness
                           ? currentBusiness.defaultHourlyRate
                           : null;
-                      const rateToSet: number = (clientRate ??
-                        businessRate ??
-                        0) as number;
-
-                      updateField("defaultHourlyRate", rateToSet);
+                      updateField("defaultHourlyRate", (clientRate ?? businessRate ?? 0) as number);
+                      // Auto-fill currency from client
+                      if (selectedClient && "currency" in selectedClient && selectedClient.currency) {
+                        updateField("currency", selectedClient.currency as string);
+                      }
                     }}
                   >
                     <SelectTrigger className="w-full">
@@ -537,26 +546,84 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label>Status</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(v: "draft" | "sent" | "paid") =>
-                      updateField("status", v)
-                    }
-                  >
-                    <SelectTrigger className="w-full">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STATUS_OPTIONS.map((o) => (
-                        <SelectItem key={o.value} value={o.value}>
-                          {o.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Status</Label>
+                    <Select
+                      value={formData.status}
+                      onValueChange={(v: "draft" | "sent" | "paid") =>
+                        updateField("status", v)
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {STATUS_OPTIONS.map((o) => (
+                          <SelectItem key={o.value} value={o.value}>
+                            {o.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Currency</Label>
+                    <Select
+                      value={formData.currency}
+                      onValueChange={(v) => updateField("currency", v)}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {SUPPORTED_CURRENCIES.map((c) => (
+                          <SelectItem key={c.code} value={c.code}>
+                            {c.code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Notes card — spans both columns */}
+            <Card className="h-fit lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between gap-2 text-base">
+                  <span className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" /> Notes
+                  </span>
+                  {noteTemplates && noteTemplates.length > 0 && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-7 gap-1 text-xs">
+                          Use template <ChevronDown className="h-3 w-3" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        {noteTemplates.map((t) => (
+                          <DropdownMenuItem
+                            key={t.id}
+                            onClick={() => updateField("notes", t.content)}
+                          >
+                            {t.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={formData.notes}
+                  onChange={(e) => updateField("notes", e.target.value)}
+                  placeholder="Add notes, payment terms, or other information for the client…"
+                  className="min-h-[100px]"
+                />
               </CardContent>
             </Card>
           </TabsContent>

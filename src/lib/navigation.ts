@@ -4,6 +4,8 @@ import {
   Users,
   FileText,
   Building,
+  Receipt,
+  BarChart2,
 } from "lucide-react";
 
 export interface NavLink {
@@ -25,6 +27,8 @@ export const navigationConfig: NavSection[] = [
       { name: "Clients", href: "/dashboard/clients", icon: Users },
       { name: "Businesses", href: "/dashboard/businesses", icon: Building },
       { name: "Invoices", href: "/dashboard/invoices", icon: FileText },
+      { name: "Expenses", href: "/dashboard/expenses", icon: Receipt },
+      { name: "Reports", href: "/dashboard/reports", icon: BarChart2 },
     ],
   },
   {

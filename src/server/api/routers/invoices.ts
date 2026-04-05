@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   invoices,
@@ -29,6 +29,7 @@ const createInvoiceSchema = z.object({
   status: z.enum(["draft", "sent", "paid"]).default("draft"),
   notes: z.string().optional().or(z.literal("")),
   taxRate: z.number().min(0).max(100).default(0),
+  currency: z.string().length(3).default("USD"),
   items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
 });
 
@@ -410,47 +411,76 @@ export const invoicesRouter = createTRPCRouter({
     .input(updateStatusSchema)
     .mutation(async ({ ctx, input }) => {
       try {
-        // Verify invoice exists and belongs to user
         const invoice = await ctx.db.query.invoices.findFirst({
           where: eq(invoices.id, input.id),
         });
 
         if (!invoice) {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Invoice not found",
-          });
+          throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
         }
 
         if (invoice.createdById !== ctx.session.user.id) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message: "You don't have permission to update this invoice",
-          });
+          throw new TRPCError({ code: "FORBIDDEN", message: "You don't have permission to update this invoice" });
         }
 
         await ctx.db
           .update(invoices)
-          .set({
-            status: input.status,
-            updatedAt: new Date(),
-          })
+          .set({ status: input.status, updatedAt: new Date() })
           .where(eq(invoices.id, input.id));
 
-        console.log("Status update completed successfully");
-
-        return {
-          success: true,
-          message: `Invoice status updated to ${input.status}`,
-        };
+        return { success: true, message: `Invoice status updated to ${input.status}` };
       } catch (error) {
-        console.error("UpdateStatus error:", error);
         if (error instanceof TRPCError) throw error;
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update invoice status",
-          cause: error,
-        });
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update invoice status", cause: error });
       }
+    }),
+
+  bulkUpdateStatus: protectedProcedure
+    .input(z.object({
+      ids: z.array(z.string()).min(1),
+      status: z.enum(["draft", "sent", "paid"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      // Only update invoices owned by this user
+      const owned = await ctx.db.query.invoices.findMany({
+        where: inArray(invoices.id, input.ids),
+        columns: { id: true, createdById: true },
+      });
+
+      const ownedIds = owned
+        .filter((inv) => inv.createdById === ctx.session.user.id)
+        .map((inv) => inv.id);
+
+      if (ownedIds.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No matching invoices found" });
+      }
+
+      await ctx.db
+        .update(invoices)
+        .set({ status: input.status, updatedAt: new Date() })
+        .where(inArray(invoices.id, ownedIds));
+
+      return { success: true, updated: ownedIds.length };
+    }),
+
+  bulkDelete: protectedProcedure
+    .input(z.object({ ids: z.array(z.string()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      const owned = await ctx.db.query.invoices.findMany({
+        where: inArray(invoices.id, input.ids),
+        columns: { id: true, createdById: true },
+      });
+
+      const ownedIds = owned
+        .filter((inv) => inv.createdById === ctx.session.user.id)
+        .map((inv) => inv.id);
+
+      if (ownedIds.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "No matching invoices found" });
+      }
+
+      await ctx.db.delete(invoices).where(inArray(invoices.id, ownedIds));
+
+      return { success: true, deleted: ownedIds.length };
     }),
 });

@@ -4,6 +4,8 @@ import { invoicesRouter } from "~/server/api/routers/invoices";
 import { settingsRouter } from "~/server/api/routers/settings";
 import { emailRouter } from "~/server/api/routers/email";
 import { dashboardRouter } from "~/server/api/routers/dashboard";
+import { expensesRouter } from "~/server/api/routers/expenses";
+import { invoiceTemplatesRouter } from "~/server/api/routers/invoiceTemplates";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 /**
@@ -18,6 +20,8 @@ export const appRouter = createTRPCRouter({
   settings: settingsRouter,
   email: emailRouter,
   dashboard: dashboardRouter,
+  expenses: expensesRouter,
+  invoiceTemplates: invoiceTemplatesRouter,
 });
 
 // export type definition of API

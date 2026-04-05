@@ -72,6 +72,11 @@ interface DataTableProps<TData, TValue> {
     options: { label: string; value: string }[];
   }[];
   onRowClick?: (row: TData) => void;
+  /** Render bulk-action buttons when rows are selected. Receives selected rows and a clear function. */
+  selectionActions?: (
+    selectedRows: TData[],
+    clearSelection: () => void,
+  ) => React.ReactNode;
 }
 
 export function DataTable<TData, TValue>({
@@ -89,6 +94,7 @@ export function DataTable<TData, TValue>({
   actions,
   filterableColumns = [],
   onRowClick,
+  selectionActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -329,6 +335,23 @@ export function DataTable<TData, TValue>({
                       })}
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Selection Toolbar */}
+      {selectionActions && table.getSelectedRowModel().rows.length > 0 && (
+        <Card className="bg-primary/5 border-primary/20 border py-2">
+          <CardContent className="flex items-center justify-between gap-3 px-3 py-0">
+            <span className="text-foreground text-sm font-medium">
+              {table.getSelectedRowModel().rows.length} selected
+            </span>
+            <div className="flex items-center gap-2">
+              {selectionActions(
+                table.getSelectedRowModel().rows.map((r) => r.original),
+                () => table.resetRowSelection(),
               )}
             </div>
           </CardContent>

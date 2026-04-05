@@ -43,6 +43,7 @@ const createClientSchema = z.object({
     .optional()
     .or(z.literal("")),
   defaultHourlyRate: z.number().min(0, "Rate must be positive").optional(),
+  currency: z.string().length(3).default("USD").optional(),
 });
 
 const updateClientSchema = createClientSchema.partial().extend({

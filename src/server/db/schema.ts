@@ -39,7 +39,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   clients: many(clients),
   businesses: many(businesses),
   invoices: many(invoices),
-  sessions: many(sessions), // Added missing relation
+  sessions: many(sessions),
+  expenses: many(expenses),
+  invoiceTemplates: many(invoiceTemplates),
 }));
 
 export const accounts = createTable(
@@ -140,6 +142,7 @@ export const clients = createTable(
     postalCode: d.varchar({ length: 20 }),
     country: d.varchar({ length: 100 }),
     defaultHourlyRate: d.real(),
+    currency: d.varchar({ length: 3 }).default("USD").notNull(),
     createdById: d
       .varchar({ length: 255 })
       .notNull()
@@ -238,6 +241,7 @@ export const invoices = createTable(
     totalAmount: d.real().notNull().default(0),
     taxRate: d.real().notNull().default(0.0),
     notes: d.varchar({ length: 1000 }),
+    currency: d.varchar({ length: 3 }).default("USD").notNull(),
     createdById: d
       .varchar({ length: 255 })
       .notNull()
@@ -309,3 +313,101 @@ export const invoiceItemsRelations = relations(invoiceItems, ({ one }) => ({
     references: [invoices.id],
   }),
 }));
+
+export const expenses = createTable(
+  "expense",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    businessId: d.varchar({ length: 255 }).references(() => businesses.id),
+    clientId: d.varchar({ length: 255 }).references(() => clients.id),
+    invoiceId: d
+      .varchar({ length: 255 })
+      .references(() => invoices.id, { onDelete: "set null" }),
+    date: d.timestamp().notNull(),
+    description: d.varchar({ length: 500 }).notNull(),
+    amount: d.real().notNull(),
+    currency: d.varchar({ length: 3 }).default("USD").notNull(),
+    category: d.varchar({ length: 100 }),
+    billable: d.boolean().default(false).notNull(),
+    reimbursable: d.boolean().default(false).notNull(),
+    notes: d.varchar({ length: 500 }),
+    createdById: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    createdAt: d
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp().$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("expense_created_by_idx").on(t.createdById),
+    index("expense_client_id_idx").on(t.clientId),
+    index("expense_invoice_id_idx").on(t.invoiceId),
+    index("expense_date_idx").on(t.date),
+    index("expense_billable_idx").on(t.billable),
+  ],
+);
+
+export const expensesRelations = relations(expenses, ({ one }) => ({
+  business: one(businesses, {
+    fields: [expenses.businessId],
+    references: [businesses.id],
+  }),
+  client: one(clients, {
+    fields: [expenses.clientId],
+    references: [clients.id],
+  }),
+  invoice: one(invoices, {
+    fields: [expenses.invoiceId],
+    references: [invoices.id],
+  }),
+  createdBy: one(users, {
+    fields: [expenses.createdById],
+    references: [users.id],
+  }),
+}));
+
+export const invoiceTemplates = createTable(
+  "invoice_template",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: d.varchar({ length: 255 }).notNull(),
+    type: d.varchar({ length: 50 }).notNull().default("notes"), // "notes" | "terms"
+    content: d.text().notNull(),
+    isDefault: d.boolean().default(false).notNull(),
+    createdById: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    createdAt: d
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp().$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("invoice_template_created_by_idx").on(t.createdById),
+    index("invoice_template_type_idx").on(t.type),
+  ],
+);
+
+export const invoiceTemplatesRelations = relations(
+  invoiceTemplates,
+  ({ one }) => ({
+    createdBy: one(users, {
+      fields: [invoiceTemplates.createdById],
+      references: [users.id],
+    }),
+  }),
+);
+

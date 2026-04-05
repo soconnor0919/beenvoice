@@ -28,6 +28,14 @@ import {
   VALIDATION_MESSAGES,
   PLACEHOLDERS,
 } from "~/lib/form-constants";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { SUPPORTED_CURRENCIES } from "~/lib/currency";
 
 interface ClientFormProps {
   clientId?: string;
@@ -45,6 +53,7 @@ interface FormData {
   postalCode: string;
   country: string;
   defaultHourlyRate: number | null;
+  currency: string;
 }
 
 interface FormErrors {
@@ -70,6 +79,7 @@ const initialFormData: FormData = {
   postalCode: "",
   country: "United States",
   defaultHourlyRate: null,
+  currency: "USD",
 };
 
 export function ClientForm({ clientId, mode }: ClientFormProps) {
@@ -120,6 +130,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
         postalCode: client.postalCode ?? "",
         country: client.country ?? "United States",
         defaultHourlyRate: client.defaultHourlyRate ?? null,
+        currency: client.currency ?? "USD",
       });
     }
   }, [client, mode]);
@@ -467,6 +478,30 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
                       {errors.defaultHourlyRate}
                     </p>
                   )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="currency" className="text-sm font-medium">
+                    Currency
+                  </Label>
+                  <p className="text-muted-foreground mb-2 text-xs">
+                    Default currency for invoices created for this client.
+                  </p>
+                  <Select
+                    value={formData.currency}
+                    onValueChange={(v) => handleInputChange("currency", v)}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SUPPORTED_CURRENCIES.map((c) => (
+                        <SelectItem key={c.code} value={c.code}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardContent>
             </Card>
