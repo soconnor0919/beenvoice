@@ -44,7 +44,9 @@ const db = drizzle(pool);
 
 /**
  * Baseline: if the DB has existing tables but no migration history, seed the
- * __drizzle_migrations table so Drizzle won't try to re-run already-applied SQL.
+ * __drizzle_migrations table for only the migrations already reflected in the
+ * schema. Any migrations whose schema changes are NOT yet present will be left
+ * out so Drizzle runs them normally.
  */
 async function baselineIfNeeded(client: Pool) {
   // Check if migration tracking table exists and has entries
@@ -66,7 +68,7 @@ async function baselineIfNeeded(client: Pool) {
     }
   }
 
-  // No migration history. Check if the DB already has our tables (was db:push'd).
+  // No migration history. Check if the DB already has our core tables (was db:push'd).
   const { rows: tableRows } = await client.query<{ count: string }>(`
     SELECT COUNT(*)::text AS count
     FROM information_schema.tables
@@ -76,7 +78,7 @@ async function baselineIfNeeded(client: Pool) {
   const dbAlreadyExists = parseInt(tableRows[0]?.count ?? "0") > 0;
 
   if (!dbAlreadyExists) {
-    // Fresh database — let migrate() run normally
+    // Fresh database — let migrate() run all SQL normally
     return;
   }
 
@@ -92,12 +94,20 @@ async function baselineIfNeeded(client: Pool) {
     )
   `);
 
-  // Read the journal and seed a record for every migration file
+  // For each migration, check whether its schema changes already exist in the DB.
+  // Only seed a record for migrations that are fully applied; leave the rest for
+  // migrate() to run.
   const journal = JSON.parse(
     fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8")
   ) as { entries: { idx: number; tag: string; when: number }[] };
 
   for (const entry of journal.entries) {
+    const alreadyApplied = await isMigrationApplied(client, entry.tag);
+    if (!alreadyApplied) {
+      console.log(`[migrate] Not yet applied, will run: ${entry.tag}`);
+      continue;
+    }
+
     const sqlPath = path.join(migrationsFolder, `${entry.tag}.sql`);
     const sql = fs.readFileSync(sqlPath, "utf8");
     const hash = crypto.createHash("sha256").update(sql).digest("hex");
@@ -109,7 +119,36 @@ async function baselineIfNeeded(client: Pool) {
     console.log(`[migrate] Baselined: ${entry.tag}`);
   }
 
-  console.log("[migrate] Baseline complete — future migrations will apply normally");
+  console.log("[migrate] Baseline complete");
+}
+
+/**
+ * Check whether a specific migration's schema changes already exist in the DB.
+ * Each migration tag maps to a sentinel check that uniquely identifies it.
+ */
+async function isMigrationApplied(client: Pool, tag: string): Promise<boolean> {
+  if (tag === "0000_glossy_magneto") {
+    // 0000 creates beenvoice_account — check it exists
+    const { rows } = await client.query<{ count: string }>(`
+      SELECT COUNT(*)::text AS count FROM information_schema.tables
+      WHERE table_schema = 'public' AND table_name = 'beenvoice_account'
+    `);
+    return parseInt(rows[0]?.count ?? "0") > 0;
+  }
+
+  if (tag === "0001_supreme_the_enforcers") {
+    // 0001 adds currency column to beenvoice_client — check it exists
+    const { rows } = await client.query<{ count: string }>(`
+      SELECT COUNT(*)::text AS count FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'beenvoice_client'
+        AND column_name = 'currency'
+    `);
+    return parseInt(rows[0]?.count ?? "0") > 0;
+  }
+
+  // Unknown migration — assume not applied so it runs
+  return false;
 }
 
 console.log("[migrate] Running migrations from", migrationsFolder);
