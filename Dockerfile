@@ -44,6 +44,7 @@ RUN bun install --frozen-lockfile --production --verbose
 COPY --from=builder /app/start.sh ./start.sh
 COPY --from=builder /app/next.config.js ./next.config.js
 COPY --from=builder /app/src ./src
+COPY --from=builder /app/drizzle ./drizzle
 COPY --from=builder /app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=builder /app/.env.example ./.env.example
 

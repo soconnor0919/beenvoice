@@ -86,7 +86,7 @@ export function RevenueChart({ data }: RevenueChartProps) {
   }
 
   return (
-    <div className="h-64 w-full">
+    <div className="h-48 w-full md:h-64">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={chartData}>
           <defs>

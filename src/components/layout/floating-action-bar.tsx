@@ -72,7 +72,7 @@ export function FloatingActionBar({
         )}
       >
         <Card className="hover-lift bg-card border-border border shadow-lg">
-          <CardContent className="flex items-center justify-between p-4">
+          <CardContent className="flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
             {/* Left content */}
             {leftContent && (
               <div className="text-card-foreground animate-fade-in flex flex-1 items-center gap-3">

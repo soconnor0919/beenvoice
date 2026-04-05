@@ -108,9 +108,8 @@ fi
 SKIP_DB_MIGRATION=${SKIP_DB_MIGRATION:-false}
 
 if [ "$SKIP_DB_MIGRATION" != "true" ]; then
-  echo "[start.sh] Applying database migrations (drizzle-kit push via bunx)"
-  # Use bunx so we don't need devDependencies inside the container
-  SKIP_ENV_VALIDATION=1 bunx -y drizzle-kit@0.30.6 push
+  echo "[start.sh] Applying database migrations"
+  SKIP_ENV_VALIDATION=1 bun src/server/db/migrate.ts
 else
   echo "[start.sh] Skipping DB migration due to SKIP_DB_MIGRATION=${SKIP_DB_MIGRATION}"
 fi
