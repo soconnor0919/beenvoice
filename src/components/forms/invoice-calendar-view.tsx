@@ -176,7 +176,7 @@ export function InvoiceCalendarView({
                             weekday: "w-[14.285%] flex-none text-muted-foreground font-normal text-[0.8rem] text-center pb-4",
 
                             week: "flex w-full mt-2",
-                            cell: "w-[14.285%] flex-none h-32 border-b p-0 relative focus-within:relative focus-within:z-20 text-center text-sm",
+                            cell: "w-[14.285%] flex-none h-20 sm:h-28 md:h-32 border-b p-0 relative focus-within:relative focus-within:z-20 text-center text-sm",
 
                             // Hide internal navigation & caption entirely
                             nav: "hidden",
@@ -228,7 +228,7 @@ export function InvoiceCalendarView({
                         }}
                     />
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 p-4 h-full w-full">
+                    <div className="flex gap-3 overflow-x-auto p-4 pb-6 w-full">
                         {weekDays.map((day) => {
                             const isSelected = date && isSameDay(day, date);
                             const isToday = isSameDay(day, new Date());
@@ -241,7 +241,7 @@ export function InvoiceCalendarView({
                                     type="button"
                                     onClick={() => handleSelectDate(day)}
                                     className={cn(
-                                        "flex flex-col h-full min-h-[400px] border rounded-3xl p-4 text-left transition-all hover:bg-accent/30 w-full",
+                                        "flex flex-col min-h-[260px] flex-shrink-0 w-[120px] sm:flex-1 sm:w-auto border rounded-3xl p-3 text-left transition-all hover:bg-accent/30",
                                         isSelected ? "ring-2 ring-primary ring-offset-2 bg-primary/5" : "bg-background/40",
                                         isToday && !isSelected ? "bg-accent/40" : ""
                                     )}
@@ -283,7 +283,7 @@ export function InvoiceCalendarView({
                 open={sheetOpen}
                 onOpenChange={handleCloseSheet}
             >
-                <SheetContent side="right" className="w-[400px] sm:w-[540px] flex flex-col gap-0 p-0 sm:max-w-[540px]">
+                <SheetContent side="right" className="w-full max-w-full sm:w-[400px] sm:max-w-[540px] flex flex-col gap-0 p-0">
                     <SheetHeader className="p-6 border-b">
                         <SheetTitle className="flex items-center gap-3 text-2xl flex-wrap">
                             <div className="bg-primary/10 p-2.5 rounded-full flex-shrink-0">
