@@ -3,18 +3,9 @@ import { eq, and, desc } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { expenses, clients, businesses, invoices } from "~/server/db/schema";
 import { TRPCError } from "@trpc/server";
+import { EXPENSE_CATEGORIES } from "~/lib/expense-categories";
 
-export const EXPENSE_CATEGORIES = [
-  "Travel",
-  "Meals & Entertainment",
-  "Software & Subscriptions",
-  "Hardware & Equipment",
-  "Office Supplies",
-  "Marketing",
-  "Professional Services",
-  "Utilities",
-  "Other",
-] as const;
+export { EXPENSE_CATEGORIES };
 
 const createExpenseSchema = z.object({
   date: z.date(),

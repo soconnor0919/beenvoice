@@ -29,7 +29,7 @@ import { NumberInput } from "~/components/ui/number-input";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, Receipt } from "lucide-react";
 import { formatCurrency, SUPPORTED_CURRENCIES } from "~/lib/currency";
-import { EXPENSE_CATEGORIES } from "~/server/api/routers/expenses";
+import { EXPENSE_CATEGORIES } from "~/lib/expense-categories";
 
 interface ExpenseFormData {
   date: Date;
