@@ -43,48 +43,16 @@ const pool = new Pool({
 const db = drizzle(pool);
 
 /**
- * Baseline: if the DB has existing tables but no migration history, seed the
- * __drizzle_migrations table for only the migrations already reflected in the
- * schema. Any migrations whose schema changes are NOT yet present will be left
- * out so Drizzle runs them normally.
+ * Verify and repair the migration tracking table:
+ * 1. If no tracking table exists and DB has tables → baseline from db:push
+ * 2. If tracking table exists → scan for any entries that are recorded as
+ *    applied but whose schema changes don't actually exist, and remove them
+ *    so migrate() will re-run those migrations.
  */
 async function baselineIfNeeded(client: Pool) {
-  // Check if migration tracking table exists and has entries
-  const { rows: migRows } = await client.query<{ count: string }>(`
-    SELECT COUNT(*)::text AS count
-    FROM information_schema.tables
-    WHERE table_schema = 'drizzle'
-      AND table_name = '__drizzle_migrations'
-  `);
-  const hasMigrationsTable = parseInt(migRows[0]?.count ?? "0") > 0;
+  const hasMigrationsTable = await tableExists(client, "drizzle", "__drizzle_migrations");
 
-  if (hasMigrationsTable) {
-    const { rows: entryRows } = await client.query<{ count: string }>(
-      `SELECT COUNT(*)::text AS count FROM drizzle.__drizzle_migrations`
-    );
-    if (parseInt(entryRows[0]?.count ?? "0") > 0) {
-      // Migration history exists — normal flow
-      return;
-    }
-  }
-
-  // No migration history. Check if the DB already has our core tables (was db:push'd).
-  const { rows: tableRows } = await client.query<{ count: string }>(`
-    SELECT COUNT(*)::text AS count
-    FROM information_schema.tables
-    WHERE table_schema = 'public'
-      AND table_name = 'beenvoice_account'
-  `);
-  const dbAlreadyExists = parseInt(tableRows[0]?.count ?? "0") > 0;
-
-  if (!dbAlreadyExists) {
-    // Fresh database — let migrate() run all SQL normally
-    return;
-  }
-
-  console.log("[migrate] Existing database detected without migration history — baselining...");
-
-  // Create the drizzle schema + migrations table if needed
+  // Always ensure the drizzle schema + table exist
   await client.query(`CREATE SCHEMA IF NOT EXISTS drizzle`);
   await client.query(`
     CREATE TABLE IF NOT EXISTS drizzle.__drizzle_migrations (
@@ -94,50 +62,96 @@ async function baselineIfNeeded(client: Pool) {
     )
   `);
 
-  // For each migration, check whether its schema changes already exist in the DB.
-  // Only seed a record for migrations that are fully applied; leave the rest for
-  // migrate() to run.
+  const { rows: entryRows } = await client.query<{ count: string }>(
+    `SELECT COUNT(*)::text AS count FROM drizzle.__drizzle_migrations`
+  );
+  const hasEntries = parseInt(entryRows[0]?.count ?? "0") > 0;
+
+  if (!hasMigrationsTable || !hasEntries) {
+    // No history at all — check if DB was previously set up via db:push
+    const dbAlreadyExists = await tableExists(client, "public", "beenvoice_account");
+    if (!dbAlreadyExists) {
+      return; // Fresh DB — let migrate() run everything normally
+    }
+
+    console.log("[migrate] Existing database detected without migration history — baselining...");
+    await seedMigrationHistory(client);
+    return;
+  }
+
+  // Migration history exists — validate that each recorded migration is
+  // actually reflected in the schema. Remove any bogus entries.
+  await removeBogusEntries(client);
+}
+
+async function seedMigrationHistory(client: Pool) {
   const journal = JSON.parse(
     fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8")
   ) as { entries: { idx: number; tag: string; when: number }[] };
 
   for (const entry of journal.entries) {
-    const alreadyApplied = await isMigrationApplied(client, entry.tag);
-    if (!alreadyApplied) {
-      console.log(`[migrate] Not yet applied, will run: ${entry.tag}`);
+    const applied = await isMigrationApplied(client, entry.tag);
+    if (!applied) {
+      console.log(`[migrate] Not yet in schema, will run: ${entry.tag}`);
       continue;
     }
-
-    const sqlPath = path.join(migrationsFolder, `${entry.tag}.sql`);
-    const sql = fs.readFileSync(sqlPath, "utf8");
+    const sql = fs.readFileSync(
+      path.join(migrationsFolder, `${entry.tag}.sql`), "utf8"
+    );
     const hash = crypto.createHash("sha256").update(sql).digest("hex");
-
     await client.query(
       `INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ($1, $2)`,
       [hash, entry.when]
     );
     console.log(`[migrate] Baselined: ${entry.tag}`);
   }
-
   console.log("[migrate] Baseline complete");
+}
+
+async function removeBogusEntries(client: Pool) {
+  // Get all recorded hashes
+  const { rows } = await client.query<{ id: number; hash: string }>(
+    `SELECT id, hash FROM drizzle.__drizzle_migrations ORDER BY id`
+  );
+
+  const journal = JSON.parse(
+    fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8")
+  ) as { entries: { idx: number; tag: string; when: number }[] };
+
+  for (const entry of journal.entries) {
+    const sql = fs.readFileSync(
+      path.join(migrationsFolder, `${entry.tag}.sql`), "utf8"
+    );
+    const expectedHash = crypto.createHash("sha256").update(sql).digest("hex");
+    const recorded = rows.find((r) => r.hash === expectedHash);
+    if (!recorded) continue; // Not recorded yet — migrate() will run it
+
+    // It's recorded — verify it's actually applied in the schema
+    const applied = await isMigrationApplied(client, entry.tag);
+    if (!applied) {
+      console.log(`[migrate] Removing bogus migration record for: ${entry.tag}`);
+      await client.query(`DELETE FROM drizzle.__drizzle_migrations WHERE id = $1`, [recorded.id]);
+    }
+  }
+}
+
+async function tableExists(client: Pool, schema: string, table: string): Promise<boolean> {
+  const { rows } = await client.query<{ count: string }>(`
+    SELECT COUNT(*)::text AS count FROM information_schema.tables
+    WHERE table_schema = $1 AND table_name = $2
+  `, [schema, table]);
+  return parseInt(rows[0]?.count ?? "0") > 0;
 }
 
 /**
  * Check whether a specific migration's schema changes already exist in the DB.
- * Each migration tag maps to a sentinel check that uniquely identifies it.
  */
 async function isMigrationApplied(client: Pool, tag: string): Promise<boolean> {
   if (tag === "0000_glossy_magneto") {
-    // 0000 creates beenvoice_account — check it exists
-    const { rows } = await client.query<{ count: string }>(`
-      SELECT COUNT(*)::text AS count FROM information_schema.tables
-      WHERE table_schema = 'public' AND table_name = 'beenvoice_account'
-    `);
-    return parseInt(rows[0]?.count ?? "0") > 0;
+    return tableExists(client, "public", "beenvoice_account");
   }
-
   if (tag === "0001_supreme_the_enforcers") {
-    // 0001 adds currency column to beenvoice_client — check it exists
+    // 0001 adds currency to beenvoice_client
     const { rows } = await client.query<{ count: string }>(`
       SELECT COUNT(*)::text AS count FROM information_schema.columns
       WHERE table_schema = 'public'
@@ -146,7 +160,6 @@ async function isMigrationApplied(client: Pool, tag: string): Promise<boolean> {
     `);
     return parseInt(rows[0]?.count ?? "0") > 0;
   }
-
   // Unknown migration — assume not applied so it runs
   return false;
 }
