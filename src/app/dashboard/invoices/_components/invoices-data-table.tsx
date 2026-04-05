@@ -134,13 +134,23 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
             <div className="bg-primary/10 hidden p-2 sm:flex">
               <FileText className="text-primary h-4 w-4" />
             </div>
-            <div className="max-w-[80px] min-w-0 sm:max-w-[200px] lg:max-w-[300px]">
+            <div className="min-w-0 flex-1">
               <p className="truncate font-medium">
                 {invoice.client?.name ?? "—"}
               </p>
               <p className="text-muted-foreground truncate text-xs sm:text-sm">
                 {invoice.invoiceNumber}
               </p>
+              {/* Show status + amount inline on mobile only */}
+              <div className="mt-1 flex items-center gap-2 sm:hidden">
+                <StatusBadge
+                  status={getStatusType(invoice)}
+                  className="text-xs"
+                />
+                <span className="text-foreground text-xs font-semibold">
+                  {formatCurrency(invoice.totalAmount)}
+                </span>
+              </div>
             </div>
           </div>
         );

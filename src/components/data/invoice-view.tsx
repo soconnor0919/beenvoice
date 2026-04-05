@@ -185,14 +185,14 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
           {/* Invoice Header Card */}
           <Card className="bg-card border-border border">
             <CardContent>
-              <div className="flex items-start justify-between">
-                <div className="space-y-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                <div className="min-w-0 flex-1 space-y-4">
                   <div className="flex items-center gap-3">
-                    <div className="bg-primary/10 p-2">
+                    <div className="bg-primary/10 flex-shrink-0 p-2">
                       <FileText className="text-primary h-6 w-6" />
                     </div>
-                    <div>
-                      <h2 className="text-foreground text-2xl font-bold">
+                    <div className="min-w-0">
+                      <h2 className="text-foreground truncate text-2xl font-bold">
                         {invoice.invoiceNumber}
                       </h2>
                       <p className="text-muted-foreground">
@@ -217,21 +217,23 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                   </div>
                 </div>
 
-                <div className="space-y-3 text-right">
-                  <StatusBadge
-                    status={invoice.status as StatusType}
-                    className="px-3 py-1 text-sm font-medium"
-                  >
-                    <StatusIcon className="mr-1 h-3 w-3" />
-                  </StatusBadge>
-                  <div className="text-primary text-3xl font-bold">
-                    {formatCurrency(invoice.totalAmount)}
+                <div className="flex flex-row items-center justify-between gap-3 sm:flex-col sm:items-end sm:text-right">
+                  <div>
+                    <StatusBadge
+                      status={invoice.status as StatusType}
+                      className="px-3 py-1 text-sm font-medium"
+                    >
+                      <StatusIcon className="mr-1 h-3 w-3" />
+                    </StatusBadge>
+                    <div className="text-primary mt-1 text-2xl font-bold sm:text-3xl">
+                      {formatCurrency(invoice.totalAmount)}
+                    </div>
                   </div>
                   <Button
                     onClick={handlePDFExport}
                     disabled={isExportingPDF}
                     variant="default"
-                    className="transform-none"
+                    className="transform-none flex-shrink-0"
                   >
                     {isExportingPDF ? (
                       <>
@@ -326,17 +328,18 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 {invoice.items?.map((item, index) => (
                   <div
                     key={item.id || index}
-                    className="bg-background flex items-center justify-between rounded-lg p-4"
+                    className="bg-background flex flex-col gap-1 rounded-lg p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="text-muted-foreground text-sm">
-                        {formatDate(item.date)}
-                      </div>
-                      <div className="text-foreground font-medium">
+                    <div className="min-w-0 flex-1">
+                      <div className="text-foreground font-medium break-words">
                         {item.description}
                       </div>
+                      <div className="text-muted-foreground mt-0.5 text-sm">
+                        {formatDate(item.date)} &middot; {item.hours}h @{" "}
+                        {formatCurrency(item.rate)}/hr
+                      </div>
                     </div>
-                    <div className="text-foreground text-right font-medium">
+                    <div className="text-foreground flex-shrink-0 font-medium sm:text-right">
                       {formatCurrency(item.amount)}
                     </div>
                   </div>

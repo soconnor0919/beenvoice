@@ -40,13 +40,32 @@ const columns: ColumnDef<InvoiceItem>[] = [
     accessorKey: "date",
     header: "Date",
     cell: ({ row }) => formatDate(row.getValue("date")),
+    meta: {
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
+    },
   },
   {
     accessorKey: "description",
     header: "Description",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("description")}</div>
-    ),
+    cell: ({ row }) => {
+      const item = row.original;
+      return (
+        <>
+          {/* Desktop: plain description */}
+          <div className="hidden font-medium sm:block">
+            {item.description}
+          </div>
+          {/* Mobile: description + date + hours @ rate stacked */}
+          <div className="sm:hidden">
+            <p className="font-medium">{item.description}</p>
+            <p className="text-muted-foreground mt-0.5 text-xs">
+              {formatDate(item.date)} &middot; {item.hours}h @ {formatCurrency(item.rate)}/hr
+            </p>
+          </div>
+        </>
+      );
+    },
   },
   {
     accessorKey: "hours",
@@ -54,6 +73,10 @@ const columns: ColumnDef<InvoiceItem>[] = [
     cell: ({ row }) => (
       <div className="text-right">{row.getValue("hours")}</div>
     ),
+    meta: {
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
+    },
   },
   {
     accessorKey: "rate",
@@ -61,6 +84,10 @@ const columns: ColumnDef<InvoiceItem>[] = [
     cell: ({ row }) => (
       <div className="text-right">{formatCurrency(row.getValue("rate"))}</div>
     ),
+    meta: {
+      headerClassName: "hidden sm:table-cell",
+      cellClassName: "hidden sm:table-cell",
+    },
   },
   {
     accessorKey: "amount",
