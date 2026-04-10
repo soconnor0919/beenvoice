@@ -18,6 +18,7 @@ const invoiceItemSchema = z.object({
 
 const createInvoiceSchema = z.object({
   invoiceNumber: z.string().min(1, "Invoice number is required"),
+  invoicePrefix: z.string().optional().default("#"),
   businessId: z
     .string()
     .min(1, "Business is required")
@@ -416,11 +417,17 @@ export const invoicesRouter = createTRPCRouter({
         });
 
         if (!invoice) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Invoice not found",
+          });
         }
 
         if (invoice.createdById !== ctx.session.user.id) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "You don't have permission to update this invoice" });
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "You don't have permission to update this invoice",
+          });
         }
 
         await ctx.db
@@ -428,18 +435,27 @@ export const invoicesRouter = createTRPCRouter({
           .set({ status: input.status, updatedAt: new Date() })
           .where(eq(invoices.id, input.id));
 
-        return { success: true, message: `Invoice status updated to ${input.status}` };
+        return {
+          success: true,
+          message: `Invoice status updated to ${input.status}`,
+        };
       } catch (error) {
         if (error instanceof TRPCError) throw error;
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to update invoice status", cause: error });
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to update invoice status",
+          cause: error,
+        });
       }
     }),
 
   bulkUpdateStatus: protectedProcedure
-    .input(z.object({
-      ids: z.array(z.string()).min(1),
-      status: z.enum(["draft", "sent", "paid"]),
-    }))
+    .input(
+      z.object({
+        ids: z.array(z.string()).min(1),
+        status: z.enum(["draft", "sent", "paid"]),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       // Only update invoices owned by this user
       const owned = await ctx.db.query.invoices.findMany({
@@ -452,7 +468,10 @@ export const invoicesRouter = createTRPCRouter({
         .map((inv) => inv.id);
 
       if (ownedIds.length === 0) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "No matching invoices found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No matching invoices found",
+        });
       }
 
       await ctx.db
@@ -476,7 +495,10 @@ export const invoicesRouter = createTRPCRouter({
         .map((inv) => inv.id);
 
       if (ownedIds.length === 0) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "No matching invoices found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No matching invoices found",
+        });
       }
 
       await ctx.db.delete(invoices).where(inArray(invoices.id, ownedIds));

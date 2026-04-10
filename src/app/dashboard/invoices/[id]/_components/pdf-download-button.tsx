@@ -39,7 +39,23 @@ export function PDFDownloadButton({
         throw new Error("Invoice not found");
       }
 
-      await generateInvoicePDF(invoiceData);
+      // Map invoice to PDF format with currency support
+      const pdfData = {
+        invoiceNumber: invoiceData.invoiceNumber,
+        invoicePrefix: invoiceData.invoicePrefix,
+        issueDate: new Date(invoiceData.issueDate),
+        dueDate: new Date(invoiceData.dueDate),
+        status: invoiceData.status,
+        totalAmount: invoiceData.totalAmount,
+        taxRate: invoiceData.taxRate,
+        currency: invoiceData.currency ?? "USD",
+        notes: invoiceData.notes,
+        business: invoiceData.business,
+        client: invoiceData.client,
+        items: invoiceData.items,
+      };
+
+      await generateInvoicePDF(pdfData);
       toast.success("PDF downloaded successfully");
     } catch (error) {
       console.error("PDF generation error:", error);

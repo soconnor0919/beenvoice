@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { DatePicker } from "~/components/ui/date-picker";
+import { Input } from "~/components/ui/input";
 import { NumberInput } from "~/components/ui/number-input";
 import { PageHeader } from "~/components/layout/page-header";
 import { InvoiceLineItems } from "./invoice-line-items";
@@ -80,6 +81,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   // State
   const [formData, setFormData] = useState<InvoiceFormData>({
     invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
+    invoicePrefix: "#",
     businessId: "",
     clientId: "",
     issueDate: new Date(),
@@ -150,6 +152,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           ) || [];
       setFormData({
         invoiceNumber: existingInvoice.invoiceNumber,
+        invoicePrefix: existingInvoice.invoicePrefix ?? "#",
         businessId: existingInvoice.businessId ?? "",
         clientId: existingInvoice.clientId,
         issueDate: new Date(existingInvoice.issueDate),
@@ -317,6 +320,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     try {
       const payload = {
         invoiceNumber: formData.invoiceNumber,
+        invoicePrefix: formData.invoicePrefix,
         businessId: formData.businessId || "",
         clientId: formData.clientId,
         issueDate: formData.issueDate,
@@ -516,6 +520,19 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                       onDateChange={(d) =>
                         updateField("dueDate", d ?? new Date())
                       }
+                      className="w-full"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+                  <div className="space-y-2">
+                    <Label>Prefix</Label>
+                    <Input
+                      value={formData.invoicePrefix}
+                      onChange={(e) =>
+                        updateField("invoicePrefix", e.target.value)
+                      }
+                      placeholder="#"
                       className="w-full"
                     />
                   </div>

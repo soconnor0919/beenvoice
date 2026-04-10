@@ -1,7 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import { index, pgTableCreator } from "drizzle-orm/pg-core";
 
-
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
  * database instance for multiple projects.
@@ -22,7 +21,11 @@ export const users = createTable("user", (d) => ({
   emailVerified: d.boolean().default(false).notNull(),
   image: d.varchar({ length: 255 }),
   createdAt: d.timestamp().notNull().defaultNow(),
-  updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+  updatedAt: d
+    .timestamp()
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
   password: d.varchar({ length: 255 }), // Matched DB: varchar(255)
   resetToken: d.varchar({ length: 255 }), // Matched DB: varchar(255)
   resetTokenExpiry: d.timestamp(),
@@ -47,7 +50,11 @@ export const usersRelations = relations(users, ({ many }) => ({
 export const accounts = createTable(
   "account",
   (d) => ({
-    id: d.text().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()), // Matched DB: text
+    id: d
+      .text()
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()), // Matched DB: text
     userId: d
       .varchar({ length: 255 })
       .notNull()
@@ -62,11 +69,13 @@ export const accounts = createTable(
     idToken: d.text(),
     password: d.text(), // Matched DB: text
     createdAt: d.timestamp().notNull().defaultNow(),
-    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: d
+      .timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
-  (t) => [
-    index("account_userId_idx").on(t.userId),
-  ],
+  (t) => [index("account_userId_idx").on(t.userId)],
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -76,7 +85,11 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 export const sessions = createTable(
   "session",
   (d) => ({
-    id: d.text().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()), // Matched DB: text
+    id: d
+      .text()
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()), // Matched DB: text
     userId: d
       .varchar({ length: 255 })
       .notNull()
@@ -86,7 +99,11 @@ export const sessions = createTable(
     ipAddress: d.text(), // Matched DB: text
     userAgent: d.text(), // Matched DB: text
     createdAt: d.timestamp().notNull().defaultNow(),
-    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: d
+      .timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [index("session_userId_idx").on(t.userId)],
 );
@@ -98,12 +115,20 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const verificationTokens = createTable(
   "verification_token",
   (d) => ({
-    id: d.text().notNull().primaryKey().$defaultFn(() => crypto.randomUUID()), // Matched DB: text
+    id: d
+      .text()
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()), // Matched DB: text
     identifier: d.varchar({ length: 255 }).notNull(),
     value: d.varchar({ length: 255 }).notNull(),
     expiresAt: d.timestamp().notNull(),
     createdAt: d.timestamp().notNull().defaultNow(),
-    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: d
+      .timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [index("verification_token_identifier_idx").on(t.identifier)],
 );
@@ -111,14 +136,25 @@ export const verificationTokens = createTable(
 export const ssoProviders = createTable(
   "sso_provider",
   (d) => ({
-    id: d.varchar({ length: 255 }).notNull().primaryKey().$defaultFn(() => crypto.randomUUID()),
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
     providerId: d.varchar({ length: 255 }).notNull().unique(),
-    userId: d.varchar({ length: 255 }).notNull().references(() => users.id),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
     redirectURI: d.varchar({ length: 255 }).notNull().default(""), // Added detailed fields
     oidcConfig: d.text(),
     samlConfig: d.text(),
     createdAt: d.timestamp().notNull().defaultNow(),
-    updatedAt: d.timestamp().notNull().defaultNow().$onUpdate(() => new Date()),
+    updatedAt: d
+      .timestamp()
+      .notNull()
+      .defaultNow()
+      .$onUpdate(() => new Date()),
   }),
   (t) => [index("sso_provider_user_id_idx").on(t.userId)],
 );
@@ -230,6 +266,7 @@ export const invoices = createTable(
       .primaryKey()
       .$defaultFn(() => crypto.randomUUID()),
     invoiceNumber: d.varchar({ length: 100 }).notNull(),
+    invoicePrefix: d.varchar({ length: 20 }).default("#"),
     businessId: d.varchar({ length: 255 }).references(() => businesses.id),
     clientId: d
       .varchar({ length: 255 })
@@ -411,4 +448,3 @@ export const invoiceTemplatesRelations = relations(
     }),
   }),
 );
-

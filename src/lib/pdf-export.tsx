@@ -5,10 +5,25 @@ import {
   View,
   Image,
   StyleSheet,
+  Font,
   pdf,
 } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import React from "react";
+
+Font.register({
+  family: "Frutiger",
+  fonts: [
+    {
+      src: "/fonts/frutiger/Frutiger.ttf",
+      fontWeight: "normal",
+    },
+    {
+      src: "/fonts/frutiger/Frutiger_bold.ttf",
+      fontWeight: "bold",
+    },
+  ],
+});
 
 // Fallback download function for better browser compatibility
 function downloadBlob(blob: Blob, filename: string): void {
@@ -56,11 +71,13 @@ function downloadBlob(blob: Blob, filename: string): void {
 
 interface InvoiceData {
   invoiceNumber: string;
+  invoicePrefix?: string | null;
   issueDate: Date;
   dueDate: Date;
   status: string;
   totalAmount: number;
   taxRate: number;
+  currency?: string | null;
   notes?: string | null;
   business?: {
     name: string;
@@ -100,7 +117,7 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     fontSize: 10,
     paddingTop: 40,
     paddingBottom: 80,
@@ -127,7 +144,7 @@ const styles = StyleSheet.create({
   },
 
   businessName: {
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     fontSize: 18,
     color: "#0f0f0f",
     marginBottom: 4,
@@ -135,7 +152,7 @@ const styles = StyleSheet.create({
 
   businessInfo: {
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
     lineHeight: 1.4,
     marginBottom: 3,
@@ -143,7 +160,7 @@ const styles = StyleSheet.create({
 
   businessAddress: {
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
     lineHeight: 1.4,
     marginTop: 4,
@@ -156,14 +173,14 @@ const styles = StyleSheet.create({
 
   invoiceTitle: {
     fontSize: 28,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
     marginBottom: 8,
   },
 
   invoiceNumber: {
     fontSize: 14,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#374151",
     marginBottom: 4,
   },
@@ -172,7 +189,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     textAlign: "center",
   },
 
@@ -200,13 +217,13 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 12,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
     marginBottom: 12,
   },
 
   clientName: {
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     fontSize: 12,
     color: "#0f0f0f",
     marginBottom: 2,
@@ -214,7 +231,7 @@ const styles = StyleSheet.create({
 
   clientInfo: {
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
     lineHeight: 1.4,
     marginBottom: 2,
@@ -222,7 +239,7 @@ const styles = StyleSheet.create({
 
   clientAddress: {
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
     lineHeight: 1.4,
     marginTop: 4,
@@ -236,14 +253,14 @@ const styles = StyleSheet.create({
 
   detailLabel: {
     fontSize: 11,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
     flex: 1,
   },
 
   detailValue: {
     fontSize: 10,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
     flex: 1,
     textAlign: "right",
@@ -259,21 +276,21 @@ const styles = StyleSheet.create({
 
   notesTitle: {
     fontSize: 11,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
     marginBottom: 6,
   },
 
   notesContent: {
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#374151",
     lineHeight: 1.4,
   },
 
   businessContact: {
     fontSize: 9,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
     lineHeight: 1.4,
   },
@@ -297,7 +314,7 @@ const styles = StyleSheet.create({
 
   abridgedBusinessName: {
     fontSize: 12,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
   },
 
@@ -309,13 +326,13 @@ const styles = StyleSheet.create({
 
   abridgedInvoiceTitle: {
     fontSize: 14,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
   },
 
   abridgedInvoiceNumber: {
     fontSize: 12,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#374151",
   },
 
@@ -335,7 +352,7 @@ const styles = StyleSheet.create({
 
   tableHeaderCell: {
     fontSize: 10,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#374151",
     paddingHorizontal: 4,
   },
@@ -380,7 +397,7 @@ const styles = StyleSheet.create({
     color: "#0f0f0f",
     paddingHorizontal: 4,
     paddingVertical: 2,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
   },
 
   tableCellDate: {
@@ -396,7 +413,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     textAlign: "left",
     flexWrap: "wrap",
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
   },
 
   tableCellHours: {
@@ -454,7 +471,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 11,
     color: "#6b7280",
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
   },
 
   totalAmount: {
@@ -472,7 +489,7 @@ const styles = StyleSheet.create({
 
   finalTotalLabel: {
     fontSize: 12,
-    fontFamily: "Helvetica-Bold",
+    fontFamily: "Frutiger-Bold",
     color: "#0f0f0f",
   },
 
@@ -484,7 +501,7 @@ const styles = StyleSheet.create({
 
   itemCount: {
     fontSize: 9,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#9ca3af",
     textAlign: "center",
     marginTop: 6,
@@ -511,16 +528,16 @@ const styles = StyleSheet.create({
 
   pageNumber: {
     fontSize: 10,
-    fontFamily: "Helvetica",
+    fontFamily: "Frutiger",
     color: "#6b7280",
   },
 });
 
 // Helper functions
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount: number, currency = "USD") => {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency,
   }).format(amount);
 };
 
@@ -574,7 +591,7 @@ function estimateTextHeight(
 ): number {
   if (!text) return fontSize * lineHeight;
 
-  // Rough character width estimation for Helvetica at given font size
+  // Rough character width estimation for Frutiger at given font size
   const avgCharWidth = fontSize * 0.6;
   const maxCharsPerLine = Math.floor(maxWidth / avgCharWidth);
 
@@ -807,7 +824,10 @@ const DenseHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
 
       <View style={styles.invoiceSection}>
         <Text style={styles.invoiceTitle}>INVOICE</Text>
-        <Text style={styles.invoiceNumber}>#{invoice.invoiceNumber}</Text>
+        <Text style={styles.invoiceNumber}>
+          {invoice.invoicePrefix ?? "#"}
+          {invoice.invoiceNumber}
+        </Text>
         <View style={getStatusStyle(invoice.status)}>
           <Text>{getStatusLabel(invoice.status)}</Text>
         </View>
@@ -873,7 +893,10 @@ const AbridgedHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
     </Text>
     <View style={styles.abridgedInvoiceInfo}>
       <Text style={styles.abridgedInvoiceTitle}>INVOICE</Text>
-      <Text style={styles.abridgedInvoiceNumber}>#{invoice.invoiceNumber}</Text>
+      <Text style={styles.abridgedInvoiceNumber}>
+        {invoice.invoicePrefix ?? "#"}
+        {invoice.invoiceNumber}
+      </Text>
     </View>
   </View>
 );
@@ -922,7 +945,7 @@ const Footer: React.FC = () => (
       <Text
         style={{
           fontSize: 9,
-          fontFamily: "Helvetica",
+          fontFamily: "Frutiger",
           color: "#6b7280",
           marginLeft: 8,
         }}
@@ -944,8 +967,10 @@ const TotalsSection: React.FC<{
   invoice: InvoiceData;
   items: Array<NonNullable<InvoiceData["items"]>[0]>;
 }> = ({ invoice, items }) => {
+  const currency = invoice.currency ?? "USD";
   const subtotal = items.reduce((sum, item) => sum + (item?.amount ?? 0), 0);
   const taxAmount = (subtotal * invoice.taxRate) / 100;
+  const total = subtotal + taxAmount;
 
   return (
     <View style={styles.totalsContainer}>
@@ -953,7 +978,7 @@ const TotalsSection: React.FC<{
         <Text
           style={{
             fontSize: 11,
-            fontFamily: "Helvetica-Bold",
+            fontFamily: "Frutiger-Bold",
             color: "#0f0f0f",
             textAlign: "center",
             marginBottom: 8,
@@ -965,20 +990,24 @@ const TotalsSection: React.FC<{
 
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>Subtotal:</Text>
-          <Text style={styles.totalAmount}>{formatCurrency(subtotal)}</Text>
+          <Text style={styles.totalAmount}>
+            {formatCurrency(subtotal, currency)}
+          </Text>
         </View>
 
         {invoice.taxRate > 0 && (
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%):</Text>
-            <Text style={styles.totalAmount}>{formatCurrency(taxAmount)}</Text>
+            <Text style={styles.totalAmount}>
+              {formatCurrency(taxAmount, currency)}
+            </Text>
           </View>
         )}
 
         <View style={styles.finalTotalRow}>
           <Text style={styles.finalTotalLabel}>TOTAL:</Text>
           <Text style={styles.finalTotalAmount}>
-            {formatCurrency(invoice.totalAmount)}
+            {formatCurrency(total, currency)}
           </Text>
         </View>
 
@@ -994,6 +1023,7 @@ const TotalsSection: React.FC<{
 const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
   const items = invoice.items?.filter(Boolean) ?? [];
   const paginatedItems = paginateItems(items, Boolean(invoice.notes));
+  const currency = invoice.currency ?? "USD";
 
   return (
     <Document>
@@ -1040,12 +1070,12 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
                           {item.hours}
                         </Text>
                         <Text style={[styles.tableCell, styles.tableCellRate]}>
-                          {formatCurrency(item.rate)}
+                          {formatCurrency(item.rate, currency)}
                         </Text>
                         <Text
                           style={[styles.tableCell, styles.tableCellAmount]}
                         >
-                          {formatCurrency(item.amount)}
+                          {formatCurrency(item.amount, currency)}
                         </Text>
                       </View>
                     ),
