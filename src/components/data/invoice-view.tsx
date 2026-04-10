@@ -108,10 +108,10 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
     }
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number, currency = "USD") => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency,
     }).format(amount);
   };
 
@@ -233,7 +233,7 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                     onClick={handlePDFExport}
                     disabled={isExportingPDF}
                     variant="default"
-                    className="transform-none flex-shrink-0"
+                    className="flex-shrink-0 transform-none"
                   >
                     {isExportingPDF ? (
                       <>
@@ -432,7 +432,10 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                       Tax ({((invoice.taxRate ?? 0) * 100).toFixed(1)}%)
                     </span>
                     <span className="text-foreground font-medium">
-                      {formatCurrency(invoice.totalAmount * (invoice.taxRate ?? 0), invoice.currency)}
+                      {formatCurrency(
+                        invoice.totalAmount * (invoice.taxRate ?? 0),
+                        invoice.currency,
+                      )}
                     </span>
                   </div>
                 )}
@@ -440,7 +443,10 @@ export function InvoiceView({ invoiceId }: InvoiceViewProps) {
                 <div className="flex justify-between text-lg font-bold">
                   <span className="text-foreground">Total</span>
                   <span className="text-primary">
-                    {formatCurrency(invoice.totalAmount * (1 + (invoice.taxRate ?? 0)), invoice.currency)}
+                    {formatCurrency(
+                      invoice.totalAmount * (1 + (invoice.taxRate ?? 0)),
+                      invoice.currency,
+                    )}
                   </span>
                 </div>
               </div>

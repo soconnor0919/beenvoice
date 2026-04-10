@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  ChevronDown,
-  ChevronUp,
-  Plus,
-  Trash2,
-} from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "~/components/ui/button";
@@ -33,9 +28,6 @@ interface InvoiceLineItemsProps {
     field: string,
     value: string | number | Date,
   ) => void;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  onReorderItems: (items: InvoiceItem[]) => void;
   className?: string;
 }
 
@@ -49,61 +41,18 @@ interface LineItemRowProps {
     field: string,
     value: string | number | Date,
   ) => void;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  isFirst: boolean;
-  isLast: boolean;
 }
 
 const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
-  (
-    {
-      item,
-      index,
-      canRemove,
-      onRemove,
-      onUpdate,
-      onMoveUp,
-      onMoveDown,
-      isFirst,
-      isLast,
-    },
-    ref,
-  ) => {
+  ({ item, index, canRemove, onRemove, onUpdate }, ref) => {
     return (
       <div
         ref={ref}
         className={cn(
-          "bg-card border hidden rounded-xl p-4 md:block transition-all shadow-sm group hover:border-primary/20",
+          "bg-card group hover:border-primary/20 hidden rounded-xl border p-4 shadow-sm transition-all md:block",
         )}
       >
         <div className="flex items-center gap-3">
-          {/* Arrow Controls */}
-          <div className="flex flex-col gap-0.5">
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onMoveUp(index)}
-              className="h-6 w-6 p-0"
-              disabled={isFirst}
-              aria-label="Move up"
-            >
-              <ChevronUp className="h-3 w-3" />
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => onMoveDown(index)}
-              className="h-6 w-6 p-0"
-              disabled={isLast}
-              aria-label="Move down"
-            >
-              <ChevronDown className="h-3 w-3" />
-            </Button>
-          </div>
-
           {/* Main Content */}
           <div className="flex-1 space-y-3">
             {/* Description */}
@@ -136,7 +85,7 @@ const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
                 min={0}
                 step={0.25}
                 width="auto"
-                className="h-9 flex-1 min-w-[100px] font-mono"
+                className="h-9 min-w-[100px] flex-1 font-mono"
                 suffix="h"
               />
 
@@ -148,7 +97,7 @@ const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
                 step={1}
                 prefix="$"
                 width="auto"
-                className="h-9 flex-1 min-w-[100px] font-mono"
+                className="h-9 min-w-[100px] flex-1 font-mono"
               />
 
               {/* Amount */}
@@ -185,10 +134,6 @@ function MobileLineItem({
   canRemove,
   onRemove,
   onUpdate,
-  onMoveUp,
-  onMoveDown,
-  isFirst,
-  isLast,
 }: LineItemRowProps) {
   return (
     <motion.div
@@ -257,28 +202,6 @@ function MobileLineItem({
             type="button"
             variant="ghost"
             size="sm"
-            onClick={() => onMoveUp(index)}
-            className="h-8 w-8 p-0"
-            disabled={isFirst}
-            aria-label="Move up"
-          >
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => onMoveDown(index)}
-            className="h-8 w-8 p-0"
-            disabled={isLast}
-            aria-label="Move down"
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
             onClick={() => onRemove(index)}
             className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
             disabled={!canRemove}
@@ -310,8 +233,6 @@ export function InvoiceLineItems({
   onAddItem,
   onRemoveItem,
   onUpdateItem,
-  onMoveUp,
-  onMoveDown,
   className,
 }: InvoiceLineItemsProps) {
   const canRemoveItems = items.length > 1;
@@ -337,10 +258,6 @@ export function InvoiceLineItems({
                   canRemove={canRemoveItems}
                   onRemove={onRemoveItem}
                   onUpdate={onUpdateItem}
-                  onMoveUp={onMoveUp}
-                  onMoveDown={onMoveDown}
-                  isFirst={index === 0}
-                  isLast={index === items.length - 1}
                 />
               </motion.div>
 
@@ -351,10 +268,6 @@ export function InvoiceLineItems({
                 canRemove={canRemoveItems}
                 onRemove={onRemoveItem}
                 onUpdate={onUpdateItem}
-                onMoveUp={onMoveUp}
-                onMoveDown={onMoveDown}
-                isFirst={index === 0}
-                isLast={index === items.length - 1}
               />
             </React.Fragment>
           ))}
@@ -368,7 +281,7 @@ export function InvoiceLineItems({
             type="button"
             variant="outline"
             onClick={onAddItem}
-            className="w-full border-dashed border-border py-8 text-muted-foreground hover:text-primary hover:bg-accent/50 hover:border-primary/50 transition-all"
+            className="border-border text-muted-foreground hover:text-primary hover:bg-accent/50 hover:border-primary/50 w-full border-dashed py-8 transition-all"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Line Item

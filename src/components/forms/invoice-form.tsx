@@ -21,7 +21,15 @@ import { InvoiceLineItems } from "./invoice-line-items";
 import { InvoiceCalendarView } from "./invoice-calendar-view";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
-import { Save, Calendar as CalendarIcon, Tag, User, List, FileText, ChevronDown } from "lucide-react";
+import {
+  Save,
+  Calendar as CalendarIcon,
+  Tag,
+  User,
+  List,
+  FileText,
+  ChevronDown,
+} from "lucide-react";
 import { SUPPORTED_CURRENCIES } from "~/lib/currency";
 import { Textarea } from "~/components/ui/textarea";
 import {
@@ -101,7 +109,9 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   // Queries (Same as before)
   const { data: clients, isLoading: loadingClients } =
     api.clients.getAll.useQuery();
-  const { data: noteTemplates } = api.invoiceTemplates.getByType.useQuery({ type: "notes" });
+  const { data: noteTemplates } = api.invoiceTemplates.getByType.useQuery({
+    type: "notes",
+  });
   const { data: businesses, isLoading: loadingBusinesses } =
     api.businesses.getAll.useQuery();
   const { data: existingInvoice, isLoading: loadingInvoice } =
@@ -231,32 +241,6 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
       }),
     }));
   };
-  const moveItemUp = (idx: number) => {
-    if (idx === 0) return;
-    setFormData((prev) => {
-      const newItems = [...prev.items];
-      if (newItems[idx] && newItems[idx - 1]) {
-        const temp = newItems[idx - 1]!;
-        newItems[idx - 1] = newItems[idx];
-        newItems[idx] = temp;
-      }
-      return { ...prev, items: newItems };
-    });
-  };
-  const moveItemDown = (idx: number) => {
-    if (idx === formData.items.length - 1) return;
-    setFormData((prev) => {
-      const newItems = [...prev.items];
-      if (newItems[idx] && newItems[idx + 1]) {
-        const temp = newItems[idx + 1]!;
-        newItems[idx + 1] = newItems[idx];
-        newItems[idx] = temp;
-      }
-      return { ...prev, items: newItems };
-    });
-  };
-  const reorderItems = (newItems: InvoiceItem[]) =>
-    setFormData((prev) => ({ ...prev, items: newItems }));
 
   const createInvoice = api.invoices.create.useMutation({
     onSuccess: (inv) => {
@@ -453,13 +437,24 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                           ? selectedClient.defaultHourlyRate
                           : null;
                       const businessRate =
-                        currentBusiness && "defaultHourlyRate" in currentBusiness
+                        currentBusiness &&
+                        "defaultHourlyRate" in currentBusiness
                           ? currentBusiness.defaultHourlyRate
                           : null;
-                      updateField("defaultHourlyRate", (clientRate ?? businessRate ?? 0) as number);
+                      updateField(
+                        "defaultHourlyRate",
+                        (clientRate ?? businessRate ?? 0) as number,
+                      );
                       // Auto-fill currency from client
-                      if (selectedClient && "currency" in selectedClient && selectedClient.currency) {
-                        updateField("currency", selectedClient.currency as string);
+                      if (
+                        selectedClient &&
+                        "currency" in selectedClient &&
+                        selectedClient.currency
+                      ) {
+                        updateField(
+                          "currency",
+                          selectedClient.currency as string,
+                        );
                       }
                     }}
                   >
@@ -599,7 +594,11 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   {noteTemplates && noteTemplates.length > 0 && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-7 gap-1 text-xs">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-7 gap-1 text-xs"
+                        >
                           Use template <ChevronDown className="h-3 w-3" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -674,9 +673,6 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   onAddItem={addItem}
                   onRemoveItem={removeItem}
                   onUpdateItem={updateItem}
-                  onMoveUp={moveItemUp}
-                  onMoveDown={moveItemDown}
-                  onReorderItems={reorderItems}
                 />
               </CardContent>
             </Card>
