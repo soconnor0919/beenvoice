@@ -25,6 +25,11 @@ Font.register({
   ],
 });
 
+Font.register({
+  family: "Frutiger-Bold",
+  src: "/fonts/frutiger/Frutiger_bold.ttf",
+});
+
 // Fallback download function for better browser compatibility
 function downloadBlob(blob: Blob, filename: string): void {
   try {
