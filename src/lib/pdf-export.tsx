@@ -587,204 +587,84 @@ const getStatusStyle = (status: string) => {
   }
 };
 
-// Helper function to estimate text height based on content and width
-function estimateTextHeight(
-  text: string,
-  maxWidth: number,
-  fontSize = 10,
-  lineHeight = 1.3,
-): number {
-  if (!text) return fontSize * lineHeight;
-
-  // Rough character width estimation for Frutiger at given font size
-  const avgCharWidth = fontSize * 0.6;
-  const maxCharsPerLine = Math.floor(maxWidth / avgCharWidth);
-
-  if (maxCharsPerLine <= 0) return fontSize * lineHeight;
-
-  const lines = Math.ceil(text.length / maxCharsPerLine);
-  return lines * fontSize * lineHeight;
+function pageContentBudget(isFirstPage: boolean, hasNotes: boolean): number {
+  // 792pt page - 40pt paddingTop - 80pt paddingBottom = 672pt usable
+  let h = 672;
+  h -= isFirstPage ? 285 : 50; // dense vs abridged header
+  h -= hasNotes ? 185 : 130;   // totals box (+ notes section if present)
+  h -= 28;                      // table header row
+  return h;
 }
 
-// Calculate estimated height for a table row based on actual content
-function calculateRowHeight(
-  item: NonNullable<InvoiceData["items"]>[0],
+function estimateRowHeight(
+  item: NonNullable<NonNullable<InvoiceData["items"]>[0]>,
+  showRate: boolean,
 ): number {
-  if (!item) return 18; // fallback
-
-  const basePadding = 8; // Row padding
-  const fontSize = 10;
-  const lineHeight = 1.3;
-
-  // Description column is 40% of table width
-  // Table width is roughly 512 points (letter width - margins)
-  const descriptionWidth = 512 * 0.4;
-
-  const descriptionHeight = estimateTextHeight(
-    item.description,
-    descriptionWidth,
-    fontSize,
-    lineHeight,
-  );
-
-  // Minimum row height for other columns
-  const minRowHeight = fontSize * lineHeight;
-
-  // Row height is the maximum of description height and minimum height, plus padding
-  // Ensure minimum row height of 24 points for readability
-  return Math.max(descriptionHeight, minRowHeight, 24) + basePadding;
+  // 532pt usable width (612 - 80pt horizontal padding); description takes 40% or 48%
+  const descColWidth = 532 * (showRate ? 0.4 : 0.48);
+  // Frutiger at 10pt: 0.45em gives ~47 chars/line, matching real wrap behaviour
+  const charsPerLine = Math.max(1, Math.floor(descColWidth / (10 * 0.45)));
+  const lines = Math.ceil((item.description.length || 1) / charsPerLine);
+  // row paddingVertical:6 (×2=12) + cell paddingVertical:4 (×2=8) = 20pt overhead,
+  // but react-pdf measures the line box at slightly under full lineHeight, so 16pt in practice
+  return lines * 10 * 1.4 + 16;
 }
 
-// Dynamic pagination calculation based on actual content
-function calculateItemsForPage(
-  items: NonNullable<InvoiceData["items"]>,
-  startIndex: number,
-  isFirstPage: boolean,
-  hasNotes: boolean,
-): number {
-  // Estimate available space in points (1 point = 1/72 inch)
-  const pageHeight = 792; // Letter size height in points
-  const margins = 80; // Top + bottom margins
-  const footerSpace = 60; // Footer space
-
-  let availableHeight = pageHeight - margins - footerSpace;
-
-  if (isFirstPage) {
-    // Dense header takes significant space
-    availableHeight -= 300; // Dense header space
-  } else {
-    // Abridged header is smaller
-    availableHeight -= 60; // Abridged header space
-  }
-
-  if (hasNotes) {
-    // Last page needs space for totals and notes
-    availableHeight -= 200; // Totals + notes space (much more conservative)
-  } else {
-    // Regular page just needs totals space
-    availableHeight -= 150; // Totals space only (much more conservative)
-  }
-
-  // Table header takes space
-  availableHeight -= 30; // Table header
-
-  // Calculate how many items can fit based on actual row heights
-  let usedHeight = 0;
-  let itemCount = 0;
-
-  for (let i = startIndex; i < items.length; i++) {
-    const item = items[i];
-    if (!item) continue;
-
-    const rowHeight = calculateRowHeight(item);
-
-    if (usedHeight + rowHeight > availableHeight) {
-      break; // This item won't fit
-    }
-
-    usedHeight += rowHeight;
-    itemCount++;
-  }
-
-  return Math.max(1, itemCount); // Always return at least 1 item
-}
-
-// Fallback function for backward compatibility
-function calculateItemsPerPage(
-  isFirstPage: boolean,
-  hasNotes: boolean,
-): number {
-  // Estimate available space in points (1 point = 1/72 inch)
-  const pageHeight = 792; // Letter size height in points
-  const margins = 80; // Top + bottom margins
-  const footerSpace = 60; // Footer space
-
-  let availableHeight = pageHeight - margins - footerSpace;
-
-  if (isFirstPage) {
-    // Dense header takes significant space
-    availableHeight -= 300; // Dense header space
-  } else {
-    // Abridged header is smaller
-    availableHeight -= 60; // Abridged header space
-  }
-
-  if (hasNotes) {
-    // Last page needs space for totals and notes
-    availableHeight -= 200; // Totals + notes space (much more conservative)
-  } else {
-    // Regular page just needs totals space
-    availableHeight -= 150; // Totals space only (much more conservative)
-  }
-
-  // Table header takes space
-  availableHeight -= 30; // Table header
-
-  // Conservative estimate using average row height
-  const avgRowHeight = 24; // Increased from 18 to account for potential wrapping
-
-  return Math.max(1, Math.floor(availableHeight / avgRowHeight));
-}
-
-// Dynamic pagination function
 function paginateItems(
   items: NonNullable<InvoiceData["items"]>,
   hasNotes = false,
+  showRate = true,
 ) {
-  const validItems = items.filter(Boolean);
-  const pages: Array<typeof validItems> = [];
+  const validItems = items.filter(Boolean) as NonNullable<typeof items[0]>[];
+  if (validItems.length === 0) return [[]];
 
-  if (validItems.length === 0) {
-    return [[]];
+  const rowHeights = validItems.map((item) => estimateRowHeight(item, showRate));
+
+  function pack(startIdx: number, budget: number): number {
+    let used = 0, count = 0;
+    for (let i = startIdx; i < validItems.length; i++) {
+      if (used + rowHeights[i]! > budget) break;
+      used += rowHeights[i]!;
+      count++;
+    }
+    return Math.max(1, count);
   }
 
-  let currentIndex = 0;
-  let pageIndex = 0;
+  const pages: (typeof validItems)[] = [];
+  let idx = 0;
 
-  while (currentIndex < validItems.length) {
-    const isFirstPage = pageIndex === 0;
-    const remainingItems = validItems.length - currentIndex;
+  while (idx < validItems.length) {
+    const isFirst = pages.length === 0;
+    const countFull = pack(idx, pageContentBudget(isFirst, false));
 
-    // Determine if this could be the last page with simple calculation
-    const maxPossibleItems = calculateItemsPerPage(isFirstPage, false);
-    const wouldBeLastPage =
-      currentIndex + maxPossibleItems >= validItems.length;
-
-    // Calculate items per page, accounting for notes space if this is likely the last page
-    let itemsPerPage = calculateItemsForPage(
-      validItems,
-      currentIndex,
-      isFirstPage,
-      wouldBeLastPage && hasNotes,
-    );
-
-    // Fallback to conservative calculation if dynamic fails
-    if (itemsPerPage === 0) {
-      itemsPerPage = calculateItemsPerPage(
-        isFirstPage,
-        wouldBeLastPage && hasNotes,
-      );
+    if (idx + countFull >= validItems.length) {
+      // All remaining items fit — if there are notes, verify they also fit with the notes reservation
+      if (hasNotes) {
+        const countWithNotes = pack(idx, pageContentBudget(isFirst, true));
+        if (idx + countWithNotes >= validItems.length) {
+          pages.push(validItems.slice(idx));
+          break;
+        }
+        // Notes don't fit alongside all items — push what fits, notes go on next page
+        pages.push(validItems.slice(idx, idx + countWithNotes));
+        idx += countWithNotes;
+      } else {
+        pages.push(validItems.slice(idx));
+        break;
+      }
+    } else {
+      pages.push(validItems.slice(idx, idx + countFull));
+      idx += countFull;
     }
-
-    // Ensure we don't have tiny orphan pages
-    if (remainingItems > itemsPerPage && remainingItems - itemsPerPage < 2) {
-      itemsPerPage = Math.max(1, itemsPerPage - 1);
-    }
-
-    // Never take more items than we have
-    itemsPerPage = Math.min(itemsPerPage, remainingItems);
-
-    const pageItems = validItems.slice(
-      currentIndex,
-      currentIndex + itemsPerPage,
-    );
-
-    pages.push(pageItems);
-    currentIndex += itemsPerPage;
-    pageIndex++;
   }
 
   return pages;
+}
+
+function getColumnWidths(showRate: boolean) {
+  return showRate
+    ? { date: "15%", description: "40%", hours: "12%", rate: "15%", amount: "18%" }
+    : { date: "15%", description: "48%", hours: "14%", amount: "23%" };
 }
 
 // Dense header component (first page)
@@ -907,19 +787,24 @@ const AbridgedHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
 );
 
 // Table header component
-const TableHeader: React.FC = () => (
-  <View style={styles.tableHeader}>
-    <Text style={[styles.tableHeaderCell, styles.tableHeaderDate]}>Date</Text>
-    <Text style={[styles.tableHeaderCell, styles.tableHeaderDescription]}>
-      Description
-    </Text>
-    <Text style={[styles.tableHeaderCell, styles.tableHeaderHours]}>Hours</Text>
-    <Text style={[styles.tableHeaderCell, styles.tableHeaderRate]}>Rate</Text>
-    <Text style={[styles.tableHeaderCell, styles.tableHeaderAmount]}>
-      Amount
-    </Text>
-  </View>
-);
+const TableHeader: React.FC<{ showRate: boolean }> = ({ showRate }) => {
+  const cols = getColumnWidths(showRate);
+  return (
+    <View style={styles.tableHeader}>
+      <Text style={[styles.tableHeaderCell, { width: cols.date }]}>Date</Text>
+      <Text style={[styles.tableHeaderCell, { width: cols.description }]}>
+        Description
+      </Text>
+      <Text style={[styles.tableHeaderCell, styles.tableHeaderHours, { width: cols.hours }]}>Hours</Text>
+      {showRate && (
+        <Text style={[styles.tableHeaderCell, styles.tableHeaderRate]}>Rate</Text>
+      )}
+      <Text style={[styles.tableHeaderCell, styles.tableHeaderAmount, { width: cols.amount }]}>
+        Amount
+      </Text>
+    </View>
+  );
+};
 
 // Footer component
 const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
@@ -1027,8 +912,10 @@ const TotalsSection: React.FC<{
 // Main PDF component
 const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
   const items = invoice.items?.filter(Boolean) ?? [];
-  const paginatedItems = paginateItems(items, Boolean(invoice.notes));
   const currency = invoice.currency ?? "USD";
+  const showRate = new Set(items.map((item) => item?.rate)).size > 1;
+  const cols = getColumnWidths(showRate);
+  const paginatedItems = paginateItems(items, Boolean(invoice.notes), showRate);
 
   return (
     <Document>
@@ -1049,7 +936,7 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
             {/* Table */}
             {hasItems && (
               <View style={styles.tableContainer}>
-                <TableHeader />
+                <TableHeader showRate={showRate} />
                 {pageItems.map(
                   (item, index) =>
                     item && (
@@ -1060,25 +947,28 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
                           index % 2 === 0 ? styles.tableRowAlt : {},
                         ]}
                       >
-                        <Text style={[styles.tableCell, styles.tableCellDate]}>
+                        <Text style={[styles.tableCell, styles.tableCellDate, { width: cols.date }]}>
                           {formatDate(item.date)}
                         </Text>
                         <Text
                           style={[
                             styles.tableCell,
                             styles.tableCellDescription,
+                            { width: cols.description },
                           ]}
                         >
                           {item.description}
                         </Text>
-                        <Text style={[styles.tableCell, styles.tableCellHours]}>
+                        <Text style={[styles.tableCell, styles.tableCellHours, { width: cols.hours }]}>
                           {item.hours}
                         </Text>
-                        <Text style={[styles.tableCell, styles.tableCellRate]}>
-                          {formatCurrency(item.rate, currency)}
-                        </Text>
+                        {showRate && (
+                          <Text style={[styles.tableCell, styles.tableCellRate]}>
+                            {formatCurrency(item.rate, currency)}
+                          </Text>
+                        )}
                         <Text
-                          style={[styles.tableCell, styles.tableCellAmount]}
+                          style={[styles.tableCell, styles.tableCellAmount, { width: cols.amount }]}
                         >
                           {formatCurrency(item.amount, currency)}
                         </Text>
