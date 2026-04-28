@@ -2,21 +2,6 @@ services:
   app:
     build:
       context: .
-      args:
-        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
-        NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
-        NEXT_PUBLIC_UMAMI_SCRIPT_URL: ${NEXT_PUBLIC_UMAMI_SCRIPT_URL:-https://analytics.umami.is/script.js}
-        NEXT_PUBLIC_AUTHENTIK_ENABLED: ${NEXT_PUBLIC_AUTHENTIK_ENABLED:-false}
-        NEXT_PUBLIC_BRAND_NAME: ${NEXT_PUBLIC_BRAND_NAME:-beenvoice}
-        NEXT_PUBLIC_BRAND_TAGLINE: ${NEXT_PUBLIC_BRAND_TAGLINE:-Simple and efficient invoicing for freelancers and small businesses}
-        NEXT_PUBLIC_BRAND_LOGO_TEXT: ${NEXT_PUBLIC_BRAND_LOGO_TEXT:-beenvoice}
-        NEXT_PUBLIC_BRAND_ICON: ${NEXT_PUBLIC_BRAND_ICON:-$$}
-        NEXT_PUBLIC_DEFAULT_INTERFACE_THEME: ${NEXT_PUBLIC_DEFAULT_INTERFACE_THEME:-beenvoice}
-        NEXT_PUBLIC_DEFAULT_FONT: ${NEXT_PUBLIC_DEFAULT_FONT:-brand}
-        NEXT_PUBLIC_DEFAULT_BODY_FONT: ${NEXT_PUBLIC_DEFAULT_BODY_FONT:-brand}
-        NEXT_PUBLIC_DEFAULT_HEADING_FONT: ${NEXT_PUBLIC_DEFAULT_HEADING_FONT:-brand}
-        NEXT_PUBLIC_DEFAULT_RADIUS: ${NEXT_PUBLIC_DEFAULT_RADIUS:-xl}
-        NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE: ${NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE:-floating}
     image: beenvoice:local
     environment:
       NODE_ENV: production
@@ -37,7 +22,7 @@ services:
     command:
       - sh
       - -c
-      - bun src/server/db/migrate.ts && bun run start -p 3000 -H 0.0.0.0
+      - bun src/server/db/migrate.ts && bun server.js
     ports:
       - "3000:3000"
     depends_on:

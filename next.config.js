@@ -6,7 +6,8 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-    serverExternalPackages: ['pg'],
+  output: "standalone",
+  serverExternalPackages: ["pg"],
 };
 
 export default config;
