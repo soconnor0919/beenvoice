@@ -133,9 +133,9 @@ export function EmailComposer({
 
   if (!editor) {
     return (
-      <div className="bg-muted flex h-[200px] items-center justify-center  border">
+      <div className="bg-muted flex h-[200px] items-center justify-center border">
         <div className="text-center">
-          <div className="border-primary mx-auto mb-2 h-4 w-4 animate-spin  border-2 border-t-transparent"></div>
+          <div className="border-primary mx-auto mb-2 h-4 w-4 animate-spin border-2 border-t-transparent"></div>
           <p className="text-muted-foreground text-sm">Loading editor...</p>
         </div>
       </div>
@@ -145,7 +145,7 @@ export function EmailComposer({
   return (
     <div className={className}>
       {/* Email Headers */}
-      <div className="bg-muted/20 space-y-4  border p-4">
+      <div className="bg-muted/20 space-y-4 border p-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="from-email" className="text-sm font-medium">
@@ -222,16 +222,15 @@ export function EmailComposer({
       {onCustomMessageChange && (
         <div className="space-y-4">
           <div>
-            <Label className="text-sm font-medium">
-              Custom Message (Optional)
-            </Label>
+            <Label className="text-sm font-medium">Email Note (Optional)</Label>
             <p className="text-muted-foreground mb-2 text-xs">
-              This message will appear between the greeting and invoice summary
+              This appears only in the email body and is not added to the
+              invoice PDF.
             </p>
           </div>
 
           {/* Editor Toolbar */}
-          <div className="bg-muted/20 flex flex-wrap items-center gap-1  border p-2">
+          <div className="bg-muted/20 flex flex-wrap items-center gap-1 border p-2">
             <MenuButton
               onClick={() => editor.chain().focus().toggleBold().run()}
               isActive={editor.isActive("bold")}

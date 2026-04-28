@@ -21,6 +21,7 @@ export interface InvoiceFormData {
   dueDate: Date;
   status: "draft" | "sent" | "paid";
   notes: string;
+  emailMessage: string;
   taxRate: number;
   currency: string;
   defaultHourlyRate: number | null;

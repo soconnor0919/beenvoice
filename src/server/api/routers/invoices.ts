@@ -29,6 +29,7 @@ const createInvoiceSchema = z.object({
   dueDate: z.date(),
   status: z.enum(["draft", "sent", "paid"]).default("draft"),
   notes: z.string().optional().or(z.literal("")),
+  emailMessage: z.string().optional().or(z.literal("")),
   taxRate: z.number().min(0).max(100).default(0),
   currency: z.string().length(3).default("USD"),
   items: z.array(invoiceItemSchema).min(1, "At least one item is required"),
@@ -156,6 +157,8 @@ export const invoicesRouter = createTRPCRouter({
               ? null
               : invoiceData.businessId,
           notes: invoiceData.notes === "" ? null : invoiceData.notes,
+          emailMessage:
+            invoiceData.emailMessage === "" ? null : invoiceData.emailMessage,
         };
 
         // Verify business exists and belongs to user (if provided)
@@ -262,6 +265,14 @@ export const invoicesRouter = createTRPCRouter({
             : {}),
           ...(invoiceData.notes !== undefined
             ? { notes: invoiceData.notes === "" ? null : invoiceData.notes }
+            : {}),
+          ...(invoiceData.emailMessage !== undefined
+            ? {
+                emailMessage:
+                  invoiceData.emailMessage === ""
+                    ? null
+                    : invoiceData.emailMessage,
+              }
             : {}),
         };
 

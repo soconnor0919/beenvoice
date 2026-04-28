@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { PDFViewer } from "@react-pdf/renderer";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
@@ -21,6 +22,7 @@ import { PageHeader } from "~/components/layout/page-header";
 import { InvoiceLineItems } from "./invoice-line-items";
 import { InvoiceCalendarView } from "./invoice-calendar-view";
 import { EmailPreview } from "./email-preview";
+import { InvoicePDF } from "~/lib/pdf-export";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import {
@@ -83,6 +85,16 @@ function getDefaultHourlyRate(value: unknown) {
   return typeof rate === "number" ? rate : null;
 }
 
+function plainTextToHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/\n/g, "<br>");
+}
+
 export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
   const utils = api.useUtils();
@@ -97,6 +109,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     dueDate: new Date(),
     status: "draft",
     notes: "",
+    emailMessage: "",
     taxRate: 0,
     currency: "USD",
     defaultHourlyRate: null,
@@ -164,6 +177,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         dueDate: new Date(existingInvoice.dueDate),
         status: existingInvoice.status as "draft" | "sent" | "paid",
         notes: existingInvoice.notes ?? "",
+        emailMessage: existingInvoice.emailMessage ?? "",
         taxRate: existingInvoice.taxRate,
         currency: existingInvoice.currency ?? "USD",
         defaultHourlyRate: existingInvoice.client?.defaultHourlyRate ?? null,
@@ -204,6 +218,10 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     const total = subtotal + taxAmount;
     return { subtotal, taxAmount, total };
   }, [formData.items, formData.taxRate]);
+  const emailPreviewMessage = React.useMemo(
+    () => plainTextToHtml(formData.emailMessage.trim()),
+    [formData.emailMessage],
+  );
   const selectedClient = React.useMemo(
     () => clients?.find((client) => client.id === formData.clientId),
     [clients, formData.clientId],
@@ -342,6 +360,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         dueDate: formData.dueDate,
         status: formData.status,
         notes: formData.notes,
+        emailMessage: formData.emailMessage,
         taxRate: formData.taxRate,
         currency: formData.currency,
         items: formData.items.map((i) => ({
@@ -620,12 +639,29 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               </CardContent>
             </Card>
 
-            {/* Notes card — spans both columns */}
-            <Card className="h-fit lg:col-span-2">
+            <Card className="h-fit">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between gap-2 text-base">
                   <span className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" /> Notes
+                    <Mail className="h-4 w-4" /> Email Message
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Textarea
+                  value={formData.emailMessage}
+                  onChange={(e) => updateField("emailMessage", e.target.value)}
+                  placeholder="Add a note that appears only in the email body..."
+                  className="min-h-[140px]"
+                />
+              </CardContent>
+            </Card>
+
+            <Card className="h-fit">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between gap-2 text-base">
+                  <span className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" /> Invoice Notes
                   </span>
                   {noteTemplates && noteTemplates.length > 0 && (
                     <DropdownMenu>
@@ -656,8 +692,8 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                 <Textarea
                   value={formData.notes}
                   onChange={(e) => updateField("notes", e.target.value)}
-                  placeholder="Add notes, payment terms, or other information for the client…"
-                  className="min-h-[100px]"
+                  placeholder="Add notes, payment terms, or other information for the invoice/PDF..."
+                  className="min-h-[140px]"
                 />
               </CardContent>
             </Card>
@@ -741,53 +777,140 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             value="preview"
             className="mt-6 focus-visible:outline-none"
           >
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex gap-2">
-                  <Mail className="h-5 w-5" /> Email Preview
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EmailPreview
-                  subject={`Invoice ${formData.invoiceNumber} from ${
-                    selectedBusiness?.name ?? "Your Business"
-                  }`}
-                  fromEmail={selectedBusiness?.email ?? ""}
-                  toEmail={selectedClient?.email ?? ""}
-                  content=""
-                  invoice={{
-                    invoiceNumber: formData.invoiceNumber,
-                    issueDate: formData.issueDate,
-                    dueDate: formData.dueDate,
-                    taxRate: formData.taxRate,
-                    status: formData.status,
-                    totalAmount: totals.total,
-                    currency: formData.currency,
-                    notes: formData.notes,
-                    client: selectedClient
-                      ? {
-                          name: selectedClient.name,
-                          email: selectedClient.email,
-                        }
-                      : undefined,
-                    business: selectedBusiness
-                      ? {
-                          name: selectedBusiness.name,
-                          email: selectedBusiness.email,
-                        }
-                      : undefined,
-                    items: formData.items.map((item) => ({
-                      id: item.id,
-                      date: item.date,
-                      description: item.description,
-                      hours: item.hours,
-                      rate: item.rate,
-                      amount: item.hours * item.rate,
-                    })),
-                  }}
-                />
-              </CardContent>
-            </Card>
+            <Tabs defaultValue="pdf" className="w-full">
+              <TabsList className="bg-muted grid h-auto w-full grid-cols-2 rounded-xl p-1">
+                <TabsTrigger
+                  value="pdf"
+                  className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
+                >
+                  PDF
+                </TabsTrigger>
+                <TabsTrigger
+                  value="email"
+                  className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
+                >
+                  Email
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="pdf" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex gap-2">
+                      <FileText className="h-5 w-5" /> PDF Preview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <div className="bg-muted/20 h-[760px] overflow-hidden border-t">
+                      <PDFViewer
+                        showToolbar
+                        style={{ width: "100%", height: "100%", border: 0 }}
+                      >
+                        <InvoicePDF
+                          invoice={{
+                            invoiceNumber: formData.invoiceNumber,
+                            invoicePrefix: formData.invoicePrefix,
+                            issueDate: formData.issueDate,
+                            dueDate: formData.dueDate,
+                            status: formData.status,
+                            totalAmount: totals.total,
+                            taxRate: formData.taxRate,
+                            currency: formData.currency,
+                            notes: formData.notes,
+                            client: selectedClient
+                              ? {
+                                  name: selectedClient.name,
+                                  email: selectedClient.email,
+                                  phone: selectedClient.phone,
+                                  addressLine1: selectedClient.addressLine1,
+                                  addressLine2: selectedClient.addressLine2,
+                                  city: selectedClient.city,
+                                  state: selectedClient.state,
+                                  postalCode: selectedClient.postalCode,
+                                  country: selectedClient.country,
+                                }
+                              : null,
+                            business: selectedBusiness
+                              ? {
+                                  name: selectedBusiness.name,
+                                  nickname: selectedBusiness.nickname,
+                                  email: selectedBusiness.email,
+                                  phone: selectedBusiness.phone,
+                                  addressLine1: selectedBusiness.addressLine1,
+                                  addressLine2: selectedBusiness.addressLine2,
+                                  city: selectedBusiness.city,
+                                  state: selectedBusiness.state,
+                                  postalCode: selectedBusiness.postalCode,
+                                  country: selectedBusiness.country,
+                                  website: selectedBusiness.website,
+                                  taxId: selectedBusiness.taxId,
+                                }
+                              : null,
+                            items: formData.items.map((item) => ({
+                              date: item.date,
+                              description: item.description,
+                              hours: item.hours,
+                              rate: item.rate,
+                              amount: item.hours * item.rate,
+                            })),
+                          }}
+                        />
+                      </PDFViewer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="email" className="mt-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex gap-2">
+                      <Mail className="h-5 w-5" /> Email Preview
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <EmailPreview
+                      subject={`Invoice ${formData.invoiceNumber} from ${
+                        selectedBusiness?.name ?? "Your Business"
+                      }`}
+                      fromEmail={selectedBusiness?.email ?? ""}
+                      toEmail={selectedClient?.email ?? ""}
+                      content=""
+                      customMessage={emailPreviewMessage}
+                      invoice={{
+                        invoiceNumber: formData.invoiceNumber,
+                        issueDate: formData.issueDate,
+                        dueDate: formData.dueDate,
+                        taxRate: formData.taxRate,
+                        status: formData.status,
+                        totalAmount: totals.total,
+                        currency: formData.currency,
+                        client: selectedClient
+                          ? {
+                              name: selectedClient.name,
+                              email: selectedClient.email,
+                            }
+                          : undefined,
+                        business: selectedBusiness
+                          ? {
+                              name: selectedBusiness.name,
+                              email: selectedBusiness.email,
+                            }
+                          : undefined,
+                        items: formData.items.map((item) => ({
+                          id: item.id,
+                          date: item.date,
+                          description: item.description,
+                          hours: item.hours,
+                          rate: item.rate,
+                          amount: item.hours * item.rate,
+                        })),
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           </TabsContent>
         </Tabs>
       </div>

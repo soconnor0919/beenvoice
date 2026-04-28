@@ -7,7 +7,6 @@ interface InvoiceEmailTemplateProps {
     totalAmount: number;
     taxRate: number;
     currency?: string | null;
-    notes?: string | null;
     client: {
       name: string;
       email: string | null;
@@ -61,18 +60,6 @@ export function generateInvoiceEmailTemplate({
       currency: invoice.currency ?? "USD",
     }).format(amount);
   };
-
-  const escapeHtml = (value: string) =>
-    value
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#39;");
-
-  const formattedNotes = invoice.notes?.trim()
-    ? escapeHtml(invoice.notes).replace(/\n/g, "<br>")
-    : "";
 
   const getTimeOfDayGreeting = () => {
     const hour = new Date().getHours();
@@ -472,17 +459,6 @@ export function generateInvoiceEmailTemplate({
                 </div>
             </div>
 
-            ${
-              formattedNotes
-                ? `<div class="invoice-card">
-                <div class="invoice-summary">
-                    <div class="invoice-number" style="font-size: 18px;">Notes</div>
-                </div>
-                <div class="message" style="margin-bottom: 0;">${formattedNotes}</div>
-            </div>`
-                : ""
-            }
-
             <div class="attachment-notice">
                 <div class="attachment-icon"></div>
                 <div class="attachment-text">
@@ -561,16 +537,6 @@ Subtotal: ${formatCurrency(subtotal)}${
       : ""
   }
 Total: ${formatCurrency(total)}
-
-${
-  invoice.notes?.trim()
-    ? `
-NOTES
-═══════════════
-${invoice.notes.trim()}
-`
-    : ""
-}
 
 ATTACHMENT
 ═══════════════

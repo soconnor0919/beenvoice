@@ -237,6 +237,9 @@ async function isMigrationApplied(client: Pool, tag: string): Promise<boolean> {
       "pdfTemplate",
     );
   }
+  if (tag === "0007_invoice_email_message") {
+    return columnExists(client, "public", "beenvoice_invoice", "emailMessage");
+  }
   // Unknown migration — assume not applied so it runs
   return false;
 }

@@ -18,7 +18,6 @@ interface EmailPreviewProps {
     status?: string;
     totalAmount?: number;
     currency?: string | null;
-    notes?: string | null;
     client?: {
       name: string;
       email: string | null;
@@ -72,7 +71,6 @@ export function EmailPreview({
           totalAmount: invoice.totalAmount ?? calculateTotal(),
           taxRate: invoice.taxRate,
           currency: invoice.currency,
-          notes: invoice.notes,
           client: {
             name: invoice.client?.name ?? "Client",
             email: invoice.client?.email ?? null,

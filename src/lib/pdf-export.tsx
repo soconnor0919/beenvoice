@@ -363,7 +363,6 @@ const styles = StyleSheet.create({
 
   // Table styles
   tableContainer: {
-    flex: 1,
     marginBottom: 20,
   },
 
@@ -607,144 +606,6 @@ const getStatusStyle = (status: string) => {
   }
 };
 
-const PDF_PAGE_USABLE_HEIGHT = 672;
-const TABLE_HEADER_HEIGHT = 28;
-const TABLE_BOTTOM_MARGIN = 20;
-const FIRST_PAGE_HEADER_RESERVE = 285;
-const CONTINUATION_HEADER_RESERVE = 50;
-const TOTALS_HEIGHT = 108;
-
-function estimateWrappedLines(text: string, charsPerLine: number): number {
-  const paragraphs = text.split(/\r?\n/);
-
-  return paragraphs.reduce((total, paragraph) => {
-    const words = paragraph.trim().split(/\s+/).filter(Boolean);
-    if (words.length === 0) return total + 1;
-
-    let lines = 1;
-    let currentLineLength = 0;
-
-    for (const word of words) {
-      if (word.length > charsPerLine) {
-        const longWordLines = Math.ceil(word.length / charsPerLine);
-        if (currentLineLength > 0) {
-          lines += longWordLines;
-          currentLineLength = word.length % charsPerLine;
-        } else {
-          lines += longWordLines - 1;
-          currentLineLength = word.length % charsPerLine;
-        }
-        continue;
-      }
-
-      const nextLength =
-        currentLineLength === 0
-          ? word.length
-          : currentLineLength + 1 + word.length;
-
-      if (nextLength > charsPerLine) {
-        lines++;
-        currentLineLength = word.length;
-      } else {
-        currentLineLength = nextLength;
-      }
-    }
-
-    return total + lines;
-  }, 0);
-}
-
-function estimateBottomSectionHeight(notes?: string | null): number {
-  if (!notes?.trim()) return 20 + TOTALS_HEIGHT;
-
-  const notesWidth = 240;
-  const charsPerLine = Math.max(1, Math.floor(notesWidth / (10 * 0.45)));
-  const noteLines = estimateWrappedLines(notes, charsPerLine);
-  const notesHeight = 24 + 17 + noteLines * 10 * 1.4;
-
-  return 20 + Math.max(TOTALS_HEIGHT, notesHeight);
-}
-
-function pageContentBudget(
-  isFirstPage: boolean,
-  options: { reserveBottom?: boolean; notes?: string | null } = {},
-): number {
-  // 792pt page - 40pt paddingTop - 80pt paddingBottom = 672pt usable
-  let h = PDF_PAGE_USABLE_HEIGHT;
-  h -= isFirstPage ? FIRST_PAGE_HEADER_RESERVE : CONTINUATION_HEADER_RESERVE;
-  h -= TABLE_HEADER_HEIGHT;
-  h -= TABLE_BOTTOM_MARGIN;
-  if (options.reserveBottom) {
-    h -= estimateBottomSectionHeight(options.notes);
-  }
-  return h;
-}
-
-function estimateRowHeight(
-  item: NonNullable<NonNullable<InvoiceData["items"]>[0]>,
-  showRate: boolean,
-): number {
-  // 532pt usable width (612 - 80pt horizontal padding); description takes 40% or 48%
-  const descColWidth = 532 * (showRate ? 0.4 : 0.48);
-  // Frutiger at 10pt: 0.45em gives ~47 chars/line, matching real wrap behaviour
-  const charsPerLine = Math.max(1, Math.floor(descColWidth / (10 * 0.45)));
-  const lines = estimateWrappedLines(item.description || " ", charsPerLine);
-  return Math.max(24, lines * 10 * 1.4 + 20);
-}
-
-function paginateItems(
-  items: NonNullable<InvoiceData["items"]>,
-  notes?: string | null,
-  showRate = true,
-) {
-  const validItems = items.filter(Boolean) as NonNullable<(typeof items)[0]>[];
-  if (validItems.length === 0) return [[]];
-
-  const rowHeights = validItems.map((item) =>
-    estimateRowHeight(item, showRate),
-  );
-
-  function pack(startIdx: number, budget: number): number {
-    let used = 0,
-      count = 0;
-    for (let i = startIdx; i < validItems.length; i++) {
-      if (used + rowHeights[i]! > budget) break;
-      used += rowHeights[i]!;
-      count++;
-    }
-    return Math.max(1, count);
-  }
-
-  const pages: (typeof validItems)[] = [];
-  let idx = 0;
-
-  while (idx < validItems.length) {
-    const isFirst = pages.length === 0;
-    const finalPageCount = pack(
-      idx,
-      pageContentBudget(isFirst, { reserveBottom: true, notes }),
-    );
-
-    if (idx + finalPageCount >= validItems.length) {
-      pages.push(validItems.slice(idx));
-      break;
-    }
-
-    let count = pack(idx, pageContentBudget(isFirst));
-
-    // If the rows fit only when this is not the final page, leave at least one
-    // row for the final page so notes/totals are never squeezed below the table.
-    if (idx + count >= validItems.length) {
-      count = Math.max(1, validItems.length - idx - 1);
-    }
-
-    pages.push(validItems.slice(idx, idx + count));
-    idx += count;
-  }
-
-  return pages;
-}
-
 function getColumnWidths(showRate: boolean) {
   return showRate
     ? {
@@ -861,27 +722,6 @@ const DenseHeader: React.FC<{
           <Text style={styles.detailValue}>{invoice.invoiceNumber}</Text>
         </View>
       </View>
-    </View>
-  </View>
-);
-
-// Abridged header component (other pages)
-const AbridgedHeader: React.FC<{
-  invoice: InvoiceData;
-  settings: Required<PDFGenerationSettings>;
-}> = ({ invoice, settings }) => (
-  <View style={styles.abridgedHeader}>
-    <Text
-      style={[styles.abridgedBusinessName, { color: settings.pdfAccentColor }]}
-    >
-      {invoice.business?.name ?? "Your Business Name"}
-    </Text>
-    <View style={styles.abridgedInvoiceInfo}>
-      <Text style={styles.abridgedInvoiceTitle}>INVOICE</Text>
-      <Text style={styles.abridgedInvoiceNumber}>
-        {invoice.invoicePrefix ?? "#"}
-        {invoice.invoiceNumber}
-      </Text>
     </View>
   </View>
 );
@@ -1064,7 +904,7 @@ const TotalsSection: React.FC<{
 };
 
 // Main PDF component
-const InvoicePDF: React.FC<{
+export const InvoicePDF: React.FC<{
   invoice: InvoiceData;
   settings?: PDFGenerationSettings;
 }> = ({ invoice, settings: inputSettings }) => {
@@ -1073,110 +913,88 @@ const InvoicePDF: React.FC<{
   const currency = invoice.currency ?? "USD";
   const showRate = new Set(items.map((item) => item?.rate)).size > 1;
   const cols = getColumnWidths(showRate);
-  const paginatedItems = paginateItems(items, invoice.notes, showRate);
 
   return (
     <Document>
-      {paginatedItems.map((pageItems, pageIndex) => {
-        const isFirstPage = pageIndex === 0;
-        const isLastPage = pageIndex === paginatedItems.length - 1;
-        const hasItems = pageItems.length > 0;
+      <Page size="LETTER" style={styles.page}>
+        <DenseHeader invoice={invoice} settings={settings} />
 
-        return (
-          <Page key={`page-${pageIndex}`} size="LETTER" style={styles.page}>
-            {/* Header */}
-            {isFirstPage ? (
-              <DenseHeader invoice={invoice} settings={settings} />
-            ) : (
-              <AbridgedHeader invoice={invoice} settings={settings} />
-            )}
-
-            {/* Table */}
-            {hasItems && (
-              <View style={styles.tableContainer}>
-                <TableHeader settings={settings} showRate={showRate} />
-                {pageItems.map(
-                  (item, index) =>
-                    item && (
-                      <View
-                        key={`${pageIndex}-${index}`}
+        {items.length > 0 && (
+          <View style={styles.tableContainer}>
+            <TableHeader settings={settings} showRate={showRate} />
+            {items.map(
+              (item, index) =>
+                item && (
+                  <View
+                    key={`invoice-item-${index}`}
+                    wrap={false}
+                    style={[
+                      styles.tableRow,
+                      settings.pdfTemplate === "classic" && index % 2 === 0
+                        ? styles.tableRowAlt
+                        : {},
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.tableCellDate,
+                        { width: cols.date },
+                      ]}
+                    >
+                      {formatDate(item.date)}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.tableCellDescription,
+                        { width: cols.description },
+                      ]}
+                    >
+                      {item.description}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.tableCellHours,
+                        { width: cols.hours },
+                      ]}
+                    >
+                      {item.hours}
+                    </Text>
+                    {showRate && (
+                      <Text
                         style={[
-                          styles.tableRow,
-                          settings.pdfTemplate === "classic" && index % 2 === 0
-                            ? styles.tableRowAlt
-                            : {},
+                          styles.tableCell,
+                          styles.tableCellRate,
+                          { width: cols.rate },
                         ]}
                       >
-                        <Text
-                          style={[
-                            styles.tableCell,
-                            styles.tableCellDate,
-                            { width: cols.date },
-                          ]}
-                        >
-                          {formatDate(item.date)}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.tableCell,
-                            styles.tableCellDescription,
-                            { width: cols.description },
-                          ]}
-                        >
-                          {item.description}
-                        </Text>
-                        <Text
-                          style={[
-                            styles.tableCell,
-                            styles.tableCellHours,
-                            { width: cols.hours },
-                          ]}
-                        >
-                          {item.hours}
-                        </Text>
-                        {showRate && (
-                          <Text
-                            style={[
-                              styles.tableCell,
-                              styles.tableCellRate,
-                              { width: cols.rate },
-                            ]}
-                          >
-                            {formatCurrency(item.rate, currency)}
-                          </Text>
-                        )}
-                        <Text
-                          style={[
-                            styles.tableCell,
-                            styles.tableCellAmount,
-                            { width: cols.amount },
-                          ]}
-                        >
-                          {formatCurrency(item.amount, currency)}
-                        </Text>
-                      </View>
-                    ),
-                )}
-              </View>
+                        {formatCurrency(item.rate, currency)}
+                      </Text>
+                    )}
+                    <Text
+                      style={[
+                        styles.tableCell,
+                        styles.tableCellAmount,
+                        { width: cols.amount },
+                      ]}
+                    >
+                      {formatCurrency(item.amount, currency)}
+                    </Text>
+                  </View>
+                ),
             )}
+          </View>
+        )}
 
-            {/* Bottom section with notes and totals (only on last page) */}
-            {isLastPage && (
-              <View style={styles.bottomSection}>
-                {invoice.notes && <NotesSection invoice={invoice} />}
-                <TotalsSection
-                  invoice={invoice}
-                  items={items}
-                  settings={settings}
-                />
-              </View>
-            )}
+        <View style={styles.bottomSection} wrap={false}>
+          {invoice.notes && <NotesSection invoice={invoice} />}
+          <TotalsSection invoice={invoice} items={items} settings={settings} />
+        </View>
 
-            {/* Footer */}
-            <Footer settings={settings} />
-          </Page>
-        );
-      })}
+        <Footer settings={settings} />
+      </Page>
     </Document>
   );
 };

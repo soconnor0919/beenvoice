@@ -38,7 +38,6 @@ interface SendEmailDialogProps {
     status: string;
     taxRate: number;
     currency?: string | null;
-    notes?: string | null;
     client?: {
       name: string;
       email: string | null;

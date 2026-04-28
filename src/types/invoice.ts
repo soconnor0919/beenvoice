@@ -12,6 +12,7 @@ export interface Invoice {
   totalAmount: number;
   taxRate: number;
   notes: string | null;
+  emailMessage: string | null;
   createdById: string;
   createdAt: Date;
   updatedAt: Date | null;

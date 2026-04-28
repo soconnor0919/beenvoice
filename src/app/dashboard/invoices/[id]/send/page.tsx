@@ -54,6 +54,16 @@ function SendEmailPageSkeleton() {
   );
 }
 
+function plainTextToHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/\n/g, "<br>");
+}
+
 export default function SendEmailPage() {
   const params = useParams();
   const router = useRouter();
@@ -158,7 +168,7 @@ export default function SendEmailPage() {
           totalAmount: invoiceData.totalAmount,
           taxRate: invoiceData.taxRate,
           currency: invoiceData.currency,
-          notes: invoiceData.notes,
+          emailMessage: invoiceData.emailMessage,
           client: invoiceData.client
             ? {
                 name: invoiceData.client.name,
@@ -197,6 +207,9 @@ export default function SendEmailPage() {
     const defaultContent = ``;
 
     setEmailContent(defaultContent);
+    setCustomMessage(
+      invoice.emailMessage ? plainTextToHtml(invoice.emailMessage) : "",
+    );
     setIsInitialized(true);
   }, [invoice, isInitialized]);
 
@@ -556,7 +569,7 @@ export default function SendEmailPage() {
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent>
+        <DialogContent className="flex max-h-[90vh] max-w-6xl flex-col overflow-hidden">
           <DialogHeader>
             <DialogTitle>Send Invoice Email?</DialogTitle>
             <DialogDescription>
@@ -582,6 +595,53 @@ export default function SendEmailPage() {
               )}
             </DialogDescription>
           </DialogHeader>
+          <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Edit3 className="h-4 w-4" />
+                  Edit Email Note
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmailComposer
+                  subject={subject}
+                  onSubjectChange={setSubject}
+                  content={emailContent}
+                  onContentChange={setEmailContent}
+                  customMessage={customMessage}
+                  onCustomMessageChange={setCustomMessage}
+                  fromEmail={fromEmail}
+                  toEmail={toEmail}
+                  ccEmail={ccEmail}
+                  onCcEmailChange={setCcEmail}
+                  bccEmail={bccEmail}
+                  onBccEmailChange={setBccEmail}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Eye className="h-4 w-4" />
+                  Email Preview
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <EmailPreview
+                  subject={subject}
+                  fromEmail={fromEmail}
+                  toEmail={toEmail}
+                  ccEmail={ccEmail}
+                  bccEmail={bccEmail}
+                  content={emailContent}
+                  customMessage={customMessage}
+                  invoice={invoice}
+                  className="min-w-0 border-0"
+                />
+              </CardContent>
+            </Card>
+          </div>
           <DialogFooter>
             <Button
               variant="outline"

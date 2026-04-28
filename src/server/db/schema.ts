@@ -320,6 +320,7 @@ export const invoices = createTable(
     totalAmount: d.real().notNull().default(0),
     taxRate: d.real().notNull().default(0.0),
     notes: d.varchar({ length: 1000 }),
+    emailMessage: d.varchar({ length: 2000 }),
     currency: d.varchar({ length: 3 }).default("USD").notNull(),
     createdById: d
       .varchar({ length: 255 })

@@ -94,6 +94,7 @@ const InvoiceBackupSchema = z.object({
   totalAmount: z.number().default(0),
   taxRate: z.number().default(0),
   notes: z.string().optional(),
+  emailMessage: z.string().optional(),
   items: z.array(InvoiceItemBackupSchema),
 });
 
@@ -562,6 +563,7 @@ export const settingsRouter = createTRPCRouter({
         totalAmount: invoice.totalAmount,
         taxRate: invoice.taxRate,
         notes: invoice.notes ?? undefined,
+        emailMessage: invoice.emailMessage ?? undefined,
         items: invoice.items,
       })),
     };
@@ -641,6 +643,7 @@ export const settingsRouter = createTRPCRouter({
               totalAmount: invoiceData.totalAmount,
               taxRate: invoiceData.taxRate,
               notes: invoiceData.notes,
+              emailMessage: invoiceData.emailMessage,
               createdById: userId,
             })
             .returning({ id: invoices.id });

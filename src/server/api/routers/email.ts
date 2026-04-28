@@ -7,6 +7,16 @@ import { env } from "~/env";
 import { generateInvoicePDFBlob } from "~/lib/pdf-export";
 import { generateInvoiceEmailTemplate } from "~/lib/email-templates";
 
+function plainTextToHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;")
+    .replace(/\n/g, "<br>");
+}
+
 export const emailRouter = createTRPCRouter({
   sendInvoice: protectedProcedure
     .input(
@@ -106,7 +116,6 @@ export const emailRouter = createTRPCRouter({
           totalAmount: invoice.totalAmount,
           taxRate: invoice.taxRate,
           currency: invoice.currency,
-          notes: invoice.notes,
           client: {
             name: invoice.client.name,
             email: invoice.client.email,
@@ -115,7 +124,11 @@ export const emailRouter = createTRPCRouter({
           items: invoice.items,
         },
         customContent: input.customContent,
-        customMessage: input.customMessage,
+        customMessage:
+          input.customMessage ??
+          (invoice.emailMessage
+            ? plainTextToHtml(invoice.emailMessage)
+            : undefined),
         userName,
         userEmail,
         baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
