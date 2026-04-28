@@ -607,12 +607,76 @@ const getStatusStyle = (status: string) => {
   }
 };
 
-function pageContentBudget(isFirstPage: boolean, hasNotes: boolean): number {
+const PDF_PAGE_USABLE_HEIGHT = 672;
+const TABLE_HEADER_HEIGHT = 28;
+const TABLE_BOTTOM_MARGIN = 20;
+const FIRST_PAGE_HEADER_RESERVE = 285;
+const CONTINUATION_HEADER_RESERVE = 50;
+const TOTALS_HEIGHT = 108;
+
+function estimateWrappedLines(text: string, charsPerLine: number): number {
+  const paragraphs = text.split(/\r?\n/);
+
+  return paragraphs.reduce((total, paragraph) => {
+    const words = paragraph.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return total + 1;
+
+    let lines = 1;
+    let currentLineLength = 0;
+
+    for (const word of words) {
+      if (word.length > charsPerLine) {
+        const longWordLines = Math.ceil(word.length / charsPerLine);
+        if (currentLineLength > 0) {
+          lines += longWordLines;
+          currentLineLength = word.length % charsPerLine;
+        } else {
+          lines += longWordLines - 1;
+          currentLineLength = word.length % charsPerLine;
+        }
+        continue;
+      }
+
+      const nextLength =
+        currentLineLength === 0
+          ? word.length
+          : currentLineLength + 1 + word.length;
+
+      if (nextLength > charsPerLine) {
+        lines++;
+        currentLineLength = word.length;
+      } else {
+        currentLineLength = nextLength;
+      }
+    }
+
+    return total + lines;
+  }, 0);
+}
+
+function estimateBottomSectionHeight(notes?: string | null): number {
+  if (!notes?.trim()) return 20 + TOTALS_HEIGHT;
+
+  const notesWidth = 240;
+  const charsPerLine = Math.max(1, Math.floor(notesWidth / (10 * 0.45)));
+  const noteLines = estimateWrappedLines(notes, charsPerLine);
+  const notesHeight = 24 + 17 + noteLines * 10 * 1.4;
+
+  return 20 + Math.max(TOTALS_HEIGHT, notesHeight);
+}
+
+function pageContentBudget(
+  isFirstPage: boolean,
+  options: { reserveBottom?: boolean; notes?: string | null } = {},
+): number {
   // 792pt page - 40pt paddingTop - 80pt paddingBottom = 672pt usable
-  let h = 672;
-  h -= isFirstPage ? 285 : 50; // dense vs abridged header
-  h -= hasNotes ? 185 : 130;   // totals box (+ notes section if present)
-  h -= 28;                      // table header row
+  let h = PDF_PAGE_USABLE_HEIGHT;
+  h -= isFirstPage ? FIRST_PAGE_HEADER_RESERVE : CONTINUATION_HEADER_RESERVE;
+  h -= TABLE_HEADER_HEIGHT;
+  h -= TABLE_BOTTOM_MARGIN;
+  if (options.reserveBottom) {
+    h -= estimateBottomSectionHeight(options.notes);
+  }
   return h;
 }
 
@@ -624,24 +688,25 @@ function estimateRowHeight(
   const descColWidth = 532 * (showRate ? 0.4 : 0.48);
   // Frutiger at 10pt: 0.45em gives ~47 chars/line, matching real wrap behaviour
   const charsPerLine = Math.max(1, Math.floor(descColWidth / (10 * 0.45)));
-  const lines = Math.ceil((item.description.length || 1) / charsPerLine);
-  // row paddingVertical:6 (×2=12) + cell paddingVertical:4 (×2=8) = 20pt overhead,
-  // but react-pdf measures the line box at slightly under full lineHeight, so 16pt in practice
-  return lines * 10 * 1.4 + 16;
+  const lines = estimateWrappedLines(item.description || " ", charsPerLine);
+  return Math.max(24, lines * 10 * 1.4 + 20);
 }
 
 function paginateItems(
   items: NonNullable<InvoiceData["items"]>,
-  hasNotes = false,
+  notes?: string | null,
   showRate = true,
 ) {
-  const validItems = items.filter(Boolean) as NonNullable<typeof items[0]>[];
+  const validItems = items.filter(Boolean) as NonNullable<(typeof items)[0]>[];
   if (validItems.length === 0) return [[]];
 
-  const rowHeights = validItems.map((item) => estimateRowHeight(item, showRate));
+  const rowHeights = validItems.map((item) =>
+    estimateRowHeight(item, showRate),
+  );
 
   function pack(startIdx: number, budget: number): number {
-    let used = 0, count = 0;
+    let used = 0,
+      count = 0;
     for (let i = startIdx; i < validItems.length; i++) {
       if (used + rowHeights[i]! > budget) break;
       used += rowHeights[i]!;
@@ -655,27 +720,26 @@ function paginateItems(
 
   while (idx < validItems.length) {
     const isFirst = pages.length === 0;
-    const countFull = pack(idx, pageContentBudget(isFirst, false));
+    const finalPageCount = pack(
+      idx,
+      pageContentBudget(isFirst, { reserveBottom: true, notes }),
+    );
 
-    if (idx + countFull >= validItems.length) {
-      // All remaining items fit — if there are notes, verify they also fit with the notes reservation
-      if (hasNotes) {
-        const countWithNotes = pack(idx, pageContentBudget(isFirst, true));
-        if (idx + countWithNotes >= validItems.length) {
-          pages.push(validItems.slice(idx));
-          break;
-        }
-        // Notes don't fit alongside all items — push what fits, notes go on next page
-        pages.push(validItems.slice(idx, idx + countWithNotes));
-        idx += countWithNotes;
-      } else {
-        pages.push(validItems.slice(idx));
-        break;
-      }
-    } else {
-      pages.push(validItems.slice(idx, idx + countFull));
-      idx += countFull;
+    if (idx + finalPageCount >= validItems.length) {
+      pages.push(validItems.slice(idx));
+      break;
     }
+
+    let count = pack(idx, pageContentBudget(isFirst));
+
+    // If the rows fit only when this is not the final page, leave at least one
+    // row for the final page so notes/totals are never squeezed below the table.
+    if (idx + count >= validItems.length) {
+      count = Math.max(1, validItems.length - idx - 1);
+    }
+
+    pages.push(validItems.slice(idx, idx + count));
+    idx += count;
   }
 
   return pages;
@@ -683,7 +747,13 @@ function paginateItems(
 
 function getColumnWidths(showRate: boolean) {
   return showRate
-    ? { date: "15%", description: "40%", hours: "12%", rate: "15%", amount: "18%" }
+    ? {
+        date: "15%",
+        description: "40%",
+        hours: "12%",
+        rate: "15%",
+        amount: "18%",
+      }
     : { date: "15%", description: "48%", hours: "14%", amount: "23%" };
 }
 
@@ -826,7 +896,9 @@ const TableHeader: React.FC<{
     <View
       style={[
         styles.tableHeader,
-        settings.pdfTemplate === "minimal" ? { backgroundColor: "#ffffff" } : {},
+        settings.pdfTemplate === "minimal"
+          ? { backgroundColor: "#ffffff" }
+          : {},
       ]}
     >
       <Text style={[styles.tableHeaderCell, { width: cols.date }]}>Date</Text>
@@ -1001,7 +1073,7 @@ const InvoicePDF: React.FC<{
   const currency = invoice.currency ?? "USD";
   const showRate = new Set(items.map((item) => item?.rate)).size > 1;
   const cols = getColumnWidths(showRate);
-  const paginatedItems = paginateItems(items, Boolean(invoice.notes), showRate);
+  const paginatedItems = paginateItems(items, invoice.notes, showRate);
 
   return (
     <Document>
@@ -1035,7 +1107,13 @@ const InvoicePDF: React.FC<{
                             : {},
                         ]}
                       >
-                        <Text style={[styles.tableCell, styles.tableCellDate, { width: cols.date }]}>
+                        <Text
+                          style={[
+                            styles.tableCell,
+                            styles.tableCellDate,
+                            { width: cols.date },
+                          ]}
+                        >
                           {formatDate(item.date)}
                         </Text>
                         <Text
@@ -1047,7 +1125,13 @@ const InvoicePDF: React.FC<{
                         >
                           {item.description}
                         </Text>
-                        <Text style={[styles.tableCell, styles.tableCellHours, { width: cols.hours }]}>
+                        <Text
+                          style={[
+                            styles.tableCell,
+                            styles.tableCellHours,
+                            { width: cols.hours },
+                          ]}
+                        >
                           {item.hours}
                         </Text>
                         {showRate && (
@@ -1062,7 +1146,11 @@ const InvoicePDF: React.FC<{
                           </Text>
                         )}
                         <Text
-                          style={[styles.tableCell, styles.tableCellAmount, { width: cols.amount }]}
+                          style={[
+                            styles.tableCell,
+                            styles.tableCellAmount,
+                            { width: cols.amount },
+                          ]}
                         >
                           {formatCurrency(item.amount, currency)}
                         </Text>
