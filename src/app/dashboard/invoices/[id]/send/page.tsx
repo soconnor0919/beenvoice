@@ -292,7 +292,7 @@ export default function SendEmailPage() {
 
   if (!invoice) {
     return (
-      <div className="container mx-auto max-w-4xl p-6">
+      <div className="page-enter space-y-6">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>Invoice not found.</AlertDescription>
@@ -302,7 +302,7 @@ export default function SendEmailPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-6xl space-y-6 pb-32">
+    <div className="page-enter space-y-6 pb-32">
       <PageHeader
         title={`Send Invoice ${invoice.invoiceNumber}`}
         description={`Compose and send invoice email to ${invoice.client?.name ?? "client"} • ${new Intl.DateTimeFormat(
