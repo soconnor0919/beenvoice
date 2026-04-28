@@ -136,9 +136,9 @@ export default function SendEmailPage() {
         action:
           canRetry && retryCount < 2
             ? {
-              label: "Retry",
-              onClick: () => handleRetry(),
-            }
+                label: "Retry",
+                onClick: () => handleRetry(),
+              }
             : undefined,
       });
 
@@ -150,31 +150,37 @@ export default function SendEmailPage() {
   const invoice = useMemo(() => {
     return invoiceData
       ? {
-        id: invoiceData.id,
-        invoiceNumber: invoiceData.invoiceNumber,
-        issueDate: invoiceData.issueDate,
-        dueDate: invoiceData.dueDate,
-        status: invoiceData.status,
-        taxRate: invoiceData.taxRate,
-        client: invoiceData.client
-          ? {
-            name: invoiceData.client.name,
-            email: invoiceData.client.email,
-          }
-          : undefined,
-        business: invoiceData.business
-          ? {
-            name: invoiceData.business.name,
-            nickname: invoiceData.business.nickname,
-            email: invoiceData.business.email,
-          }
-          : undefined,
-        items: invoiceData.items?.map((item) => ({
-          id: item.id,
-          hours: item.hours,
-          rate: item.rate,
-        })),
-      }
+          id: invoiceData.id,
+          invoiceNumber: invoiceData.invoiceNumber,
+          issueDate: invoiceData.issueDate,
+          dueDate: invoiceData.dueDate,
+          status: invoiceData.status,
+          totalAmount: invoiceData.totalAmount,
+          taxRate: invoiceData.taxRate,
+          currency: invoiceData.currency,
+          notes: invoiceData.notes,
+          client: invoiceData.client
+            ? {
+                name: invoiceData.client.name,
+                email: invoiceData.client.email,
+              }
+            : undefined,
+          business: invoiceData.business
+            ? {
+                name: invoiceData.business.name,
+                nickname: invoiceData.business.nickname,
+                email: invoiceData.business.email,
+              }
+            : undefined,
+          items: invoiceData.items?.map((item) => ({
+            id: item.id,
+            date: item.date,
+            description: item.description,
+            hours: item.hours,
+            rate: item.rate,
+            amount: item.amount,
+          })),
+        }
       : undefined;
   }, [invoiceData]);
 

@@ -17,6 +17,8 @@ interface EmailPreviewProps {
     taxRate: number;
     status?: string;
     totalAmount?: number;
+    currency?: string | null;
+    notes?: string | null;
     client?: {
       name: string;
       email: string | null;
@@ -27,8 +29,11 @@ interface EmailPreviewProps {
     };
     items?: Array<{
       id: string;
+      date?: Date;
+      description?: string;
       hours: number;
       rate: number;
+      amount?: number;
     }>;
   };
   className?: string;
@@ -66,7 +71,8 @@ export function EmailPreview({
           status: invoice.status ?? "draft",
           totalAmount: invoice.totalAmount ?? calculateTotal(),
           taxRate: invoice.taxRate,
-          notes: null,
+          currency: invoice.currency,
+          notes: invoice.notes,
           client: {
             name: invoice.client?.name ?? "Client",
             email: invoice.client?.email ?? null,
@@ -74,11 +80,11 @@ export function EmailPreview({
           business: invoice.business ?? null,
           items:
             invoice.items?.map((item) => ({
-              date: new Date(),
-              description: "Service",
+              date: item.date ?? new Date(),
+              description: item.description ?? "Service",
               hours: item.hours,
               rate: item.rate,
-              amount: item.hours * item.rate,
+              amount: item.amount ?? item.hours * item.rate,
             })) ?? [],
         },
         customContent: content,
@@ -95,7 +101,7 @@ export function EmailPreview({
   return (
     <div className={className}>
       {/* Email Headers */}
-      <div className="bg-muted/20 mb-4 space-y-3  p-4">
+      <div className="bg-muted/20 mb-4 space-y-3 p-4">
         <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
           <div>
             <span className="text-muted-foreground block text-xs font-medium">
@@ -142,7 +148,7 @@ export function EmailPreview({
 
       {/* Email Content */}
       {emailTemplate ? (
-        <div className=" border bg-gray-50 p-1 shadow-sm">
+        <div className="border bg-gray-50 p-1 shadow-sm">
           <iframe
             srcDoc={emailTemplate.html}
             className="h-[700px] w-full rounded border-0"

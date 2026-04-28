@@ -37,6 +37,8 @@ interface SendEmailDialogProps {
     dueDate: Date;
     status: string;
     taxRate: number;
+    currency?: string | null;
+    notes?: string | null;
     client?: {
       name: string;
       email: string | null;
@@ -47,8 +49,11 @@ interface SendEmailDialogProps {
     };
     items?: Array<{
       id: string;
+      date?: Date;
+      description?: string;
       hours: number;
       rate: number;
+      amount?: number;
     }>;
   };
   onEmailSent?: () => void;

@@ -99,10 +99,10 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
     }).format(new Date(date));
   };
 
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number, currency = invoice.currency) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency,
     }).format(amount);
   };
 

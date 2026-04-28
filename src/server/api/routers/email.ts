@@ -105,6 +105,7 @@ export const emailRouter = createTRPCRouter({
           status: invoice.status,
           totalAmount: invoice.totalAmount,
           taxRate: invoice.taxRate,
+          currency: invoice.currency,
           notes: invoice.notes,
           client: {
             name: invoice.client.name,

@@ -76,6 +76,13 @@ function InvoiceFormSkeleton() {
   );
 }
 
+function getDefaultHourlyRate(value: unknown) {
+  if (typeof value !== "object" || value === null) return null;
+
+  const rate = (value as { defaultHourlyRate?: unknown }).defaultHourlyRate;
+  return typeof rate === "number" ? rate : null;
+}
+
 export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const router = useRouter();
   const utils = api.useUtils();
@@ -140,18 +147,14 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     if (invoiceId && invoiceId !== "new" && existingInvoice && !initialized) {
       // ... (Mapping logic same as before)
       const mappedItems: InvoiceItem[] =
-        existingInvoice.items
-          ?.map((item) => ({
-            id: crypto.randomUUID(),
-            date: new Date(item.date),
-            description: item.description,
-            hours: item.hours,
-            rate: item.rate,
-            amount: item.amount,
-          }))
-          .sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-          ) || [];
+        existingInvoice.items?.map((item) => ({
+          id: crypto.randomUUID(),
+          date: new Date(item.date),
+          description: item.description,
+          hours: item.hours,
+          rate: item.rate,
+          amount: item.amount,
+        })) || [];
       setFormData({
         invoiceNumber: existingInvoice.invoiceNumber,
         invoicePrefix: existingInvoice.invoicePrefix ?? "#",
@@ -341,17 +344,13 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         notes: formData.notes,
         taxRate: formData.taxRate,
         currency: formData.currency,
-        items: formData.items
-          .sort(
-            (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-          )
-          .map((i) => ({
-            date: i.date,
-            description: i.description,
-            hours: i.hours,
-            rate: i.rate,
-            amount: i.hours * i.rate,
-          })),
+        items: formData.items.map((i) => ({
+          date: i.date,
+          description: i.description,
+          hours: i.hours,
+          rate: i.rate,
+          amount: i.hours * i.rate,
+        })),
       };
       if (invoiceId && invoiceId !== "new" && invoiceId !== undefined)
         await updateInvoice.mutateAsync({ id: invoiceId, ...payload });
@@ -454,18 +453,12 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                       const currentBusiness = businesses?.find(
                         (b) => b.id === formData.businessId,
                       );
-                      const clientRate =
-                        selectedClient && "defaultHourlyRate" in selectedClient
-                          ? selectedClient.defaultHourlyRate
-                          : null;
+                      const clientRate = getDefaultHourlyRate(selectedClient);
                       const businessRate =
-                        currentBusiness &&
-                        "defaultHourlyRate" in currentBusiness
-                          ? currentBusiness.defaultHourlyRate
-                          : null;
+                        getDefaultHourlyRate(currentBusiness);
                       updateField(
                         "defaultHourlyRate",
-                        (clientRate ?? businessRate ?? 0) as number,
+                        clientRate ?? businessRate ?? 0,
                       );
                       // Auto-fill currency from client
                       if (
@@ -473,10 +466,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                         "currency" in selectedClient &&
                         selectedClient.currency
                       ) {
-                        updateField(
-                          "currency",
-                          selectedClient.currency as string,
-                        );
+                        updateField("currency", selectedClient.currency);
                       }
                     }}
                   >
@@ -772,6 +762,8 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     taxRate: formData.taxRate,
                     status: formData.status,
                     totalAmount: totals.total,
+                    currency: formData.currency,
+                    notes: formData.notes,
                     client: selectedClient
                       ? {
                           name: selectedClient.name,
@@ -786,8 +778,11 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                       : undefined,
                     items: formData.items.map((item) => ({
                       id: item.id,
+                      date: item.date,
+                      description: item.description,
                       hours: item.hours,
                       rate: item.rate,
+                      amount: item.hours * item.rate,
                     })),
                   }}
                 />
