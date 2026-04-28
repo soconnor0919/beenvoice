@@ -96,7 +96,7 @@ export function EmailComposer({
     content: customMessage,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      onCustomMessageChange?.(editor.getHTML());
+      onCustomMessageChange?.(editor.isEmpty ? "" : editor.getHTML());
     },
     editorProps: {
       attributes: {
@@ -109,7 +109,7 @@ export function EmailComposer({
   // Update editor content when customMessage prop changes
   useEffect(() => {
     if (editor && customMessage !== undefined) {
-      const currentContent = editor.getHTML();
+      const currentContent = editor.isEmpty ? "" : editor.getHTML();
       if (currentContent !== customMessage) {
         editor.commands.setContent(customMessage);
       }

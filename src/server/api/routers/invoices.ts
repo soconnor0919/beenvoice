@@ -6,8 +6,16 @@ import {
   invoiceItems,
   clients,
   businesses,
+  platformSettings,
 } from "~/server/db/schema";
 import { TRPCError } from "@trpc/server";
+import { generateInvoicePDFBlob } from "~/lib/pdf-export";
+import type { db } from "~/server/db";
+
+type InvoiceRouterContext = {
+  db: typeof db;
+  session: { user: { id: string } };
+};
 
 const invoiceItemSchema = z.object({
   date: z.date(),
@@ -43,6 +51,55 @@ const updateStatusSchema = z.object({
   id: z.string(),
   status: z.enum(["draft", "sent", "paid"]),
 });
+
+async function verifyBusinessAccess(
+  ctx: InvoiceRouterContext,
+  businessId?: string | null,
+) {
+  if (!businessId) return null;
+
+  const business = await ctx.db.query.businesses.findFirst({
+    where: eq(businesses.id, businessId),
+  });
+
+  if (!business) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Business not found",
+    });
+  }
+
+  if (business.createdById !== ctx.session.user.id) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You don't have permission to use this business",
+    });
+  }
+
+  return business;
+}
+
+async function verifyClientAccess(ctx: InvoiceRouterContext, clientId: string) {
+  const client = await ctx.db.query.clients.findFirst({
+    where: eq(clients.id, clientId),
+  });
+
+  if (!client) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Client not found",
+    });
+  }
+
+  if (client.createdById !== ctx.session.user.id) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You don't have permission to use this client",
+    });
+  }
+
+  return client;
+}
 
 const calculateInvoiceTotal = (
   items: Array<z.infer<typeof invoiceItemSchema>>,
@@ -162,46 +219,10 @@ export const invoicesRouter = createTRPCRouter({
         };
 
         // Verify business exists and belongs to user (if provided)
-        if (cleanInvoiceData.businessId) {
-          const business = await ctx.db.query.businesses.findFirst({
-            where: eq(businesses.id, cleanInvoiceData.businessId),
-          });
-
-          if (!business) {
-            throw new TRPCError({
-              code: "BAD_REQUEST",
-              message: "Business not found",
-            });
-          }
-
-          if (business.createdById !== ctx.session.user.id) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message:
-                "You don't have permission to create invoices for this business",
-            });
-          }
-        }
+        await verifyBusinessAccess(ctx, cleanInvoiceData.businessId);
 
         // Verify client exists and belongs to user
-        const client = await ctx.db.query.clients.findFirst({
-          where: eq(clients.id, cleanInvoiceData.clientId),
-        });
-
-        if (!client) {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "Client not found",
-          });
-        }
-
-        if (client.createdById !== ctx.session.user.id) {
-          throw new TRPCError({
-            code: "FORBIDDEN",
-            message:
-              "You don't have permission to create invoices for this client",
-          });
-        }
+        await verifyClientAccess(ctx, cleanInvoiceData.clientId);
 
         const totalAmount = calculateInvoiceTotal(
           items,
@@ -300,30 +321,12 @@ export const invoicesRouter = createTRPCRouter({
           cleanInvoiceData.businessId &&
           cleanInvoiceData.businessId.trim() !== ""
         ) {
-          const business = await ctx.db.query.businesses.findFirst({
-            where: eq(businesses.id, cleanInvoiceData.businessId),
-          });
-
-          if (!business || business.createdById !== ctx.session.user.id) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "You don't have permission to use this business",
-            });
-          }
+          await verifyBusinessAccess(ctx, cleanInvoiceData.businessId);
         }
 
         // If client is being updated, verify it belongs to user
         if (cleanInvoiceData.clientId) {
-          const client = await ctx.db.query.clients.findFirst({
-            where: eq(clients.id, cleanInvoiceData.clientId),
-          });
-
-          if (!client || client.createdById !== ctx.session.user.id) {
-            throw new TRPCError({
-              code: "FORBIDDEN",
-              message: "You don't have permission to use this client",
-            });
-          }
+          await verifyClientAccess(ctx, cleanInvoiceData.clientId);
         }
 
         await ctx.db.transaction(async (tx) => {
@@ -523,5 +526,70 @@ export const invoicesRouter = createTRPCRouter({
       await ctx.db.delete(invoices).where(inArray(invoices.id, ownedIds));
 
       return { success: true, deleted: ownedIds.length };
+    }),
+
+  previewPdf: protectedProcedure
+    .input(createInvoiceSchema)
+    .query(async ({ ctx, input }) => {
+      try {
+        const businessId =
+          input.businessId && input.businessId.trim() !== ""
+            ? input.businessId
+            : null;
+        const [client, business, settings] = await Promise.all([
+          verifyClientAccess(ctx, input.clientId),
+          verifyBusinessAccess(ctx, businessId),
+          ctx.db.query.platformSettings.findFirst({
+            where: eq(platformSettings.id, "global"),
+          }),
+        ]);
+
+        const totalAmount = calculateInvoiceTotal(input.items, input.taxRate);
+        const pdfBlob = await generateInvoicePDFBlob(
+          {
+            invoiceNumber: input.invoiceNumber,
+            invoicePrefix: input.invoicePrefix,
+            issueDate: input.issueDate,
+            dueDate: input.dueDate,
+            status: input.status,
+            totalAmount,
+            taxRate: input.taxRate,
+            currency: input.currency,
+            notes: input.notes,
+            client,
+            business,
+            items: input.items.map((item) => ({
+              date: item.date,
+              description: item.description,
+              hours: item.hours,
+              rate: item.rate,
+              amount: item.hours * item.rate,
+            })),
+          },
+          {
+            pdfTemplate: settings?.pdfTemplate as
+              | "classic"
+              | "minimal"
+              | undefined,
+            pdfAccentColor: settings?.pdfAccentColor,
+            pdfFooterText: settings?.pdfFooterText,
+            pdfShowLogo: settings?.pdfShowLogo,
+            pdfShowPageNumbers: settings?.pdfShowPageNumbers,
+          },
+        );
+
+        const buffer = Buffer.from(await pdfBlob.arrayBuffer());
+        return {
+          contentType: "application/pdf",
+          base64: buffer.toString("base64"),
+        };
+      } catch (error) {
+        if (error instanceof TRPCError) throw error;
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to generate PDF preview",
+          cause: error,
+        });
+      }
     }),
 });

@@ -17,6 +17,22 @@ function plainTextToHtml(value: string) {
     .replace(/\n/g, "<br>");
 }
 
+function normalizeEmailNoteHtml(value: string) {
+  const visibleText = value
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|\u00a0/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .trim();
+
+  return visibleText ? value.trim() : "";
+}
+
 export const emailRouter = createTRPCRouter({
   sendInvoice: protectedProcedure
     .input(
@@ -105,6 +121,12 @@ export const emailRouter = createTRPCRouter({
         "Your Name";
       const userEmail =
         invoice.business?.email ?? ctx.session.user?.email ?? "";
+      const customMessage =
+        input.customMessage !== undefined
+          ? normalizeEmailNoteHtml(input.customMessage)
+          : invoice.emailMessage
+            ? plainTextToHtml(invoice.emailMessage)
+            : undefined;
 
       // Generate branded email template
       const emailTemplate = generateInvoiceEmailTemplate({
@@ -124,11 +146,7 @@ export const emailRouter = createTRPCRouter({
           items: invoice.items,
         },
         customContent: input.customContent,
-        customMessage:
-          input.customMessage ??
-          (invoice.emailMessage
-            ? plainTextToHtml(invoice.emailMessage)
-            : undefined),
+        customMessage,
         userName,
         userEmail,
         baseUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",

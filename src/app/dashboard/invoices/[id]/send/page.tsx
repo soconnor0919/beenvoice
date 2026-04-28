@@ -64,6 +64,22 @@ function plainTextToHtml(value: string) {
     .replace(/\n/g, "<br>");
 }
 
+function normalizeEmailNoteHtml(value: string) {
+  const visibleText = value
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;|\u00a0/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .trim();
+
+  return visibleText ? value.trim() : "";
+}
+
 export default function SendEmailPage() {
   const params = useParams();
   const router = useRouter();
@@ -194,6 +210,11 @@ export default function SendEmailPage() {
       : undefined;
   }, [invoiceData]);
 
+  const normalizedCustomMessage = useMemo(
+    () => normalizeEmailNoteHtml(customMessage),
+    [customMessage],
+  );
+
   // Initialize email content when invoice loads
   useEffect(() => {
     if (!invoice || isInitialized) return;
@@ -241,7 +262,7 @@ export default function SendEmailPage() {
         invoiceId,
         customSubject: subject,
         customContent: emailContent,
-        customMessage: customMessage?.trim() || undefined,
+        customMessage: normalizedCustomMessage,
         useHtml: true,
         ccEmails: ccEmail.trim() || undefined,
         bccEmails: bccEmail.trim() || undefined,
@@ -385,7 +406,7 @@ export default function SendEmailPage() {
                         ccEmail={ccEmail}
                         bccEmail={bccEmail}
                         content={emailContent}
-                        customMessage={customMessage}
+                        customMessage={normalizedCustomMessage}
                         invoice={invoice}
                         className="min-w-0 border-0"
                       />
@@ -569,12 +590,11 @@ export default function SendEmailPage() {
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <DialogContent className="flex max-h-[90vh] max-w-6xl flex-col overflow-hidden">
+        <DialogContent>
           <DialogHeader>
-            <DialogTitle>Send Invoice Email?</DialogTitle>
+            <DialogTitle>Confirm</DialogTitle>
             <DialogDescription>
-              This will send invoice #{invoice.invoiceNumber} to{" "}
-              <strong>{invoice.client?.email}</strong>
+              Send this invoice email to <strong>{toEmail}</strong>
               {ccEmail && (
                 <>
                   {" "}
@@ -587,60 +607,29 @@ export default function SendEmailPage() {
                   and BCC to <strong>{bccEmail}</strong>
                 </>
               )}
-              .
-              {retryCount > 0 && (
-                <div className="text-muted-foreground mt-2 text-sm">
-                  Retry attempt {retryCount} of 2
-                </div>
-              )}
+              ?
             </DialogDescription>
+            {retryCount > 0 && (
+              <p className="text-muted-foreground text-sm">
+                Retry attempt {retryCount} of 2
+              </p>
+            )}
           </DialogHeader>
-          <div className="grid min-h-0 flex-1 gap-4 overflow-y-auto lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Edit3 className="h-4 w-4" />
-                  Edit Email Note
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <EmailComposer
-                  subject={subject}
-                  onSubjectChange={setSubject}
-                  content={emailContent}
-                  onContentChange={setEmailContent}
-                  customMessage={customMessage}
-                  onCustomMessageChange={setCustomMessage}
-                  fromEmail={fromEmail}
-                  toEmail={toEmail}
-                  ccEmail={ccEmail}
-                  onCcEmailChange={setCcEmail}
-                  bccEmail={bccEmail}
-                  onBccEmailChange={setBccEmail}
-                />
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                  <Eye className="h-4 w-4" />
-                  Email Preview
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <EmailPreview
-                  subject={subject}
-                  fromEmail={fromEmail}
-                  toEmail={toEmail}
-                  ccEmail={ccEmail}
-                  bccEmail={bccEmail}
-                  content={emailContent}
-                  customMessage={customMessage}
-                  invoice={invoice}
-                  className="min-w-0 border-0"
-                />
-              </CardContent>
-            </Card>
+          <div className="bg-muted/30 space-y-2 border p-3 text-sm">
+            <div>
+              <span className="text-muted-foreground">Subject: </span>
+              <span className="font-medium">{subject}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Attachment: </span>
+              <span>invoice-{invoice.invoiceNumber}.pdf</span>
+            </div>
+            {normalizedCustomMessage && (
+              <div>
+                <span className="text-muted-foreground">Email note: </span>
+                <span>Included</span>
+              </div>
+            )}
           </div>
           <DialogFooter>
             <Button
@@ -650,8 +639,7 @@ export default function SendEmailPage() {
               Cancel
             </Button>
             <Button onClick={confirmSendEmail} variant="default">
-              <Send className="mr-2 h-4 w-4" />
-              Send Email
+              Confirm
             </Button>
           </DialogFooter>
         </DialogContent>

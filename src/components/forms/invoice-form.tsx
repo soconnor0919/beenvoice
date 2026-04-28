@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { PDFViewer } from "@react-pdf/renderer";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Label } from "~/components/ui/label";
@@ -22,7 +21,6 @@ import { PageHeader } from "~/components/layout/page-header";
 import { InvoiceLineItems } from "./invoice-line-items";
 import { InvoiceCalendarView } from "./invoice-calendar-view";
 import { EmailPreview } from "./email-preview";
-import { InvoicePDF } from "~/lib/pdf-export";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import {
@@ -129,6 +127,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
   const [initialized, setInitialized] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
+  const [previewTab, setPreviewTab] = useState("pdf");
 
   // Queries (Same as before)
   const { data: clients, isLoading: loadingClients } =
@@ -222,6 +221,41 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     () => plainTextToHtml(formData.emailMessage.trim()),
     [formData.emailMessage],
   );
+
+  const pdfPreviewInput = React.useMemo(
+    () => ({
+      invoiceNumber: formData.invoiceNumber,
+      invoicePrefix: formData.invoicePrefix,
+      businessId: formData.businessId || "",
+      clientId: formData.clientId,
+      issueDate: formData.issueDate,
+      dueDate: formData.dueDate,
+      status: formData.status,
+      notes: formData.notes,
+      emailMessage: formData.emailMessage,
+      taxRate: formData.taxRate,
+      currency: formData.currency,
+      items: formData.items.map((item) => ({
+        date: item.date,
+        description: item.description || "Service",
+        hours: item.hours,
+        rate: item.rate,
+      })),
+    }),
+    [formData],
+  );
+
+  const { data: pdfPreview, isFetching: pdfPreviewLoading } =
+    api.invoices.previewPdf.useQuery(pdfPreviewInput, {
+      enabled:
+        activeTab === "preview" &&
+        previewTab === "pdf" &&
+        Boolean(formData.clientId) &&
+        formData.items.length > 0 &&
+        formData.items.every((item) => item.description.trim() !== ""),
+      refetchOnWindowFocus: false,
+      staleTime: 0,
+    });
   const selectedClient = React.useMemo(
     () => clients?.find((client) => client.id === formData.clientId),
     [clients, formData.clientId],
@@ -777,7 +811,11 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             value="preview"
             className="mt-6 focus-visible:outline-none"
           >
-            <Tabs defaultValue="pdf" className="w-full">
+            <Tabs
+              value={previewTab}
+              onValueChange={setPreviewTab}
+              className="w-full"
+            >
               <TabsList className="bg-muted grid h-auto w-full grid-cols-2 rounded-xl p-1">
                 <TabsTrigger
                   value="pdf"
@@ -802,60 +840,32 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   </CardHeader>
                   <CardContent className="p-0">
                     <div className="bg-muted/20 h-[760px] overflow-hidden border-t">
-                      <PDFViewer
-                        showToolbar
-                        style={{ width: "100%", height: "100%", border: 0 }}
-                      >
-                        <InvoicePDF
-                          invoice={{
-                            invoiceNumber: formData.invoiceNumber,
-                            invoicePrefix: formData.invoicePrefix,
-                            issueDate: formData.issueDate,
-                            dueDate: formData.dueDate,
-                            status: formData.status,
-                            totalAmount: totals.total,
-                            taxRate: formData.taxRate,
-                            currency: formData.currency,
-                            notes: formData.notes,
-                            client: selectedClient
-                              ? {
-                                  name: selectedClient.name,
-                                  email: selectedClient.email,
-                                  phone: selectedClient.phone,
-                                  addressLine1: selectedClient.addressLine1,
-                                  addressLine2: selectedClient.addressLine2,
-                                  city: selectedClient.city,
-                                  state: selectedClient.state,
-                                  postalCode: selectedClient.postalCode,
-                                  country: selectedClient.country,
-                                }
-                              : null,
-                            business: selectedBusiness
-                              ? {
-                                  name: selectedBusiness.name,
-                                  nickname: selectedBusiness.nickname,
-                                  email: selectedBusiness.email,
-                                  phone: selectedBusiness.phone,
-                                  addressLine1: selectedBusiness.addressLine1,
-                                  addressLine2: selectedBusiness.addressLine2,
-                                  city: selectedBusiness.city,
-                                  state: selectedBusiness.state,
-                                  postalCode: selectedBusiness.postalCode,
-                                  country: selectedBusiness.country,
-                                  website: selectedBusiness.website,
-                                  taxId: selectedBusiness.taxId,
-                                }
-                              : null,
-                            items: formData.items.map((item) => ({
-                              date: item.date,
-                              description: item.description,
-                              hours: item.hours,
-                              rate: item.rate,
-                              amount: item.hours * item.rate,
-                            })),
-                          }}
+                      {!formData.clientId ? (
+                        <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-center text-sm">
+                          Select a client to generate the PDF preview.
+                        </div>
+                      ) : formData.items.some(
+                          (item) => item.description.trim() === "",
+                        ) ? (
+                        <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-center text-sm">
+                          Add descriptions for all line items to generate the
+                          PDF preview.
+                        </div>
+                      ) : pdfPreviewLoading && !pdfPreview ? (
+                        <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-center text-sm">
+                          Generating server PDF preview...
+                        </div>
+                      ) : pdfPreview ? (
+                        <iframe
+                          title="Server-generated PDF preview"
+                          src={`data:${pdfPreview.contentType};base64,${pdfPreview.base64}`}
+                          className="h-full w-full border-0"
                         />
-                      </PDFViewer>
+                      ) : (
+                        <div className="text-muted-foreground flex h-full items-center justify-center p-6 text-center text-sm">
+                          PDF preview will appear here.
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>

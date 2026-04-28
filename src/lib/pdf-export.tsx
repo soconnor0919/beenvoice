@@ -5,30 +5,10 @@ import {
   View,
   Image,
   StyleSheet,
-  Font,
   pdf,
 } from "@react-pdf/renderer";
 import { saveAs } from "file-saver";
 import React from "react";
-
-Font.register({
-  family: "Frutiger",
-  fonts: [
-    {
-      src: "/fonts/frutiger/Frutiger.ttf",
-      fontWeight: "normal",
-    },
-    {
-      src: "/fonts/frutiger/Frutiger_bold.ttf",
-      fontWeight: "bold",
-    },
-  ],
-});
-
-Font.register({
-  family: "Frutiger-Bold",
-  src: "/fonts/frutiger/Frutiger_bold.ttf",
-});
 
 // Fallback download function for better browser compatibility
 function downloadBlob(blob: Blob, filename: string): void {
@@ -142,7 +122,7 @@ const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
     backgroundColor: "#ffffff",
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     fontSize: 10,
     paddingTop: 40,
     paddingBottom: 80,
@@ -169,7 +149,7 @@ const styles = StyleSheet.create({
   },
 
   businessName: {
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     fontSize: 18,
     color: "#0f0f0f",
     marginBottom: 4,
@@ -177,7 +157,7 @@ const styles = StyleSheet.create({
 
   businessInfo: {
     fontSize: 10,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
     marginBottom: 3,
@@ -185,7 +165,7 @@ const styles = StyleSheet.create({
 
   businessAddress: {
     fontSize: 10,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
     marginTop: 4,
@@ -198,14 +178,14 @@ const styles = StyleSheet.create({
 
   invoiceTitle: {
     fontSize: 28,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
     marginBottom: 8,
   },
 
   invoiceNumber: {
     fontSize: 14,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#374151",
     marginBottom: 4,
   },
@@ -214,7 +194,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     fontSize: 11,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     textAlign: "center",
   },
 
@@ -242,13 +222,13 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 12,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
     marginBottom: 12,
   },
 
   clientName: {
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     fontSize: 12,
     color: "#0f0f0f",
     marginBottom: 2,
@@ -256,7 +236,7 @@ const styles = StyleSheet.create({
 
   clientInfo: {
     fontSize: 10,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
     marginBottom: 2,
@@ -264,7 +244,7 @@ const styles = StyleSheet.create({
 
   clientAddress: {
     fontSize: 10,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
     marginTop: 4,
@@ -278,14 +258,14 @@ const styles = StyleSheet.create({
 
   detailLabel: {
     fontSize: 11,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
     flex: 1,
   },
 
   detailValue: {
     fontSize: 10,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
     flex: 1,
     textAlign: "right",
@@ -301,21 +281,21 @@ const styles = StyleSheet.create({
 
   notesTitle: {
     fontSize: 11,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
     marginBottom: 6,
   },
 
   notesContent: {
     fontSize: 10,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#374151",
     lineHeight: 1.4,
   },
 
   businessContact: {
     fontSize: 9,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
     lineHeight: 1.4,
   },
@@ -339,7 +319,7 @@ const styles = StyleSheet.create({
 
   abridgedBusinessName: {
     fontSize: 12,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
   },
 
@@ -351,13 +331,13 @@ const styles = StyleSheet.create({
 
   abridgedInvoiceTitle: {
     fontSize: 14,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
   },
 
   abridgedInvoiceNumber: {
     fontSize: 12,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#374151",
   },
 
@@ -376,7 +356,7 @@ const styles = StyleSheet.create({
 
   tableHeaderCell: {
     fontSize: 10,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#374151",
     paddingHorizontal: 4,
   },
@@ -421,7 +401,7 @@ const styles = StyleSheet.create({
     color: "#0f0f0f",
     paddingHorizontal: 4,
     paddingVertical: 2,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
   },
 
   tableCellDate: {
@@ -437,7 +417,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
     textAlign: "left",
     flexWrap: "wrap",
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
   },
 
   tableCellHours: {
@@ -495,7 +475,7 @@ const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 11,
     color: "#6b7280",
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
   },
 
   totalAmount: {
@@ -513,7 +493,7 @@ const styles = StyleSheet.create({
 
   finalTotalLabel: {
     fontSize: 12,
-    fontFamily: "Frutiger-Bold",
+    fontFamily: "Helvetica-Bold",
     color: "#0f0f0f",
   },
 
@@ -525,7 +505,7 @@ const styles = StyleSheet.create({
 
   itemCount: {
     fontSize: 9,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#9ca3af",
     textAlign: "center",
     marginTop: 6,
@@ -552,7 +532,7 @@ const styles = StyleSheet.create({
 
   pageNumber: {
     fontSize: 10,
-    fontFamily: "Frutiger",
+    fontFamily: "Helvetica",
     color: "#6b7280",
   },
 });
@@ -810,7 +790,7 @@ const Footer: React.FC<{ settings: Required<PDFGenerationSettings> }> = ({
       <Text
         style={{
           fontSize: 9,
-          fontFamily: "Frutiger",
+          fontFamily: "Helvetica",
           color: "#6b7280",
           marginLeft: settings.pdfShowLogo ? 8 : 0,
         }}
@@ -857,7 +837,7 @@ const TotalsSection: React.FC<{
         <Text
           style={{
             fontSize: 11,
-            fontFamily: "Frutiger-Bold",
+            fontFamily: "Helvetica-Bold",
             color: "#0f0f0f",
             textAlign: "center",
             marginBottom: 8,
