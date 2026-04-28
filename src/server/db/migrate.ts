@@ -23,7 +23,6 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { fileURLToPath } from "url";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) {
@@ -31,8 +30,7 @@ if (!databaseUrl) {
   process.exit(1);
 }
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const migrationsFolder = path.resolve(__dirname, "../../../drizzle");
+const migrationsFolder = path.resolve(process.cwd(), "drizzle");
 
 const pool = new Pool({
   connectionString: databaseUrl,

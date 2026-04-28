@@ -6,6 +6,7 @@ Dockerfile*
 docker-compose*
 README.md
 *.log
+.DS_Store
 .env*
 !.env.example
 .vscode
@@ -14,4 +15,3 @@ coverage
 *.tsbuildinfo
 dist
 build
-
