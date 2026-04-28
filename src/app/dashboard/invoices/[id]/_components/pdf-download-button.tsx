@@ -25,6 +25,9 @@ export function PDFDownloadButton({
     { id: invoiceId },
     { enabled: false },
   );
+  const { data: platformTheme } = api.settings.getTheme.useQuery(undefined, {
+    staleTime: 60_000,
+  });
 
   const handleDownloadPDF = async () => {
     if (isGenerating) return;
@@ -55,7 +58,13 @@ export function PDFDownloadButton({
         items: invoiceData.items,
       };
 
-      await generateInvoicePDF(pdfData);
+      await generateInvoicePDF(pdfData, {
+        pdfTemplate: platformTheme?.pdfTemplate,
+        pdfAccentColor: platformTheme?.pdfAccentColor,
+        pdfFooterText: platformTheme?.pdfFooterText,
+        pdfShowLogo: platformTheme?.pdfShowLogo,
+        pdfShowPageNumbers: platformTheme?.pdfShowPageNumbers,
+      });
       toast.success("PDF downloaded successfully");
     } catch (error) {
       console.error("PDF generation error:", error);

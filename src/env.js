@@ -13,10 +13,7 @@ export const env = createEnv({
         : z.string().optional(),
     DATABASE_URL: z.string().url(),
     BETTER_AUTH_URL: z.string().url().optional(),
-    RESEND_API_KEY:
-      process.env.NODE_ENV === "production"
-        ? z.string().min(1)
-        : z.string().min(1).optional(),
+    RESEND_API_KEY: z.string().min(1).optional(),
     RESEND_DOMAIN: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -26,6 +23,7 @@ export const env = createEnv({
     AUTHENTIK_ISSUER: z.string().url().optional(),
     AUTHENTIK_CLIENT_ID: z.string().optional(),
     AUTHENTIK_CLIENT_SECRET: z.string().optional(),
+    AUTHENTIK_ORIGIN: z.string().url().optional(),
   },
 
   /**
@@ -37,6 +35,27 @@ export const env = createEnv({
     NEXT_PUBLIC_APP_URL: z.string().url().optional(),
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: z.string().optional(),
     NEXT_PUBLIC_UMAMI_SCRIPT_URL: z.string().url().optional(),
+    NEXT_PUBLIC_AUTHENTIK_ENABLED: z.coerce.boolean().optional(),
+    NEXT_PUBLIC_BRAND_NAME: z.string().optional(),
+    NEXT_PUBLIC_BRAND_TAGLINE: z.string().optional(),
+    NEXT_PUBLIC_BRAND_LOGO_TEXT: z.string().optional(),
+    NEXT_PUBLIC_BRAND_ICON: z.string().optional(),
+    NEXT_PUBLIC_DEFAULT_INTERFACE_THEME: z
+      .enum(["beenvoice", "shadcn", "minimal", "editorial"])
+      .optional(),
+    NEXT_PUBLIC_DEFAULT_FONT: z
+      .enum(["brand", "platform", "inter", "serif"])
+      .optional(),
+    NEXT_PUBLIC_DEFAULT_BODY_FONT: z
+      .enum(["brand", "platform", "inter", "serif"])
+      .optional(),
+    NEXT_PUBLIC_DEFAULT_HEADING_FONT: z
+      .enum(["brand", "platform", "inter", "serif"])
+      .optional(),
+    NEXT_PUBLIC_DEFAULT_RADIUS: z.enum(["none", "sm", "md", "lg", "xl"]).optional(),
+    NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE: z
+      .enum(["floating", "docked"])
+      .optional(),
   },
 
   /**
@@ -54,9 +73,24 @@ export const env = createEnv({
     AUTHENTIK_ISSUER: process.env.AUTHENTIK_ISSUER,
     AUTHENTIK_CLIENT_ID: process.env.AUTHENTIK_CLIENT_ID,
     AUTHENTIK_CLIENT_SECRET: process.env.AUTHENTIK_CLIENT_SECRET,
+    AUTHENTIK_ORIGIN: process.env.AUTHENTIK_ORIGIN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_UMAMI_SCRIPT_URL: process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL,
+    NEXT_PUBLIC_AUTHENTIK_ENABLED: process.env.NEXT_PUBLIC_AUTHENTIK_ENABLED,
+    NEXT_PUBLIC_BRAND_NAME: process.env.NEXT_PUBLIC_BRAND_NAME,
+    NEXT_PUBLIC_BRAND_TAGLINE: process.env.NEXT_PUBLIC_BRAND_TAGLINE,
+    NEXT_PUBLIC_BRAND_LOGO_TEXT: process.env.NEXT_PUBLIC_BRAND_LOGO_TEXT,
+    NEXT_PUBLIC_BRAND_ICON: process.env.NEXT_PUBLIC_BRAND_ICON,
+    NEXT_PUBLIC_DEFAULT_INTERFACE_THEME:
+      process.env.NEXT_PUBLIC_DEFAULT_INTERFACE_THEME,
+    NEXT_PUBLIC_DEFAULT_FONT: process.env.NEXT_PUBLIC_DEFAULT_FONT,
+    NEXT_PUBLIC_DEFAULT_BODY_FONT: process.env.NEXT_PUBLIC_DEFAULT_BODY_FONT,
+    NEXT_PUBLIC_DEFAULT_HEADING_FONT:
+      process.env.NEXT_PUBLIC_DEFAULT_HEADING_FONT,
+    NEXT_PUBLIC_DEFAULT_RADIUS: process.env.NEXT_PUBLIC_DEFAULT_RADIUS,
+    NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE:
+      process.env.NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -20,6 +20,7 @@ import { NumberInput } from "~/components/ui/number-input";
 import { PageHeader } from "~/components/layout/page-header";
 import { InvoiceLineItems } from "./invoice-line-items";
 import { InvoiceCalendarView } from "./invoice-calendar-view";
+import { EmailPreview } from "./email-preview";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import {
@@ -30,6 +31,7 @@ import {
   List,
   FileText,
   ChevronDown,
+  Mail,
 } from "lucide-react";
 import { SUPPORTED_CURRENCIES } from "~/lib/currency";
 import { Textarea } from "~/components/ui/textarea";
@@ -58,7 +60,7 @@ interface InvoiceFormProps {
 
 function InvoiceFormSkeleton() {
   return (
-    <div className="space-y-6 pb-32">
+    <div className="space-y-6 pb-8">
       <PageHeader
         title="Loading..."
         description="Loading invoice form"
@@ -199,6 +201,16 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
     const total = subtotal + taxAmount;
     return { subtotal, taxAmount, total };
   }, [formData.items, formData.taxRate]);
+  const selectedClient = React.useMemo(
+    () => clients?.find((client) => client.id === formData.clientId),
+    [clients, formData.clientId],
+  );
+  const selectedBusiness = React.useMemo(
+    () =>
+      businesses?.find((business) => business.id === formData.businessId) ??
+      businesses?.find((business) => business.isDefault),
+    [businesses, formData.businessId],
+  );
 
   // Handlers (addItem, updateItem etc. - same as before)
   const addItem = (date?: unknown) => {
@@ -370,7 +382,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
   return (
     <>
-      <div className="page-enter space-y-6 pb-32">
+      <div className="page-enter space-y-6 pb-8">
         <PageHeader
           title={invoiceId !== "new" ? "Edit Invoice" : "Create Invoice"}
           description="Manage your invoice"
@@ -393,7 +405,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
         <Tabs value={activeTab} className="w-full" onValueChange={setActiveTab}>
           {/* TAB SELECTOR: w-full, p-1, visible background */}
-          <TabsList className="bg-muted grid h-auto w-full grid-cols-3 rounded-xl p-1">
+          <TabsList className="bg-muted grid h-auto w-full grid-cols-4 rounded-xl p-1">
             <TabsTrigger
               value="details"
               className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
@@ -412,6 +424,12 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             >
               Timesheet
             </TabsTrigger>
+            <TabsTrigger
+              value="preview"
+              className="data-[state=active]:bg-background rounded-lg py-2.5 data-[state=active]:shadow-sm"
+            >
+              Preview
+            </TabsTrigger>
           </TabsList>
 
           {/* DETAILS TAB */}
@@ -419,7 +437,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
             value="details"
             className="mt-6 grid grid-cols-1 gap-6 focus-visible:outline-none lg:grid-cols-2"
           >
-            <Card className="h-fit">
+            <Card className="h-full">
               <CardHeader>
                 <CardTitle className="flex gap-2 text-base">
                   <User className="h-4 w-4" /> Client Details
@@ -495,10 +513,10 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
               </CardContent>
             </Card>
 
-            <Card className="h-fit">
+            <Card className="h-full">
               <CardHeader>
                 <CardTitle className="flex gap-2 text-base">
-                  <Tag className="h-4 w-4" /> Invoice Config
+                  <Tag className="h-4 w-4" /> Invoice Settings
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -524,7 +542,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[96px_1fr] sm:gap-4">
                   <div className="space-y-2">
                     <Label>Prefix</Label>
                     <Input
@@ -534,6 +552,17 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                       }
                       placeholder="#"
                       className="w-full"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Invoice Number</Label>
+                    <Input
+                      value={formData.invoiceNumber}
+                      onChange={(e) =>
+                        updateField("invoiceNumber", e.target.value)
+                      }
+                      placeholder="INV-20260428-000001"
+                      className="w-full font-mono"
                     />
                   </div>
                 </div>
@@ -713,6 +742,54 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   onRemoveItem={removeItem}
                   onUpdateItem={updateItem}
                   defaultHourlyRate={formData.defaultHourlyRate}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent
+            value="preview"
+            className="mt-6 focus-visible:outline-none"
+          >
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex gap-2">
+                  <Mail className="h-5 w-5" /> Email Preview
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <EmailPreview
+                  subject={`Invoice ${formData.invoiceNumber} from ${
+                    selectedBusiness?.name ?? "Your Business"
+                  }`}
+                  fromEmail={selectedBusiness?.email ?? ""}
+                  toEmail={selectedClient?.email ?? ""}
+                  content=""
+                  invoice={{
+                    invoiceNumber: formData.invoiceNumber,
+                    issueDate: formData.issueDate,
+                    dueDate: formData.dueDate,
+                    taxRate: formData.taxRate,
+                    status: formData.status,
+                    totalAmount: totals.total,
+                    client: selectedClient
+                      ? {
+                          name: selectedClient.name,
+                          email: selectedClient.email,
+                        }
+                      : undefined,
+                    business: selectedBusiness
+                      ? {
+                          name: selectedBusiness.name,
+                          email: selectedBusiness.email,
+                        }
+                      : undefined,
+                    items: formData.items.map((item) => ({
+                      id: item.id,
+                      hours: item.hours,
+                      rate: item.rate,
+                    })),
+                  }}
                 />
               </CardContent>
             </Card>

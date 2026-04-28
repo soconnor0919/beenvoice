@@ -30,15 +30,15 @@ export function InvoiceDetailsSkeleton() {
                       <Skeleton className="h-8 w-48" />
                       <Skeleton className="h-6 w-24 rounded-full" />
                     </div>
-                    <div className="space-y-1 sm:space-y-0 text-sm">
+                    <div className="space-y-1 text-sm sm:space-y-0">
                       <div className="flex gap-2">
                         <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-4 w-32 hidden sm:block" />
+                        <Skeleton className="hidden h-4 w-32 sm:block" />
                       </div>
                     </div>
                   </div>
                   <div className="flex-shrink-0 text-left sm:text-right">
-                    <Skeleton className="h-4 w-24 mb-1 sm:ml-auto" />
+                    <Skeleton className="mb-1 h-4 w-24 sm:ml-auto" />
                     <Skeleton className="h-9 w-32 sm:ml-auto" />
                   </div>
                 </div>
@@ -118,7 +118,7 @@ export function InvoiceDetailsSkeleton() {
                     <div className="space-y-3">
                       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0 flex-1">
-                          <Skeleton className="h-5 w-3/4 mb-2" />
+                          <Skeleton className="mb-2 h-5 w-3/4" />
                           <div className="flex gap-4">
                             <Skeleton className="h-4 w-24" />
                             <Skeleton className="h-4 w-16" />
@@ -156,7 +156,7 @@ export function InvoiceDetailsSkeleton() {
 
         {/* Right Column - Actions */}
         <div className="space-y-6">
-          <Card className="sticky top-20">
+          <Card className="lg:sticky lg:top-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Skeleton className="h-5 w-5 rounded-full" />

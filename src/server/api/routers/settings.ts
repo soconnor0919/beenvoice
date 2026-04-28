@@ -1,14 +1,48 @@
 import { z } from "zod";
 import { eq } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import {
   users,
   clients,
   businesses,
   invoices,
   invoiceItems,
+  platformSettings,
 } from "~/server/db/schema";
+import {
+  defaultBodyFontPreference,
+  defaultFontPreference,
+  defaultHeadingFontPreference,
+  defaultInterfaceTheme,
+  defaultRadiusPreference,
+  defaultSidebarStyle,
+  type ColorMode,
+  type ColorTheme,
+  type FontPreference,
+  type InterfaceTheme,
+  type RadiusPreference,
+  type SidebarStyle,
+} from "~/lib/branding";
+
+async function requireAdmin(ctx: {
+  db: typeof import("~/server/db").db;
+  session: { user: { id: string } };
+}) {
+  const user = await ctx.db.query.users.findFirst({
+    where: eq(users.id, ctx.session.user.id),
+    columns: { role: true },
+  });
+
+  if (user?.role !== "admin") {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }
+}
 
 // Validation schemas for backup data
 const ClientBackupSchema = z.object({
@@ -76,6 +110,37 @@ const BackupDataSchema = z.object({
 });
 
 export const settingsRouter = createTRPCRouter({
+  listAccounts: protectedProcedure.query(async ({ ctx }) => {
+    await requireAdmin(ctx);
+    return ctx.db.query.users.findMany({
+      columns: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        emailVerified: true,
+        createdAt: true,
+      },
+      orderBy: (users, { asc }) => [asc(users.createdAt)],
+    });
+  }),
+
+  updateAccountRole: protectedProcedure
+    .input(
+      z.object({
+        userId: z.string().min(1),
+        role: z.enum(["user", "admin"]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await requireAdmin(ctx);
+      await ctx.db
+        .update(users)
+        .set({ role: input.role })
+        .where(eq(users.id, input.userId));
+      return { success: true };
+    }),
+
   // Get user profile information
   getProfile: protectedProcedure.query(async ({ ctx }) => {
     const user = await ctx.db.query.users.findFirst({
@@ -85,6 +150,7 @@ export const settingsRouter = createTRPCRouter({
         name: true,
         email: true,
         image: true,
+        role: true,
       },
     });
 
@@ -144,20 +210,41 @@ export const settingsRouter = createTRPCRouter({
     }),
 
   // Get theme preferences
-  getTheme: protectedProcedure.query(async ({ ctx }) => {
-    const user = await ctx.db.query.users.findFirst({
-      where: eq(users.id, ctx.session.user.id),
-      columns: {
-        colorTheme: true,
-        customColor: true,
-        theme: true,
-      },
+  getTheme: publicProcedure.query(async ({ ctx }) => {
+    const settings = await ctx.db.query.platformSettings.findFirst({
+      where: eq(platformSettings.id, "global"),
     });
 
     return {
-      colorTheme: (user?.colorTheme as "slate" | "blue" | "green" | "rose" | "orange" | "custom") ?? "slate",
-      customColor: user?.customColor ?? undefined,
-      theme: (user?.theme as "light" | "dark" | "system") ?? "system",
+      colorTheme: (settings?.colorTheme as ColorTheme) ?? "slate",
+      customColor: settings?.customColor ?? undefined,
+      theme: (settings?.theme as ColorMode) ?? "system",
+      interfaceTheme:
+        (settings?.interfaceTheme as InterfaceTheme) ?? defaultInterfaceTheme,
+      fontPreference: defaultFontPreference,
+      bodyFontPreference:
+        (settings?.bodyFontPreference as FontPreference) ??
+        defaultBodyFontPreference,
+      headingFontPreference:
+        (settings?.headingFontPreference as FontPreference) ??
+        defaultHeadingFontPreference,
+      radiusPreference:
+        (settings?.radiusPreference as RadiusPreference) ??
+        defaultRadiusPreference,
+      sidebarStyle:
+        (settings?.sidebarStyle as SidebarStyle) ?? defaultSidebarStyle,
+      brandName: settings?.brandName ?? "beenvoice",
+      brandTagline:
+        settings?.brandTagline ??
+        "Simple and efficient invoicing for freelancers and small businesses",
+      brandLogoText: settings?.brandLogoText ?? "beenvoice",
+      brandIcon: settings?.brandIcon ?? "$",
+      pdfTemplate:
+        (settings?.pdfTemplate as "classic" | "minimal") ?? "classic",
+      pdfAccentColor: settings?.pdfAccentColor ?? "#111827",
+      pdfFooterText: settings?.pdfFooterText ?? "Professional Invoicing",
+      pdfShowLogo: settings?.pdfShowLogo ?? true,
+      pdfShowPageNumbers: settings?.pdfShowPageNumbers ?? true,
     };
   }),
 
@@ -165,20 +252,105 @@ export const settingsRouter = createTRPCRouter({
   updateTheme: protectedProcedure
     .input(
       z.object({
-        colorTheme: z.enum(["slate", "blue", "green", "rose", "orange", "custom"]).optional(),
+        colorTheme: z
+          .enum(["slate", "blue", "green", "rose", "orange", "custom"])
+          .optional(),
         customColor: z.string().optional(),
         theme: z.enum(["light", "dark", "system"]).optional(),
+        interfaceTheme: z
+          .enum(["beenvoice", "shadcn", "minimal", "editorial"])
+          .optional(),
+        fontPreference: z
+          .enum(["brand", "platform", "inter", "serif"])
+          .optional(),
+        bodyFontPreference: z
+          .enum(["brand", "platform", "inter", "serif"])
+          .optional(),
+        headingFontPreference: z
+          .enum(["brand", "platform", "inter", "serif"])
+          .optional(),
+        radiusPreference: z.enum(["none", "sm", "md", "lg", "xl"]).optional(),
+        sidebarStyle: z.enum(["floating", "docked"]).optional(),
+        brandName: z.string().min(1).max(100).optional(),
+        brandTagline: z.string().min(1).max(255).optional(),
+        brandLogoText: z.string().min(1).max(100).optional(),
+        brandIcon: z.string().min(1).max(20).optional(),
+        pdfTemplate: z.enum(["classic", "minimal"]).optional(),
+        pdfAccentColor: z.string().min(4).max(50).optional(),
+        pdfFooterText: z.string().min(1).max(120).optional(),
+        pdfShowLogo: z.boolean().optional(),
+        pdfShowPageNumbers: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      await requireAdmin(ctx);
       await ctx.db
-        .update(users)
-        .set({
-          ...(input.colorTheme && { colorTheme: input.colorTheme }),
-          ...(input.customColor !== undefined && { customColor: input.customColor }),
-          ...(input.theme && { theme: input.theme }),
+        .insert(platformSettings)
+        .values({
+          id: "global",
+          brandName: input.brandName ?? "beenvoice",
+          brandTagline:
+            input.brandTagline ??
+            "Simple and efficient invoicing for freelancers and small businesses",
+          brandLogoText: input.brandLogoText ?? "beenvoice",
+          brandIcon: input.brandIcon ?? "$",
+          colorTheme: input.colorTheme ?? "slate",
+          customColor: input.customColor,
+          theme: input.theme ?? "system",
+          interfaceTheme: input.interfaceTheme ?? defaultInterfaceTheme,
+          bodyFontPreference:
+            input.bodyFontPreference ?? defaultBodyFontPreference,
+          headingFontPreference:
+            input.headingFontPreference ?? defaultHeadingFontPreference,
+          radiusPreference: input.radiusPreference ?? defaultRadiusPreference,
+          sidebarStyle: input.sidebarStyle ?? defaultSidebarStyle,
+          pdfTemplate: input.pdfTemplate ?? "classic",
+          pdfAccentColor: input.pdfAccentColor ?? "#111827",
+          pdfFooterText: input.pdfFooterText ?? "Professional Invoicing",
+          pdfShowLogo: input.pdfShowLogo ?? true,
+          pdfShowPageNumbers: input.pdfShowPageNumbers ?? true,
         })
-        .where(eq(users.id, ctx.session.user.id));
+        .onConflictDoUpdate({
+          target: platformSettings.id,
+          set: {
+            ...(input.brandName && { brandName: input.brandName }),
+            ...(input.brandTagline && { brandTagline: input.brandTagline }),
+            ...(input.brandLogoText && {
+              brandLogoText: input.brandLogoText,
+            }),
+            ...(input.brandIcon && { brandIcon: input.brandIcon }),
+            ...(input.colorTheme && { colorTheme: input.colorTheme }),
+            ...(input.customColor !== undefined && {
+              customColor: input.customColor,
+            }),
+            ...(input.theme && { theme: input.theme }),
+            ...(input.interfaceTheme && {
+              interfaceTheme: input.interfaceTheme,
+            }),
+            ...(input.bodyFontPreference && {
+              bodyFontPreference: input.bodyFontPreference,
+            }),
+            ...(input.headingFontPreference && {
+              headingFontPreference: input.headingFontPreference,
+            }),
+            ...(input.radiusPreference && {
+              radiusPreference: input.radiusPreference,
+            }),
+            ...(input.sidebarStyle && { sidebarStyle: input.sidebarStyle }),
+            ...(input.pdfTemplate && { pdfTemplate: input.pdfTemplate }),
+            ...(input.pdfAccentColor && {
+              pdfAccentColor: input.pdfAccentColor,
+            }),
+            ...(input.pdfFooterText && { pdfFooterText: input.pdfFooterText }),
+            ...(input.pdfShowLogo !== undefined && {
+              pdfShowLogo: input.pdfShowLogo,
+            }),
+            ...(input.pdfShowPageNumbers !== undefined && {
+              pdfShowPageNumbers: input.pdfShowPageNumbers,
+            }),
+            updatedAt: new Date(),
+          },
+        });
 
       return { success: true };
     }),

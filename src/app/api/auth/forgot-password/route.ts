@@ -55,6 +55,20 @@ export async function POST(request: NextRequest) {
       })
       .where(eq(users.id, user.id));
 
+    if (!env.RESEND_API_KEY) {
+      console.warn(
+        "Password reset requested, but RESEND_API_KEY is not configured.",
+      );
+      return NextResponse.json(
+        {
+          success: true,
+          message:
+            "If an account with that email exists, password reset instructions have been sent.",
+        },
+        { status: 200 },
+      );
+    }
+
     // Send password reset email using Resend
     try {
       const resend = new Resend(env.RESEND_API_KEY);

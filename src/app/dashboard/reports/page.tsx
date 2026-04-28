@@ -25,6 +25,11 @@ import {
 } from "recharts";
 import { TrendingUp, DollarSign, Clock, Users, Download, Receipt, FileText } from "lucide-react";
 
+function toNumericChartValue(value: unknown) {
+  const numericValue = typeof value === "number" ? value : Number(value ?? 0);
+  return Number.isFinite(numericValue) ? numericValue : 0;
+}
+
 export default function ReportsPage() {
   const { data: invoices = [], isLoading: invoicesLoading } = api.invoices.getAll.useQuery();
   const { data: expenses = [], isLoading: expensesLoading } = api.expenses.getAll.useQuery();
@@ -259,7 +264,7 @@ export default function ReportsPage() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
-                    <Tooltip formatter={(v: number) => [formatCurrency(v), "Revenue"]} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }} />
+                    <Tooltip formatter={(value) => [formatCurrency(toNumericChartValue(value)), "Revenue"]} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }} />
                     <Area type="monotone" dataKey="revenue" stroke="hsl(142, 76%, 36%)" fill="url(#revenueGrad)" strokeWidth={2} dot={false} />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -281,7 +286,7 @@ export default function ReportsPage() {
                       <BarChart data={overviewData.topClients} layout="vertical">
                         <XAxis type="number" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
                         <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={80} />
-                        <Tooltip formatter={(v: number) => [formatCurrency(v), "Revenue"]} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }} />
+                        <Tooltip formatter={(value) => [formatCurrency(toNumericChartValue(value)), "Revenue"]} contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }} />
                         <Bar dataKey="revenue" fill="hsl(142, 76%, 36%)" radius={[0, 4, 4, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -433,7 +438,7 @@ export default function ReportsPage() {
                     <XAxis dataKey="label" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
                     <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `$${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}`} />
                     <Tooltip
-                      formatter={(v: number, name: string) => [formatCurrency(v), name === "income" ? "Income" : "Expenses"]}
+                      formatter={(value, name) => [formatCurrency(toNumericChartValue(value)), name === "income" ? "Income" : "Expenses"]}
                       contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: 12 }}
                     />
                     <Bar dataKey="income" name="income" fill="hsl(142, 76%, 36%)" radius={[4, 4, 0, 0]} />

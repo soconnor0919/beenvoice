@@ -49,79 +49,59 @@ const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
       <div
         ref={ref}
         className={cn(
-          "bg-card group hover:border-primary/20 hidden rounded-xl border p-4 shadow-sm transition-all md:block",
+          "group hover:bg-muted/40 hidden min-h-16 grid-cols-[140px_minmax(200px,1fr)_124px_136px_104px_32px] items-center gap-2 border-b px-3 py-2 transition-colors md:grid",
         )}
       >
-        <div className="flex items-center gap-3">
-          {/* Main Content */}
-          <div className="flex-1 space-y-3">
-            {/* Description */}
-            <div>
-              <Input
-                value={item.description}
-                onChange={(e) => onUpdate(index, "description", e.target.value)}
-                placeholder="Describe the work performed..."
-                className="w-full text-sm font-medium"
-              />
-            </div>
+        <DatePicker
+          date={item.date}
+          onDateChange={(date) => onUpdate(index, "date", date ?? new Date())}
+          size="sm"
+          className="w-full"
+          inputClassName="h-9"
+        />
 
-            {/* Controls Row */}
-            <div className="flex flex-wrap items-center gap-3">
-              {/* Date */}
-              <DatePicker
-                date={item.date}
-                onDateChange={(date) =>
-                  onUpdate(index, "date", date ?? new Date())
-                }
-                size="sm"
-                className="w-full sm:w-[180px]"
-                inputClassName="h-9"
-              />
+        <Input
+          value={item.description}
+          onChange={(e) => onUpdate(index, "description", e.target.value)}
+          placeholder="Describe the work performed..."
+          className="h-9 w-full text-sm font-medium"
+        />
 
-              {/* Hours */}
-              <NumberInput
-                value={item.hours}
-                onChange={(value) => onUpdate(index, "hours", value)}
-                min={0}
-                step={0.25}
-                width="auto"
-                className="h-9 min-w-[100px] flex-1 font-mono"
-                suffix="h"
-              />
+        <NumberInput
+          value={item.hours}
+          onChange={(value) => onUpdate(index, "hours", value)}
+          min={0}
+          step={0.25}
+          width="full"
+          className="h-9 font-mono [&_button]:w-6 [&_input]:min-w-12"
+          suffix="h"
+        />
 
-              {/* Rate */}
-              <NumberInput
-                value={item.rate}
-                onChange={(value) => onUpdate(index, "rate", value)}
-                min={0}
-                step={1}
-                prefix="$"
-                width="auto"
-                className="h-9 min-w-[100px] flex-1 font-mono"
-              />
+        <NumberInput
+          value={item.rate}
+          onChange={(value) => onUpdate(index, "rate", value)}
+          min={0}
+          step={1}
+          prefix="$"
+          width="full"
+          className="h-9 font-mono [&_button]:w-6 [&_input]:min-w-14"
+        />
 
-              {/* Amount */}
-              <div className="ml-auto">
-                <span className="text-primary font-semibold">
-                  ${(item.hours * item.rate).toFixed(2)}
-                </span>
-              </div>
-
-              {/* Actions */}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => onRemove(index)}
-                className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
-                disabled={!canRemove}
-                aria-label="Remove item"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+        <div className="text-primary text-right font-mono font-semibold">
+          ${(item.hours * item.rate).toFixed(2)}
         </div>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => onRemove(index)}
+          className="text-muted-foreground hover:text-destructive h-8 w-8 p-0"
+          disabled={!canRemove}
+          aria-label="Remove item"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     );
   },
@@ -240,7 +220,15 @@ export function InvoiceLineItems({
   return (
     <div className={cn("space-y-2", className)}>
       <AnimatePresence>
-        <div className="space-y-2">
+        <div className="space-y-2 md:space-y-0 md:overflow-hidden md:rounded-lg md:border">
+          <div className="bg-muted/60 text-muted-foreground hidden grid-cols-[140px_minmax(200px,1fr)_124px_136px_104px_32px] gap-2 border-b px-3 py-2 text-xs font-medium md:grid">
+            <span>Date</span>
+            <span>Description</span>
+            <span className="text-right">Hours</span>
+            <span className="text-right">Rate</span>
+            <span className="text-right">Amount</span>
+            <span />
+          </div>
           {items.map((item, index) => (
             <React.Fragment key={item.id}>
               {/* Desktop/Tablet Card */}
@@ -275,19 +263,15 @@ export function InvoiceLineItems({
       </AnimatePresence>
 
       {/* Add Item Button */}
-      <div className="px-3 pt-3">
-        <div className="border-t pt-6">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onAddItem}
-            className="border-border text-muted-foreground hover:text-primary hover:bg-accent/50 hover:border-primary/50 w-full border-dashed py-8 transition-all"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Line Item
-          </Button>
-        </div>
-      </div>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onAddItem}
+        className="border-border text-muted-foreground hover:text-primary hover:bg-accent/50 hover:border-primary/50 mt-3 w-full border-dashed py-6 transition-all"
+      >
+        <Plus className="mr-2 h-4 w-4" />
+        Add Line Item
+      </Button>
     </div>
   );
 }

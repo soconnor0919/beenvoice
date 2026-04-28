@@ -42,9 +42,9 @@ export function PageHeader({
   return (
     <div className={`animate-fade-in-down mb-6 ${className}`}>
       {variant === "large-gradient" || variant === "gradient" ? (
-        <div className="rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-          <div className="p-6 relative">
+        <div className="platform-header-surface rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden relative">
+          <div className="platform-header-gradient absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+          <div className="platform-header-content p-6 relative">
             <DashboardBreadcrumbs className="mb-4" />
             {/* UPDATED: flex-col on mobile to prevent squishing, row on sm+ */}
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">

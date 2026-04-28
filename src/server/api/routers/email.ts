@@ -1,14 +1,11 @@
 import { z } from "zod";
 import { Resend } from "resend";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { invoices } from "~/server/db/schema";
+import { invoices, platformSettings } from "~/server/db/schema";
 import { eq } from "drizzle-orm";
 import { env } from "~/env";
 import { generateInvoicePDFBlob } from "~/lib/pdf-export";
 import { generateInvoiceEmailTemplate } from "~/lib/email-templates";
-
-// Default Resend instance - will be overridden if business has custom API key
-const defaultResend = new Resend(env.RESEND_API_KEY);
 
 export const emailRouter = createTRPCRouter({
   sendInvoice: protectedProcedure
@@ -56,7 +53,19 @@ export const emailRouter = createTRPCRouter({
       // Generate PDF for attachment
       let pdfBuffer: Buffer;
       try {
-        const pdfBlob = await generateInvoicePDFBlob(invoice);
+        const settings = await ctx.db.query.platformSettings.findFirst({
+          where: eq(platformSettings.id, "global"),
+        });
+        const pdfBlob = await generateInvoicePDFBlob(invoice, {
+          pdfTemplate: settings?.pdfTemplate as
+            | "classic"
+            | "minimal"
+            | undefined,
+          pdfAccentColor: settings?.pdfAccentColor,
+          pdfFooterText: settings?.pdfFooterText,
+          pdfShowLogo: settings?.pdfShowLogo,
+          pdfShowPageNumbers: settings?.pdfShowPageNumbers,
+        });
         pdfBuffer = Buffer.from(await pdfBlob.arrayBuffer());
 
         // Validate PDF was generated successfully
@@ -126,14 +135,17 @@ export const emailRouter = createTRPCRouter({
             : invoice.business.name) ??
           userName;
         fromEmail = `${fromName} <noreply@${invoice.business.resendDomain}>`;
-      } else if (env.RESEND_DOMAIN) {
+      } else if (env.RESEND_API_KEY && env.RESEND_DOMAIN) {
         // Use system Resend configuration
-        resendInstance = defaultResend;
+        resendInstance = new Resend(env.RESEND_API_KEY);
         fromEmail = `noreply@${env.RESEND_DOMAIN}`;
+      } else if (env.RESEND_API_KEY) {
+        resendInstance = new Resend(env.RESEND_API_KEY);
+        fromEmail = invoice.business?.email ?? "noreply@example.com";
       } else {
-        // Fallback to business email if no configured domains
-        resendInstance = defaultResend;
-        fromEmail = invoice.business?.email ?? "noreply@yourdomain.com";
+        throw new Error(
+          "Email delivery is not configured. Add a Resend API key globally or on this business.",
+        );
       }
 
       // Prepare CC and BCC lists

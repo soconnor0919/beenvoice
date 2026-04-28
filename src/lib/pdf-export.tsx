@@ -118,6 +118,26 @@ interface InvoiceData {
   } | null> | null;
 }
 
+export interface PDFGenerationSettings {
+  pdfTemplate?: "classic" | "minimal";
+  pdfAccentColor?: string;
+  pdfFooterText?: string;
+  pdfShowLogo?: boolean;
+  pdfShowPageNumbers?: boolean;
+}
+
+const defaultPDFSettings: Required<PDFGenerationSettings> = {
+  pdfTemplate: "classic",
+  pdfAccentColor: "#111827",
+  pdfFooterText: "Professional Invoicing",
+  pdfShowLogo: true,
+  pdfShowPageNumbers: true,
+};
+
+function resolvePDFSettings(settings?: PDFGenerationSettings) {
+  return { ...defaultPDFSettings, ...settings };
+}
+
 const styles = StyleSheet.create({
   page: {
     flexDirection: "column",
@@ -668,11 +688,14 @@ function getColumnWidths(showRate: boolean) {
 }
 
 // Dense header component (first page)
-const DenseHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
+const DenseHeader: React.FC<{
+  invoice: InvoiceData;
+  settings: Required<PDFGenerationSettings>;
+}> = ({ invoice, settings }) => (
   <View style={styles.denseHeader}>
     <View style={styles.headerTop}>
       <View style={styles.businessSection}>
-        <Text style={styles.businessName}>
+        <Text style={[styles.businessName, { color: settings.pdfAccentColor }]}>
           {invoice.business?.name ?? "Your Business Name"}
         </Text>
         {invoice.business?.email && (
@@ -708,7 +731,9 @@ const DenseHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
       </View>
 
       <View style={styles.invoiceSection}>
-        <Text style={styles.invoiceTitle}>INVOICE</Text>
+        <Text style={[styles.invoiceTitle, { color: settings.pdfAccentColor }]}>
+          INVOICE
+        </Text>
         <Text style={styles.invoiceNumber}>
           {invoice.invoicePrefix ?? "#"}
           {invoice.invoiceNumber}
@@ -771,9 +796,14 @@ const DenseHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
 );
 
 // Abridged header component (other pages)
-const AbridgedHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
+const AbridgedHeader: React.FC<{
+  invoice: InvoiceData;
+  settings: Required<PDFGenerationSettings>;
+}> = ({ invoice, settings }) => (
   <View style={styles.abridgedHeader}>
-    <Text style={styles.abridgedBusinessName}>
+    <Text
+      style={[styles.abridgedBusinessName, { color: settings.pdfAccentColor }]}
+    >
       {invoice.business?.name ?? "Your Business Name"}
     </Text>
     <View style={styles.abridgedInvoiceInfo}>
@@ -787,19 +817,49 @@ const AbridgedHeader: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => (
 );
 
 // Table header component
-const TableHeader: React.FC<{ showRate: boolean }> = ({ showRate }) => {
+const TableHeader: React.FC<{
+  settings: Required<PDFGenerationSettings>;
+  showRate: boolean;
+}> = ({ settings, showRate }) => {
   const cols = getColumnWidths(showRate);
   return (
-    <View style={styles.tableHeader}>
+    <View
+      style={[
+        styles.tableHeader,
+        settings.pdfTemplate === "minimal" ? { backgroundColor: "#ffffff" } : {},
+      ]}
+    >
       <Text style={[styles.tableHeaderCell, { width: cols.date }]}>Date</Text>
       <Text style={[styles.tableHeaderCell, { width: cols.description }]}>
         Description
       </Text>
-      <Text style={[styles.tableHeaderCell, styles.tableHeaderHours, { width: cols.hours }]}>Hours</Text>
+      <Text
+        style={[
+          styles.tableHeaderCell,
+          styles.tableHeaderHours,
+          { width: cols.hours },
+        ]}
+      >
+        Hours
+      </Text>
       {showRate && (
-        <Text style={[styles.tableHeaderCell, styles.tableHeaderRate]}>Rate</Text>
+        <Text
+          style={[
+            styles.tableHeaderCell,
+            styles.tableHeaderRate,
+            { width: cols.rate },
+          ]}
+        >
+          Rate
+        </Text>
       )}
-      <Text style={[styles.tableHeaderCell, styles.tableHeaderAmount, { width: cols.amount }]}>
+      <Text
+        style={[
+          styles.tableHeaderCell,
+          styles.tableHeaderAmount,
+          { width: cols.amount },
+        ]}
+      >
         Amount
       </Text>
     </View>
@@ -820,35 +880,40 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
   );
 };
 
-const Footer: React.FC = () => (
+const Footer: React.FC<{ settings: Required<PDFGenerationSettings> }> = ({
+  settings,
+}) => (
   <View style={styles.footer} fixed>
     <View style={styles.footerLogo}>
-      {/* eslint-disable-next-line jsx-a11y/alt-text */}
-      <Image
-        src="/beenvoice-logo.png"
-        style={{
-          width: 120,
-          height: 18,
-          marginRight: 8,
-        }}
-      />
+      {settings.pdfShowLogo && (
+        <Image
+          src="/beenvoice-logo.png"
+          style={{
+            width: 120,
+            height: 18,
+            marginRight: 8,
+          }}
+        />
+      )}
       <Text
         style={{
           fontSize: 9,
           fontFamily: "Frutiger",
           color: "#6b7280",
-          marginLeft: 8,
+          marginLeft: settings.pdfShowLogo ? 8 : 0,
         }}
       >
-        Professional Invoicing
+        {settings.pdfFooterText}
       </Text>
     </View>
-    <Text
-      style={styles.pageNumber}
-      render={({ pageNumber, totalPages }) =>
-        `Page ${pageNumber} of ${totalPages}`
-      }
-    />
+    {settings.pdfShowPageNumbers && (
+      <Text
+        style={styles.pageNumber}
+        render={({ pageNumber, totalPages }) =>
+          `Page ${pageNumber} of ${totalPages}`
+        }
+      />
+    )}
   </View>
 );
 
@@ -856,7 +921,8 @@ const Footer: React.FC = () => (
 const TotalsSection: React.FC<{
   invoice: InvoiceData;
   items: Array<NonNullable<InvoiceData["items"]>[0]>;
-}> = ({ invoice, items }) => {
+  settings: Required<PDFGenerationSettings>;
+}> = ({ invoice, items, settings }) => {
   const currency = invoice.currency ?? "USD";
   const subtotal = items.reduce((sum, item) => sum + (item?.amount ?? 0), 0);
   const taxAmount = (subtotal * invoice.taxRate) / 100;
@@ -864,7 +930,18 @@ const TotalsSection: React.FC<{
 
   return (
     <View style={styles.totalsContainer}>
-      <View style={styles.totalsBox}>
+      <View
+        style={[
+          styles.totalsBox,
+          settings.pdfTemplate === "minimal"
+            ? {
+                backgroundColor: "#ffffff",
+                borderTop: "1px solid #e5e7eb",
+                paddingHorizontal: 0,
+              }
+            : {},
+        ]}
+      >
         <Text
           style={{
             fontSize: 11,
@@ -896,7 +973,12 @@ const TotalsSection: React.FC<{
 
         <View style={styles.finalTotalRow}>
           <Text style={styles.finalTotalLabel}>TOTAL:</Text>
-          <Text style={styles.finalTotalAmount}>
+          <Text
+            style={[
+              styles.finalTotalAmount,
+              { color: settings.pdfAccentColor },
+            ]}
+          >
             {formatCurrency(total, currency)}
           </Text>
         </View>
@@ -910,7 +992,11 @@ const TotalsSection: React.FC<{
 };
 
 // Main PDF component
-const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
+const InvoicePDF: React.FC<{
+  invoice: InvoiceData;
+  settings?: PDFGenerationSettings;
+}> = ({ invoice, settings: inputSettings }) => {
+  const settings = resolvePDFSettings(inputSettings);
   const items = invoice.items?.filter(Boolean) ?? [];
   const currency = invoice.currency ?? "USD";
   const showRate = new Set(items.map((item) => item?.rate)).size > 1;
@@ -928,15 +1014,15 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
           <Page key={`page-${pageIndex}`} size="LETTER" style={styles.page}>
             {/* Header */}
             {isFirstPage ? (
-              <DenseHeader invoice={invoice} />
+              <DenseHeader invoice={invoice} settings={settings} />
             ) : (
-              <AbridgedHeader invoice={invoice} />
+              <AbridgedHeader invoice={invoice} settings={settings} />
             )}
 
             {/* Table */}
             {hasItems && (
               <View style={styles.tableContainer}>
-                <TableHeader showRate={showRate} />
+                <TableHeader settings={settings} showRate={showRate} />
                 {pageItems.map(
                   (item, index) =>
                     item && (
@@ -944,7 +1030,9 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
                         key={`${pageIndex}-${index}`}
                         style={[
                           styles.tableRow,
-                          index % 2 === 0 ? styles.tableRowAlt : {},
+                          settings.pdfTemplate === "classic" && index % 2 === 0
+                            ? styles.tableRowAlt
+                            : {},
                         ]}
                       >
                         <Text style={[styles.tableCell, styles.tableCellDate, { width: cols.date }]}>
@@ -963,7 +1051,13 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
                           {item.hours}
                         </Text>
                         {showRate && (
-                          <Text style={[styles.tableCell, styles.tableCellRate]}>
+                          <Text
+                            style={[
+                              styles.tableCell,
+                              styles.tableCellRate,
+                              { width: cols.rate },
+                            ]}
+                          >
                             {formatCurrency(item.rate, currency)}
                           </Text>
                         )}
@@ -982,12 +1076,16 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
             {isLastPage && (
               <View style={styles.bottomSection}>
                 {invoice.notes && <NotesSection invoice={invoice} />}
-                <TotalsSection invoice={invoice} items={items} />
+                <TotalsSection
+                  invoice={invoice}
+                  items={items}
+                  settings={settings}
+                />
               </View>
             )}
 
             {/* Footer */}
-            <Footer />
+            <Footer settings={settings} />
           </Page>
         );
       })}
@@ -996,7 +1094,10 @@ const InvoicePDF: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 };
 
 // Export functions
-export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
+export async function generateInvoicePDF(
+  invoice: InvoiceData,
+  settings?: PDFGenerationSettings,
+): Promise<void> {
   try {
     // Validate invoice data
     if (!invoice) {
@@ -1012,7 +1113,9 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
     }
 
     // Generate PDF blob
-    const originalBlob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    const originalBlob = await pdf(
+      <InvoicePDF invoice={invoice} settings={settings} />,
+    ).toBlob();
 
     // Validate blob
     if (!originalBlob || originalBlob.size === 0) {
@@ -1038,6 +1141,7 @@ export async function generateInvoicePDF(invoice: InvoiceData): Promise<void> {
 // Additional utility function for generating PDF without downloading
 export async function generateInvoicePDFBlob(
   invoice: InvoiceData,
+  settings?: PDFGenerationSettings,
 ): Promise<Blob> {
   try {
     // Validate invoice data
@@ -1054,7 +1158,9 @@ export async function generateInvoicePDFBlob(
     }
 
     // Generate PDF blob
-    const originalBlob = await pdf(<InvoicePDF invoice={invoice} />).toBlob();
+    const originalBlob = await pdf(
+      <InvoicePDF invoice={invoice} settings={settings} />,
+    ).toBlob();
 
     // Validate blob
     if (!originalBlob || originalBlob.size === 0) {

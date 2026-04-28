@@ -25,6 +25,7 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { getGravatarUrl } from "~/lib/gravatar";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { useAppearance } from "~/components/providers/appearance-provider";
 
 interface SidebarProps {
   mobile?: boolean;
@@ -36,6 +37,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   const { data: session, isPending } = authClient.useSession();
   // const session = { user: null } as any; const isPending = false;
   const { isCollapsed, toggleCollapse } = useSidebar();
+  const { sidebarStyle } = useAppearance();
 
   // If mobile, always expanded
   const collapsed = mobile ? false : isCollapsed;
@@ -214,9 +216,11 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed top-4 bottom-4 left-4 z-30 hidden md:flex flex-col",
-        "bg-background/80 backdrop-blur-xl border-border/50 border shadow-xl rounded-3xl transition-all duration-300 ease-in-out",
-        isCollapsed ? "w-16" : "w-64"
+        "fixed z-30 hidden flex-col transition-all duration-300 ease-in-out md:flex",
+        sidebarStyle === "floating"
+          ? "top-4 bottom-4 left-4 border-border/50 rounded-3xl border bg-background/80 shadow-xl backdrop-blur-xl"
+          : "top-0 bottom-0 left-0 rounded-none border-r border-border bg-background shadow-none",
+        isCollapsed ? "w-16" : "w-64",
       )}
     >
       {SidebarContent}

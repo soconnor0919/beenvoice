@@ -8,9 +8,11 @@ import { Menu } from "lucide-react";
 import { Logo } from "~/components/branding/logo";
 import { Button } from "~/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "~/components/ui/sheet";
+import { useAppearance } from "~/components/providers/appearance-provider";
 
 function DashboardContent({ children }: { children: React.ReactNode }) {
     const { isCollapsed } = useSidebar();
+    const { sidebarStyle } = useAppearance();
     const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
     return (
@@ -21,7 +23,7 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
             </div>
 
             {/* Mobile Sidebar (Sheet) */}
-            <div className="md:hidden fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b z-50 px-4 flex items-center">
+            <div className="fixed top-0 right-0 left-0 z-50 flex h-16 items-center border-b bg-background/80 px-4 backdrop-blur-md md:hidden">
                 <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
                     <SheetTrigger asChild>
                         <Button variant="outline" size="icon" className="h-10 w-10 bg-background shadow-sm" suppressHydrationWarning>
@@ -47,13 +49,14 @@ function DashboardContent({ children }: { children: React.ReactNode }) {
                 suppressHydrationWarning
                 className={cn(
                     "flex-1 min-h-screen min-w-0 transition-all duration-300 ease-in-out",
-                    // Desktop margins based on collapsed state
                     "md:ml-0",
-                    // Sidebar is fixed at left: 1rem (16px), width: 16rem (256px) or 4rem (64px)
-                    // We need margin-left = left + width + gap
-                    // Expanded: 16px + 256px + 16px (gap) = 288px (18rem)
-                    // Collapsed: 16px + 64px + 16px (gap) = 96px (6rem)
-                    isCollapsed ? "md:ml-24" : "md:ml-[18rem]"
+                    sidebarStyle === "floating"
+                        ? isCollapsed
+                            ? "md:ml-24"
+                            : "md:ml-[18rem]"
+                        : isCollapsed
+                          ? "md:ml-16"
+                          : "md:ml-64",
                 )}
             >
                 <div className="p-4 pt-16 md:pt-4">

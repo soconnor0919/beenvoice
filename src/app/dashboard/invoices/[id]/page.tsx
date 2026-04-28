@@ -411,7 +411,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
 
         {/* Right Column - Actions */}
         <div className="space-y-6">
-          <Card className="sticky top-20">
+          <Card className="lg:sticky lg:top-6">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Check className="h-5 w-5" />

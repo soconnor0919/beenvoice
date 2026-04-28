@@ -36,7 +36,10 @@ const migrationsFolder = path.resolve(__dirname, "../../../drizzle");
 
 const pool = new Pool({
   connectionString: databaseUrl,
-  ssl: process.env.DB_DISABLE_SSL === "true" ? false : { rejectUnauthorized: false },
+  ssl:
+    process.env.DB_DISABLE_SSL === "true"
+      ? false
+      : { rejectUnauthorized: false },
   max: 1,
 });
 
@@ -50,7 +53,11 @@ const db = drizzle(pool);
  *    so migrate() will re-run those migrations.
  */
 async function baselineIfNeeded(client: Pool) {
-  const hasMigrationsTable = await tableExists(client, "drizzle", "__drizzle_migrations");
+  const hasMigrationsTable = await tableExists(
+    client,
+    "drizzle",
+    "__drizzle_migrations",
+  );
 
   // Always ensure the drizzle schema + table exist
   await client.query(`CREATE SCHEMA IF NOT EXISTS drizzle`);
@@ -63,18 +70,24 @@ async function baselineIfNeeded(client: Pool) {
   `);
 
   const { rows: entryRows } = await client.query<{ count: string }>(
-    `SELECT COUNT(*)::text AS count FROM drizzle.__drizzle_migrations`
+    `SELECT COUNT(*)::text AS count FROM drizzle.__drizzle_migrations`,
   );
   const hasEntries = parseInt(entryRows[0]?.count ?? "0") > 0;
 
   if (!hasMigrationsTable || !hasEntries) {
     // No history at all — check if DB was previously set up via db:push
-    const dbAlreadyExists = await tableExists(client, "public", "beenvoice_account");
+    const dbAlreadyExists = await tableExists(
+      client,
+      "public",
+      "beenvoice_account",
+    );
     if (!dbAlreadyExists) {
       return; // Fresh DB — let migrate() run everything normally
     }
 
-    console.log("[migrate] Existing database detected without migration history — baselining...");
+    console.log(
+      "[migrate] Existing database detected without migration history — baselining...",
+    );
     await seedMigrationHistory(client);
     return;
   }
@@ -86,7 +99,7 @@ async function baselineIfNeeded(client: Pool) {
 
 async function seedMigrationHistory(client: Pool) {
   const journal = JSON.parse(
-    fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8")
+    fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8"),
   ) as { entries: { idx: number; tag: string; when: number }[] };
 
   for (const entry of journal.entries) {
@@ -96,12 +109,13 @@ async function seedMigrationHistory(client: Pool) {
       continue;
     }
     const sql = fs.readFileSync(
-      path.join(migrationsFolder, `${entry.tag}.sql`), "utf8"
+      path.join(migrationsFolder, `${entry.tag}.sql`),
+      "utf8",
     );
     const hash = crypto.createHash("sha256").update(sql).digest("hex");
     await client.query(
       `INSERT INTO drizzle.__drizzle_migrations (hash, created_at) VALUES ($1, $2)`,
-      [hash, entry.when]
+      [hash, entry.when],
     );
     console.log(`[migrate] Baselined: ${entry.tag}`);
   }
@@ -111,16 +125,17 @@ async function seedMigrationHistory(client: Pool) {
 async function removeBogusEntries(client: Pool) {
   // Get all recorded hashes
   const { rows } = await client.query<{ id: number; hash: string }>(
-    `SELECT id, hash FROM drizzle.__drizzle_migrations ORDER BY id`
+    `SELECT id, hash FROM drizzle.__drizzle_migrations ORDER BY id`,
   );
 
   const journal = JSON.parse(
-    fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8")
+    fs.readFileSync(path.join(migrationsFolder, "meta/_journal.json"), "utf8"),
   ) as { entries: { idx: number; tag: string; when: number }[] };
 
   for (const entry of journal.entries) {
     const sql = fs.readFileSync(
-      path.join(migrationsFolder, `${entry.tag}.sql`), "utf8"
+      path.join(migrationsFolder, `${entry.tag}.sql`),
+      "utf8",
     );
     const expectedHash = crypto.createHash("sha256").update(sql).digest("hex");
     const recorded = rows.find((r) => r.hash === expectedHash);
@@ -129,17 +144,29 @@ async function removeBogusEntries(client: Pool) {
     // It's recorded — verify it's actually applied in the schema
     const applied = await isMigrationApplied(client, entry.tag);
     if (!applied) {
-      console.log(`[migrate] Removing bogus migration record for: ${entry.tag}`);
-      await client.query(`DELETE FROM drizzle.__drizzle_migrations WHERE id = $1`, [recorded.id]);
+      console.log(
+        `[migrate] Removing bogus migration record for: ${entry.tag}`,
+      );
+      await client.query(
+        `DELETE FROM drizzle.__drizzle_migrations WHERE id = $1`,
+        [recorded.id],
+      );
     }
   }
 }
 
-async function tableExists(client: Pool, schema: string, table: string): Promise<boolean> {
-  const { rows } = await client.query<{ count: string }>(`
+async function tableExists(
+  client: Pool,
+  schema: string,
+  table: string,
+): Promise<boolean> {
+  const { rows } = await client.query<{ count: string }>(
+    `
     SELECT COUNT(*)::text AS count FROM information_schema.tables
     WHERE table_schema = $1 AND table_name = $2
-  `, [schema, table]);
+  `,
+    [schema, table],
+  );
   return parseInt(rows[0]?.count ?? "0") > 0;
 }
 
@@ -170,8 +197,66 @@ async function isMigrationApplied(client: Pool, tag: string): Promise<boolean> {
     `);
     return parseInt(rows[0]?.count ?? "0") > 0;
   }
+  if (tag === "0003_appearance_preferences") {
+    // 0003 adds appearance preferences to beenvoice_user
+    const { rows } = await client.query<{ count: string }>(`
+      SELECT COUNT(*)::text AS count FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'beenvoice_user'
+        AND column_name = 'interfaceTheme'
+    `);
+    return parseInt(rows[0]?.count ?? "0") > 0;
+  }
+  if (tag === "0004_platform_appearance_controls") {
+    // 0004 adds platform-level appearance controls to beenvoice_user
+    const { rows } = await client.query<{ count: string }>(`
+      SELECT COUNT(*)::text AS count FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'beenvoice_user'
+        AND column_name = 'sidebarStyle'
+    `);
+    return parseInt(rows[0]?.count ?? "0") > 0;
+  }
+  if (tag === "0005_platform_settings_and_roles") {
+    const hasRole = await columnExists(
+      client,
+      "public",
+      "beenvoice_user",
+      "role",
+    );
+    const hasPlatformSettings = await tableExists(
+      client,
+      "public",
+      "beenvoice_platform_setting",
+    );
+    return hasRole && hasPlatformSettings;
+  }
+  if (tag === "0006_pdf_generation_settings") {
+    return columnExists(
+      client,
+      "public",
+      "beenvoice_platform_setting",
+      "pdfTemplate",
+    );
+  }
   // Unknown migration — assume not applied so it runs
   return false;
+}
+
+async function columnExists(
+  client: Pool,
+  schema: string,
+  table: string,
+  column: string,
+): Promise<boolean> {
+  const { rows } = await client.query<{ count: string }>(
+    `
+    SELECT COUNT(*)::text AS count FROM information_schema.columns
+    WHERE table_schema = $1 AND table_name = $2 AND column_name = $3
+  `,
+    [schema, table, column],
+  );
+  return parseInt(rows[0]?.count ?? "0") > 0;
 }
 
 console.log("[migrate] Running migrations from", migrationsFolder);

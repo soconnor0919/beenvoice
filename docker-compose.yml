@@ -1,21 +1,66 @@
 services:
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+        NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
+        NEXT_PUBLIC_UMAMI_SCRIPT_URL: ${NEXT_PUBLIC_UMAMI_SCRIPT_URL:-https://analytics.umami.is/script.js}
+        NEXT_PUBLIC_AUTHENTIK_ENABLED: ${NEXT_PUBLIC_AUTHENTIK_ENABLED:-false}
+        NEXT_PUBLIC_BRAND_NAME: ${NEXT_PUBLIC_BRAND_NAME:-beenvoice}
+        NEXT_PUBLIC_BRAND_TAGLINE: ${NEXT_PUBLIC_BRAND_TAGLINE:-Simple and efficient invoicing for freelancers and small businesses}
+        NEXT_PUBLIC_BRAND_LOGO_TEXT: ${NEXT_PUBLIC_BRAND_LOGO_TEXT:-beenvoice}
+        NEXT_PUBLIC_BRAND_ICON: ${NEXT_PUBLIC_BRAND_ICON:-$$}
+        NEXT_PUBLIC_DEFAULT_INTERFACE_THEME: ${NEXT_PUBLIC_DEFAULT_INTERFACE_THEME:-beenvoice}
+        NEXT_PUBLIC_DEFAULT_FONT: ${NEXT_PUBLIC_DEFAULT_FONT:-brand}
+        NEXT_PUBLIC_DEFAULT_BODY_FONT: ${NEXT_PUBLIC_DEFAULT_BODY_FONT:-brand}
+        NEXT_PUBLIC_DEFAULT_HEADING_FONT: ${NEXT_PUBLIC_DEFAULT_HEADING_FONT:-brand}
+        NEXT_PUBLIC_DEFAULT_RADIUS: ${NEXT_PUBLIC_DEFAULT_RADIUS:-xl}
+        NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE: ${NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE:-floating}
+    image: beenvoice:local
+    environment:
+      NODE_ENV: production
+      AUTH_SECRET: ${AUTH_SECRET:?Set AUTH_SECRET in .env}
+      DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-postgres}
+      DB_DISABLE_SSL: "true"
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-http://localhost:3000}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_DOMAIN: ${RESEND_DOMAIN:-}
+      NEXT_PUBLIC_UMAMI_WEBSITE_ID: ${NEXT_PUBLIC_UMAMI_WEBSITE_ID:-}
+      NEXT_PUBLIC_UMAMI_SCRIPT_URL: ${NEXT_PUBLIC_UMAMI_SCRIPT_URL:-https://analytics.umami.is/script.js}
+      NEXT_PUBLIC_AUTHENTIK_ENABLED: ${NEXT_PUBLIC_AUTHENTIK_ENABLED:-false}
+      AUTHENTIK_ISSUER: ${AUTHENTIK_ISSUER:-}
+      AUTHENTIK_CLIENT_ID: ${AUTHENTIK_CLIENT_ID:-}
+      AUTHENTIK_CLIENT_SECRET: ${AUTHENTIK_CLIENT_SECRET:-}
+      AUTHENTIK_ORIGIN: ${AUTHENTIK_ORIGIN:-}
+    command:
+      - sh
+      - -c
+      - bun src/server/db/migrate.ts && bun run start -p 3000 -H 0.0.0.0
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
   db:
     image: postgres:17-alpine
-    container_name: beenvoice-db
-    env_file:
-      - .env.local
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
     volumes:
       - beenvoice_pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
 volumes:
   beenvoice_pg_data:
-    driver: local
-
-
