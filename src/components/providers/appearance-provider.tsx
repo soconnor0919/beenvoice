@@ -6,10 +6,22 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import {
-  defaultFontPreference,
+  fallbackAppearance,
+  isColorMode,
+  isColorTheme,
+  isFontPreference,
+  isHslChannels,
+  isInterfaceTheme,
+  isPdfTemplate,
+  isRadiusPreference,
+  isSidebarStyle,
+  type PdfTemplate,
+} from "~/lib/appearance";
+import {
   defaultBodyFontPreference,
   defaultHeadingFontPreference,
   defaultInterfaceTheme,
@@ -27,7 +39,6 @@ import { api } from "~/trpc/react";
 
 type AppearancePreferences = {
   interfaceTheme: InterfaceTheme;
-  fontPreference: FontPreference;
   bodyFontPreference: FontPreference;
   headingFontPreference: FontPreference;
   radiusPreference: RadiusPreference;
@@ -39,7 +50,7 @@ type AppearancePreferences = {
   brandTagline: string;
   brandLogoText: string;
   brandIcon: string;
-  pdfTemplate: "classic" | "minimal";
+  pdfTemplate: PdfTemplate;
   pdfAccentColor: string;
   pdfFooterText: string;
   pdfShowLogo: boolean;
@@ -50,7 +61,6 @@ type AppearancePatch = Partial<AppearancePreferences>;
 
 type ServerAppearance = {
   interfaceTheme: InterfaceTheme;
-  fontPreference: FontPreference;
   bodyFontPreference: FontPreference;
   headingFontPreference: FontPreference;
   radiusPreference: RadiusPreference;
@@ -62,7 +72,7 @@ type ServerAppearance = {
   brandTagline: string;
   brandLogoText: string;
   brandIcon: string;
-  pdfTemplate: "classic" | "minimal";
+  pdfTemplate: PdfTemplate;
   pdfAccentColor: string;
   pdfFooterText: string;
   pdfShowLogo: boolean;
@@ -71,6 +81,7 @@ type ServerAppearance = {
 
 type AppearanceContextValue = AppearancePreferences & {
   updateAppearance: (patch: AppearancePatch) => void;
+  updateAppearanceDebounced: (patch: AppearancePatch) => void;
   isUpdating: boolean;
 };
 
@@ -78,22 +89,21 @@ const STORAGE_KEY = "bv.appearance";
 
 const defaultAppearance: AppearancePreferences = {
   interfaceTheme: defaultInterfaceTheme,
-  fontPreference: defaultFontPreference,
   bodyFontPreference: defaultBodyFontPreference,
   headingFontPreference: defaultHeadingFontPreference,
   radiusPreference: defaultRadiusPreference,
   sidebarStyle: defaultSidebarStyle,
-  colorMode: "system",
-  colorTheme: "slate",
+  colorMode: fallbackAppearance.colorMode,
+  colorTheme: fallbackAppearance.colorTheme,
   brandName: defaultBrand.name,
   brandTagline: defaultBrand.tagline,
   brandLogoText: defaultBrand.logoText,
   brandIcon: defaultBrand.icon,
-  pdfTemplate: "classic",
-  pdfAccentColor: "#111827",
-  pdfFooterText: "Professional Invoicing",
-  pdfShowLogo: true,
-  pdfShowPageNumbers: true,
+  pdfTemplate: fallbackAppearance.pdfTemplate,
+  pdfAccentColor: fallbackAppearance.pdfAccentColor,
+  pdfFooterText: fallbackAppearance.pdfFooterText,
+  pdfShowLogo: fallbackAppearance.pdfShowLogo,
+  pdfShowPageNumbers: fallbackAppearance.pdfShowPageNumbers,
 };
 
 const AppearanceContext = createContext<AppearanceContextValue | null>(null);
@@ -103,7 +113,6 @@ function getServerAppearancePatch(
 ): AppearancePatch {
   return {
     interfaceTheme: serverAppearance.interfaceTheme,
-    fontPreference: serverAppearance.fontPreference,
     bodyFontPreference: serverAppearance.bodyFontPreference,
     headingFontPreference: serverAppearance.headingFontPreference,
     radiusPreference: serverAppearance.radiusPreference,
@@ -123,53 +132,6 @@ function getServerAppearancePatch(
   };
 }
 
-function isInterfaceTheme(value: unknown): value is InterfaceTheme {
-  return (
-    value === "beenvoice" ||
-    value === "shadcn" ||
-    value === "minimal" ||
-    value === "editorial"
-  );
-}
-
-function isFontPreference(value: unknown): value is FontPreference {
-  return (
-    value === "brand" ||
-    value === "platform" ||
-    value === "inter" ||
-    value === "serif"
-  );
-}
-
-function isColorMode(value: unknown): value is ColorMode {
-  return value === "light" || value === "dark" || value === "system";
-}
-
-function isColorTheme(value: unknown): value is ColorTheme {
-  return (
-    value === "slate" ||
-    value === "blue" ||
-    value === "green" ||
-    value === "rose" ||
-    value === "orange" ||
-    value === "custom"
-  );
-}
-
-function isRadiusPreference(value: unknown): value is RadiusPreference {
-  return (
-    value === "none" ||
-    value === "sm" ||
-    value === "md" ||
-    value === "lg" ||
-    value === "xl"
-  );
-}
-
-function isSidebarStyle(value: unknown): value is SidebarStyle {
-  return value === "floating" || value === "docked";
-}
-
 function readStoredAppearance(): Partial<AppearancePreferences> | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -178,9 +140,6 @@ function readStoredAppearance(): Partial<AppearancePreferences> | null {
     return {
       interfaceTheme: isInterfaceTheme(parsed.interfaceTheme)
         ? parsed.interfaceTheme
-        : undefined,
-      fontPreference: isFontPreference(parsed.fontPreference)
-        ? parsed.fontPreference
         : undefined,
       bodyFontPreference: isFontPreference(parsed.bodyFontPreference)
         ? parsed.bodyFontPreference
@@ -202,8 +161,9 @@ function readStoredAppearance(): Partial<AppearancePreferences> | null {
       colorTheme: isColorTheme(parsed.colorTheme)
         ? parsed.colorTheme
         : undefined,
-      customColor:
-        typeof parsed.customColor === "string" ? parsed.customColor : undefined,
+      customColor: isHslChannels(parsed.customColor)
+        ? parsed.customColor
+        : undefined,
       brandName:
         typeof parsed.brandName === "string" ? parsed.brandName : undefined,
       brandTagline:
@@ -216,10 +176,9 @@ function readStoredAppearance(): Partial<AppearancePreferences> | null {
           : undefined,
       brandIcon:
         typeof parsed.brandIcon === "string" ? parsed.brandIcon : undefined,
-      pdfTemplate:
-        parsed.pdfTemplate === "classic" || parsed.pdfTemplate === "minimal"
-          ? parsed.pdfTemplate
-          : undefined,
+      pdfTemplate: isPdfTemplate(parsed.pdfTemplate)
+        ? parsed.pdfTemplate
+        : undefined,
       pdfAccentColor:
         typeof parsed.pdfAccentColor === "string"
           ? parsed.pdfAccentColor
@@ -255,7 +214,6 @@ function applyAppearance(prefs: AppearancePreferences) {
 
   const root = document.documentElement;
   root.dataset.interfaceTheme = prefs.interfaceTheme;
-  root.dataset.font = prefs.fontPreference;
   root.dataset.bodyFont = prefs.bodyFontPreference;
   root.dataset.headingFont = prefs.headingFontPreference;
   root.dataset.radius = prefs.radiusPreference;
@@ -279,6 +237,8 @@ export function AppearanceProvider({
 }) {
   const [appearance, setAppearance] =
     useState<AppearancePreferences>(defaultAppearance);
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingDebouncedPatchRef = useRef<AppearancePatch>({});
   const utils = api.useUtils();
   const updateMutation = api.settings.updateTheme.useMutation({
     onSuccess: async () => {
@@ -298,6 +258,38 @@ export function AppearanceProvider({
       writeStoredAppearance(fallback);
     },
   });
+
+  const persistAppearance = useCallback(
+    (patch: AppearancePatch) => {
+      if (
+        patch.customColor !== undefined &&
+        !isHslChannels(patch.customColor)
+      ) {
+        return;
+      }
+
+      updateMutation.mutate({
+        interfaceTheme: patch.interfaceTheme,
+        bodyFontPreference: patch.bodyFontPreference,
+        headingFontPreference: patch.headingFontPreference,
+        radiusPreference: patch.radiusPreference,
+        sidebarStyle: patch.sidebarStyle,
+        theme: patch.colorMode,
+        colorTheme: patch.colorTheme,
+        customColor: patch.customColor,
+        brandName: patch.brandName,
+        brandTagline: patch.brandTagline,
+        brandLogoText: patch.brandLogoText,
+        brandIcon: patch.brandIcon,
+        pdfTemplate: patch.pdfTemplate,
+        pdfAccentColor: patch.pdfAccentColor,
+        pdfFooterText: patch.pdfFooterText,
+        pdfShowLogo: patch.pdfShowLogo,
+        pdfShowPageNumbers: patch.pdfShowPageNumbers,
+      });
+    },
+    [updateMutation],
+  );
 
   const { data: serverAppearance } = api.settings.getTheme.useQuery(undefined, {
     retry: false,
@@ -328,6 +320,15 @@ export function AppearanceProvider({
 
   const updateAppearance = useCallback(
     (patch: AppearancePatch) => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+        debounceTimerRef.current = null;
+      }
+      if (Object.keys(pendingDebouncedPatchRef.current).length > 0) {
+        persistAppearance(pendingDebouncedPatchRef.current);
+        pendingDebouncedPatchRef.current = {};
+      }
+
       setAppearance((prev) => {
         const next = { ...prev, ...patch };
         applyAppearance(next);
@@ -335,37 +336,61 @@ export function AppearanceProvider({
         return next;
       });
 
-      updateMutation.mutate({
-        interfaceTheme: patch.interfaceTheme,
-        fontPreference: patch.fontPreference,
-        bodyFontPreference: patch.bodyFontPreference,
-        headingFontPreference: patch.headingFontPreference,
-        radiusPreference: patch.radiusPreference,
-        sidebarStyle: patch.sidebarStyle,
-        theme: patch.colorMode,
-        colorTheme: patch.colorTheme,
-        customColor: patch.customColor,
-        brandName: patch.brandName,
-        brandTagline: patch.brandTagline,
-        brandLogoText: patch.brandLogoText,
-        brandIcon: patch.brandIcon,
-        pdfTemplate: patch.pdfTemplate,
-        pdfAccentColor: patch.pdfAccentColor,
-        pdfFooterText: patch.pdfFooterText,
-        pdfShowLogo: patch.pdfShowLogo,
-        pdfShowPageNumbers: patch.pdfShowPageNumbers,
-      });
+      persistAppearance(patch);
     },
-    [updateMutation],
+    [persistAppearance],
+  );
+
+  const updateAppearanceDebounced = useCallback(
+    (patch: AppearancePatch) => {
+      pendingDebouncedPatchRef.current = {
+        ...pendingDebouncedPatchRef.current,
+        ...patch,
+      };
+
+      setAppearance((prev) => {
+        const next = { ...prev, ...patch };
+        applyAppearance(next);
+        writeStoredAppearance(next);
+        return next;
+      });
+
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+
+      debounceTimerRef.current = setTimeout(() => {
+        persistAppearance(pendingDebouncedPatchRef.current);
+        pendingDebouncedPatchRef.current = {};
+        debounceTimerRef.current = null;
+      }, 500);
+    },
+    [persistAppearance],
+  );
+
+  useEffect(
+    () => () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+      pendingDebouncedPatchRef.current = {};
+    },
+    [],
   );
 
   const value = useMemo<AppearanceContextValue>(
     () => ({
       ...appearance,
       updateAppearance,
+      updateAppearanceDebounced,
       isUpdating: updateMutation.isPending,
     }),
-    [appearance, updateAppearance, updateMutation.isPending],
+    [
+      appearance,
+      updateAppearance,
+      updateAppearanceDebounced,
+      updateMutation.isPending,
+    ],
   );
 
   return (

@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 
 import { type Metadata } from "next";
-import { Inter, Playfair_Display, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/sonner";
@@ -10,7 +10,6 @@ import { AppearanceProvider } from "~/components/providers/appearance-provider";
 import {
   brand,
   defaultBodyFontPreference,
-  defaultFontPreference,
   defaultHeadingFontPreference,
   defaultInterfaceTheme,
   defaultRadiusPreference,
@@ -25,20 +24,37 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
+const geistSans = localFont({
+  src: "../../public/fonts/geist/sans/Geist-VariableFont_wght.ttf",
+  variable: "--font-geist-sans",
   display: "swap",
 });
 
-const playfair = Playfair_Display({
-  subsets: ["latin"],
+const playfair = localFont({
+  src: "../../node_modules/@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2",
   variable: "--font-playfair",
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  subsets: ["latin"],
+const frutiger = localFont({
+  src: [
+    {
+      path: "../../public/fonts/frutiger/Frutiger.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/frutiger/Frutiger_bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-frutiger",
+  display: "swap",
+});
+
+const geistMono = localFont({
+  src: "../../public/fonts/geist/mono/GeistMono-VariableFont_wght.ttf",
   variable: "--font-geist-mono",
   display: "swap",
 });
@@ -51,14 +67,13 @@ export default function RootLayout({
       suppressHydrationWarning
       lang="en"
       data-interface-theme={defaultInterfaceTheme}
-      data-font={defaultFontPreference}
       data-body-font={defaultBodyFontPreference}
       data-heading-font={defaultHeadingFontPreference}
       data-radius={defaultRadiusPreference}
       data-sidebar-style={defaultSidebarStyle}
       data-color-mode="system"
       data-color-theme="slate"
-      className={`${inter.variable} ${playfair.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${playfair.variable} ${frutiger.variable} ${geistMono.variable}`}
     >
       <head>
         <script
@@ -68,7 +83,6 @@ export default function RootLayout({
               try {
                 var defaults = {
                   interfaceTheme: "${defaultInterfaceTheme}",
-                  fontPreference: "${defaultFontPreference}",
                   bodyFontPreference: "${defaultBodyFontPreference}",
                   headingFontPreference: "${defaultHeadingFontPreference}",
                   radiusPreference: "${defaultRadiusPreference}",
@@ -80,9 +94,8 @@ export default function RootLayout({
                 var appearance = Object.assign(defaults, stored);
                 var root = document.documentElement;
                 root.dataset.interfaceTheme = appearance.interfaceTheme;
-                root.dataset.font = appearance.fontPreference;
-                root.dataset.bodyFont = appearance.bodyFontPreference || appearance.fontPreference;
-                root.dataset.headingFont = appearance.headingFontPreference || appearance.fontPreference;
+                root.dataset.bodyFont = appearance.bodyFontPreference;
+                root.dataset.headingFont = appearance.headingFontPreference;
                 root.dataset.radius = appearance.radiusPreference;
                 root.dataset.sidebarStyle = appearance.sidebarStyle;
                 root.dataset.colorMode = appearance.colorMode;

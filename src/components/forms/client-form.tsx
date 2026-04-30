@@ -119,6 +119,7 @@ export function ClientForm({ clientId, mode }: ClientFormProps) {
   // Load client data when editing
   useEffect(() => {
     if (client && mode === "edit") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync loaded client data into the edit form.
       setFormData({
         name: client.name,
         email: client.email ?? "",

@@ -87,8 +87,9 @@ function SortableItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`card-secondary  transition-colors ${isDragging ? "opacity-50 shadow-lg" : ""
-        }`}
+      className={`card-secondary transition-colors ${
+        isDragging ? "opacity-50 shadow-lg" : ""
+      }`}
     >
       {/* Desktop Layout - Hidden on Mobile */}
       <div className="hidden items-center gap-3 p-4 md:grid md:grid-cols-12">
@@ -153,7 +154,7 @@ function SortableItem({
 
         {/* Amount */}
         <div className="col-span-1">
-          <div className="bg-muted/30 text-primary flex h-9 items-center  border px-3 font-medium">
+          <div className="bg-muted/30 text-primary flex h-9 items-center border px-3 font-medium">
             ${item.amount.toFixed(2)}
           </div>
         </div>
@@ -265,7 +266,7 @@ function SortableItem({
         </div>
 
         {/* Amount */}
-        <div className="bg-muted/20  border p-3">
+        <div className="bg-muted/20 border p-3">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground text-sm">Total Amount:</span>
             <span className="text-primary font-mono text-lg font-bold">
@@ -360,10 +361,7 @@ export function EditableInvoiceItems({
     return (
       <div className="space-y-3">
         {items.map((item, _index) => (
-          <div
-            key={item.id}
-            className="card-secondary animate-pulse  p-4"
-          >
+          <div key={item.id} className="card-secondary animate-pulse p-4">
             {/* Desktop Skeleton */}
             <div className="hidden grid-cols-12 gap-3 md:grid">
               <div className="col-span-1">

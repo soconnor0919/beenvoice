@@ -205,9 +205,9 @@ export function AnimationPreferencesProvider({
     if (typeof window === "undefined") return;
     const stored = readLocalStorage();
 
-    const systemReduced =
-      window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const systemReduced = window.matchMedia?.(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     const finalPrefers =
       stored?.prefersReducedMotion ??
@@ -216,10 +216,11 @@ export function AnimationPreferencesProvider({
       DEFAULT_PREFERS_REDUCED;
     const finalSpeed = clampSpeed(
       stored?.animationSpeedMultiplier ??
-      initial?.animationSpeedMultiplier ??
-      DEFAULT_SPEED,
+        initial?.animationSpeedMultiplier ??
+        DEFAULT_SPEED,
     );
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Hydrate preferences from localStorage/system settings on mount.
     setPrefersReducedMotion(finalPrefers);
     setAnimationSpeedMultiplier(finalSpeed);
     applyPreferencesToDOM({
@@ -279,7 +280,8 @@ export function AnimationPreferencesProvider({
       // Optionally sync to server
       const shouldSync = opts?.sync ?? autoSync;
 
-      if (shouldSync && serverPrefs) { // If serverPrefs exists, user is authenticated
+      if (shouldSync && serverPrefs) {
+        // If serverPrefs exists, user is authenticated
         pendingSyncRef.current = {
           prefersReducedMotion: patch.prefersReducedMotion,
           animationSpeedMultiplier: patch.animationSpeedMultiplier,
@@ -334,6 +336,7 @@ export function AnimationPreferencesProvider({
       serverPrefs.animationSpeedMultiplier !== animationSpeedMultiplier;
 
     if (localIsDefault || differs) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Reconcile loaded server preferences once after query hydration.
       performUpdate(
         {
           prefersReducedMotion: serverPrefs.prefersReducedMotion,
@@ -402,9 +405,15 @@ export function useAnimationPreferences(): AnimationPreferencesContextValue {
     return {
       prefersReducedMotion: false,
       animationSpeedMultiplier: 1,
-      updatePreferences: () => { /* no-op fallback */ },
-      setPrefersReducedMotion: () => { /* no-op fallback */ },
-      setAnimationSpeedMultiplier: () => { /* no-op fallback */ },
+      updatePreferences: () => {
+        /* no-op fallback */
+      },
+      setPrefersReducedMotion: () => {
+        /* no-op fallback */
+      },
+      setAnimationSpeedMultiplier: () => {
+        /* no-op fallback */
+      },
       isUpdating: false,
       lastSyncedAt: null,
     };

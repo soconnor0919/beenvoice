@@ -3,6 +3,7 @@
 import type {
   ColumnDef,
   ColumnFiltersState,
+  RowData,
   SortingState,
   VisibilityState,
 } from "@tanstack/react-table";
@@ -52,6 +53,14 @@ import {
   TableRow,
 } from "~/components/ui/table";
 import { cn } from "~/lib/utils";
+
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Generic names must match TanStack's declaration for module augmentation.
+  interface ColumnMeta<TData extends RowData, TValue> {
+    headerClassName?: string;
+    cellClassName?: string;
+  }
+}
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -125,23 +134,9 @@ export function DataTable<TData, TValue>({
       ...column,
       // Add a meta property to control responsive visibility
       meta: {
-        ...((
-          column as ColumnDef<TData, TValue> & {
-            meta?: { headerClassName?: string; cellClassName?: string };
-          }
-        ).meta ?? {}),
-        headerClassName:
-          (
-            column as ColumnDef<TData, TValue> & {
-              meta?: { headerClassName?: string; cellClassName?: string };
-            }
-          ).meta?.headerClassName ?? "",
-        cellClassName:
-          (
-            column as ColumnDef<TData, TValue> & {
-              meta?: { headerClassName?: string; cellClassName?: string };
-            }
-          ).meta?.cellClassName ?? "",
+        ...(column.meta ?? {}),
+        headerClassName: column.meta?.headerClassName ?? "",
+        cellClassName: column.meta?.cellClassName ?? "",
       },
     }));
   }, [columns]);
@@ -369,9 +364,7 @@ export function DataTable<TData, TValue>({
                   className="bg-muted/50 hover:bg-muted/50"
                 >
                   {headerGroup.headers.map((header) => {
-                    const meta = header.column.columnDef.meta as
-                      | { headerClassName?: string; cellClassName?: string }
-                      | undefined;
+                    const meta = header.column.columnDef.meta;
                     return (
                       <TableHead
                         key={header.id}
@@ -383,9 +376,9 @@ export function DataTable<TData, TValue>({
                         {header.isPlaceholder
                           ? null
                           : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
                       </TableHead>
                     );
                   })}
@@ -407,9 +400,7 @@ export function DataTable<TData, TValue>({
                     }
                   >
                     {row.getVisibleCells().map((cell) => {
-                      const meta = cell.column.columnDef.meta as
-                        | { headerClassName?: string; cellClassName?: string }
-                        | undefined;
+                      const meta = cell.column.columnDef.meta;
                       return (
                         <TableCell
                           key={cell.id}
@@ -451,26 +442,28 @@ export function DataTable<TData, TValue>({
                 <p className="text-muted-foreground hidden text-xs sm:inline sm:text-sm">
                   {table.getFilteredRowModel().rows.length === 0
                     ? "No entries"
-                    : `Showing ${table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    1
-                    } to ${Math.min(
-                      (table.getState().pagination.pageIndex + 1) *
-                      table.getState().pagination.pageSize,
-                      table.getFilteredRowModel().rows.length,
-                    )} of ${table.getFilteredRowModel().rows.length} entries`}
+                    : `Showing ${
+                        table.getState().pagination.pageIndex *
+                          table.getState().pagination.pageSize +
+                        1
+                      } to ${Math.min(
+                        (table.getState().pagination.pageIndex + 1) *
+                          table.getState().pagination.pageSize,
+                        table.getFilteredRowModel().rows.length,
+                      )} of ${table.getFilteredRowModel().rows.length} entries`}
                 </p>
                 <p className="text-muted-foreground text-xs sm:hidden">
                   {table.getFilteredRowModel().rows.length === 0
                     ? "0"
-                    : `${table.getState().pagination.pageIndex *
-                    table.getState().pagination.pageSize +
-                    1
-                    }-${Math.min(
-                      (table.getState().pagination.pageIndex + 1) *
-                      table.getState().pagination.pageSize,
-                      table.getFilteredRowModel().rows.length,
-                    )} of ${table.getFilteredRowModel().rows.length}`}
+                    : `${
+                        table.getState().pagination.pageIndex *
+                          table.getState().pagination.pageSize +
+                        1
+                      }-${Math.min(
+                        (table.getState().pagination.pageIndex + 1) *
+                          table.getState().pagination.pageSize,
+                        table.getFilteredRowModel().rows.length,
+                      )} of ${table.getFilteredRowModel().rows.length}`}
                 </p>
                 <Select
                   value={table.getState().pagination.pageSize.toString()}

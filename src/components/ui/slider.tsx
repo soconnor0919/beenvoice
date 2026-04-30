@@ -113,6 +113,7 @@ export const Slider = React.forwardRef<HTMLDivElement, SliderProps>(
       if (lockValue !== null) {
         // Only update internal & emit if changed
         if (!isControlled && internal !== 1) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- Force the uncontrolled slider to the reduced-motion lock value.
           setInternal(1);
         }
         if (lastEmittedRef.current !== 1) {

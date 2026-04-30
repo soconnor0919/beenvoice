@@ -1,17 +1,36 @@
 import { env } from "~/env";
+import {
+  fallbackAppearance,
+  type ColorMode,
+  type ColorTheme,
+  type FontPreference,
+  type InterfaceTheme,
+  type PdfTemplate,
+  type RadiusPreference,
+  type SidebarStyle,
+} from "~/lib/appearance";
 
-export type InterfaceTheme = "beenvoice" | "shadcn" | "minimal" | "editorial";
-export type FontPreference = "brand" | "platform" | "inter" | "serif";
-export type RadiusPreference = "none" | "sm" | "md" | "lg" | "xl";
-export type SidebarStyle = "floating" | "docked";
-export type ColorMode = "light" | "dark" | "system";
-export type ColorTheme =
-  | "slate"
-  | "blue"
-  | "green"
-  | "rose"
-  | "orange"
-  | "custom";
+export type {
+  ColorMode,
+  ColorTheme,
+  FontPreference,
+  InterfaceTheme,
+  PdfTemplate,
+  RadiusPreference,
+  SidebarStyle,
+} from "~/lib/appearance";
+
+export {
+  colorModeSchema,
+  colorThemeSchema,
+  fallbackAppearance,
+  fontPreferenceSchema,
+  hslChannelsSchema,
+  interfaceThemeSchema,
+  pdfTemplateSchema,
+  radiusPreferenceSchema,
+  sidebarStyleSchema,
+} from "~/lib/appearance";
 
 export const interfaceThemes: {
   value: InterfaceTheme;
@@ -21,7 +40,20 @@ export const interfaceThemes: {
   {
     value: "beenvoice",
     label: "beenvoice",
-    description: "Opinionated brand system with expressive headings.",
+    description:
+      "Playfair Display headings, Geist body text, and soft product chrome.",
+  },
+  {
+    value: "frutiger",
+    label: "Frutiger Airport",
+    description:
+      "Rectangular blue-and-yellow wayfinding UI with Frutiger typography and docked navigation.",
+  },
+  {
+    value: "frutiger-aero",
+    label: "Frutiger Aero",
+    description:
+      "Glossy sky-and-glass interface with Frutiger typography and softer surfaces.",
   },
   {
     value: "shadcn",
@@ -49,6 +81,8 @@ export const themePresets: Record<
     colorTheme: ColorTheme;
     radiusPreference: RadiusPreference;
     sidebarStyle: SidebarStyle;
+    pdfTemplate: PdfTemplate;
+    pdfAccentColor: string;
   }
 > = {
   beenvoice: {
@@ -58,6 +92,28 @@ export const themePresets: Record<
     colorTheme: "slate",
     radiusPreference: "xl",
     sidebarStyle: "floating",
+    pdfTemplate: "classic",
+    pdfAccentColor: "#111827",
+  },
+  frutiger: {
+    interfaceTheme: "frutiger",
+    bodyFontPreference: "frutiger",
+    headingFontPreference: "frutiger",
+    colorTheme: "blue",
+    radiusPreference: "none",
+    sidebarStyle: "docked",
+    pdfTemplate: "minimal",
+    pdfAccentColor: "#003b5c",
+  },
+  "frutiger-aero": {
+    interfaceTheme: "frutiger-aero",
+    bodyFontPreference: "frutiger",
+    headingFontPreference: "frutiger",
+    colorTheme: "blue",
+    radiusPreference: "lg",
+    sidebarStyle: "floating",
+    pdfTemplate: "classic",
+    pdfAccentColor: "#0077be",
   },
   shadcn: {
     interfaceTheme: "shadcn",
@@ -66,6 +122,8 @@ export const themePresets: Record<
     colorTheme: "slate",
     radiusPreference: "md",
     sidebarStyle: "docked",
+    pdfTemplate: "classic",
+    pdfAccentColor: "#111827",
   },
   minimal: {
     interfaceTheme: "minimal",
@@ -74,6 +132,8 @@ export const themePresets: Record<
     colorTheme: "slate",
     radiusPreference: "sm",
     sidebarStyle: "docked",
+    pdfTemplate: "minimal",
+    pdfAccentColor: "#111827",
   },
   editorial: {
     interfaceTheme: "editorial",
@@ -82,35 +142,10 @@ export const themePresets: Record<
     colorTheme: "rose",
     radiusPreference: "lg",
     sidebarStyle: "floating",
+    pdfTemplate: "classic",
+    pdfAccentColor: "#be123c",
   },
 };
-
-export const fontPreferences: {
-  value: FontPreference;
-  label: string;
-  description: string;
-}[] = [
-  {
-    value: "brand",
-    label: "Brand",
-    description: "Inter body with Playfair headings.",
-  },
-  {
-    value: "platform",
-    label: "Platform",
-    description: "Native system fonts for the current OS.",
-  },
-  {
-    value: "inter",
-    label: "Inter",
-    description: "Inter for both body and headings.",
-  },
-  {
-    value: "serif",
-    label: "Editorial",
-    description: "Serif headings with system body text.",
-  },
-];
 
 export const bodyFontPreferences: {
   value: FontPreference;
@@ -119,8 +154,13 @@ export const bodyFontPreferences: {
 }[] = [
   {
     value: "brand",
-    label: "Brand Sans",
-    description: "Inter body text for a clean product feel.",
+    label: "Geist",
+    description: "Geist body text for the core beenvoice product feel.",
+  },
+  {
+    value: "frutiger",
+    label: "Frutiger",
+    description: "Frutiger body text for signage-like operational screens.",
   },
   {
     value: "platform",
@@ -129,8 +169,8 @@ export const bodyFontPreferences: {
   },
   {
     value: "inter",
-    label: "Inter",
-    description: "Inter body text, explicitly selected.",
+    label: "Geist Legacy",
+    description: "Legacy sans option mapped to Geist for older installs.",
   },
   {
     value: "serif",
@@ -146,8 +186,13 @@ export const headingFontPreferences: {
 }[] = [
   {
     value: "brand",
-    label: "Brand Serif",
-    description: "Playfair headings for the BeenVoice identity.",
+    label: "Playfair Display",
+    description: "Playfair Display headings for the beenvoice identity.",
+  },
+  {
+    value: "frutiger",
+    label: "Frutiger",
+    description: "Frutiger headings for airport-inspired wayfinding.",
   },
   {
     value: "platform",
@@ -156,8 +201,8 @@ export const headingFontPreferences: {
   },
   {
     value: "inter",
-    label: "Inter",
-    description: "Inter headings for a plain shadcn-style baseline.",
+    label: "Geist Legacy",
+    description: "Legacy sans option mapped to Geist for older installs.",
   },
   {
     value: "serif",
@@ -222,10 +267,10 @@ export const colorModes: {
 ];
 
 export const defaultInterfaceTheme: InterfaceTheme =
-  env.NEXT_PUBLIC_DEFAULT_INTERFACE_THEME ?? "beenvoice";
+  env.NEXT_PUBLIC_DEFAULT_INTERFACE_THEME ?? fallbackAppearance.interfaceTheme;
 
 export const defaultFontPreference: FontPreference =
-  env.NEXT_PUBLIC_DEFAULT_FONT ?? "brand";
+  env.NEXT_PUBLIC_DEFAULT_FONT ?? fallbackAppearance.fontPreference;
 
 export const defaultBodyFontPreference: FontPreference =
   env.NEXT_PUBLIC_DEFAULT_BODY_FONT ?? defaultFontPreference;
@@ -234,16 +279,14 @@ export const defaultHeadingFontPreference: FontPreference =
   env.NEXT_PUBLIC_DEFAULT_HEADING_FONT ?? defaultFontPreference;
 
 export const defaultRadiusPreference: RadiusPreference =
-  env.NEXT_PUBLIC_DEFAULT_RADIUS ?? "xl";
+  env.NEXT_PUBLIC_DEFAULT_RADIUS ?? fallbackAppearance.radiusPreference;
 
 export const defaultSidebarStyle: SidebarStyle =
-  env.NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE ?? "floating";
+  env.NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE ?? fallbackAppearance.sidebarStyle;
 
 export const brand = {
-  name: env.NEXT_PUBLIC_BRAND_NAME ?? "beenvoice",
-  tagline:
-    env.NEXT_PUBLIC_BRAND_TAGLINE ??
-    "Simple and efficient invoicing for freelancers and small businesses",
-  logoText: env.NEXT_PUBLIC_BRAND_LOGO_TEXT ?? "beenvoice",
-  icon: env.NEXT_PUBLIC_BRAND_ICON ?? "$",
+  name: env.NEXT_PUBLIC_BRAND_NAME ?? fallbackAppearance.brandName,
+  tagline: env.NEXT_PUBLIC_BRAND_TAGLINE ?? fallbackAppearance.brandTagline,
+  logoText: env.NEXT_PUBLIC_BRAND_LOGO_TEXT ?? fallbackAppearance.brandLogoText,
+  icon: env.NEXT_PUBLIC_BRAND_ICON ?? fallbackAppearance.brandIcon,
 };

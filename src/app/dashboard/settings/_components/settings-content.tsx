@@ -23,6 +23,7 @@ import {
   Paintbrush,
   Type,
 } from "lucide-react";
+import dynamic from "next/dynamic";
 import { authClient } from "~/lib/auth-client";
 import * as React from "react";
 import { useState } from "react";
@@ -62,6 +63,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Input } from "~/components/ui/input";
+import { InputColor } from "~/components/ui/input-color";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 import { api } from "~/trpc/react";
@@ -91,6 +93,18 @@ import {
   themePresets,
   type InterfaceTheme,
 } from "~/lib/branding";
+
+const PdfPreviewFrame = dynamic(
+  () => import("./pdf-preview-frame").then((module) => module.PdfPreviewFrame),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="bg-muted/30 text-muted-foreground flex h-[680px] items-center justify-center border text-sm">
+        Loading PDF preview...
+      </div>
+    ),
+  },
+);
 
 function hslChannelsToHex(channels?: string) {
   const [hue, saturation, lightness] =
@@ -158,6 +172,10 @@ function hexToHslChannels(hex: string) {
   )}% ${Number((lightness * 100).toFixed(1))}%`;
 }
 
+function isFullHexColor(value: string) {
+  return /^#[0-9A-Fa-f]{6}$/.test(value);
+}
+
 export function SettingsContent() {
   const { data: session } = authClient.useSession();
   // const session = { user: null } as any;
@@ -195,6 +213,7 @@ export function SettingsContent() {
     pdfShowLogo,
     pdfShowPageNumbers,
     updateAppearance,
+    updateAppearanceDebounced,
     isUpdating: appearanceUpdating,
   } = useAppearance();
   const activePreset = themePresets[interfaceTheme];
@@ -203,7 +222,9 @@ export function SettingsContent() {
     activePreset.headingFontPreference !== headingFontPreference ||
     activePreset.colorTheme !== colorTheme ||
     activePreset.radiusPreference !== radiusPreference ||
-    activePreset.sidebarStyle !== sidebarStyle;
+    activePreset.sidebarStyle !== sidebarStyle ||
+    activePreset.pdfTemplate !== pdfTemplate ||
+    activePreset.pdfAccentColor !== pdfAccentColor;
   const customColorValue = customColor ?? "142.1 76.2% 36.3%";
   const selectAccent = (nextColorTheme: ColorTheme) => {
     updateAppearance({
@@ -249,10 +270,6 @@ export function SettingsContent() {
     api.settings.getProfile.useQuery();
   const isAdmin = profile?.role === "admin";
   const { data: dataStats } = api.settings.getDataStats.useQuery();
-  const { data: accounts = [], refetch: refetchAccounts } =
-    api.settings.listAccounts.useQuery(undefined, {
-      enabled: isAdmin,
-    });
 
   // Mutations
   const updateProfileMutation = api.settings.updateProfile.useMutation({
@@ -321,16 +338,6 @@ export function SettingsContent() {
       toast.error(`Delete failed: ${error.message}`);
     },
   });
-  const updateAccountRoleMutation = api.settings.updateAccountRole.useMutation({
-    onSuccess: () => {
-      toast.success("Account role updated");
-      void refetchAccounts();
-    },
-    onError: (error: { message: string }) => {
-      toast.error(`Failed to update role: ${error.message}`);
-    },
-  });
-
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
@@ -449,6 +456,7 @@ export function SettingsContent() {
   // Set initial name value when profile loads
   React.useEffect(() => {
     if (profile?.name && !name) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync async profile data into an editable form field.
       setName(profile.name);
     }
     if (session?.user) {
@@ -483,13 +491,10 @@ export function SettingsContent() {
   ];
 
   return (
-    <Tabs defaultValue="general" className="space-y-4">
-      <TabsList
-        className={`bg-muted/50 grid w-full ${isAdmin ? "grid-cols-4 lg:w-[520px]" : "grid-cols-3 lg:w-[400px]"}`}
-      >
+    <Tabs defaultValue="general">
+      <TabsList className="bg-muted/50 grid w-full grid-cols-3">
         <TabsTrigger value="general">General</TabsTrigger>
         <TabsTrigger value="preferences">Preferences</TabsTrigger>
-        {isAdmin && <TabsTrigger value="admin">Admin</TabsTrigger>}
         <TabsTrigger value="data">Data</TabsTrigger>
       </TabsList>
 
@@ -729,7 +734,9 @@ export function SettingsContent() {
                     <Input
                       value={brandName}
                       onChange={(event) =>
-                        updateAppearance({ brandName: event.target.value })
+                        updateAppearanceDebounced({
+                          brandName: event.target.value,
+                        })
                       }
                     />
                   </div>
@@ -739,7 +746,9 @@ export function SettingsContent() {
                     <Input
                       value={brandLogoText}
                       onChange={(event) =>
-                        updateAppearance({ brandLogoText: event.target.value })
+                        updateAppearanceDebounced({
+                          brandLogoText: event.target.value,
+                        })
                       }
                     />
                   </div>
@@ -749,7 +758,9 @@ export function SettingsContent() {
                     <Input
                       value={brandIcon}
                       onChange={(event) =>
-                        updateAppearance({ brandIcon: event.target.value })
+                        updateAppearanceDebounced({
+                          brandIcon: event.target.value,
+                        })
                       }
                     />
                   </div>
@@ -759,7 +770,9 @@ export function SettingsContent() {
                     <Input
                       value={brandTagline}
                       onChange={(event) =>
-                        updateAppearance({ brandTagline: event.target.value })
+                        updateAppearanceDebounced({
+                          brandTagline: event.target.value,
+                        })
                       }
                     />
                   </div>
@@ -826,8 +839,8 @@ export function SettingsContent() {
                       </SelectContent>
                     </Select>
                     <p className="text-muted-foreground text-xs leading-snug">
-                      Applies the theme, fonts, accent, corner radius, and
-                      navigation chrome.
+                      Applies the theme, fonts, accent, corner radius,
+                      navigation chrome, and PDF defaults.
                     </p>
                     <p className="text-muted-foreground text-xs leading-snug">
                       {
@@ -1013,32 +1026,25 @@ export function SettingsContent() {
                     </button>
                   </div>
                   {colorTheme === "custom" && (
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <label className="border-input bg-background hover:bg-muted flex h-10 w-full cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm shadow-xs transition-colors sm:w-40">
-                        <span
-                          className="size-5 rounded-sm border"
-                          style={{
-                            backgroundColor: `hsl(${customColorValue})`,
-                          }}
-                        />
-                        Pick color
-                        <input
-                          type="color"
-                          value={hslChannelsToHex(customColorValue)}
-                          onChange={(event) =>
-                            updateAppearance({
+                    <div className="space-y-2">
+                      <InputColor
+                        label="Custom Accent"
+                        value={hslChannelsToHex(customColorValue)}
+                        onBlur={() => undefined}
+                        onChange={(value) => {
+                          if (isFullHexColor(value)) {
+                            updateAppearanceDebounced({
                               colorTheme: "custom",
-                              customColor: hexToHslChannels(event.target.value),
-                            })
+                              customColor: hexToHslChannels(value),
+                            });
                           }
-                          className="sr-only"
-                          aria-label="Pick custom accent color"
-                        />
-                      </label>
+                        }}
+                        className="mt-0"
+                      />
                       <Input
                         value={customColorValue}
                         onChange={(event) =>
-                          updateAppearance({
+                          updateAppearanceDebounced({
                             colorTheme: "custom",
                             customColor: event.target.value,
                           })
@@ -1138,119 +1144,6 @@ export function SettingsContent() {
                 </div>
               </section>
 
-              <section className="space-y-4 border-t pt-6">
-                <div>
-                  <h3 className="text-sm font-medium">PDF</h3>
-                  <p className="text-muted-foreground text-xs">
-                    Controls the generated invoice PDF used for downloads and
-                    email attachments.
-                  </p>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      PDF Template
-                    </Label>
-                    <Select
-                      value={pdfTemplate}
-                      onValueChange={(value) =>
-                        updateAppearance({
-                          pdfTemplate: value as typeof pdfTemplate,
-                        })
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="classic">Classic</SelectItem>
-                        <SelectItem value="minimal">Minimal</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-muted-foreground text-xs leading-snug">
-                      Minimal removes shaded table fills for a cleaner document.
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>PDF Accent</Label>
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                      <label className="border-input bg-background hover:bg-muted flex h-10 w-full cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm shadow-xs transition-colors sm:w-40">
-                        <span
-                          className="size-5 rounded-sm border"
-                          style={{ backgroundColor: pdfAccentColor }}
-                        />
-                        Pick color
-                        <input
-                          type="color"
-                          value={pdfAccentColor}
-                          onChange={(event) =>
-                            updateAppearance({
-                              pdfAccentColor: event.target.value,
-                            })
-                          }
-                          className="sr-only"
-                          aria-label="Pick PDF accent color"
-                        />
-                      </label>
-                      <Input
-                        value={pdfAccentColor}
-                        onChange={(event) =>
-                          updateAppearance({
-                            pdfAccentColor: event.target.value,
-                          })
-                        }
-                        placeholder="#111827"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 md:col-span-2">
-                    <Label>Footer Text</Label>
-                    <Input
-                      value={pdfFooterText}
-                      onChange={(event) =>
-                        updateAppearance({ pdfFooterText: event.target.value })
-                      }
-                    />
-                  </div>
-
-                  <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
-                    <div className="space-y-1">
-                      <Label>Show Logo</Label>
-                      <p className="text-muted-foreground text-xs">
-                        Include the beenvoice logo in the PDF footer.
-                      </p>
-                    </div>
-                    <Switch
-                      checked={pdfShowLogo}
-                      onCheckedChange={(checked) =>
-                        updateAppearance({ pdfShowLogo: Boolean(checked) })
-                      }
-                      aria-label="Toggle PDF logo"
-                    />
-                  </div>
-
-                  <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
-                    <div className="space-y-1">
-                      <Label>Page Numbers</Label>
-                      <p className="text-muted-foreground text-xs">
-                        Show page count in the PDF footer.
-                      </p>
-                    </div>
-                    <Switch
-                      checked={pdfShowPageNumbers}
-                      onCheckedChange={(checked) =>
-                        updateAppearance({
-                          pdfShowPageNumbers: Boolean(checked),
-                        })
-                      }
-                      aria-label="Toggle PDF page numbers"
-                    />
-                  </div>
-                </div>
-              </section>
               {appearanceUpdating && (
                 <p className="text-muted-foreground text-xs">
                   Saving appearance...
@@ -1259,6 +1152,130 @@ export function SettingsContent() {
             </CardContent>
           )}
         </Card>
+
+        {isAdmin && (
+          <Card className="bg-card border-border border">
+            <CardHeader>
+              <CardTitle className="text-foreground flex items-center gap-2">
+                <FileText className="text-primary h-5 w-5" />
+                Invoice Settings
+              </CardTitle>
+              <CardDescription>
+                Configure generated invoice PDFs and preview the real document
+                output.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid gap-6 xl:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+                <div className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
+                    <div className="space-y-2">
+                      <Label className="flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        PDF Template
+                      </Label>
+                      <Select
+                        value={pdfTemplate}
+                        onValueChange={(value) =>
+                          updateAppearance({
+                            pdfTemplate: value as typeof pdfTemplate,
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="classic">Classic</SelectItem>
+                          <SelectItem value="minimal">Minimal</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-muted-foreground text-xs leading-snug">
+                        Minimal removes shaded table fills for a cleaner
+                        document.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <InputColor
+                        label="PDF Accent"
+                        value={pdfAccentColor}
+                        onBlur={() => undefined}
+                        onChange={(value) => {
+                          if (isFullHexColor(value)) {
+                            updateAppearance({
+                              pdfAccentColor: value,
+                            });
+                          }
+                        }}
+                        className="mt-0"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Footer Text</Label>
+                    <Input
+                      value={pdfFooterText}
+                      onChange={(event) =>
+                        updateAppearanceDebounced({
+                          pdfFooterText: event.target.value,
+                        })
+                      }
+                    />
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                    <div className="flex items-start justify-between gap-4 border p-3">
+                      <div className="space-y-1">
+                        <Label>Show Logo</Label>
+                        <p className="text-muted-foreground text-xs">
+                          Include the beenvoice logo in the PDF footer.
+                        </p>
+                      </div>
+                      <Switch
+                        checked={pdfShowLogo}
+                        onCheckedChange={(checked) =>
+                          updateAppearance({ pdfShowLogo: Boolean(checked) })
+                        }
+                        aria-label="Toggle PDF logo"
+                      />
+                    </div>
+
+                    <div className="flex items-start justify-between gap-4 border p-3">
+                      <div className="space-y-1">
+                        <Label>Page Numbers</Label>
+                        <p className="text-muted-foreground text-xs">
+                          Show page count in the PDF footer.
+                        </p>
+                      </div>
+                      <Switch
+                        checked={pdfShowPageNumbers}
+                        onCheckedChange={(checked) =>
+                          updateAppearance({
+                            pdfShowPageNumbers: Boolean(checked),
+                          })
+                        }
+                        aria-label="Toggle PDF page numbers"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <PdfPreviewFrame
+                  businessName={brandName}
+                  settings={{
+                    pdfTemplate,
+                    pdfAccentColor,
+                    pdfFooterText,
+                    pdfShowLogo,
+                    pdfShowPageNumbers,
+                  }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Accessibility & Animation */}
         <Card className="bg-card border-border border">
@@ -1356,57 +1373,6 @@ export function SettingsContent() {
           </CardContent>
         </Card>
       </TabsContent>
-
-      {isAdmin && (
-        <TabsContent value="admin" className="space-y-8">
-          <Card className="bg-card border-border border">
-            <CardHeader>
-              <CardTitle className="text-foreground flex items-center gap-2">
-                <Shield className="text-primary h-5 w-5" />
-                Accounts
-              </CardTitle>
-              <CardDescription>
-                Manage account access and roles without opening customer data.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {accounts.map((account) => (
-                <div
-                  key={account.id}
-                  className="border-border flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{account.name}</p>
-                    <p className="text-muted-foreground truncate text-xs">
-                      {account.email}
-                    </p>
-                    <p className="text-muted-foreground mt-1 text-xs">
-                      Created {new Date(account.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <Select
-                    value={account.role}
-                    onValueChange={(role) =>
-                      updateAccountRoleMutation.mutate({
-                        userId: account.id,
-                        role: role as "user" | "admin",
-                      })
-                    }
-                  >
-                    <SelectTrigger className="w-full sm:w-36">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="user">User</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      )}
 
       <TabsContent value="data" className="space-y-8">
         {/* Data Overview */}

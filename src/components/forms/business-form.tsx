@@ -143,6 +143,7 @@ export function BusinessForm({ businessId, mode }: BusinessFormProps) {
   // Load business data when editing
   useEffect(() => {
     if (business && mode === "edit") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync loaded business data into the edit form.
       setFormData({
         name: business.name,
         nickname: business.nickname ?? "",

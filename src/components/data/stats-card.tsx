@@ -80,7 +80,7 @@ export function StatsCard({
             )}
           </div>
           {Icon && (
-            <div className={cn(" p-3", styles.background)}>
+            <div className={cn("p-3", styles.background)}>
               <Icon className={cn("h-6 w-6", styles.icon)} />
             </div>
           )}

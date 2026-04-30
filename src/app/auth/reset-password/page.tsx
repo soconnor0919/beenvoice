@@ -29,11 +29,12 @@ function ResetPasswordForm() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [tokenValid, setTokenValid] = useState<boolean | null>(null);
+  const [tokenValid, setTokenValid] = useState<boolean | null>(() =>
+    token ? null : false,
+  );
 
   useEffect(() => {
     if (!token) {
-      setTokenValid(false);
       return;
     }
 

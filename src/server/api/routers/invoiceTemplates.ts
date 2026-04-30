@@ -72,7 +72,10 @@ export const invoiceTemplatesRouter = createTRPCRouter({
       });
 
       if (!existing) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Template not found",
+        });
       }
 
       // If setting as default, unset others of same type
@@ -108,7 +111,10 @@ export const invoiceTemplatesRouter = createTRPCRouter({
       });
 
       if (!existing) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Template not found",
+        });
       }
 
       await ctx.db

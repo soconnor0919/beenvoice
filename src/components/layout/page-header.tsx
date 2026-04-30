@@ -42,22 +42,24 @@ export function PageHeader({
   return (
     <div className={`animate-fade-in-down mb-6 ${className}`}>
       {variant === "large-gradient" || variant === "gradient" ? (
-        <div className="platform-header-surface rounded-xl border bg-card text-card-foreground shadow-sm overflow-hidden relative">
-          <div className="platform-header-gradient absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-          <div className="platform-header-content p-6 relative">
+        <div className="platform-header-surface bg-card text-card-foreground relative overflow-hidden rounded-xl border shadow-sm">
+          <div className="platform-header-gradient from-primary/5 pointer-events-none absolute inset-0 bg-gradient-to-br via-transparent to-transparent" />
+          <div className="platform-header-content relative p-6">
             <DashboardBreadcrumbs className="mb-4" />
             {/* UPDATED: flex-col on mobile to prevent squishing, row on sm+ */}
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
                 <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
                 {description && (
-                  <p className={`text-muted-foreground ${getDescriptionSpacing()} text-lg`}>
+                  <p
+                    className={`text-muted-foreground ${getDescriptionSpacing()} text-lg`}
+                  >
                     {description}
                   </p>
                 )}
               </div>
               {children && (
-                <div className="flex flex-shrink-0 gap-2 sm:gap-3 w-full sm:w-auto">
+                <div className="flex w-full flex-shrink-0 gap-2 sm:w-auto sm:gap-3">
                   {children}
                 </div>
               )}
@@ -68,7 +70,7 @@ export function PageHeader({
         <>
           <DashboardBreadcrumbs className="mb-2 sm:mb-4" />
           {/* UPDATED: flex-col on mobile to prevent squishing, row on sm+ */}
-          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="animate-fade-in-up space-y-1">
               <h1 className={titleClassName ?? getTitleClasses()}>{title}</h1>
               {description && (
@@ -80,7 +82,7 @@ export function PageHeader({
               )}
             </div>
             {children && (
-              <div className="animate-slide-in-right animate-delay-200 flex flex-shrink-0 gap-2 sm:gap-3 w-full sm:w-auto">
+              <div className="animate-slide-in-right animate-delay-200 flex w-full flex-shrink-0 gap-2 sm:w-auto sm:gap-3">
                 {children}
               </div>
             )}

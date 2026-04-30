@@ -47,7 +47,10 @@ export const expensesRouter = createTRPCRouter({
       });
 
       if (!expense) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Expense not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Expense not found",
+        });
       }
 
       return expense;
@@ -72,7 +75,11 @@ export const expensesRouter = createTRPCRouter({
             eq(clients.createdById, ctx.session.user.id),
           ),
         });
-        if (!client) throw new TRPCError({ code: "FORBIDDEN", message: "Client not found" });
+        if (!client)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Client not found",
+          });
       }
 
       if (clean.businessId) {
@@ -82,7 +89,11 @@ export const expensesRouter = createTRPCRouter({
             eq(businesses.createdById, ctx.session.user.id),
           ),
         });
-        if (!business) throw new TRPCError({ code: "FORBIDDEN", message: "Business not found" });
+        if (!business)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Business not found",
+          });
       }
 
       if (clean.invoiceId) {
@@ -92,7 +103,11 @@ export const expensesRouter = createTRPCRouter({
             eq(invoices.createdById, ctx.session.user.id),
           ),
         });
-        if (!invoice) throw new TRPCError({ code: "FORBIDDEN", message: "Invoice not found" });
+        if (!invoice)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: "Invoice not found",
+          });
       }
 
       const [expense] = await ctx.db
@@ -116,7 +131,10 @@ export const expensesRouter = createTRPCRouter({
       });
 
       if (!existing) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Expense not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Expense not found",
+        });
       }
 
       const clean = {
@@ -145,7 +163,10 @@ export const expensesRouter = createTRPCRouter({
       });
 
       if (!existing) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Expense not found" });
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Expense not found",
+        });
       }
 
       await ctx.db.delete(expenses).where(eq(expenses.id, input.id));

@@ -75,7 +75,7 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
   const handleMarkAsPaid = () => {
     updateStatus.mutate({
       id: invoiceId,
-      status: "paid" as StoredInvoiceStatus,
+      status: "paid",
     });
   };
 
@@ -109,17 +109,15 @@ function InvoiceViewContent({ invoiceId }: { invoiceId: string }) {
   const subtotal = invoice.items.reduce((sum, item) => sum + item.amount, 0);
   const taxAmount = (subtotal * invoice.taxRate) / 100;
   const total = subtotal + taxAmount;
+  const storedStatus = invoice.status as StoredInvoiceStatus;
   const effectiveStatus = getEffectiveInvoiceStatus(
-    invoice.status as StoredInvoiceStatus,
+    storedStatus,
     invoice.dueDate,
   );
-  const isOverdue = isInvoiceOverdue(
-    invoice.status as StoredInvoiceStatus,
-    invoice.dueDate,
-  );
+  const isOverdue = isInvoiceOverdue(storedStatus, invoice.dueDate);
 
   const getStatusType = (): StatusType => {
-    return effectiveStatus as StatusType;
+    return effectiveStatus;
   };
 
   return (

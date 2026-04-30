@@ -28,9 +28,9 @@ import type { DashboardStats, RecentInvoice } from "./types";
 
 // Hero section with clean mono design
 
-
 // Enhanced stats cards with better visuals
-function DashboardStats({ stats }: { stats: DashboardStats }) { // TODO: Import RouterOutput type
+function DashboardStats({ stats }: { stats: DashboardStats }) {
+  // TODO: Import RouterOutput type
   const formatTrend = (value: number, isCount = false) => {
     if (isCount) {
       return value > 0 ? `+${value}` : value.toString();
@@ -193,10 +193,11 @@ function QuickActions() {
             <Link
               key={action.title}
               href={action.href}
-              className={`hover-lift flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${action.featured
-                ? "border-foreground/20 bg-muted/50 hover:bg-muted"
-                : "border-border bg-background hover:bg-muted/50"
-                }`}
+              className={`hover-lift flex w-full items-start space-x-3 rounded-lg border p-4 transition-colors ${
+                action.featured
+                  ? "border-foreground/20 bg-muted/50 hover:bg-muted"
+                  : "border-border bg-background hover:bg-muted/50"
+              }`}
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               <div className="min-w-0 flex-1">
@@ -310,7 +311,11 @@ async function CurrentWork() {
 }
 
 // Enhanced recent activity
-async function RecentActivity({ recentInvoices }: { recentInvoices: RecentInvoice[] }) {
+async function RecentActivity({
+  recentInvoices,
+}: {
+  recentInvoices: RecentInvoice[];
+}) {
   // Use passed recentInvoices instead of fetching all
 
   const getStatusStyle = (status: string) => {

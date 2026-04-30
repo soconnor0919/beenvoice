@@ -7,11 +7,7 @@ interface PageLayoutProps {
 }
 
 export function PageLayout({ children, className }: PageLayoutProps) {
-  return (
-    <div className={cn("min-h-screen", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn("min-h-screen", className)}>{children}</div>;
 }
 
 interface PageContentProps {
@@ -23,18 +19,16 @@ interface PageContentProps {
 export function PageContent({
   children,
   className,
-  spacing = "default"
+  spacing = "default",
 }: PageContentProps) {
   const spacingClasses = {
     default: "space-y-8",
     compact: "space-y-4",
-    large: "space-y-12"
+    large: "space-y-12",
   };
 
   return (
-    <div className={cn(spacingClasses[spacing], className)}>
-      {children}
-    </div>
+    <div className={cn(spacingClasses[spacing], className)}>{children}</div>
   );
 }
 
@@ -51,7 +45,7 @@ export function PageSection({
   className,
   title,
   description,
-  actions
+  actions,
 }: PageSectionProps) {
   return (
     <section className={cn("space-y-4", className)}>
@@ -59,15 +53,15 @@ export function PageSection({
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
             {title && (
-              <h2 className="text-xl font-semibold text-foreground">{title}</h2>
+              <h2 className="text-foreground text-xl font-semibold">{title}</h2>
             )}
             {description && (
-              <p className="text-sm text-muted-foreground mt-1">{description}</p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {description}
+              </p>
             )}
           </div>
-          {actions && (
-            <div className="flex flex-shrink-0 gap-3">{actions}</div>
-          )}
+          {actions && <div className="flex flex-shrink-0 gap-3">{actions}</div>}
         </div>
       )}
       {children}
@@ -86,28 +80,25 @@ export function PageGrid({
   children,
   className,
   columns = 3,
-  gap = "default"
+  gap = "default",
 }: PageGridProps) {
   const columnClasses = {
     1: "grid-cols-1",
     2: "grid-cols-1 md:grid-cols-2",
     3: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
-    4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+    4: "grid-cols-1 md:grid-cols-2 lg:grid-cols-4",
   };
 
   const gapClasses = {
     default: "gap-4",
     compact: "gap-2",
-    large: "gap-6"
+    large: "gap-6",
   };
 
   return (
-    <div className={cn(
-      "grid",
-      columnClasses[columns],
-      gapClasses[gap],
-      className
-    )}>
+    <div
+      className={cn("grid", columnClasses[columns], gapClasses[gap], className)}
+    >
       {children}
     </div>
   );
@@ -127,18 +118,18 @@ export function EmptyState({
   title,
   description,
   action,
-  className
+  className,
 }: EmptyStateProps) {
   return (
     <div className={cn("py-12 text-center", className)}>
       {icon && (
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center  bg-muted/50">
+        <div className="bg-muted/50 mx-auto mb-4 flex h-16 w-16 items-center justify-center">
           {icon}
         </div>
       )}
       <h3 className="mb-2 text-lg font-semibold">{title}</h3>
       {description && (
-        <p className="text-muted-foreground mb-4 max-w-sm mx-auto">
+        <p className="text-muted-foreground mx-auto mb-4 max-w-sm">
           {description}
         </p>
       )}

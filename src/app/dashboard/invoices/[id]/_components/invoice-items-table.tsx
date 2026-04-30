@@ -53,14 +53,13 @@ const columns: ColumnDef<InvoiceItem>[] = [
       return (
         <>
           {/* Desktop: plain description */}
-          <div className="hidden font-medium sm:block">
-            {item.description}
-          </div>
+          <div className="hidden font-medium sm:block">{item.description}</div>
           {/* Mobile: description + date + hours @ rate stacked */}
           <div className="sm:hidden">
             <p className="font-medium">{item.description}</p>
             <p className="text-muted-foreground mt-0.5 text-xs">
-              {formatDate(item.date)} &middot; {item.hours}h @ {formatCurrency(item.rate)}/hr
+              {formatDate(item.date)} &middot; {item.hours}h @{" "}
+              {formatCurrency(item.rate)}/hr
             </p>
           </div>
         </>

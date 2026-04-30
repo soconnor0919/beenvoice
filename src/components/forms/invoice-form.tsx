@@ -93,12 +93,8 @@ function plainTextToHtml(value: string) {
     .replace(/\n/g, "<br>");
 }
 
-export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
-  const router = useRouter();
-  const utils = api.useUtils();
-
-  // State
-  const [formData, setFormData] = useState<InvoiceFormData>({
+function createDefaultInvoiceFormData(): InvoiceFormData {
+  return {
     invoiceNumber: `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${Date.now().toString().slice(-6)}`,
     invoicePrefix: "#",
     businessId: "",
@@ -121,7 +117,17 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
         amount: 0,
       },
     ],
-  });
+  };
+}
+
+export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
+  const router = useRouter();
+  const utils = api.useUtils();
+
+  // State
+  const [formData, setFormData] = useState<InvoiceFormData>(
+    createDefaultInvoiceFormData,
+  );
 
   const [loading, setLoading] = useState(false);
   const [initialized, setInitialized] = useState(false);
@@ -153,6 +159,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
 
   // Init Effects (Same as before)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Reset initialization state when the routed invoice changes.
     setInitialized(false);
   }, [invoiceId]);
   useEffect(() => {
@@ -167,6 +174,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           rate: item.rate,
           amount: item.amount,
         })) || [];
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync loaded invoice data into the edit form.
       setFormData({
         invoiceNumber: existingInvoice.invoiceNumber,
         invoicePrefix: existingInvoice.invoicePrefix ?? "#",

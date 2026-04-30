@@ -60,12 +60,13 @@ export function DatePicker({
   const inputWidthClass = className?.includes("w-full")
     ? "w-full"
     : className?.includes("w-32") ||
-      className?.includes("w-28") ||
-      className?.includes("w-36")
+        className?.includes("w-28") ||
+        className?.includes("w-36")
       ? className
       : "w-full md:w-32 md:min-w-32";
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Keep text input and calendar month synchronized with the controlled date prop.
     setValue(formatDate(date));
     setMonth(date);
   }, [date]);
@@ -77,7 +78,12 @@ export function DatePicker({
         value={value}
         placeholder={placeholder}
         disabled={disabled}
-        className={cn("bg-background pr-10", sizeClasses[size], "w-full", inputClassName)}
+        className={cn(
+          "bg-background pr-10",
+          sizeClasses[size],
+          "w-full",
+          inputClassName,
+        )}
         onChange={(e) => {
           setValue(e.target.value);
           const parsedDate = parseDate(e.target.value);
@@ -98,13 +104,16 @@ export function DatePicker({
           <Button
             variant="ghost"
             disabled={disabled}
-            className="absolute top-1/2 right-2 size-6 p-0 -translate-y-1/2 text-primary/80 hover:text-primary transition-colors z-20"
+            className="text-primary/80 hover:text-primary absolute top-1/2 right-2 z-20 size-6 -translate-y-1/2 p-0 transition-colors"
           >
             <CalendarIcon className="size-4" />
             <span className="sr-only">Select date</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0 rounded-xl" align="end">
+        <PopoverContent
+          className="w-auto overflow-hidden rounded-xl p-0"
+          align="end"
+        >
           <Calendar
             mode="single"
             selected={date}

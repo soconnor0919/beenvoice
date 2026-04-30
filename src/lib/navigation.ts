@@ -6,6 +6,7 @@ import {
   Building,
   Receipt,
   BarChart2,
+  Shield,
 } from "lucide-react";
 
 export interface NavLink {
@@ -35,6 +36,11 @@ export const navigationConfig: NavSection[] = [
     title: "Account",
     links: [
       { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      {
+        name: "Administration",
+        href: "/dashboard/administration",
+        icon: Shield,
+      },
     ],
   },
 ];

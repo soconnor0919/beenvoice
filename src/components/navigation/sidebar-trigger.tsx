@@ -53,7 +53,7 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                         (_, i) => (
                           <div
                             key={i}
-                            className="flex items-center gap-3  px-3 py-2.5"
+                            className="flex items-center gap-3 px-3 py-2.5"
                           >
                             <Skeleton className="bg-muted/20 h-4 w-4" />
                             <Skeleton className="bg-muted/20 h-4 w-20" />
@@ -71,10 +71,11 @@ export function SidebarTrigger({ isOpen, onToggle }: SidebarTriggerProps) {
                           aria-current={
                             pathname === link.href ? "page" : undefined
                           }
-                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${pathname === link.href
-                            ? "bg-primary/10 text-primary"
-                            : "text-foreground hover:bg-muted"
-                            }`}
+                          className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-colors ${
+                            pathname === link.href
+                              ? "bg-primary/10 text-primary"
+                              : "text-foreground hover:bg-muted"
+                          }`}
                           onClick={onToggle}
                         >
                           <Icon className="h-4 w-4" />

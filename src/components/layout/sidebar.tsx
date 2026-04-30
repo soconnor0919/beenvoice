@@ -5,16 +5,17 @@ import { usePathname } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Button } from "~/components/ui/button";
-import {
-  LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { navigationConfig } from "~/lib/navigation";
 import { useSidebar } from "./sidebar-provider";
 import { cn } from "~/lib/utils";
 import { Logo } from "~/components/branding/logo";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "~/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,10 +47,12 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
     <div className="flex h-full flex-col justify-between">
       <div>
         {/* Header / Logo */}
-        <div className={cn(
-          "flex items-center h-14 px-4 mb-2",
-          collapsed ? "justify-center px-2" : "justify-between"
-        )}>
+        <div
+          className={cn(
+            "mb-2 flex h-14 items-center px-4",
+            collapsed ? "justify-center px-2" : "justify-between",
+          )}
+        >
           {!collapsed && (
             <div className="flex items-center gap-2">
               <Logo size="sm" />
@@ -63,11 +66,16 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className={cn("flex flex-col px-2 gap-6 mt-4", collapsed && "items-center")}>
+        <nav
+          className={cn(
+            "mt-4 flex flex-col gap-6 px-2",
+            collapsed && "items-center",
+          )}
+        >
           {navigationConfig.map((section) => (
             <div key={section.title}>
               {!collapsed && (
-                <div className="px-2 mb-2 text-xs font-semibold text-muted-foreground/60 tracking-wider uppercase">
+                <div className="text-muted-foreground/60 mb-2 px-2 text-xs font-semibold tracking-wider uppercase">
                   {section.title}
                 </div>
               )}
@@ -84,17 +92,21 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                             <TooltipTrigger asChild>
                               <Link
                                 href={link.href}
+                                data-active={isActive ? "true" : undefined}
                                 className={cn(
-                                  "flex items-center justify-center h-10 w-10 rounded-md transition-colors",
+                                  "flex h-10 w-10 items-center justify-center rounded-md transition-colors",
                                   isActive
                                     ? "bg-primary text-primary-foreground shadow-sm"
-                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                                 )}
                               >
                                 <Icon className="h-5 w-5" />
                               </Link>
                             </TooltipTrigger>
-                            <TooltipContent side="right" className="font-medium">
+                            <TooltipContent
+                              side="right"
+                              className="font-medium"
+                            >
                               {link.name}
                             </TooltipContent>
                           </Tooltip>
@@ -106,12 +118,13 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                       <Link
                         key={link.href}
                         href={link.href}
+                        data-active={isActive ? "true" : undefined}
                         onClick={mobile ? onClose : undefined}
                         className={cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                          "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                           isActive
                             ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            : "text-muted-foreground hover:bg-muted hover:text-foreground",
                         )}
                       >
                         <Icon className="h-4 w-4" />
@@ -127,29 +140,45 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       </div>
 
       {/* Footer / User */}
-      <div className="p-2 mt-auto space-y-2">
+      <div className="mt-auto space-y-2 p-2">
         {!mobile && (
-          <div className={cn("flex", collapsed ? "justify-center" : "justify-end px-2")}>
+          <div
+            className={cn(
+              "flex",
+              collapsed ? "justify-center" : "justify-end px-2",
+            )}
+          >
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground"
+              className="text-muted-foreground h-8 w-8"
               onClick={toggleCollapse}
             >
-              {collapsed ? <PanelLeftOpen className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+              {collapsed ? (
+                <PanelLeftOpen className="h-4 w-4" />
+              ) : (
+                <PanelLeftClose className="h-4 w-4" />
+              )}
             </Button>
           </div>
         )}
 
-        <div className={cn(
-          "border-t border-border/50 pt-4",
-          collapsed ? "flex flex-col items-center gap-2" : "px-2"
-        )}>
+        <div
+          className={cn(
+            "border-border/50 border-t pt-4",
+            collapsed ? "flex flex-col items-center gap-2" : "px-2",
+          )}
+        >
           {isPending ? (
-            <div className={cn("flex items-center gap-3", collapsed ? "justify-center" : "px-2")}>
+            <div
+              className={cn(
+                "flex items-center gap-3",
+                collapsed ? "justify-center" : "px-2",
+              )}
+            >
               <Skeleton className="h-9 w-9 rounded-full" />
               {!collapsed && (
-                <div className="space-y-1 flex-1">
+                <div className="flex-1 space-y-1">
                   <Skeleton className="h-3 w-20" />
                   <Skeleton className="h-2 w-24" />
                 </div>
@@ -158,17 +187,37 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
           ) : session?.user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className={cn("w-full justify-start p-0 hover:bg-transparent", collapsed && "justify-center")}>
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "w-full justify-start p-0 hover:bg-transparent",
+                    collapsed && "justify-center",
+                  )}
+                >
                   {/* FIXED: Changed div to span to prevent hydration error */}
-                  <span className={cn("flex items-center gap-3", collapsed ? "justify-center" : "w-full")}>
-                    <Avatar className="h-9 w-9 border border-border">
-                      <AvatarImage src={getGravatarUrl(session.user.email)} alt={session.user.name ?? "User"} />
-                      <AvatarFallback>{session.user.name?.[0] ?? "U"}</AvatarFallback>
+                  <span
+                    className={cn(
+                      "flex items-center gap-3",
+                      collapsed ? "justify-center" : "w-full",
+                    )}
+                  >
+                    <Avatar className="border-border h-9 w-9 border">
+                      <AvatarImage
+                        src={getGravatarUrl(session.user.email)}
+                        alt={session.user.name ?? "User"}
+                      />
+                      <AvatarFallback>
+                        {session.user.name?.[0] ?? "U"}
+                      </AvatarFallback>
                     </Avatar>
                     {!collapsed && (
-                      <span className="flex-1 min-w-0 text-left">
-                        <span className="block text-sm font-medium truncate">{session.user.name}</span>
-                        <span className="block text-xs text-muted-foreground truncate">{session.user.email}</span>
+                      <span className="min-w-0 flex-1 text-left">
+                        <span className="block truncate text-sm font-medium">
+                          {session.user.name}
+                        </span>
+                        <span className="text-muted-foreground block truncate text-xs">
+                          {session.user.email}
+                        </span>
                       </span>
                     )}
                   </span>
@@ -177,13 +226,17 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
               <DropdownMenuContent
                 side="right"
                 align="end"
-                className="w-56 bg-background/80 backdrop-blur-xl border-border/50"
+                className="bg-background/80 border-border/50 w-56 backdrop-blur-xl"
                 sideOffset={10}
               >
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{session.user.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{session.user.email}</p>
+                    <p className="text-sm leading-none font-medium">
+                      {session.user.name}
+                    </p>
+                    <p className="text-muted-foreground text-xs leading-none">
+                      {session.user.email}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -192,7 +245,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
                     await authClient.signOut();
                     window.location.href = "/";
                   }}
-                  className="text-red-600 focus:text-red-600 focus:bg-red-100/50 dark:focus:bg-red-900/20"
+                  className="text-red-600 focus:bg-red-100/50 focus:text-red-600 dark:focus:bg-red-900/20"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   Sign Out
@@ -206,11 +259,7 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
   );
 
   if (mobile) {
-    return (
-      <div className="h-full bg-background">
-        {SidebarContent}
-      </div>
-    );
+    return <div className="bg-background h-full">{SidebarContent}</div>;
   }
 
   return (
@@ -218,8 +267,8 @@ export function Sidebar({ mobile, onClose }: SidebarProps) {
       className={cn(
         "fixed z-30 hidden flex-col transition-all duration-300 ease-in-out md:flex",
         sidebarStyle === "floating"
-          ? "top-4 bottom-4 left-4 border-border/50 rounded-3xl border bg-background/80 shadow-xl backdrop-blur-xl"
-          : "top-0 bottom-0 left-0 rounded-none border-r border-border bg-background shadow-none",
+          ? "border-border/50 bg-background/80 top-4 bottom-4 left-4 rounded-3xl border shadow-xl backdrop-blur-xl"
+          : "border-border bg-background top-0 bottom-0 left-0 rounded-none border-r shadow-none",
         isCollapsed ? "w-16" : "w-64",
       )}
     >

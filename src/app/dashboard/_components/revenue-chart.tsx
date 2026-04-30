@@ -10,8 +10,6 @@ import {
 } from "recharts";
 import { useAnimationPreferences } from "~/components/providers/animation-preferences-provider";
 
-
-
 interface RevenueChartProps {
   data: {
     month: string;
@@ -91,7 +89,11 @@ export function RevenueChart({ data }: RevenueChartProps) {
         <AreaChart data={chartData}>
           <defs>
             <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="hsl(217, 91%, 60%)" stopOpacity={0.4} />
+              <stop
+                offset="5%"
+                stopColor="hsl(217, 91%, 60%)"
+                stopOpacity={0.4}
+              />
               <stop
                 offset="95%"
                 stopColor="hsl(217, 91%, 60%)"

@@ -56,7 +56,7 @@ export function QuickActionCard({
     <CardContent className="p-6 text-center">
       <div
         className={cn(
-          "mx-auto mb-3 flex h-12 w-12 items-center justify-center  transition-colors",
+          "mx-auto mb-3 flex h-12 w-12 items-center justify-center transition-colors",
           styles.background,
           styles.hoverBackground,
         )}
@@ -101,7 +101,7 @@ export function QuickActionCardSkeleton() {
     <Card className="bg-card border-border border">
       <CardContent className="p-6">
         <div className="animate-pulse">
-          <div className="bg-muted mx-auto mb-3 h-12 w-12 "></div>
+          <div className="bg-muted mx-auto mb-3 h-12 w-12"></div>
           <div className="bg-muted mx-auto mb-2 h-4 w-2/3 rounded"></div>
           <div className="bg-muted mx-auto h-3 w-1/2 rounded"></div>
         </div>

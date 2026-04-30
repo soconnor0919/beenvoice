@@ -42,16 +42,23 @@ export const env = createEnv({
     NEXT_PUBLIC_BRAND_LOGO_TEXT: z.string().optional(),
     NEXT_PUBLIC_BRAND_ICON: z.string().optional(),
     NEXT_PUBLIC_DEFAULT_INTERFACE_THEME: z
-      .enum(["beenvoice", "shadcn", "minimal", "editorial"])
+      .enum([
+        "beenvoice",
+        "frutiger",
+        "frutiger-aero",
+        "shadcn",
+        "minimal",
+        "editorial",
+      ])
       .optional(),
     NEXT_PUBLIC_DEFAULT_FONT: z
-      .enum(["brand", "platform", "inter", "serif"])
+      .enum(["brand", "frutiger", "platform", "inter", "serif"])
       .optional(),
     NEXT_PUBLIC_DEFAULT_BODY_FONT: z
-      .enum(["brand", "platform", "inter", "serif"])
+      .enum(["brand", "frutiger", "platform", "inter", "serif"])
       .optional(),
     NEXT_PUBLIC_DEFAULT_HEADING_FONT: z
-      .enum(["brand", "platform", "inter", "serif"])
+      .enum(["brand", "frutiger", "platform", "inter", "serif"])
       .optional(),
     NEXT_PUBLIC_DEFAULT_RADIUS: z
       .enum(["none", "sm", "md", "lg", "xl"])

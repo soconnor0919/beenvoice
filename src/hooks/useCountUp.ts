@@ -39,6 +39,7 @@ export function useCountUp({
 
   useEffect(() => {
     // Reset when end value changes
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Restart the animation from the configured start value when inputs change.
     setCount(start);
     setIsAnimating(false);
 

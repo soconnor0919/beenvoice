@@ -24,6 +24,43 @@ interface MonthlyMetricsChartProps {
   invoices: Invoice[];
 }
 
+function MonthlyMetricsTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      paidInvoices: number;
+      pendingInvoices: number;
+      overdueInvoices: number;
+      draftInvoices: number;
+      totalInvoices: number;
+    };
+  }>;
+  label?: string;
+}) {
+  if (active && payload?.length) {
+    const data = payload[0]!.payload;
+    return (
+      <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
+        <p className="font-medium">{label}</p>
+        <div className="space-y-1 text-sm">
+          <p className="text-primary font-medium">Paid: {data.paidInvoices}</p>
+          <p className="text-primary/80">Pending: {data.pendingInvoices}</p>
+          <p className="text-destructive">Overdue: {data.overdueInvoices}</p>
+          <p className="text-muted-foreground">Draft: {data.draftInvoices}</p>
+          <p className="text-foreground border-t pt-1 font-medium">
+            Total: {data.totalInvoices}
+          </p>
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
 export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
   // Process invoice data to create monthly metrics
   const monthlyData = invoices.reduce(
@@ -95,49 +132,6 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
     500 / (animationSpeedMultiplier || 1),
   );
 
-  const CustomTooltip = ({
-    active,
-    payload,
-    label,
-  }: {
-    active?: boolean;
-    payload?: Array<{
-      payload: {
-        paidInvoices: number;
-        pendingInvoices: number;
-        overdueInvoices: number;
-        draftInvoices: number;
-        totalInvoices: number;
-      };
-    }>;
-    label?: string;
-  }) => {
-    if (active && payload?.length) {
-      const data = payload[0]!.payload;
-      return (
-        <div className="bg-card border-border rounded-lg border p-3 shadow-lg">
-          <p className="font-medium">{label}</p>
-          <div className="space-y-1 text-sm">
-            <p className="text-primary font-medium">Paid: {data.paidInvoices}</p>
-            <p className="text-primary/80">
-              Pending: {data.pendingInvoices}
-            </p>
-            <p className="text-destructive">
-              Overdue: {data.overdueInvoices}
-            </p>
-            <p className="text-muted-foreground">
-              Draft: {data.draftInvoices}
-            </p>
-            <p className="text-foreground font-medium border-t pt-1">
-              Total: {data.totalInvoices}
-            </p>
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
   if (chartData.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -169,7 +163,7 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
               tickLine={false}
               tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<MonthlyMetricsTooltip />} />
             <Bar
               dataKey="draftInvoices"
               stackId="a"
@@ -235,9 +229,7 @@ export function MonthlyMetricsChart({ invoices }: MonthlyMetricsChartProps) {
           <span className="text-xs">Pending</span>
         </div>
         <div className="flex items-center space-x-2">
-          <div
-            className="h-3 w-3 rounded-full bg-destructive"
-          />
+          <div className="bg-destructive h-3 w-3 rounded-full" />
           <span className="text-xs">Overdue</span>
         </div>
       </div>

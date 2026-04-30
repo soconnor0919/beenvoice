@@ -56,7 +56,7 @@ function FilePreview({
   return (
     <div
       className={cn(
-        "flex items-center justify-between  border p-3",
+        "flex items-center justify-between border p-3",
         getStatusColor(),
       )}
     >
@@ -152,7 +152,7 @@ export function FileUpload({
       <div
         {...getRootProps()}
         className={cn(
-          "cursor-pointer  border-2 border-dashed p-8 text-center transition-colors",
+          "cursor-pointer border-2 border-dashed p-8 text-center transition-colors",
           "hover:border-primary/40 hover:bg-primary/10",
           isDragActive && "border-primary/40 bg-primary/10",
           isDragReject && "border-destructive/40 bg-destructive/10",
@@ -164,7 +164,7 @@ export function FileUpload({
         <div className="flex flex-col items-center gap-4">
           <div
             className={cn(
-              " p-3 transition-colors",
+              "p-3 transition-colors",
               isDragActive ? "bg-primary/10" : "bg-muted",
               isDragReject && "bg-destructive/10",
             )}
@@ -222,7 +222,7 @@ export function FileUpload({
 
       {/* Error Summary */}
       {Object.keys(errors).length > 0 && (
-        <div className="border-destructive/20 bg-destructive/10  border p-3">
+        <div className="border-destructive/20 bg-destructive/10 border p-3">
           <div className="mb-2 flex items-center gap-2">
             <AlertCircle className="text-destructive h-4 w-4" />
             <span className="text-destructive text-sm font-medium">

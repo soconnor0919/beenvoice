@@ -54,7 +54,7 @@ function downloadBlob(blob: Blob, filename: string): void {
   }
 }
 
-interface InvoiceData {
+export interface InvoiceData {
   invoiceNumber: string;
   invoicePrefix?: string | null;
   issueDate: Date;
@@ -537,6 +537,170 @@ const styles = StyleSheet.create({
   },
 });
 
+const minimalStyles = StyleSheet.create({
+  page: {
+    fontSize: 9,
+    paddingTop: 28,
+    paddingBottom: 48,
+    paddingHorizontal: 32,
+  },
+  denseHeader: {
+    marginBottom: 16,
+    paddingBottom: 12,
+  },
+  headerTop: {
+    marginBottom: 10,
+  },
+  businessName: {
+    fontSize: 14,
+    marginBottom: 2,
+  },
+  businessInfo: {
+    fontSize: 8,
+    lineHeight: 1.25,
+    marginBottom: 1,
+  },
+  businessAddress: {
+    fontSize: 8,
+    lineHeight: 1.25,
+    marginTop: 2,
+  },
+  invoiceTitle: {
+    fontSize: 18,
+    marginBottom: 3,
+  },
+  invoiceNumber: {
+    fontSize: 10,
+    marginBottom: 2,
+  },
+  statusBadge: {
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    backgroundColor: "#ffffff",
+    fontSize: 8,
+  },
+  headerSeparator: {
+    marginVertical: 4,
+  },
+  detailsSection: {
+    marginBottom: 10,
+  },
+  detailsColumn: {
+    marginRight: 14,
+  },
+  sectionTitle: {
+    fontSize: 8,
+    marginBottom: 5,
+  },
+  clientName: {
+    fontSize: 9,
+    marginBottom: 1,
+  },
+  clientInfo: {
+    fontSize: 8,
+    lineHeight: 1.25,
+    marginBottom: 1,
+  },
+  clientAddress: {
+    fontSize: 8,
+    lineHeight: 1.25,
+    marginTop: 2,
+  },
+  detailRow: {
+    marginBottom: 2,
+  },
+  detailLabel: {
+    fontSize: 8,
+  },
+  detailValue: {
+    fontSize: 8,
+  },
+  tableContainer: {
+    marginBottom: 10,
+  },
+  tableHeader: {
+    backgroundColor: "#ffffff",
+    paddingVertical: 4,
+    paddingHorizontal: 0,
+  },
+  tableHeaderCell: {
+    fontSize: 8,
+    paddingHorizontal: 2,
+  },
+  tableRow: {
+    paddingVertical: 3,
+    minHeight: 16,
+  },
+  tableCell: {
+    fontSize: 8,
+    paddingHorizontal: 2,
+    paddingVertical: 1,
+  },
+  tableCellDescription: {
+    lineHeight: 1.2,
+    paddingVertical: 1,
+    paddingHorizontal: 2,
+  },
+  bottomSection: {
+    marginTop: 10,
+  },
+  notesContainer: {
+    width: 260,
+  },
+  notesSection: {
+    padding: 0,
+    backgroundColor: "#ffffff",
+  },
+  notesTitle: {
+    fontSize: 8,
+    marginBottom: 4,
+  },
+  notesContent: {
+    fontSize: 8,
+    lineHeight: 1.25,
+  },
+  totalsContainer: {
+    width: 190,
+  },
+  totalsBox: {
+    padding: 0,
+    backgroundColor: "#ffffff",
+  },
+  totalRow: {
+    marginBottom: 2,
+    paddingVertical: 0,
+  },
+  totalLabel: {
+    fontSize: 8,
+  },
+  totalAmount: {
+    fontSize: 8,
+  },
+  finalTotalRow: {
+    marginTop: 5,
+    paddingTop: 5,
+  },
+  finalTotalLabel: {
+    fontSize: 9,
+  },
+  finalTotalAmount: {
+    fontSize: 10,
+  },
+  itemCount: {
+    fontSize: 7,
+    marginTop: 4,
+  },
+  footer: {
+    bottom: 20,
+    left: 32,
+    right: 32,
+    paddingTop: 7,
+  },
+  pageNumber: {
+    fontSize: 8,
+  },
+});
+
 // Helper functions
 const formatCurrency = (amount: number, currency = "USD") => {
   return new Intl.NumberFormat("en-US", {
@@ -602,109 +766,264 @@ function getColumnWidths(showRate: boolean) {
 const DenseHeader: React.FC<{
   invoice: InvoiceData;
   settings: Required<PDFGenerationSettings>;
-}> = ({ invoice, settings }) => (
-  <View style={styles.denseHeader}>
-    <View style={styles.headerTop}>
-      <View style={styles.businessSection}>
-        <Text style={[styles.businessName, { color: settings.pdfAccentColor }]}>
-          {invoice.business?.name ?? "Your Business Name"}
-        </Text>
-        {invoice.business?.email && (
-          <Text style={styles.businessInfo}>{invoice.business.email}</Text>
-        )}
-        {invoice.business?.phone && (
-          <Text style={styles.businessInfo}>{invoice.business.phone}</Text>
-        )}
-        {(invoice.business?.addressLine1 ??
-          invoice.business?.city ??
-          invoice.business?.state) && (
-          <Text style={styles.businessAddress}>
-            {[
-              invoice.business?.addressLine1,
-              invoice.business?.addressLine2,
-              invoice.business?.city &&
-              invoice.business?.state &&
-              invoice.business?.postalCode
-                ? `${invoice.business.city}, ${invoice.business.state} ${invoice.business.postalCode}`
-                : [
-                    invoice.business?.city,
-                    invoice.business?.state,
-                    invoice.business?.postalCode,
-                  ]
-                    .filter(Boolean)
-                    .join(", "),
-              invoice.business?.country,
-            ]
-              .filter(Boolean)
-              .join("\n")}
+}> = ({ invoice, settings }) => {
+  const isMinimal = settings.pdfTemplate === "minimal";
+
+  return (
+    <View
+      style={[styles.denseHeader, isMinimal ? minimalStyles.denseHeader : {}]}
+    >
+      <View
+        style={[styles.headerTop, isMinimal ? minimalStyles.headerTop : {}]}
+      >
+        <View style={styles.businessSection}>
+          <Text
+            style={[
+              styles.businessName,
+              isMinimal ? minimalStyles.businessName : {},
+              { color: settings.pdfAccentColor },
+            ]}
+          >
+            {invoice.business?.name ?? "Your Business Name"}
           </Text>
-        )}
+          {invoice.business?.email && (
+            <Text
+              style={[
+                styles.businessInfo,
+                isMinimal ? minimalStyles.businessInfo : {},
+              ]}
+            >
+              {invoice.business.email}
+            </Text>
+          )}
+          {invoice.business?.phone && (
+            <Text
+              style={[
+                styles.businessInfo,
+                isMinimal ? minimalStyles.businessInfo : {},
+              ]}
+            >
+              {invoice.business.phone}
+            </Text>
+          )}
+          {(invoice.business?.addressLine1 ??
+            invoice.business?.city ??
+            invoice.business?.state) && (
+            <Text
+              style={[
+                styles.businessAddress,
+                isMinimal ? minimalStyles.businessAddress : {},
+              ]}
+            >
+              {[
+                invoice.business?.addressLine1,
+                invoice.business?.addressLine2,
+                invoice.business?.city &&
+                invoice.business?.state &&
+                invoice.business?.postalCode
+                  ? `${invoice.business.city}, ${invoice.business.state} ${invoice.business.postalCode}`
+                  : [
+                      invoice.business?.city,
+                      invoice.business?.state,
+                      invoice.business?.postalCode,
+                    ]
+                      .filter(Boolean)
+                      .join(", "),
+                invoice.business?.country,
+              ]
+                .filter(Boolean)
+                .join("\n")}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.invoiceSection}>
+          <Text
+            style={[
+              styles.invoiceTitle,
+              isMinimal ? minimalStyles.invoiceTitle : {},
+              { color: settings.pdfAccentColor },
+            ]}
+          >
+            INVOICE
+          </Text>
+          <Text
+            style={[
+              styles.invoiceNumber,
+              isMinimal ? minimalStyles.invoiceNumber : {},
+            ]}
+          >
+            {invoice.invoicePrefix ?? "#"}
+            {invoice.invoiceNumber}
+          </Text>
+          <View
+            style={[
+              ...getStatusStyle(invoice.status),
+              isMinimal ? minimalStyles.statusBadge : {},
+            ]}
+          >
+            <Text>{getStatusLabel(invoice.status)}</Text>
+          </View>
+        </View>
       </View>
 
-      <View style={styles.invoiceSection}>
-        <Text style={[styles.invoiceTitle, { color: settings.pdfAccentColor }]}>
-          INVOICE
-        </Text>
-        <Text style={styles.invoiceNumber}>
-          {invoice.invoicePrefix ?? "#"}
-          {invoice.invoiceNumber}
-        </Text>
-        <View style={getStatusStyle(invoice.status)}>
-          <Text>{getStatusLabel(invoice.status)}</Text>
+      <View
+        style={[
+          styles.headerSeparator,
+          isMinimal ? minimalStyles.headerSeparator : {},
+        ]}
+      />
+
+      <View
+        style={[
+          styles.detailsSection,
+          isMinimal ? minimalStyles.detailsSection : {},
+        ]}
+      >
+        <View
+          style={[
+            styles.detailsColumn,
+            isMinimal ? minimalStyles.detailsColumn : {},
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              isMinimal ? minimalStyles.sectionTitle : {},
+            ]}
+          >
+            BILL TO:
+          </Text>
+          <Text
+            style={[
+              styles.clientName,
+              isMinimal ? minimalStyles.clientName : {},
+            ]}
+          >
+            {invoice.client?.name ?? "N/A"}
+          </Text>
+          {invoice.client?.email && (
+            <Text
+              style={[
+                styles.clientInfo,
+                isMinimal ? minimalStyles.clientInfo : {},
+              ]}
+            >
+              {invoice.client.email}
+            </Text>
+          )}
+          {invoice.client?.phone && (
+            <Text
+              style={[
+                styles.clientInfo,
+                isMinimal ? minimalStyles.clientInfo : {},
+              ]}
+            >
+              {invoice.client.phone}
+            </Text>
+          )}
+          {(invoice.client?.addressLine1 ??
+            invoice.client?.city ??
+            invoice.client?.state) && (
+            <Text
+              style={[
+                styles.clientAddress,
+                isMinimal ? minimalStyles.clientAddress : {},
+              ]}
+            >
+              {[
+                invoice.client?.addressLine1,
+                invoice.client?.addressLine2,
+                invoice.client?.city,
+                invoice.client?.state,
+                invoice.client?.postalCode,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+              {invoice.client?.country ? "\n" + invoice.client.country : ""}
+            </Text>
+          )}
+        </View>
+
+        <View
+          style={[
+            styles.detailsColumn,
+            isMinimal ? minimalStyles.detailsColumn : {},
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              isMinimal ? minimalStyles.sectionTitle : {},
+            ]}
+          >
+            INVOICE DETAILS:
+          </Text>
+          <View
+            style={[styles.detailRow, isMinimal ? minimalStyles.detailRow : {}]}
+          >
+            <Text
+              style={[
+                styles.detailLabel,
+                isMinimal ? minimalStyles.detailLabel : {},
+              ]}
+            >
+              Issue Date:
+            </Text>
+            <Text
+              style={[
+                styles.detailValue,
+                isMinimal ? minimalStyles.detailValue : {},
+              ]}
+            >
+              {formatDate(invoice.issueDate)}
+            </Text>
+          </View>
+          <View
+            style={[styles.detailRow, isMinimal ? minimalStyles.detailRow : {}]}
+          >
+            <Text
+              style={[
+                styles.detailLabel,
+                isMinimal ? minimalStyles.detailLabel : {},
+              ]}
+            >
+              Due Date:
+            </Text>
+            <Text
+              style={[
+                styles.detailValue,
+                isMinimal ? minimalStyles.detailValue : {},
+              ]}
+            >
+              {formatDate(invoice.dueDate)}
+            </Text>
+          </View>
+          <View
+            style={[styles.detailRow, isMinimal ? minimalStyles.detailRow : {}]}
+          >
+            <Text
+              style={[
+                styles.detailLabel,
+                isMinimal ? minimalStyles.detailLabel : {},
+              ]}
+            >
+              Invoice #:
+            </Text>
+            <Text
+              style={[
+                styles.detailValue,
+                isMinimal ? minimalStyles.detailValue : {},
+              ]}
+            >
+              {invoice.invoiceNumber}
+            </Text>
+          </View>
         </View>
       </View>
     </View>
-
-    <View style={styles.headerSeparator} />
-
-    <View style={styles.detailsSection}>
-      <View style={styles.detailsColumn}>
-        <Text style={styles.sectionTitle}>BILL TO:</Text>
-        <Text style={styles.clientName}>{invoice.client?.name ?? "N/A"}</Text>
-        {invoice.client?.email && (
-          <Text style={styles.clientInfo}>{invoice.client.email}</Text>
-        )}
-        {invoice.client?.phone && (
-          <Text style={styles.clientInfo}>{invoice.client.phone}</Text>
-        )}
-        {(invoice.client?.addressLine1 ??
-          invoice.client?.city ??
-          invoice.client?.state) && (
-          <Text style={styles.clientAddress}>
-            {[
-              invoice.client?.addressLine1,
-              invoice.client?.addressLine2,
-              invoice.client?.city,
-              invoice.client?.state,
-              invoice.client?.postalCode,
-            ]
-              .filter(Boolean)
-              .join(", ")}
-            {invoice.client?.country ? "\n" + invoice.client.country : ""}
-          </Text>
-        )}
-      </View>
-
-      <View style={styles.detailsColumn}>
-        <Text style={styles.sectionTitle}>INVOICE DETAILS:</Text>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Issue Date:</Text>
-          <Text style={styles.detailValue}>
-            {formatDate(invoice.issueDate)}
-          </Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Due Date:</Text>
-          <Text style={styles.detailValue}>{formatDate(invoice.dueDate)}</Text>
-        </View>
-        <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Invoice #:</Text>
-          <Text style={styles.detailValue}>{invoice.invoiceNumber}</Text>
-        </View>
-      </View>
-    </View>
-  </View>
-);
+  );
+};
 
 // Table header component
 const TableHeader: React.FC<{
@@ -712,22 +1031,33 @@ const TableHeader: React.FC<{
   showRate: boolean;
 }> = ({ settings, showRate }) => {
   const cols = getColumnWidths(showRate);
+  const isMinimal = settings.pdfTemplate === "minimal";
   return (
     <View
-      style={[
-        styles.tableHeader,
-        settings.pdfTemplate === "minimal"
-          ? { backgroundColor: "#ffffff" }
-          : {},
-      ]}
+      style={[styles.tableHeader, isMinimal ? minimalStyles.tableHeader : {}]}
     >
-      <Text style={[styles.tableHeaderCell, { width: cols.date }]}>Date</Text>
-      <Text style={[styles.tableHeaderCell, { width: cols.description }]}>
+      <Text
+        style={[
+          styles.tableHeaderCell,
+          isMinimal ? minimalStyles.tableHeaderCell : {},
+          { width: cols.date },
+        ]}
+      >
+        Date
+      </Text>
+      <Text
+        style={[
+          styles.tableHeaderCell,
+          isMinimal ? minimalStyles.tableHeaderCell : {},
+          { width: cols.description },
+        ]}
+      >
         Description
       </Text>
       <Text
         style={[
           styles.tableHeaderCell,
+          isMinimal ? minimalStyles.tableHeaderCell : {},
           styles.tableHeaderHours,
           { width: cols.hours },
         ]}
@@ -738,6 +1068,7 @@ const TableHeader: React.FC<{
         <Text
           style={[
             styles.tableHeaderCell,
+            isMinimal ? minimalStyles.tableHeaderCell : {},
             styles.tableHeaderRate,
             { width: cols.rate },
           ]}
@@ -748,6 +1079,7 @@ const TableHeader: React.FC<{
       <Text
         style={[
           styles.tableHeaderCell,
+          isMinimal ? minimalStyles.tableHeaderCell : {},
           styles.tableHeaderAmount,
           { width: cols.amount },
         ]}
@@ -759,14 +1091,39 @@ const TableHeader: React.FC<{
 };
 
 // Footer component
-const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
+const NotesSection: React.FC<{
+  invoice: InvoiceData;
+  settings: Required<PDFGenerationSettings>;
+}> = ({ invoice, settings }) => {
   if (!invoice.notes) return null;
+  const isMinimal = settings.pdfTemplate === "minimal";
 
   return (
-    <View style={styles.notesContainer}>
-      <View style={styles.notesSection}>
-        <Text style={styles.notesTitle}>NOTES</Text>
-        <Text style={styles.notesContent}>{invoice.notes}</Text>
+    <View
+      style={[
+        styles.notesContainer,
+        isMinimal ? minimalStyles.notesContainer : {},
+      ]}
+    >
+      <View
+        style={[
+          styles.notesSection,
+          isMinimal ? minimalStyles.notesSection : {},
+        ]}
+      >
+        <Text
+          style={[styles.notesTitle, isMinimal ? minimalStyles.notesTitle : {}]}
+        >
+          NOTES
+        </Text>
+        <Text
+          style={[
+            styles.notesContent,
+            isMinimal ? minimalStyles.notesContent : {},
+          ]}
+        >
+          {invoice.notes}
+        </Text>
       </View>
     </View>
   );
@@ -774,41 +1131,45 @@ const NotesSection: React.FC<{ invoice: InvoiceData }> = ({ invoice }) => {
 
 const Footer: React.FC<{ settings: Required<PDFGenerationSettings> }> = ({
   settings,
-}) => (
-  <View style={styles.footer} fixed>
-    <View style={styles.footerLogo}>
-      {settings.pdfShowLogo && (
-        // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image does not support alt.
-        <Image
-          src="/beenvoice-logo.png"
+}) => {
+  const isMinimal = settings.pdfTemplate === "minimal";
+
+  return (
+    <View style={[styles.footer, isMinimal ? minimalStyles.footer : {}]} fixed>
+      <View style={styles.footerLogo}>
+        {settings.pdfShowLogo && (
+          // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image does not support alt.
+          <Image
+            src="/beenvoice-logo.png"
+            style={{
+              width: 120,
+              height: 18,
+              marginRight: 8,
+            }}
+          />
+        )}
+        <Text
           style={{
-            width: 120,
-            height: 18,
-            marginRight: 8,
+            fontSize: isMinimal ? 8 : 9,
+            fontFamily: "Helvetica",
+            color: "#6b7280",
+            marginLeft: settings.pdfShowLogo ? 8 : 0,
           }}
+        >
+          {settings.pdfFooterText}
+        </Text>
+      </View>
+      {settings.pdfShowPageNumbers && (
+        <Text
+          style={[styles.pageNumber, isMinimal ? minimalStyles.pageNumber : {}]}
+          render={({ pageNumber, totalPages }) =>
+            `Page ${pageNumber} of ${totalPages}`
+          }
         />
       )}
-      <Text
-        style={{
-          fontSize: 9,
-          fontFamily: "Helvetica",
-          color: "#6b7280",
-          marginLeft: settings.pdfShowLogo ? 8 : 0,
-        }}
-      >
-        {settings.pdfFooterText}
-      </Text>
     </View>
-    {settings.pdfShowPageNumbers && (
-      <Text
-        style={styles.pageNumber}
-        render={({ pageNumber, totalPages }) =>
-          `Page ${pageNumber} of ${totalPages}`
-        }
-      />
-    )}
-  </View>
-);
+  );
+};
 
 // Enhanced totals section component
 const TotalsSection: React.FC<{
@@ -820,14 +1181,21 @@ const TotalsSection: React.FC<{
   const subtotal = items.reduce((sum, item) => sum + (item?.amount ?? 0), 0);
   const taxAmount = (subtotal * invoice.taxRate) / 100;
   const total = subtotal + taxAmount;
+  const isMinimal = settings.pdfTemplate === "minimal";
 
   return (
-    <View style={styles.totalsContainer}>
+    <View
+      style={[
+        styles.totalsContainer,
+        isMinimal ? minimalStyles.totalsContainer : {},
+      ]}
+    >
       <View
         style={[
           styles.totalsBox,
-          settings.pdfTemplate === "minimal"
+          isMinimal
             ? {
+                ...minimalStyles.totalsBox,
                 backgroundColor: "#ffffff",
                 borderTop: "1px solid #e5e7eb",
                 paddingHorizontal: 0,
@@ -837,38 +1205,79 @@ const TotalsSection: React.FC<{
       >
         <Text
           style={{
-            fontSize: 11,
+            fontSize: isMinimal ? 8 : 11,
             fontFamily: "Helvetica-Bold",
             color: "#0f0f0f",
-            textAlign: "center",
-            marginBottom: 8,
-            paddingBottom: 6,
+            textAlign: isMinimal ? "left" : "center",
+            marginBottom: isMinimal ? 5 : 8,
+            paddingBottom: isMinimal ? 3 : 6,
           }}
         >
           INVOICE SUMMARY
         </Text>
 
-        <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Subtotal:</Text>
-          <Text style={styles.totalAmount}>
+        <View
+          style={[styles.totalRow, isMinimal ? minimalStyles.totalRow : {}]}
+        >
+          <Text
+            style={[
+              styles.totalLabel,
+              isMinimal ? minimalStyles.totalLabel : {},
+            ]}
+          >
+            Subtotal:
+          </Text>
+          <Text
+            style={[
+              styles.totalAmount,
+              isMinimal ? minimalStyles.totalAmount : {},
+            ]}
+          >
             {formatCurrency(subtotal, currency)}
           </Text>
         </View>
 
         {invoice.taxRate > 0 && (
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Tax ({invoice.taxRate}%):</Text>
-            <Text style={styles.totalAmount}>
+          <View
+            style={[styles.totalRow, isMinimal ? minimalStyles.totalRow : {}]}
+          >
+            <Text
+              style={[
+                styles.totalLabel,
+                isMinimal ? minimalStyles.totalLabel : {},
+              ]}
+            >
+              Tax ({invoice.taxRate}%):
+            </Text>
+            <Text
+              style={[
+                styles.totalAmount,
+                isMinimal ? minimalStyles.totalAmount : {},
+              ]}
+            >
               {formatCurrency(taxAmount, currency)}
             </Text>
           </View>
         )}
 
-        <View style={styles.finalTotalRow}>
-          <Text style={styles.finalTotalLabel}>TOTAL:</Text>
+        <View
+          style={[
+            styles.finalTotalRow,
+            isMinimal ? minimalStyles.finalTotalRow : {},
+          ]}
+        >
+          <Text
+            style={[
+              styles.finalTotalLabel,
+              isMinimal ? minimalStyles.finalTotalLabel : {},
+            ]}
+          >
+            TOTAL:
+          </Text>
           <Text
             style={[
               styles.finalTotalAmount,
+              isMinimal ? minimalStyles.finalTotalAmount : {},
               { color: settings.pdfAccentColor },
             ]}
           >
@@ -876,7 +1285,9 @@ const TotalsSection: React.FC<{
           </Text>
         </View>
 
-        <Text style={styles.itemCount}>
+        <Text
+          style={[styles.itemCount, isMinimal ? minimalStyles.itemCount : {}]}
+        >
           {items.length} line item{items.length !== 1 ? "s" : ""}
         </Text>
       </View>
@@ -894,14 +1305,23 @@ export const InvoicePDF: React.FC<{
   const currency = invoice.currency ?? "USD";
   const showRate = new Set(items.map((item) => item?.rate)).size > 1;
   const cols = getColumnWidths(showRate);
+  const isMinimal = settings.pdfTemplate === "minimal";
 
   return (
     <Document>
-      <Page size="LETTER" style={styles.page}>
+      <Page
+        size="LETTER"
+        style={[styles.page, isMinimal ? minimalStyles.page : {}]}
+      >
         <DenseHeader invoice={invoice} settings={settings} />
 
         {items.length > 0 && (
-          <View style={styles.tableContainer}>
+          <View
+            style={[
+              styles.tableContainer,
+              isMinimal ? minimalStyles.tableContainer : {},
+            ]}
+          >
             <TableHeader settings={settings} showRate={showRate} />
             {items.map(
               (item, index) =>
@@ -911,6 +1331,7 @@ export const InvoicePDF: React.FC<{
                     wrap={false}
                     style={[
                       styles.tableRow,
+                      isMinimal ? minimalStyles.tableRow : {},
                       settings.pdfTemplate === "classic" && index % 2 === 0
                         ? styles.tableRowAlt
                         : {},
@@ -919,6 +1340,7 @@ export const InvoicePDF: React.FC<{
                     <Text
                       style={[
                         styles.tableCell,
+                        isMinimal ? minimalStyles.tableCell : {},
                         styles.tableCellDate,
                         { width: cols.date },
                       ]}
@@ -928,7 +1350,9 @@ export const InvoicePDF: React.FC<{
                     <Text
                       style={[
                         styles.tableCell,
+                        isMinimal ? minimalStyles.tableCell : {},
                         styles.tableCellDescription,
+                        isMinimal ? minimalStyles.tableCellDescription : {},
                         { width: cols.description },
                       ]}
                     >
@@ -937,6 +1361,7 @@ export const InvoicePDF: React.FC<{
                     <Text
                       style={[
                         styles.tableCell,
+                        isMinimal ? minimalStyles.tableCell : {},
                         styles.tableCellHours,
                         { width: cols.hours },
                       ]}
@@ -947,6 +1372,7 @@ export const InvoicePDF: React.FC<{
                       <Text
                         style={[
                           styles.tableCell,
+                          isMinimal ? minimalStyles.tableCell : {},
                           styles.tableCellRate,
                           { width: cols.rate },
                         ]}
@@ -957,6 +1383,7 @@ export const InvoicePDF: React.FC<{
                     <Text
                       style={[
                         styles.tableCell,
+                        isMinimal ? minimalStyles.tableCell : {},
                         styles.tableCellAmount,
                         { width: cols.amount },
                       ]}
@@ -969,8 +1396,16 @@ export const InvoicePDF: React.FC<{
           </View>
         )}
 
-        <View style={styles.bottomSection} wrap={false}>
-          {invoice.notes && <NotesSection invoice={invoice} />}
+        <View
+          style={[
+            styles.bottomSection,
+            isMinimal ? minimalStyles.bottomSection : {},
+          ]}
+          wrap={false}
+        >
+          {invoice.notes && (
+            <NotesSection invoice={invoice} settings={settings} />
+          )}
           <TotalsSection invoice={invoice} items={items} settings={settings} />
         </View>
 

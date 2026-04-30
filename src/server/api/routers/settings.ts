@@ -17,12 +17,20 @@ import {
   platformSettings,
 } from "~/server/db/schema";
 import {
+  colorModeSchema,
+  colorThemeSchema,
   defaultBodyFontPreference,
-  defaultFontPreference,
   defaultHeadingFontPreference,
   defaultInterfaceTheme,
   defaultRadiusPreference,
   defaultSidebarStyle,
+  fallbackAppearance,
+  fontPreferenceSchema,
+  hslChannelsSchema,
+  interfaceThemeSchema,
+  pdfTemplateSchema,
+  radiusPreferenceSchema,
+  sidebarStyleSchema,
   type ColorMode,
   type ColorTheme,
   type FontPreference,
@@ -219,12 +227,12 @@ export const settingsRouter = createTRPCRouter({
     });
 
     return {
-      colorTheme: (settings?.colorTheme as ColorTheme) ?? "slate",
+      colorTheme:
+        (settings?.colorTheme as ColorTheme) ?? fallbackAppearance.colorTheme,
       customColor: settings?.customColor ?? undefined,
-      theme: (settings?.theme as ColorMode) ?? "system",
+      theme: (settings?.theme as ColorMode) ?? fallbackAppearance.colorMode,
       interfaceTheme:
         (settings?.interfaceTheme as InterfaceTheme) ?? defaultInterfaceTheme,
-      fontPreference: defaultFontPreference,
       bodyFontPreference:
         (settings?.bodyFontPreference as FontPreference) ??
         defaultBodyFontPreference,
@@ -236,18 +244,21 @@ export const settingsRouter = createTRPCRouter({
         defaultRadiusPreference,
       sidebarStyle:
         (settings?.sidebarStyle as SidebarStyle) ?? defaultSidebarStyle,
-      brandName: settings?.brandName ?? "beenvoice",
-      brandTagline:
-        settings?.brandTagline ??
-        "Simple and efficient invoicing for freelancers and small businesses",
-      brandLogoText: settings?.brandLogoText ?? "beenvoice",
-      brandIcon: settings?.brandIcon ?? "$",
+      brandName: settings?.brandName ?? fallbackAppearance.brandName,
+      brandTagline: settings?.brandTagline ?? fallbackAppearance.brandTagline,
+      brandLogoText:
+        settings?.brandLogoText ?? fallbackAppearance.brandLogoText,
+      brandIcon: settings?.brandIcon ?? fallbackAppearance.brandIcon,
       pdfTemplate:
-        (settings?.pdfTemplate as "classic" | "minimal") ?? "classic",
-      pdfAccentColor: settings?.pdfAccentColor ?? "#111827",
-      pdfFooterText: settings?.pdfFooterText ?? "Professional Invoicing",
-      pdfShowLogo: settings?.pdfShowLogo ?? true,
-      pdfShowPageNumbers: settings?.pdfShowPageNumbers ?? true,
+        (settings?.pdfTemplate as "classic" | "minimal") ??
+        fallbackAppearance.pdfTemplate,
+      pdfAccentColor:
+        settings?.pdfAccentColor ?? fallbackAppearance.pdfAccentColor,
+      pdfFooterText:
+        settings?.pdfFooterText ?? fallbackAppearance.pdfFooterText,
+      pdfShowLogo: settings?.pdfShowLogo ?? fallbackAppearance.pdfShowLogo,
+      pdfShowPageNumbers:
+        settings?.pdfShowPageNumbers ?? fallbackAppearance.pdfShowPageNumbers,
     };
   }),
 
@@ -255,30 +266,19 @@ export const settingsRouter = createTRPCRouter({
   updateTheme: protectedProcedure
     .input(
       z.object({
-        colorTheme: z
-          .enum(["slate", "blue", "green", "rose", "orange", "custom"])
-          .optional(),
-        customColor: z.string().optional(),
-        theme: z.enum(["light", "dark", "system"]).optional(),
-        interfaceTheme: z
-          .enum(["beenvoice", "shadcn", "minimal", "editorial"])
-          .optional(),
-        fontPreference: z
-          .enum(["brand", "platform", "inter", "serif"])
-          .optional(),
-        bodyFontPreference: z
-          .enum(["brand", "platform", "inter", "serif"])
-          .optional(),
-        headingFontPreference: z
-          .enum(["brand", "platform", "inter", "serif"])
-          .optional(),
-        radiusPreference: z.enum(["none", "sm", "md", "lg", "xl"]).optional(),
-        sidebarStyle: z.enum(["floating", "docked"]).optional(),
+        colorTheme: colorThemeSchema.optional(),
+        customColor: hslChannelsSchema.optional(),
+        theme: colorModeSchema.optional(),
+        interfaceTheme: interfaceThemeSchema.optional(),
+        bodyFontPreference: fontPreferenceSchema.optional(),
+        headingFontPreference: fontPreferenceSchema.optional(),
+        radiusPreference: radiusPreferenceSchema.optional(),
+        sidebarStyle: sidebarStyleSchema.optional(),
         brandName: z.string().min(1).max(100).optional(),
         brandTagline: z.string().min(1).max(255).optional(),
         brandLogoText: z.string().min(1).max(100).optional(),
         brandIcon: z.string().min(1).max(20).optional(),
-        pdfTemplate: z.enum(["classic", "minimal"]).optional(),
+        pdfTemplate: pdfTemplateSchema.optional(),
         pdfAccentColor: z.string().min(4).max(50).optional(),
         pdfFooterText: z.string().min(1).max(120).optional(),
         pdfShowLogo: z.boolean().optional(),
@@ -291,15 +291,14 @@ export const settingsRouter = createTRPCRouter({
         .insert(platformSettings)
         .values({
           id: "global",
-          brandName: input.brandName ?? "beenvoice",
-          brandTagline:
-            input.brandTagline ??
-            "Simple and efficient invoicing for freelancers and small businesses",
-          brandLogoText: input.brandLogoText ?? "beenvoice",
-          brandIcon: input.brandIcon ?? "$",
-          colorTheme: input.colorTheme ?? "slate",
+          brandName: input.brandName ?? fallbackAppearance.brandName,
+          brandTagline: input.brandTagline ?? fallbackAppearance.brandTagline,
+          brandLogoText:
+            input.brandLogoText ?? fallbackAppearance.brandLogoText,
+          brandIcon: input.brandIcon ?? fallbackAppearance.brandIcon,
+          colorTheme: input.colorTheme ?? fallbackAppearance.colorTheme,
           customColor: input.customColor,
-          theme: input.theme ?? "system",
+          theme: input.theme ?? fallbackAppearance.colorMode,
           interfaceTheme: input.interfaceTheme ?? defaultInterfaceTheme,
           bodyFontPreference:
             input.bodyFontPreference ?? defaultBodyFontPreference,
@@ -307,11 +306,14 @@ export const settingsRouter = createTRPCRouter({
             input.headingFontPreference ?? defaultHeadingFontPreference,
           radiusPreference: input.radiusPreference ?? defaultRadiusPreference,
           sidebarStyle: input.sidebarStyle ?? defaultSidebarStyle,
-          pdfTemplate: input.pdfTemplate ?? "classic",
-          pdfAccentColor: input.pdfAccentColor ?? "#111827",
-          pdfFooterText: input.pdfFooterText ?? "Professional Invoicing",
-          pdfShowLogo: input.pdfShowLogo ?? true,
-          pdfShowPageNumbers: input.pdfShowPageNumbers ?? true,
+          pdfTemplate: input.pdfTemplate ?? fallbackAppearance.pdfTemplate,
+          pdfAccentColor:
+            input.pdfAccentColor ?? fallbackAppearance.pdfAccentColor,
+          pdfFooterText:
+            input.pdfFooterText ?? fallbackAppearance.pdfFooterText,
+          pdfShowLogo: input.pdfShowLogo ?? fallbackAppearance.pdfShowLogo,
+          pdfShowPageNumbers:
+            input.pdfShowPageNumbers ?? fallbackAppearance.pdfShowPageNumbers,
         })
         .onConflictDoUpdate({
           target: platformSettings.id,

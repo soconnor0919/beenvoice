@@ -14,12 +14,15 @@ export function Breadcrumbs() {
     })),
   ];
   return (
-    <nav className="flex items-center text-sm text-muted-foreground" aria-label="Breadcrumb">
+    <nav
+      className="text-muted-foreground flex items-center text-sm"
+      aria-label="Breadcrumb"
+    >
       {crumbs.map((crumb, i) => (
         <span key={crumb.href} className="flex items-center">
           {i > 0 && <ChevronRight className="mx-2 h-4 w-4 text-gray-300" />}
           {i < crumbs.length - 1 ? (
-            <Link href={crumb.href} className="hover:underline text-gray-500">
+            <Link href={crumb.href} className="text-gray-500 hover:underline">
               {crumb.name}
             </Link>
           ) : (
@@ -29,4 +32,4 @@ export function Breadcrumbs() {
       ))}
     </nav>
   );
-} 
+}

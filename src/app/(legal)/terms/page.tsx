@@ -35,9 +35,10 @@ export default function TermsOfServicePage() {
             </CardHeader>
             <CardContent className="prose prose-sm max-w-none">
               <p>
-                These Terms of Service (&quot;Terms&quot;) govern your use of the
-                beenvoice platform and services (the &quot;Service&quot;) operated by
-                beenvoice (&quot;us&quot;, &quot;we&quot;, or &quot;our&quot;).
+                These Terms of Service (&quot;Terms&quot;) govern your use of
+                the beenvoice platform and services (the &quot;Service&quot;)
+                operated by beenvoice (&quot;us&quot;, &quot;we&quot;, or
+                &quot;our&quot;).
               </p>
               <p>
                 By accessing or using our Service, you agree to be bound by

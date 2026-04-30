@@ -460,7 +460,7 @@ export function CSVImportPage() {
                   applyGlobalClient(newClientId);
                 }
               }}
-              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-12 w-full  border px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+              className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-12 w-full border px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
               disabled={loadingClients}
             >
               <option value="">No default client (select individually)</option>
@@ -506,7 +506,7 @@ export function CSVImportPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-primary/10 grid grid-cols-2 gap-4  p-4 md:grid-cols-4">
+                <div className="bg-primary/10 grid grid-cols-2 gap-4 p-4 md:grid-cols-4">
                   <div className="text-center">
                     <div className="text-primary text-2xl font-bold">
                       {totalFiles}
@@ -556,10 +556,7 @@ export function CSVImportPage() {
           <CardContent>
             <div className="space-y-4">
               {files.map((fileData, index) => (
-                <div
-                  key={index}
-                  className="border-border bg-card  border p-4"
-                >
+                <div key={index} className="border-border bg-card border p-4">
                   <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <FileText className="text-primary h-5 w-5" />
@@ -619,7 +616,7 @@ export function CSVImportPage() {
                         onChange={(e) =>
                           updateFileData(index, { clientId: e.target.value })
                         }
-                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full  border px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full border px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={loadingClients}
                       >
                         <option value="">Select Client</option>
@@ -662,7 +659,7 @@ export function CSVImportPage() {
 
                   {/* Error Display */}
                   {fileData.errors.length > 0 && (
-                    <div className="border-destructive/20 bg-destructive/10 mt-4  border p-3">
+                    <div className="border-destructive/20 bg-destructive/10 mt-4 border p-3">
                       <div className="mb-2 flex items-center gap-2">
                         <AlertCircle className="text-destructive h-4 w-4" />
                         <span className="text-destructive text-sm font-medium">
@@ -772,7 +769,7 @@ export function CSVImportPage() {
 
       {/* Preview Modal */}
       <Dialog open={previewModalOpen} onOpenChange={setPreviewModalOpen}>
-        <DialogContent className="bg-card border-border border flex max-h-[90vh] max-w-4xl flex-col">
+        <DialogContent className="bg-card border-border flex max-h-[90vh] max-w-4xl flex-col border">
           <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-foreground flex items-center gap-2 text-xl font-bold">
               <FileText className="text-primary h-5 w-5" />

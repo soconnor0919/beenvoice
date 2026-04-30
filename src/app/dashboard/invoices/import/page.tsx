@@ -29,7 +29,7 @@ function FormatInstructions() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="bg-muted/50  p-4">
+          <div className="bg-muted/50 p-4">
             <p className="text-muted-foreground font-mono text-sm">
               DATE,DESCRIPTION,HOURS,RATE,AMOUNT
             </p>
@@ -85,7 +85,7 @@ function FormatInstructions() {
             for importing time entries.
           </p>
 
-          <div className="bg-primary/10  p-4">
+          <div className="bg-primary/10 p-4">
             <div className="flex items-start gap-3">
               <Info className="text-primary mt-0.5 h-5 w-5" />
               <div>
@@ -100,7 +100,7 @@ function FormatInstructions() {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">Sample Row:</h4>
-            <div className="bg-muted/50  p-3">
+            <div className="bg-muted/50 p-3">
               <p className="text-muted font-mono text-xs break-all">
                 1/15/24,&quot;Web development work&quot;,8,75.00,600.00
               </p>
@@ -109,7 +109,7 @@ function FormatInstructions() {
 
           <div className="space-y-2">
             <h4 className="text-sm font-semibold">Sample Filename:</h4>
-            <div className="bg-muted/50  p-3">
+            <div className="bg-muted/50 p-3">
               <p className="text-muted font-mono text-xs">2024-01-15.csv</p>
             </div>
           </div>
@@ -168,7 +168,7 @@ function FileFormatHelp() {
       <CardContent className="space-y-4">
         <div className="grid gap-6 md:grid-cols-3">
           <div className="space-y-2 text-center">
-            <div className="bg-accent mx-auto w-fit  p-3">
+            <div className="bg-accent mx-auto w-fit p-3">
               <FileSpreadsheet className="text-foreground-foreground h-6 w-6" />
             </div>
             <h4 className="font-semibold">CSV Files</h4>
@@ -178,7 +178,7 @@ function FileFormatHelp() {
             </p>
           </div>
           <div className="space-y-2 text-center">
-            <div className="bg-primary/10 mx-auto w-fit  p-3">
+            <div className="bg-primary/10 mx-auto w-fit p-3">
               <Upload className="text-primary h-6 w-6" />
             </div>
             <h4 className="font-semibold">Max Size</h4>
@@ -187,7 +187,7 @@ function FileFormatHelp() {
             </p>
           </div>
           <div className="space-y-2 text-center">
-            <div className="bg-secondary mx-auto w-fit  p-3">
+            <div className="bg-secondary mx-auto w-fit p-3">
               <CheckCircle className="text-muted-foreground-foreground h-6 w-6" />
             </div>
             <h4 className="font-semibold">Validation</h4>

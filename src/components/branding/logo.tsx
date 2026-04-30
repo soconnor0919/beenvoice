@@ -11,10 +11,24 @@ interface LogoProps {
   animated?: boolean;
 }
 
+function splitLogoText(logoText: string) {
+  const voiceIndex = logoText.toLowerCase().indexOf("voice");
+
+  if (voiceIndex > 0) {
+    return [logoText.slice(0, voiceIndex), logoText.slice(voiceIndex)] as const;
+  }
+
+  return [
+    logoText.slice(0, Math.ceil(logoText.length / 2)),
+    logoText.slice(Math.ceil(logoText.length / 2)),
+  ] as const;
+}
+
 export function Logo({ className, size = "md", animated = true }: LogoProps) {
   const appearance = useAppearance();
   const logoText = appearance.brandLogoText || brand.logoText;
   const icon = appearance.brandIcon || brand.icon;
+  const [logoPrefix, logoSuffix] = splitLogoText(logoText);
   const sizeClasses = {
     sm: "text-base",
     md: "text-xl",
@@ -29,7 +43,8 @@ export function Logo({ className, size = "md", animated = true }: LogoProps) {
         className={className}
         size={size}
         sizeClasses={sizeClasses}
-        logoText={logoText}
+        logoPrefix={logoPrefix}
+        logoSuffix={logoSuffix}
         icon={icon}
       />
     );
@@ -68,7 +83,7 @@ export function Logo({ className, size = "md", animated = true }: LogoProps) {
             transition={{ delay: 0.04, duration: 0.05, ease: "easeOut" }}
             className="text-foreground font-bold tracking-tight"
           >
-            {logoText.slice(0, Math.ceil(logoText.length / 2))}
+            {logoPrefix}
           </motion.span>
           <motion.span
             initial={{ opacity: 0 }}
@@ -76,7 +91,7 @@ export function Logo({ className, size = "md", animated = true }: LogoProps) {
             transition={{ delay: 0.06, duration: 0.05, ease: "easeOut" }}
             className="text-foreground/70 font-bold tracking-tight"
           >
-            {logoText.slice(Math.ceil(logoText.length / 2))}
+            {logoSuffix}
           </motion.span>
         </>
       )}
@@ -88,13 +103,15 @@ function LogoContent({
   className,
   size,
   sizeClasses,
-  logoText,
+  logoPrefix,
+  logoSuffix,
   icon,
 }: {
   className?: string;
   size: "sm" | "md" | "lg" | "xl" | "icon";
   sizeClasses: Record<string, string>;
-  logoText: string;
+  logoPrefix: string;
+  logoSuffix: string;
   icon: string;
 }) {
   return (
@@ -105,17 +122,15 @@ function LogoContent({
         className,
       )}
     >
-      <span className="text-primary font-bold tracking-tight">
-        {icon}
-      </span>
+      <span className="text-primary font-bold tracking-tight">{icon}</span>
       {size !== "icon" && (
         <>
           <span className="inline-block w-1"></span>
           <span className="text-foreground font-bold tracking-tight">
-            {logoText.slice(0, Math.ceil(logoText.length / 2))}
+            {logoPrefix}
           </span>
           <span className="text-foreground/70 font-bold tracking-tight">
-            {logoText.slice(Math.ceil(logoText.length / 2))}
+            {logoSuffix}
           </span>
         </>
       )}

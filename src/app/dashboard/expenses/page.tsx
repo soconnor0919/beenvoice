@@ -68,20 +68,39 @@ export default function ExpensesPage() {
   const { data: clients = [] } = api.clients.getAll.useQuery();
 
   const create = api.expenses.create.useMutation({
-    onSuccess: () => { toast.success("Expense added"); void utils.expenses.getAll.invalidate(); setOpen(false); setForm(defaultForm); },
+    onSuccess: () => {
+      toast.success("Expense added");
+      void utils.expenses.getAll.invalidate();
+      setOpen(false);
+      setForm(defaultForm);
+    },
     onError: (e) => toast.error(e.message),
   });
   const update = api.expenses.update.useMutation({
-    onSuccess: () => { toast.success("Expense updated"); void utils.expenses.getAll.invalidate(); setOpen(false); setEditId(null); setForm(defaultForm); },
+    onSuccess: () => {
+      toast.success("Expense updated");
+      void utils.expenses.getAll.invalidate();
+      setOpen(false);
+      setEditId(null);
+      setForm(defaultForm);
+    },
     onError: (e) => toast.error(e.message),
   });
   const del = api.expenses.delete.useMutation({
-    onSuccess: () => { toast.success("Expense deleted"); void utils.expenses.getAll.invalidate(); setDeleteId(null); },
+    onSuccess: () => {
+      toast.success("Expense deleted");
+      void utils.expenses.getAll.invalidate();
+      setDeleteId(null);
+    },
     onError: (e) => toast.error(e.message),
   });
 
-  const handleOpen = () => { setEditId(null); setForm(defaultForm); setOpen(true); };
-  const handleEdit = (expense: typeof expenses[0]) => {
+  const handleOpen = () => {
+    setEditId(null);
+    setForm(defaultForm);
+    setOpen(true);
+  };
+  const handleEdit = (expense: (typeof expenses)[0]) => {
     setEditId(expense.id);
     setForm({
       date: new Date(expense.date),
@@ -98,21 +117,45 @@ export default function ExpensesPage() {
     setOpen(true);
   };
   const handleSubmit = () => {
-    if (!form.description.trim()) { toast.error("Description is required"); return; }
-    if (form.amount <= 0) { toast.error("Amount must be greater than 0"); return; }
-    const payload = { ...form, clientId: form.clientId || undefined, category: form.category || undefined, notes: form.notes || undefined, taxDeductible: form.taxDeductible };
+    if (!form.description.trim()) {
+      toast.error("Description is required");
+      return;
+    }
+    if (form.amount <= 0) {
+      toast.error("Amount must be greater than 0");
+      return;
+    }
+    const payload = {
+      ...form,
+      clientId: form.clientId || undefined,
+      category: form.category || undefined,
+      notes: form.notes || undefined,
+      taxDeductible: form.taxDeductible,
+    };
     if (editId) update.mutate({ id: editId, ...payload });
     else create.mutate(payload);
   };
 
   const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
-  const billableTotal = expenses.filter((e) => e.billable).reduce((s, e) => s + e.amount, 0);
-  const deductibleTotal = expenses.filter((e) => e.taxDeductible).reduce((s, e) => s + e.amount, 0);
+  const billableTotal = expenses
+    .filter((e) => e.billable)
+    .reduce((s, e) => s + e.amount, 0);
+  const deductibleTotal = expenses
+    .filter((e) => e.taxDeductible)
+    .reduce((s, e) => s + e.amount, 0);
 
   return (
     <div className="page-enter space-y-6 pb-6">
-      <PageHeader title="Expenses" description="Track billable and non-billable expenses" variant="gradient">
-        <Button onClick={handleOpen} variant="default" className="hover-lift shadow-md">
+      <PageHeader
+        title="Expenses"
+        description="Track billable and non-billable expenses"
+        variant="gradient"
+      >
+        <Button
+          onClick={handleOpen}
+          variant="default"
+          className="hover-lift shadow-md"
+        >
           <Plus className="mr-2 h-5 w-5" /> Add Expense
         </Button>
       </PageHeader>
@@ -121,25 +164,39 @@ export default function ExpensesPage() {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Total</p>
-            <p className="mt-1 text-2xl font-bold">{formatCurrency(totalExpenses)}</p>
+            <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              Total
+            </p>
+            <p className="mt-1 text-2xl font-bold">
+              {formatCurrency(totalExpenses)}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Billable</p>
-            <p className="text-primary mt-1 text-2xl font-bold">{formatCurrency(billableTotal)}</p>
+            <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              Billable
+            </p>
+            <p className="text-primary mt-1 text-2xl font-bold">
+              {formatCurrency(billableTotal)}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Deductible</p>
-            <p className="mt-1 text-2xl font-bold text-green-600">{formatCurrency(deductibleTotal)}</p>
+            <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              Deductible
+            </p>
+            <p className="mt-1 text-2xl font-bold text-green-600">
+              {formatCurrency(deductibleTotal)}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <p className="text-muted-foreground text-xs font-medium uppercase tracking-wide">Count</p>
+            <p className="text-muted-foreground text-xs font-medium tracking-wide uppercase">
+              Count
+            </p>
             <p className="mt-1 text-2xl font-bold">{expenses.length}</p>
           </CardContent>
         </Card>
@@ -154,34 +211,84 @@ export default function ExpensesPage() {
         </CardHeader>
         <CardContent className="p-0">
           {isLoading ? (
-            <div className="p-6 text-center text-sm text-muted-foreground">Loading…</div>
+            <div className="text-muted-foreground p-6 text-center text-sm">
+              Loading…
+            </div>
           ) : expenses.length === 0 ? (
             <div className="p-8 text-center">
               <Receipt className="text-muted-foreground mx-auto mb-3 h-10 w-10" />
-              <p className="text-muted-foreground text-sm">No expenses yet. Add your first expense.</p>
+              <p className="text-muted-foreground text-sm">
+                No expenses yet. Add your first expense.
+              </p>
             </div>
           ) : (
             <div className="divide-y">
               {expenses.map((expense) => (
-                <div key={expense.id} className="flex items-start justify-between gap-3 p-4">
+                <div
+                  key={expense.id}
+                  className="flex items-start justify-between gap-3 p-4"
+                >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-medium">{expense.description}</p>
-                      {expense.billable && <Badge variant="secondary" className="text-xs">Billable</Badge>}
-                      {expense.reimbursable && <Badge variant="outline" className="text-xs">Reimbursable</Badge>}
-                      {expense.taxDeductible && <Badge variant="outline" className="text-xs text-green-600 border-green-300">Tax Deductible</Badge>}
-                      {expense.category && <Badge variant="outline" className="text-xs">{expense.category}</Badge>}
+                      {expense.billable && (
+                        <Badge variant="secondary" className="text-xs">
+                          Billable
+                        </Badge>
+                      )}
+                      {expense.reimbursable && (
+                        <Badge variant="outline" className="text-xs">
+                          Reimbursable
+                        </Badge>
+                      )}
+                      {expense.taxDeductible && (
+                        <Badge
+                          variant="outline"
+                          className="border-green-300 text-xs text-green-600"
+                        >
+                          Tax Deductible
+                        </Badge>
+                      )}
+                      {expense.category && (
+                        <Badge variant="outline" className="text-xs">
+                          {expense.category}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-muted-foreground mt-0.5 text-xs">
-                      {new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date(expense.date))}
+                      {new Intl.DateTimeFormat("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      }).format(new Date(expense.date))}
                       {expense.client ? ` · ${expense.client.name}` : ""}
                     </p>
-                    {expense.notes && <p className="text-muted-foreground mt-1 text-xs">{expense.notes}</p>}
+                    {expense.notes && (
+                      <p className="text-muted-foreground mt-1 text-xs">
+                        {expense.notes}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-shrink-0 items-center gap-2">
-                    <p className="font-semibold">{formatCurrency(expense.amount, expense.currency)}</p>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => handleEdit(expense)}><Pencil className="h-3.5 w-3.5" /></Button>
-                    <Button variant="ghost" size="sm" className="text-destructive h-8 w-8 p-0" onClick={() => setDeleteId(expense.id)}><Trash2 className="h-3.5 w-3.5" /></Button>
+                    <p className="font-semibold">
+                      {formatCurrency(expense.amount, expense.currency)}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => handleEdit(expense)}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-destructive h-8 w-8 p-0"
+                      onClick={() => setDeleteId(expense.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -199,70 +306,150 @@ export default function ExpensesPage() {
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>Description *</Label>
-              <Input value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder="e.g. Laptop charger" />
+              <Input
+                value={form.description}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, description: e.target.value }))
+                }
+                placeholder="e.g. Laptop charger"
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Amount *</Label>
-                <NumberInput value={form.amount} onChange={(v) => setForm((p) => ({ ...p, amount: v }))} min={0} step={0.01} />
+                <NumberInput
+                  value={form.amount}
+                  onChange={(v) => setForm((p) => ({ ...p, amount: v }))}
+                  min={0}
+                  step={0.01}
+                />
               </div>
               <div className="space-y-2">
                 <Label>Currency</Label>
-                <Select value={form.currency} onValueChange={(v) => setForm((p) => ({ ...p, currency: v }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>{SUPPORTED_CURRENCIES.map((c) => <SelectItem key={c.code} value={c.code}>{c.code}</SelectItem>)}</SelectContent>
+                <Select
+                  value={form.currency}
+                  onValueChange={(v) => setForm((p) => ({ ...p, currency: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SUPPORTED_CURRENCIES.map((c) => (
+                      <SelectItem key={c.code} value={c.code}>
+                        {c.code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label>Date</Label>
-                <DatePicker date={form.date} onDateChange={(d) => setForm((p) => ({ ...p, date: d ?? new Date() }))} className="w-full" />
+                <DatePicker
+                  date={form.date}
+                  onDateChange={(d) =>
+                    setForm((p) => ({ ...p, date: d ?? new Date() }))
+                  }
+                  className="w-full"
+                />
               </div>
               <div className="space-y-2">
                 <Label>Category</Label>
-                <Select value={form.category || "none"} onValueChange={(v) => setForm((p) => ({ ...p, category: v === "none" ? "" : v }))}>
-                  <SelectTrigger><SelectValue placeholder="Select…" /></SelectTrigger>
+                <Select
+                  value={form.category || "none"}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, category: v === "none" ? "" : v }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select…" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">None</SelectItem>
-                    {EXPENSE_CATEGORIES.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    {EXPENSE_CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
             <div className="space-y-2">
               <Label>Client (optional)</Label>
-              <Select value={form.clientId || "none"} onValueChange={(v) => setForm((p) => ({ ...p, clientId: v === "none" ? "" : v }))}>
-                <SelectTrigger><SelectValue placeholder="No client" /></SelectTrigger>
+              <Select
+                value={form.clientId || "none"}
+                onValueChange={(v) =>
+                  setForm((p) => ({ ...p, clientId: v === "none" ? "" : v }))
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="No client" />
+                </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No client</SelectItem>
-                  {clients.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                  {clients.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-wrap gap-6">
               <label className="flex cursor-pointer items-center gap-2">
-                <Checkbox checked={form.billable} onCheckedChange={(v) => setForm((p) => ({ ...p, billable: !!v }))} />
+                <Checkbox
+                  checked={form.billable}
+                  onCheckedChange={(v) =>
+                    setForm((p) => ({ ...p, billable: !!v }))
+                  }
+                />
                 <span className="text-sm">Billable</span>
               </label>
               <label className="flex cursor-pointer items-center gap-2">
-                <Checkbox checked={form.reimbursable} onCheckedChange={(v) => setForm((p) => ({ ...p, reimbursable: !!v }))} />
+                <Checkbox
+                  checked={form.reimbursable}
+                  onCheckedChange={(v) =>
+                    setForm((p) => ({ ...p, reimbursable: !!v }))
+                  }
+                />
                 <span className="text-sm">Reimbursable</span>
               </label>
               <label className="flex cursor-pointer items-center gap-2">
-                <Checkbox checked={form.taxDeductible} onCheckedChange={(v) => setForm((p) => ({ ...p, taxDeductible: !!v }))} />
+                <Checkbox
+                  checked={form.taxDeductible}
+                  onCheckedChange={(v) =>
+                    setForm((p) => ({ ...p, taxDeductible: !!v }))
+                  }
+                />
                 <span className="text-sm">Tax Deductible</span>
               </label>
             </div>
             <div className="space-y-2">
               <Label>Notes (optional)</Label>
-              <Input value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} placeholder="Additional details…" />
+              <Input
+                value={form.notes}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, notes: e.target.value }))
+                }
+                placeholder="Additional details…"
+              />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button onClick={handleSubmit} disabled={create.isPending || update.isPending}>
-              {create.isPending || update.isPending ? "Saving…" : editId ? "Update" : "Add Expense"}
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={create.isPending || update.isPending}
+            >
+              {create.isPending || update.isPending
+                ? "Saving…"
+                : editId
+                  ? "Update"
+                  : "Add Expense"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -276,8 +463,14 @@ export default function ExpensesPage() {
             <DialogDescription>This action cannot be undone.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteId(null)}>Cancel</Button>
-            <Button variant="destructive" onClick={() => deleteId && del.mutate({ id: deleteId })} disabled={del.isPending}>
+            <Button variant="outline" onClick={() => setDeleteId(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => deleteId && del.mutate({ id: deleteId })}
+              disabled={del.isPending}
+            >
               {del.isPending ? "Deleting…" : "Delete"}
             </Button>
           </DialogFooter>

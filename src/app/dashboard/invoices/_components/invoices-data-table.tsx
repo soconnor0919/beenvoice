@@ -86,7 +86,7 @@ const getStatusType = (invoice: Invoice): StatusType =>
   getEffectiveInvoiceStatus(
     invoice.status as StoredInvoiceStatus,
     invoice.dueDate,
-  ) as StatusType;
+  );
 
 const formatDate = (date: Date) =>
   new Intl.DateTimeFormat("en-US", {
