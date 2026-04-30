@@ -44,22 +44,26 @@ A modern, professional invoicing application built for freelancers and small bus
 ### Quick Start
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/beenvoice.git
    cd beenvoice
    ```
 
 2. **Install dependencies**
+
    ```bash
    bun install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    cp .env.example .env.local
    ```
 
    Edit `.env.local` and add your configuration:
+
    ```env
    # Database
    DATABASE_URL="postgresql://postgres:password@localhost:5432/beenvoice"
@@ -78,17 +82,20 @@ A modern, professional invoicing application built for freelancers and small bus
    RESEND_DOMAIN="yourdomain.com"
    ```
 
-4. **Start the database**
+4. **Start the development database**
+
    ```bash
-   docker-compose up -d
+   docker compose -f docker-compose.dev.yml up -d db
    ```
 
 5. **Push the database schema**
+
    ```bash
    bun run db:push
    ```
 
 6. **Start the development server**
+
    ```bash
    bun run dev
    ```
@@ -123,7 +130,8 @@ beenvoice/
 ├── drizzle/                  # Database migrations
 ├── public/                   # Static assets
 ├── docs/                     # Documentation
-└── docker-compose.yml        # Local PostgreSQL setup
+├── docker-compose.yml        # Deployment compose stack
+└── docker-compose.dev.yml    # Development overrides with exposed PostgreSQL
 ```
 
 ## 🎯 Usage
@@ -155,12 +163,14 @@ beenvoice/
 ### Features Overview
 
 #### Client Management
+
 - Create and edit client profiles
 - Store contact information and addresses
 - Set default hourly rates per client
 - Search and filter client list
 
 #### Invoice Creation
+
 - Select from existing clients and business profiles
 - Add multiple line items with drag-and-drop reordering
 - Set custom rates per item
@@ -169,12 +179,14 @@ beenvoice/
 - Professional invoice formatting
 
 #### Invoice Delivery
+
 - Send invoices via email directly from the app
 - Rich text email composer with preview
 - Resend and re-deliver sent invoices
 - Track invoice status: Draft → Sent → Paid (+ Overdue)
 
 #### User Interface
+
 - Clean, modern design
 - Fully responsive — desktop, tablet, and mobile
 - Intuitive navigation with breadcrumbs
@@ -198,7 +210,8 @@ bun run db:studio    # Open Drizzle Studio
 bun run db:generate  # Generate new migration
 
 # Docker
-bun run docker:up    # Start local PostgreSQL via Docker
+bun run docker:up    # Start deployment compose stack
+bun run docker:dev:up # Start development compose stack with exposed PostgreSQL
 bun run docker:down  # Stop Docker services
 
 # Code Quality
@@ -207,6 +220,24 @@ bun run lint:fix     # Fix ESLint issues
 bun run format:write # Format code with Prettier
 bun run typecheck    # Run TypeScript type checking
 ```
+
+### Docker Compose
+
+Use the base compose file for deployment. It keeps PostgreSQL internal to the
+compose network:
+
+```bash
+docker compose up -d
+```
+
+For local development, use the dev compose file to expose PostgreSQL on
+`${POSTGRES_PORT:-5432}`:
+
+```bash
+docker compose -f docker-compose.dev.yml up -d
+```
+
+Set `DISABLE_SIGNUPS=true` to block new email/password account registration.
 
 ### Database Schema
 
@@ -243,6 +274,7 @@ The app uses Tailwind CSS v4 with a custom design system:
 ### Branding
 
 Update the logo and colors in:
+
 - `src/components/logo.tsx` - Main logo component
 - `src/styles/globals.css` - Color variables
 - `src/app/layout.tsx` - Font configuration
@@ -252,6 +284,7 @@ Update the logo and colors in:
 You can deploy this application to any platform that supports Next.js and PostgreSQL (Docker, Coolify, Railway, etc.).
 
 1. **Build the application:**
+
    ```bash
    bun run build
    ```
@@ -259,6 +292,7 @@ You can deploy this application to any platform that supports Next.js and Postgr
 2. **Set up production environment variables** (see `.env.local` example above, adjusting URLs and secrets for production)
 
 3. **Run database migrations:**
+
    ```bash
    bun run db:push
    ```

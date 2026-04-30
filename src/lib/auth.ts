@@ -10,6 +10,7 @@ const authentikEnabled = Boolean(
     process.env.AUTHENTIK_CLIENT_ID &&
     process.env.AUTHENTIK_CLIENT_SECRET,
 );
+const signupsDisabled = process.env.DISABLE_SIGNUPS === "true";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -34,6 +35,7 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    disableSignUp: signupsDisabled,
     password: {
       hash: async (password) => {
         const bcrypt = await import("bcryptjs");

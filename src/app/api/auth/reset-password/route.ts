@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { eq, and, gt } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db } from "~/server/db";
-import { users } from "~/server/db/schema";
+import { accounts, users } from "~/server/db/schema";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,15 +47,40 @@ export async function POST(request: NextRequest) {
     // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Update user with new password and clear reset token
-    await db
-      .update(users)
-      .set({
-        password: hashedPassword,
-        resetToken: null,
-        resetTokenExpiry: null,
-      })
-      .where(eq(users.id, user.id));
+    await db.transaction(async (tx) => {
+      await tx
+        .update(users)
+        .set({
+          password: hashedPassword,
+          resetToken: null,
+          resetTokenExpiry: null,
+        })
+        .where(eq(users.id, user.id));
+
+      const credentialAccount = await tx.query.accounts.findFirst({
+        where: and(
+          eq(accounts.userId, user.id),
+          eq(accounts.providerId, "credential"),
+        ),
+      });
+
+      if (credentialAccount) {
+        await tx
+          .update(accounts)
+          .set({
+            password: hashedPassword,
+            updatedAt: new Date(),
+          })
+          .where(eq(accounts.id, credentialAccount.id));
+      } else {
+        await tx.insert(accounts).values({
+          userId: user.id,
+          accountId: user.id,
+          providerId: "credential",
+          password: hashedPassword,
+        });
+      }
+    });
 
     return NextResponse.json(
       {

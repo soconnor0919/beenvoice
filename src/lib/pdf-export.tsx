@@ -778,6 +778,7 @@ const Footer: React.FC<{ settings: Required<PDFGenerationSettings> }> = ({
   <View style={styles.footer} fixed>
     <View style={styles.footerLogo}>
       {settings.pdfShowLogo && (
+        // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image does not support alt.
         <Image
           src="/beenvoice-logo.png"
           style={{

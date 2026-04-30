@@ -8,7 +8,11 @@ import { Button } from "~/components/ui/button";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 
-export function Navbar() {
+interface NavbarProps {
+  allowRegistration?: boolean;
+}
+
+export function Navbar({ allowRegistration = true }: NavbarProps) {
   const { data: session, isPending } = authClient.useSession();
   // const session = { user: null } as any; const isPending = false;
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
@@ -63,15 +67,17 @@ export function Navbar() {
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/register">
-                <Button
-                  size="sm"
-                  variant="default"
-                  className="text-xs font-medium md:text-sm"
-                >
-                  Register
-                </Button>
-              </Link>
+              {allowRegistration && (
+                <Link href="/auth/register">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="text-xs font-medium md:text-sm"
+                  >
+                    Register
+                  </Button>
+                </Link>
+              )}
             </>
           )}
         </div>

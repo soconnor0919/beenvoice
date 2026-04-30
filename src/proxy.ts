@@ -4,6 +4,12 @@ import type { NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/auth/register" && process.env.DISABLE_SIGNUPS === "true") {
+    const signInUrl = new URL("/auth/signin", request.url);
+    signInUrl.searchParams.set("signup", "disabled");
+    return NextResponse.redirect(signInUrl);
+  }
+
   // Define public routes that don't require authentication
   const publicRoutes = ["/", "/auth/signin", "/auth/register"];
 

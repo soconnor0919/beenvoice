@@ -28,7 +28,8 @@ function RegisterForm() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name: `${firstName} ${lastName}`,
+        firstName,
+        lastName,
         email,
         password,
       }),

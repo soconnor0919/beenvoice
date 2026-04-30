@@ -13,8 +13,11 @@ import {
   Rocket,
 } from "lucide-react";
 import { brand } from "~/lib/branding";
+import { env } from "~/env";
 
 export default function HomePage() {
+  const allowRegistration = env.DISABLE_SIGNUPS !== true;
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
       <AuthRedirect />
@@ -54,11 +57,17 @@ export default function HomePage() {
                   Sign In
                 </Button>
               </Link>
-              <Link href="/auth/register">
-                <Button size="sm" variant="default" className="rounded-xl px-6">
-                  Get Started
-                </Button>
-              </Link>
+              {allowRegistration && (
+                <Link href="/auth/register">
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="rounded-xl px-6"
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
         </div>
@@ -83,15 +92,17 @@ export default function HomePage() {
             </p>
 
             <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
-              <Link href="/auth/register">
-                <Button
-                  size="lg"
-                  className="shadow-primary/20 hover:shadow-primary/30 h-14 rounded-2xl px-10 text-lg shadow-xl transition-all duration-300 hover:shadow-2xl"
-                >
-                  Start For Free
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              {allowRegistration && (
+                <Link href="/auth/register">
+                  <Button
+                    size="lg"
+                    className="shadow-primary/20 hover:shadow-primary/30 h-14 rounded-2xl px-10 text-lg shadow-xl transition-all duration-300 hover:shadow-2xl"
+                  >
+                    Start For Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              )}
               <a href="#features">
                 <Button
                   variant="outline"
@@ -240,11 +251,16 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                <Link href="/auth/register" className="block">
-                  <Button size="lg" className="h-12 w-full rounded-xl text-lg">
-                    Get Started
-                  </Button>
-                </Link>
+                {allowRegistration && (
+                  <Link href="/auth/register" className="block">
+                    <Button
+                      size="lg"
+                      className="h-12 w-full rounded-xl text-lg"
+                    >
+                      Get Started
+                    </Button>
+                  </Link>
+                )}
               </CardContent>
             </Card>
           </div>

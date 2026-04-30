@@ -19,6 +19,7 @@ export const env = createEnv({
       .enum(["development", "test", "production"])
       .default("development"),
     DB_DISABLE_SSL: z.coerce.boolean().optional(),
+    DISABLE_SIGNUPS: z.coerce.boolean().optional(),
     // SSO / Authentik (optional)
     AUTHENTIK_ISSUER: z.string().url().optional(),
     AUTHENTIK_CLIENT_ID: z.string().optional(),
@@ -52,7 +53,9 @@ export const env = createEnv({
     NEXT_PUBLIC_DEFAULT_HEADING_FONT: z
       .enum(["brand", "platform", "inter", "serif"])
       .optional(),
-    NEXT_PUBLIC_DEFAULT_RADIUS: z.enum(["none", "sm", "md", "lg", "xl"]).optional(),
+    NEXT_PUBLIC_DEFAULT_RADIUS: z
+      .enum(["none", "sm", "md", "lg", "xl"])
+      .optional(),
     NEXT_PUBLIC_DEFAULT_SIDEBAR_STYLE: z
       .enum(["floating", "docked"])
       .optional(),
@@ -70,6 +73,7 @@ export const env = createEnv({
     RESEND_DOMAIN: process.env.RESEND_DOMAIN,
     NODE_ENV: process.env.NODE_ENV,
     DB_DISABLE_SSL: process.env.DB_DISABLE_SSL,
+    DISABLE_SIGNUPS: process.env.DISABLE_SIGNUPS,
     AUTHENTIK_ISSUER: process.env.AUTHENTIK_ISSUER,
     AUTHENTIK_CLIENT_ID: process.env.AUTHENTIK_CLIENT_ID,
     AUTHENTIK_CLIENT_SECRET: process.env.AUTHENTIK_CLIENT_SECRET,

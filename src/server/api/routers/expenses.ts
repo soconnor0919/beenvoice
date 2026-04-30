@@ -58,11 +58,11 @@ export const expensesRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const clean = {
         ...input,
-        clientId: input.clientId?.trim() || null,
-        businessId: input.businessId?.trim() || null,
-        invoiceId: input.invoiceId?.trim() || null,
-        category: input.category?.trim() || null,
-        notes: input.notes?.trim() || null,
+        clientId: input.clientId?.trim() ?? null,
+        businessId: input.businessId?.trim() ?? null,
+        invoiceId: input.invoiceId?.trim() ?? null,
+        category: input.category?.trim() ?? null,
+        notes: input.notes?.trim() ?? null,
       };
 
       if (clean.clientId) {
@@ -121,11 +121,11 @@ export const expensesRouter = createTRPCRouter({
 
       const clean = {
         ...data,
-        clientId: data.clientId?.trim() || null,
-        businessId: data.businessId?.trim() || null,
-        invoiceId: data.invoiceId?.trim() || null,
-        category: data.category?.trim() || null,
-        notes: data.notes?.trim() || null,
+        clientId: data.clientId?.trim() ?? null,
+        businessId: data.businessId?.trim() ?? null,
+        invoiceId: data.invoiceId?.trim() ?? null,
+        category: data.category?.trim() ?? null,
+        notes: data.notes?.trim() ?? null,
         updatedAt: new Date(),
       };
 

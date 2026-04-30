@@ -23,7 +23,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { Eye, Edit, Trash2, FileText, CheckCircle, Send, ChevronDown } from "lucide-react";
+import {
+  Eye,
+  Edit,
+  Trash2,
+  FileText,
+  CheckCircle,
+  Send,
+  ChevronDown,
+} from "lucide-react";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 import { getEffectiveInvoiceStatus } from "~/lib/invoice-status";
@@ -45,11 +53,28 @@ interface Invoice {
   createdById: string;
   createdAt: Date;
   updatedAt: Date | null;
-  client?: { id: string; name: string; email: string | null; phone: string | null } | null;
-  business?: { id: string; name: string; email: string | null; phone: string | null } | null;
+  client?: {
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+  } | null;
+  business?: {
+    id: string;
+    name: string;
+    email: string | null;
+    phone: string | null;
+  } | null;
   items?: Array<{
-    id: string; invoiceId: string; date: Date; description: string;
-    hours: number; rate: number; amount: number; position: number; createdAt: Date;
+    id: string;
+    invoiceId: string;
+    date: Date;
+    description: string;
+    hours: number;
+    rate: number;
+    amount: number;
+    position: number;
+    createdAt: Date;
   }> | null;
 }
 
@@ -58,10 +83,17 @@ interface InvoicesDataTableProps {
 }
 
 const getStatusType = (invoice: Invoice): StatusType =>
-  getEffectiveInvoiceStatus(invoice.status as StoredInvoiceStatus, invoice.dueDate) as StatusType;
+  getEffectiveInvoiceStatus(
+    invoice.status as StoredInvoiceStatus,
+    invoice.dueDate,
+  ) as StatusType;
 
 const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat("en-US", { month: "short", day: "2-digit", year: "numeric" }).format(new Date(date));
+  new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+  }).format(new Date(date));
 
 export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
   const router = useRouter();
@@ -84,7 +116,9 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
 
   const bulkDelete = api.invoices.bulkDelete.useMutation({
     onSuccess: (data) => {
-      toast.success(`${data.deleted} invoice${data.deleted !== 1 ? "s" : ""} deleted`);
+      toast.success(
+        `${data.deleted} invoice${data.deleted !== 1 ? "s" : ""} deleted`,
+      );
       void utils.invoices.getAll.invalidate();
       setBulkDeleteDialogOpen(false);
       setPendingBulkDelete([]);
@@ -94,7 +128,9 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
 
   const bulkUpdateStatus = api.invoices.bulkUpdateStatus.useMutation({
     onSuccess: (data) => {
-      toast.success(`${data.updated} invoice${data.updated !== 1 ? "s" : ""} updated`);
+      toast.success(
+        `${data.updated} invoice${data.updated !== 1 ? "s" : ""} updated`,
+      );
       void utils.invoices.getAll.invalidate();
     },
     onError: (e) => toast.error(e.message ?? "Failed to update invoices"),
@@ -105,7 +141,10 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
       id: "select",
       header: ({ table }) => (
         <Checkbox
-          checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
           onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)}
           aria-label="Select all"
           data-action-button="true"
@@ -124,7 +163,9 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
     },
     {
       accessorKey: "client.name",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Client" />,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Client" />
+      ),
       cell: ({ row }) => {
         const invoice = row.original;
         return (
@@ -133,10 +174,17 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
               <FileText className="text-primary h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-medium">{invoice.client?.name ?? "—"}</p>
-              <p className="text-muted-foreground truncate text-xs sm:text-sm">{invoice.invoiceNumber}</p>
+              <p className="truncate font-medium">
+                {invoice.client?.name ?? "—"}
+              </p>
+              <p className="text-muted-foreground truncate text-xs sm:text-sm">
+                {invoice.invoiceNumber}
+              </p>
               <div className="mt-1 flex items-center gap-2 sm:hidden">
-                <StatusBadge status={getStatusType(invoice)} className="text-xs" />
+                <StatusBadge
+                  status={getStatusType(invoice)}
+                  className="text-xs"
+                />
                 <span className="text-foreground text-xs font-semibold">
                   {formatCurrency(invoice.totalAmount, invoice.currency)}
                 </span>
@@ -148,38 +196,59 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
     },
     {
       accessorKey: "issueDate",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Date" />,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Date" />
+      ),
       cell: ({ row }) => (
         <div className="min-w-0">
-          <p className="truncate text-sm">{formatDate(row.getValue("issueDate") as Date)}</p>
-          <p className="text-muted-foreground truncate text-xs">Due {formatDate(new Date(row.original.dueDate))}</p>
+          <p className="truncate text-sm">
+            {formatDate(row.getValue("issueDate"))}
+          </p>
+          <p className="text-muted-foreground truncate text-xs">
+            Due {formatDate(new Date(row.original.dueDate))}
+          </p>
         </div>
       ),
     },
     {
       accessorKey: "status",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Status" />
+      ),
       cell: ({ row }) => (
         <StatusBadge
           status={getStatusType(row.original)}
-          className={getStatusType(row.original) === "sent" ? "status-pending" : ""}
+          className={
+            getStatusType(row.original) === "sent" ? "status-pending" : ""
+          }
         />
       ),
-      filterFn: (row, _id, value: string[]) => value.includes(getStatusType(row.original)),
-      meta: { headerClassName: "hidden sm:table-cell", cellClassName: "hidden sm:table-cell" },
+      filterFn: (row, _id, value: string[]) =>
+        value.includes(getStatusType(row.original)),
+      meta: {
+        headerClassName: "hidden sm:table-cell",
+        cellClassName: "hidden sm:table-cell",
+      },
     },
     {
       accessorKey: "totalAmount",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Amount" />,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Amount" />
+      ),
       cell: ({ row }) => (
         <div className="text-right">
           <p className="text-sm font-semibold">
-            {formatCurrency(row.getValue("totalAmount") as number, row.original.currency)}
+            {formatCurrency(row.getValue("totalAmount"), row.original.currency)}
           </p>
-          <p className="text-muted-foreground text-xs">{row.original.items?.length ?? 0} items</p>
+          <p className="text-muted-foreground text-xs">
+            {row.original.items?.length ?? 0} items
+          </p>
         </div>
       ),
-      meta: { headerClassName: "hidden sm:table-cell", cellClassName: "hidden sm:table-cell" },
+      meta: {
+        headerClassName: "hidden sm:table-cell",
+        cellClassName: "hidden sm:table-cell",
+      },
     },
     {
       id: "actions",
@@ -188,19 +257,34 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
         return (
           <div className="flex items-center justify-end gap-1">
             <Link href={`/dashboard/invoices/${invoice.id}`}>
-              <Button variant="ghost" size="sm" className="hover-scale h-8 w-8 p-0" data-action-button="true">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover-scale h-8 w-8 p-0"
+                data-action-button="true"
+              >
                 <Eye className="h-3.5 w-3.5" />
               </Button>
             </Link>
             <Link href={`/dashboard/invoices/${invoice.id}/edit`}>
-              <Button variant="ghost" size="sm" className="hover-scale h-8 w-8 p-0" data-action-button="true">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="hover-scale h-8 w-8 p-0"
+                data-action-button="true"
+              >
                 <Edit className="h-3.5 w-3.5" />
               </Button>
             </Link>
             <Button
-              variant="ghost" size="sm"
+              variant="ghost"
+              size="sm"
               className="hover-scale text-destructive hover:text-destructive/80 h-8 w-8 p-0"
-              onClick={(e) => { e.stopPropagation(); setInvoiceToDelete(invoice); setDeleteDialogOpen(true); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setInvoiceToDelete(invoice);
+                setDeleteDialogOpen(true);
+              }}
               data-action-button="true"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -237,12 +321,18 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
         searchKey="invoiceNumber"
         searchPlaceholder="Search invoices..."
         filterableColumns={filterableColumns}
-        onRowClick={(invoice) => router.push(`/dashboard/invoices/${invoice.id}`)}
+        onRowClick={(invoice) =>
+          router.push(`/dashboard/invoices/${invoice.id}`)
+        }
         selectionActions={(selected, clear) => (
           <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" disabled={bulkUpdateStatus.isPending}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={bulkUpdateStatus.isPending}
+                >
                   <Send className="mr-1.5 h-3.5 w-3.5" />
                   Mark as
                   <ChevronDown className="ml-1.5 h-3.5 w-3.5" />
@@ -306,16 +396,24 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
             <DialogDescription>
               Are you sure you want to delete invoice{" "}
               <strong>{invoiceToDelete?.invoiceNumber}</strong> for{" "}
-              <strong>{invoiceToDelete?.client?.name}</strong>? This action cannot be undone.
+              <strong>{invoiceToDelete?.client?.name}</strong>? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleteInvoice.isPending}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleteInvoice.isPending}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() => invoiceToDelete && deleteInvoice.mutate({ id: invoiceToDelete.id })}
+              onClick={() =>
+                invoiceToDelete &&
+                deleteInvoice.mutate({ id: invoiceToDelete.id })
+              }
               disabled={deleteInvoice.isPending}
             >
               {deleteInvoice.isPending ? "Deleting..." : "Delete Invoice"}
@@ -325,25 +423,40 @@ export function InvoicesDataTable({ invoices }: InvoicesDataTableProps) {
       </Dialog>
 
       {/* Bulk delete dialog */}
-      <Dialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+      <Dialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={setBulkDeleteDialogOpen}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete {pendingBulkDelete.length} Invoice{pendingBulkDelete.length !== 1 ? "s" : ""}</DialogTitle>
+            <DialogTitle>
+              Delete {pendingBulkDelete.length} Invoice
+              {pendingBulkDelete.length !== 1 ? "s" : ""}
+            </DialogTitle>
             <DialogDescription>
-              This will permanently delete {pendingBulkDelete.length} invoice{pendingBulkDelete.length !== 1 ? "s" : ""}.
-              This action cannot be undone.
+              This will permanently delete {pendingBulkDelete.length} invoice
+              {pendingBulkDelete.length !== 1 ? "s" : ""}. This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkDeleteDialogOpen(false)} disabled={bulkDelete.isPending}>
+            <Button
+              variant="outline"
+              onClick={() => setBulkDeleteDialogOpen(false)}
+              disabled={bulkDelete.isPending}
+            >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={() => bulkDelete.mutate({ ids: pendingBulkDelete.map((i) => i.id) })}
+              onClick={() =>
+                bulkDelete.mutate({ ids: pendingBulkDelete.map((i) => i.id) })
+              }
               disabled={bulkDelete.isPending}
             >
-              {bulkDelete.isPending ? "Deleting..." : `Delete ${pendingBulkDelete.length} Invoice${pendingBulkDelete.length !== 1 ? "s" : ""}`}
+              {bulkDelete.isPending
+                ? "Deleting..."
+                : `Delete ${pendingBulkDelete.length} Invoice${pendingBulkDelete.length !== 1 ? "s" : ""}`}
             </Button>
           </DialogFooter>
         </DialogContent>

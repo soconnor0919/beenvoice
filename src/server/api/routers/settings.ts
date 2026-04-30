@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 import bcrypt from "bcryptjs";
 import {
@@ -8,6 +8,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import {
+  accounts,
   users,
   clients,
   businesses,
@@ -29,9 +30,10 @@ import {
   type RadiusPreference,
   type SidebarStyle,
 } from "~/lib/branding";
+import type { db as database } from "~/server/db";
 
 async function requireAdmin(ctx: {
-  db: typeof import("~/server/db").db;
+  db: typeof database;
   session: { user: { id: string } };
 }) {
   const user = await ctx.db.query.users.findFirst({
@@ -425,13 +427,38 @@ export const settingsRouter = createTRPCRouter({
         saltRounds,
       );
 
-      // Update the password
-      await ctx.db
-        .update(users)
-        .set({
-          password: hashedNewPassword,
-        })
-        .where(eq(users.id, userId));
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(users)
+          .set({
+            password: hashedNewPassword,
+          })
+          .where(eq(users.id, userId));
+
+        const credentialAccount = await tx.query.accounts.findFirst({
+          where: and(
+            eq(accounts.userId, userId),
+            eq(accounts.providerId, "credential"),
+          ),
+        });
+
+        if (credentialAccount) {
+          await tx
+            .update(accounts)
+            .set({
+              password: hashedNewPassword,
+              updatedAt: new Date(),
+            })
+            .where(eq(accounts.id, credentialAccount.id));
+        } else {
+          await tx.insert(accounts).values({
+            userId,
+            accountId: userId,
+            providerId: "credential",
+            password: hashedNewPassword,
+          });
+        }
+      });
 
       return { success: true };
     }),
