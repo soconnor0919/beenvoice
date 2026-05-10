@@ -9,7 +9,7 @@ import { Label } from "~/components/ui/label";
 import { toast } from "sonner";
 import { Logo } from "~/components/branding/logo";
 import { LegalModal } from "~/components/ui/legal-modal";
-import { Mail, Lock, ArrowRight, User, Clock, Rocket, Zap } from "lucide-react";
+import { Mail, Lock, ArrowRight, User } from "lucide-react";
 
 function RegisterForm() {
   const router = useRouter();
@@ -27,12 +27,7 @@ function RegisterForm() {
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        firstName,
-        lastName,
-        email,
-        password,
-      }),
+      body: JSON.stringify({ firstName, lastName, email, password }),
     });
 
     setLoading(false);
@@ -47,205 +42,128 @@ function RegisterForm() {
   }
 
   return (
-    <div className="bg-background flex min-h-screen items-center justify-center">
-      <Card className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border">
-        <CardContent className="grid h-full p-0 md:grid-cols-2">
-          {/* Hero Section - Hidden on mobile */}
-          <div className="bg-muted relative hidden md:flex md:flex-col md:justify-center md:p-12">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Logo size="xl" />
-                </div>
-                <div className="space-y-3">
-                  <h1 className="text-3xl font-bold lg:text-4xl">
-                    Start your
-                    <span className="text-primary"> invoicing journey</span>
-                  </h1>
-                  <p className="text-muted-foreground text-lg">
-                    Join thousands of freelancers and small businesses who trust
-                    beenvoice to manage their invoicing and get paid faster.
-                  </p>
-                </div>
-              </div>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      <div className="pointer-events-none fixed inset-0 -z-10 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="animate-blob h-[800px] w-[800px] rounded-full bg-neutral-400/30 blur-3xl dark:bg-neutral-500/20"></div>
+      </div>
 
-              <div className="grid gap-4">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
-                    <Rocket className="text-primary h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold">Quick Setup</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Get started in minutes with our intuitive setup wizard
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
-                    <Zap className="text-primary h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold">Fast Payments</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Professional invoices that get you paid 3x faster
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-lg p-2">
-                    <Clock className="text-primary h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold">Time Tracking</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Track time and convert it to accurate invoices instantly
-                    </p>
-                  </div>
-                </div>
+      <Card className="mx-auto w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl">
+        <CardContent className="p-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Logo size="lg" />
+              <div>
+                <h1 className="font-heading text-2xl font-bold">Create your account</h1>
+                <p className="text-muted-foreground text-sm">Get started today</p>
               </div>
             </div>
-          </div>
 
-          {/* Sign Up Form */}
-          <div className="flex flex-col justify-center p-6 md:p-12">
-            <div className="mx-auto w-full max-w-sm space-y-6">
-              {/* Mobile Logo */}
-              <div className="flex justify-center md:hidden">
-                <Logo size="lg" />
-              </div>
-
-              <div className="space-y-2 text-center md:text-left">
-                <h1 className="text-2xl font-bold">Create your account</h1>
-                <p className="text-muted-foreground">
-                  Supercharge your invoicing today
-                </p>
-              </div>
-
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <div className="relative">
-                      <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
-                      <Input
-                        id="firstName"
-                        type="text"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        required
-                        autoFocus
-                        className="h-11 pl-10"
-                        placeholder="John"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <div className="relative">
-                      <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
-                      <Input
-                        id="lastName"
-                        type="text"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        required
-                        className="h-11 pl-10"
-                        placeholder="Doe"
-                      />
-                    </div>
-                  </div>
-                </div>
-
+            <form onSubmit={handleRegister} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
+                  <Label htmlFor="firstName">First Name</Label>
                   <div className="relative">
-                    <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
+                    <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
                     <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      id="firstName"
+                      type="text"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
                       required
-                      className="h-11 pl-10"
-                      placeholder="john@example.com"
+                      autoFocus
+                      className="h-10 pl-10"
+                      placeholder="John"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="lastName">Last Name</Label>
                   <div className="relative">
-                    <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
+                    <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
                     <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
+                      id="lastName"
+                      type="text"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
                       required
-                      className="h-11 pl-10"
-                      placeholder="Create a strong password"
+                      className="h-10 pl-10"
+                      placeholder="Doe"
                     />
                   </div>
-                  <p className="text-muted-foreground text-xs">
-                    Must be at least 8 characters long
-                  </p>
                 </div>
-
-                <Button
-                  type="submit"
-                  className="h-11 w-full"
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="border-primary-foreground/30 border-t-primary-foreground h-4 w-4 animate-spin rounded-full border-2"></div>
-                      <span>Creating account...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <span>Create Account</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </div>
-                  )}
-                </Button>
-              </form>
-
-              <div className="text-center text-sm">
-                Already have an account?{" "}
-                <a
-                  href="/auth/signin"
-                  className="text-primary font-medium hover:underline"
-                >
-                  Sign in
-                </a>
               </div>
 
-              <div className="text-muted-foreground text-center text-xs leading-relaxed">
-                By creating an account, you agree to our{" "}
-                <LegalModal
-                  type="terms"
-                  trigger={
-                    <span className="text-primary inline cursor-pointer hover:underline">
-                      Terms of Service
-                    </span>
-                  }
-                />{" "}
-                and{" "}
-                <LegalModal
-                  type="privacy"
-                  trigger={
-                    <span className="text-primary inline cursor-pointer hover:underline">
-                      Privacy Policy
-                    </span>
-                  }
-                />
-                .
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-10 pl-10"
+                    placeholder="you@example.com"
+                  />
+                </div>
               </div>
-            </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="h-10 pl-10"
+                    placeholder="••••••••"
+                  />
+                </div>
+                <p className="text-muted-foreground text-xs">At least 8 characters</p>
+              </div>
+
+              <Button type="submit" className="h-10 w-full" disabled={loading}>
+                {loading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="border-primary-foreground/30 border-t-primary-foreground h-4 w-4 animate-spin rounded-full border-2" />
+                    <span>Creating account…</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span>Create Account</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            <p className="text-muted-foreground text-center text-sm">
+              Already have an account?{" "}
+              <a href="/auth/signin" className="text-foreground font-medium hover:underline">
+                Sign in
+              </a>
+            </p>
+
+            <p className="text-muted-foreground text-center text-xs">
+              By creating an account you agree to our{" "}
+              <LegalModal
+                type="terms"
+                trigger={<span className="text-foreground cursor-pointer hover:underline">Terms</span>}
+              />{" "}
+              and{" "}
+              <LegalModal
+                type="privacy"
+                trigger={<span className="text-foreground cursor-pointer hover:underline">Privacy Policy</span>}
+              />
+              .
+            </p>
           </div>
         </CardContent>
       </Card>
