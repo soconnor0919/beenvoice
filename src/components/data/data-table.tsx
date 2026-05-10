@@ -29,7 +29,7 @@ import {
 import * as React from "react";
 
 import { Button } from "~/components/ui/button";
-import { Card, CardContent } from "~/components/ui/card";
+import { Card } from "~/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -231,115 +231,113 @@ export function DataTable<TData, TValue>({
 
       {/* Filter Bar Card */}
       {(showSearch || filterableColumns.length > 0 || showColumnVisibility) && (
-        <Card className="bg-card border-border border py-2">
-          <CardContent className="px-3 py-0">
-            <div className="flex items-center gap-2">
-              {showSearch && (
-                <div className="relative min-w-0 flex-1">
-                  <Search className="text-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-                  <Input
-                    placeholder={searchPlaceholder}
-                    value={searchInput ?? ""}
-                    onChange={(event) => setSearchInput(event.target.value)}
-                    className="h-9 w-full pr-3 pl-9"
-                  />
-                </div>
-              )}
-              {filterableColumns.map((column) => (
-                <Select
-                  key={column.id}
-                  value={
-                    (table.getColumn(column.id)?.getFilterValue() as string) ??
-                    "all"
-                  }
-                  onValueChange={(value) =>
-                    table
-                      .getColumn(column.id)
-                      ?.setFilterValue(value === "all" ? "" : value)
-                  }
-                >
-                  <SelectTrigger className="h-9 w-9 p-0 sm:w-[180px] sm:px-3 [&>svg]:hidden sm:[&>svg]:inline-flex">
-                    <div className="flex w-full items-center justify-center">
-                      <Filter className="text-foreground h-4 w-4 sm:hidden" />
-                      <span className="hidden sm:inline">
-                        <SelectValue placeholder={column.title} />
-                      </span>
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all" className="gap-0">
-                      All {column.title}
-                    </SelectItem>
-                    {column.options.map((option) => (
-                      <SelectItem
-                        key={option.value}
-                        value={option.value}
-                        className="gap-0"
-                      >
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ))}
-              {filterableColumns.length > 0 && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 w-9 p-0 sm:w-auto sm:px-4"
-                  onClick={() => {
-                    table.resetColumnFilters();
-                    setGlobalFilter("");
-                  }}
-                >
-                  <X className="h-4 w-4 sm:hidden" />
-                  <span className="hidden sm:flex sm:items-center">
-                    <Filter className="text-foreground mr-2 h-3.5 w-3.5" />
-                    Clear filters
-                  </span>
-                </Button>
-              )}
-              {showColumnVisibility && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="hidden h-9 sm:flex"
+        <Card className="bg-card border-border border">
+          <div className="flex items-center gap-2 px-3 py-2">
+            {showSearch && (
+              <div className="relative min-w-0 flex-1">
+                <Search className="text-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+                <Input
+                  placeholder={searchPlaceholder}
+                  value={searchInput ?? ""}
+                  onChange={(event) => setSearchInput(event.target.value)}
+                  className="h-9 w-full pr-3 pl-9"
+                />
+              </div>
+            )}
+            {filterableColumns.map((column) => (
+              <Select
+                key={column.id}
+                value={
+                  (table.getColumn(column.id)?.getFilterValue() as string) ??
+                  "all"
+                }
+                onValueChange={(value) =>
+                  table
+                    .getColumn(column.id)
+                    ?.setFilterValue(value === "all" ? "" : value)
+                }
+              >
+                <SelectTrigger className="h-9 w-9 p-0 sm:w-[180px] sm:px-3 [&>svg]:hidden sm:[&>svg]:inline-flex">
+                  <div className="flex w-full items-center justify-center">
+                    <Filter className="text-foreground h-4 w-4 sm:hidden" />
+                    <span className="hidden sm:inline">
+                      <SelectValue placeholder={column.title} />
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="gap-0">
+                    All {column.title}
+                  </SelectItem>
+                  {column.options.map((option) => (
+                    <SelectItem
+                      key={option.value}
+                      value={option.value}
+                      className="gap-0"
                     >
-                      Columns <ChevronDown className="ml-2 h-3.5 w-3.5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-[150px]">
-                    {table
-                      .getAllColumns()
-                      .filter((column) => column.getCanHide())
-                      .map((column) => {
-                        return (
-                          <DropdownMenuCheckboxItem
-                            key={column.id}
-                            className="capitalize"
-                            checked={column.getIsVisible()}
-                            onCheckedChange={(value) =>
-                              column.toggleVisibility(!!value)
-                            }
-                          >
-                            {column.id}
-                          </DropdownMenuCheckboxItem>
-                        );
-                      })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          </CardContent>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ))}
+            {filterableColumns.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 w-9 p-0 sm:w-auto sm:px-4"
+                onClick={() => {
+                  table.resetColumnFilters();
+                  setGlobalFilter("");
+                }}
+              >
+                <X className="h-4 w-4 sm:hidden" />
+                <span className="hidden sm:flex sm:items-center">
+                  <Filter className="text-foreground mr-2 h-3.5 w-3.5" />
+                  Clear filters
+                </span>
+              </Button>
+            )}
+            {showColumnVisibility && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hidden h-9 sm:flex"
+                  >
+                    Columns <ChevronDown className="ml-2 h-3.5 w-3.5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[150px]">
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) =>
+                            column.toggleVisibility(!!value)
+                          }
+                        >
+                          {column.id}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </Card>
       )}
 
       {/* Selection Toolbar */}
       {selectionActions && table.getSelectedRowModel().rows.length > 0 && (
-        <Card className="bg-primary/5 border-primary/20 border py-2">
-          <CardContent className="flex items-center justify-between gap-3 px-3 py-0">
+        <Card className="bg-primary/5 border-primary/20 border">
+          <div className="flex items-center justify-between gap-3 px-3 py-2">
             <span className="text-foreground text-sm font-medium">
               {table.getSelectedRowModel().rows.length} selected
             </span>
@@ -349,7 +347,7 @@ export function DataTable<TData, TValue>({
                 () => table.resetRowSelection(),
               )}
             </div>
-          </CardContent>
+          </div>
         </Card>
       )}
 
@@ -435,9 +433,8 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination Bar Card */}
       {showPagination && (
-        <Card className="bg-card border-border border py-2">
-          <CardContent className="px-3 py-0">
-            <div className="flex items-center justify-between gap-2">
+        <Card className="bg-card border-border border">
+          <div className="flex items-center justify-between gap-2 px-3 py-2">
               <div className="flex items-center gap-2">
                 <p className="text-muted-foreground hidden text-xs sm:inline sm:text-sm">
                   {table.getFilteredRowModel().rows.length === 0
@@ -537,8 +534,7 @@ export function DataTable<TData, TValue>({
                   <span className="sr-only">Last page</span>
                 </Button>
               </div>
-            </div>
-          </CardContent>
+          </div>
         </Card>
       )}
     </div>
@@ -596,13 +592,11 @@ export function DataTableSkeleton({
   return (
     <div className="space-y-4">
       {/* Filter bar skeleton */}
-      <Card className="bg-card border-border border py-2">
-        <CardContent className="px-3 py-0">
-          <div className="flex items-center gap-2">
-            <div className="bg-muted/30 h-9 w-full flex-1 animate-pulse sm:max-w-sm"></div>
-            <div className="bg-muted/30 h-9 w-24 animate-pulse"></div>
-          </div>
-        </CardContent>
+      <Card className="bg-card border-border border">
+        <div className="flex items-center gap-2 px-3 py-2">
+          <div className="bg-muted/30 h-9 w-full flex-1 animate-pulse sm:max-w-sm"></div>
+          <div className="bg-muted/30 h-9 w-24 animate-pulse"></div>
+        </div>
       </Card>
 
       {/* Table skeleton */}
@@ -667,23 +661,21 @@ export function DataTableSkeleton({
       </Card>
 
       {/* Pagination skeleton */}
-      <Card className="bg-card border-border border py-2">
-        <CardContent className="px-3 py-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="bg-muted/30 h-4 w-20 animate-pulse rounded text-xs sm:w-32 sm:text-sm"></div>
-              <div className="bg-muted/30 h-8 w-[70px] animate-pulse rounded"></div>
-            </div>
-            <div className="flex items-center gap-1">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-muted/30 h-8 w-8 animate-pulse rounded"
-                ></div>
-              ))}
-            </div>
+      <Card className="bg-card border-border border">
+        <div className="flex items-center justify-between gap-2 px-3 py-2">
+          <div className="flex items-center gap-2">
+            <div className="bg-muted/30 h-4 w-20 animate-pulse rounded text-xs sm:w-32 sm:text-sm"></div>
+            <div className="bg-muted/30 h-8 w-[70px] animate-pulse rounded"></div>
           </div>
-        </CardContent>
+          <div className="flex items-center gap-1">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={i}
+                className="bg-muted/30 h-8 w-8 animate-pulse rounded"
+              ></div>
+            ))}
+          </div>
+        </div>
       </Card>
     </div>
   );
