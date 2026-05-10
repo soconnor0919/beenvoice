@@ -3,7 +3,6 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "~/lib/auth-client";
-import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
@@ -65,6 +64,7 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
       // The signIn.sso method will automatically redirect to the SSO provider
     } catch (error) {
       console.error("[SSO Error]", error);
+      toast.error("SSO sign-in failed. Please try again.");
       setLoading(false);
     }
   }
@@ -77,8 +77,8 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
         <div className="animate-blob h-[800px] w-[800px] rounded-full bg-neutral-400/30 blur-3xl dark:bg-neutral-500/20"></div>
       </div>
 
-      <Card className="md:bg-background/80 md:border-border/50 mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:rounded-3xl md:border md:shadow-2xl md:backdrop-blur-xl">
-        <CardContent className="grid h-full p-0 md:grid-cols-2">
+      <div className="md:bg-background/80 md:border-border/50 mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:rounded-3xl md:border md:shadow-2xl md:backdrop-blur-xl">
+        <div className="grid h-full p-0 md:grid-cols-2">
           {/* Hero Section - Hidden on mobile */}
           <div className="bg-primary/5 border-border/50 relative hidden border-r md:flex md:flex-col md:justify-center md:p-12">
             <div className="space-y-8">
@@ -288,8 +288,8 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

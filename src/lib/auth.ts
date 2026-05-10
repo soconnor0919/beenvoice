@@ -20,7 +20,6 @@ export const auth = betterAuth({
       session: schema.sessions,
       account: schema.accounts,
       verification: schema.verificationTokens,
-      ssoProvider: schema.ssoProviders,
     },
   }),
   trustedOrigins: [
@@ -57,7 +56,7 @@ export const auth = betterAuth({
                 providerId: "authentik",
                 clientId: process.env.AUTHENTIK_CLIENT_ID!,
                 clientSecret: process.env.AUTHENTIK_CLIENT_SECRET!,
-                discoveryUrl: `${process.env.AUTHENTIK_ISSUER}/.well-known/openid-configuration`,
+                discoveryUrl: `${process.env.AUTHENTIK_ISSUER?.replace(/\/$/, "")}/.well-known/openid-configuration`,
                 scopes: ["openid", "email", "profile"],
                 pkce: true,
               },

@@ -2,7 +2,6 @@
 
 import { useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
@@ -48,8 +47,8 @@ function RegisterForm() {
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center">
-      <Card className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border md:shadow-lg">
-        <CardContent className="grid h-full p-0 md:grid-cols-2">
+      <div className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border md:border-border/50 md:rounded-3xl md:shadow-lg md:backdrop-blur-xl">
+        <div className="grid h-full p-0 md:grid-cols-2">
           {/* Hero Section - Hidden on mobile */}
           <div className="bg-muted relative hidden md:flex md:flex-col md:justify-center md:p-12">
             <div className="space-y-8">
@@ -247,8 +246,8 @@ function RegisterForm() {
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
