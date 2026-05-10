@@ -87,6 +87,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   expenses: many(expenses),
   invoiceTemplates: many(invoiceTemplates),
+  recurringInvoices: many(recurringInvoices),
 }));
 
 export const accounts = createTable(
@@ -326,6 +327,8 @@ export const invoices = createTable(
       .varchar({ length: 255 })
       .notNull()
       .references(() => users.id),
+    publicToken: d.varchar({ length: 255 }).unique(),
+    lastReminderSentAt: d.timestamp(),
     createdAt: d
       .timestamp()
       .default(sql`CURRENT_TIMESTAMP`)
@@ -338,6 +341,7 @@ export const invoices = createTable(
     index("invoice_created_by_idx").on(t.createdById),
     index("invoice_number_idx").on(t.invoiceNumber),
     index("invoice_status_idx").on(t.status),
+    index("invoice_public_token_idx").on(t.publicToken),
   ],
 );
 
@@ -355,6 +359,7 @@ export const invoicesRelations = relations(invoices, ({ one, many }) => ({
     references: [users.id],
   }),
   items: many(invoiceItems),
+  payments: many(invoicePayments),
 }));
 
 export const invoiceItems = createTable(
@@ -488,6 +493,152 @@ export const invoiceTemplatesRelations = relations(
     createdBy: one(users, {
       fields: [invoiceTemplates.createdById],
       references: [users.id],
+    }),
+  }),
+);
+
+// ─── Invoice Payments ────────────────────────────────────────────────────────
+
+export const invoicePayments = createTable(
+  "invoice_payment",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    invoiceId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => invoices.id, { onDelete: "cascade" }),
+    amount: d.real().notNull(),
+    currency: d.varchar({ length: 3 }).default("USD").notNull(),
+    date: d.timestamp().notNull(),
+    method: d
+      .varchar({ length: 50 })
+      .notNull()
+      .default("other"), // cash | check | bank_transfer | credit_card | paypal | other
+    notes: d.varchar({ length: 500 }),
+    createdById: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    createdAt: d
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  }),
+  (t) => [
+    index("invoice_payment_invoice_id_idx").on(t.invoiceId),
+    index("invoice_payment_created_by_idx").on(t.createdById),
+  ],
+);
+
+export const invoicePaymentsRelations = relations(invoicePayments, ({ one }) => ({
+  invoice: one(invoices, {
+    fields: [invoicePayments.invoiceId],
+    references: [invoices.id],
+  }),
+  createdBy: one(users, {
+    fields: [invoicePayments.createdById],
+    references: [users.id],
+  }),
+}));
+
+// ─── Recurring Invoices ───────────────────────────────────────────────────────
+
+export const recurringInvoices = createTable(
+  "recurring_invoice",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: d.varchar({ length: 255 }).notNull(),
+    clientId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => clients.id),
+    businessId: d.varchar({ length: 255 }).references(() => businesses.id),
+    schedule: d.varchar({ length: 20 }).notNull().default("monthly"), // weekly | biweekly | monthly | quarterly | yearly
+    status: d.varchar({ length: 20 }).notNull().default("active"), // active | paused
+    invoicePrefix: d.varchar({ length: 20 }).default("#"),
+    taxRate: d.real().notNull().default(0),
+    currency: d.varchar({ length: 3 }).default("USD").notNull(),
+    notes: d.varchar({ length: 1000 }),
+    emailMessage: d.varchar({ length: 2000 }),
+    nextDueAt: d.timestamp().notNull(),
+    lastGeneratedAt: d.timestamp(),
+    createdById: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id),
+    createdAt: d
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: d.timestamp().$onUpdate(() => new Date()),
+  }),
+  (t) => [
+    index("recurring_invoice_created_by_idx").on(t.createdById),
+    index("recurring_invoice_client_id_idx").on(t.clientId),
+    index("recurring_invoice_status_idx").on(t.status),
+    index("recurring_invoice_next_due_idx").on(t.nextDueAt),
+  ],
+);
+
+export const recurringInvoicesRelations = relations(
+  recurringInvoices,
+  ({ one, many }) => ({
+    client: one(clients, {
+      fields: [recurringInvoices.clientId],
+      references: [clients.id],
+    }),
+    business: one(businesses, {
+      fields: [recurringInvoices.businessId],
+      references: [businesses.id],
+    }),
+    createdBy: one(users, {
+      fields: [recurringInvoices.createdById],
+      references: [users.id],
+    }),
+    items: many(recurringInvoiceItems),
+  }),
+);
+
+export const recurringInvoiceItems = createTable(
+  "recurring_invoice_item",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    recurringInvoiceId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => recurringInvoices.id, { onDelete: "cascade" }),
+    description: d.varchar({ length: 500 }).notNull(),
+    hours: d.real().notNull(),
+    rate: d.real().notNull(),
+    position: d.integer().notNull().default(0),
+    createdAt: d
+      .timestamp()
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  }),
+  (t) => [
+    index("recurring_invoice_item_recurring_id_idx").on(t.recurringInvoiceId),
+  ],
+);
+
+export const recurringInvoiceItemsRelations = relations(
+  recurringInvoiceItems,
+  ({ one }) => ({
+    recurringInvoice: one(recurringInvoices, {
+      fields: [recurringInvoiceItems.recurringInvoiceId],
+      references: [recurringInvoices.id],
     }),
   }),
 );

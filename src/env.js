@@ -20,6 +20,7 @@ export const env = createEnv({
       .default("development"),
     DB_DISABLE_SSL: z.coerce.boolean().optional(),
     DISABLE_SIGNUPS: z.coerce.boolean().optional(),
+    CRON_SECRET: z.string().optional(),
     // SSO / Authentik (optional)
     AUTHENTIK_ISSUER: z.string().url().optional(),
     AUTHENTIK_CLIENT_ID: z.string().optional(),
@@ -85,6 +86,7 @@ export const env = createEnv({
     AUTHENTIK_CLIENT_ID: process.env.AUTHENTIK_CLIENT_ID,
     AUTHENTIK_CLIENT_SECRET: process.env.AUTHENTIK_CLIENT_SECRET,
     AUTHENTIK_ORIGIN: process.env.AUTHENTIK_ORIGIN,
+    CRON_SECRET: process.env.CRON_SECRET,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_UMAMI_WEBSITE_ID: process.env.NEXT_PUBLIC_UMAMI_WEBSITE_ID,
     NEXT_PUBLIC_UMAMI_SCRIPT_URL: process.env.NEXT_PUBLIC_UMAMI_SCRIPT_URL,

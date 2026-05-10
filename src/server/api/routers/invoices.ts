@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { desc, eq, inArray } from "drizzle-orm";
-import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import {
   invoices,
   invoiceItems,
@@ -10,6 +10,9 @@ import {
 } from "~/server/db/schema";
 import { TRPCError } from "@trpc/server";
 import { generateInvoicePDFBlob } from "~/lib/pdf-export";
+import { Resend } from "resend";
+import { env } from "~/env";
+import { generateReminderEmailTemplate } from "~/lib/email-templates/reminder-email";
 import type { db } from "~/server/db";
 
 type InvoiceRouterContext = {
@@ -625,5 +628,129 @@ export const invoicesRouter = createTRPCRouter({
           cause: error,
         });
       }
+    }),
+
+  // ── Public token (shareable link) ──────────────────────────────────────────
+
+  generatePublicToken: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.db.query.invoices.findFirst({
+        where: eq(invoices.id, input.id),
+      });
+      if (invoice?.createdById !== ctx.session.user.id) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const token = crypto.randomUUID();
+      await ctx.db
+        .update(invoices)
+        .set({ publicToken: token })
+        .where(eq(invoices.id, input.id));
+      return { token };
+    }),
+
+  revokePublicToken: protectedProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.db.query.invoices.findFirst({
+        where: eq(invoices.id, input.id),
+      });
+      if (invoice?.createdById !== ctx.session.user.id) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      await ctx.db
+        .update(invoices)
+        .set({ publicToken: null })
+        .where(eq(invoices.id, input.id));
+      return { success: true };
+    }),
+
+  getByPublicToken: publicProcedure
+    .input(z.object({ token: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const invoice = await ctx.db.query.invoices.findFirst({
+        where: eq(invoices.publicToken, input.token),
+        with: { client: true, business: true, items: { orderBy: (i, { asc }) => [asc(i.position)] } },
+      });
+      if (!invoice) throw new TRPCError({ code: "NOT_FOUND" });
+      return invoice;
+    }),
+
+  // ── Send reminder ──────────────────────────────────────────────────────────
+
+  sendReminder: protectedProcedure
+    .input(z.object({ id: z.string(), customMessage: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const invoice = await ctx.db.query.invoices.findFirst({
+        where: eq(invoices.id, input.id),
+        with: { client: true, business: true },
+      });
+      if (invoice?.createdById !== ctx.session.user.id) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      if (!invoice.client?.email) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Client has no email address" });
+      }
+
+      const userName =
+        invoice.business?.emailFromName ?? invoice.business?.name ?? ctx.session.user.name ?? "";
+      const userEmail = invoice.business?.email ?? ctx.session.user.email ?? "";
+
+      const { html, text, subject } = generateReminderEmailTemplate({
+        invoice: {
+          invoiceNumber: invoice.invoiceNumber,
+          issueDate: invoice.issueDate,
+          dueDate: invoice.dueDate,
+          totalAmount: invoice.totalAmount,
+          currency: invoice.currency,
+          client: { name: invoice.client.name, email: invoice.client.email },
+          business: invoice.business,
+        },
+        customMessage: input.customMessage,
+        userName,
+        userEmail,
+      });
+
+      // Resolve Resend instance (same two-tier logic as email router)
+      let resendInstance: Resend;
+      let fromEmail: string;
+      if (invoice.business?.resendApiKey && invoice.business?.resendDomain) {
+        resendInstance = new Resend(invoice.business.resendApiKey);
+        const fromName = invoice.business.emailFromName ?? invoice.business.name;
+        fromEmail = `${fromName} <noreply@${invoice.business.resendDomain}>`;
+      } else if (env.RESEND_API_KEY && env.RESEND_DOMAIN) {
+        resendInstance = new Resend(env.RESEND_API_KEY);
+        fromEmail = `noreply@${env.RESEND_DOMAIN}`;
+      } else if (env.RESEND_API_KEY) {
+        resendInstance = new Resend(env.RESEND_API_KEY);
+        fromEmail = invoice.business?.email ?? "noreply@example.com";
+      } else {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Email delivery is not configured. Add a Resend API key.",
+        });
+      }
+
+      const result = await resendInstance.emails.send({
+        from: fromEmail,
+        to: [invoice.client.email],
+        subject,
+        html,
+        text,
+      });
+
+      if (result.error) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: result.error.message,
+        });
+      }
+
+      await ctx.db
+        .update(invoices)
+        .set({ lastReminderSentAt: new Date() })
+        .where(eq(invoices.id, input.id));
+
+      return { sent: true };
     }),
 });

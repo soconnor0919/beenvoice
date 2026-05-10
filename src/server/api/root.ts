@@ -6,13 +6,10 @@ import { emailRouter } from "~/server/api/routers/email";
 import { dashboardRouter } from "~/server/api/routers/dashboard";
 import { expensesRouter } from "~/server/api/routers/expenses";
 import { invoiceTemplatesRouter } from "~/server/api/routers/invoiceTemplates";
+import { paymentsRouter } from "~/server/api/routers/payments";
+import { recurringInvoicesRouter } from "~/server/api/routers/recurring-invoices";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
-/**
- * This is the primary router for your server.
- *
- * All routers added in /api/routers should be manually added here.
- */
 export const appRouter = createTRPCRouter({
   clients: clientsRouter,
   businesses: businessesRouter,
@@ -22,6 +19,8 @@ export const appRouter = createTRPCRouter({
   dashboard: dashboardRouter,
   expenses: expensesRouter,
   invoiceTemplates: invoiceTemplatesRouter,
+  payments: paymentsRouter,
+  recurringInvoices: recurringInvoicesRouter,
 });
 
 // export type definition of API

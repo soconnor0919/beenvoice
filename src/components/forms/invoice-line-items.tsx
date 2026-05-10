@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash2, Zap } from "lucide-react";
+import { Plus, Timer, Trash2, Zap } from "lucide-react";
 import * as React from "react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -15,6 +15,7 @@ import {
   useLineItemSuggestions,
   type LineItemSuggestion,
 } from "~/hooks/use-line-item-suggestions";
+import { TimeTracker } from "~/components/invoice/time-tracker";
 
 interface InvoiceItem {
   id: string;
@@ -35,6 +36,8 @@ interface InvoiceLineItemsProps {
     value: string | number | Date,
   ) => void;
   onAddItemWithValues?: (parsed: ParsedLineItem) => void;
+  invoiceId?: string;
+  defaultRate?: number;
   className?: string;
 }
 
@@ -344,6 +347,8 @@ export function InvoiceLineItems({
   onRemoveItem,
   onUpdateItem,
   onAddItemWithValues,
+  invoiceId,
+  defaultRate,
   className,
 }: InvoiceLineItemsProps) {
   const canRemoveItems = items.length > 1;
@@ -417,6 +422,20 @@ export function InvoiceLineItems({
               />
             </React.Fragment>
           ))}
+          {onAddItemWithValues && invoiceId && (
+            <div className="border-t p-3 space-y-2">
+              <p className="text-muted-foreground flex items-center gap-1.5 text-xs font-medium">
+                <Timer className="h-3.5 w-3.5" /> Time tracker
+              </p>
+              <TimeTracker
+                invoiceId={invoiceId}
+                defaultRate={defaultRate}
+                onStop={(hours, description) => {
+                  onAddItemWithValues({ description, hours, rate: defaultRate ?? 0 });
+                }}
+              />
+            </div>
+          )}
           {onAddItemWithValues && (
             <NLQuickAdd onAdd={onAddItemWithValues} />
           )}
