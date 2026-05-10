@@ -1,11 +1,17 @@
--- New columns on beenvoice_invoice (use IF NOT EXISTS in case invoicePrefix was already pushed)
+-- New columns on beenvoice_invoice
 ALTER TABLE "beenvoice_invoice" ADD COLUMN IF NOT EXISTS "invoicePrefix" varchar(20) DEFAULT '#';
 --> statement-breakpoint
 ALTER TABLE "beenvoice_invoice" ADD COLUMN IF NOT EXISTS "publicToken" varchar(255);
 --> statement-breakpoint
 ALTER TABLE "beenvoice_invoice" ADD COLUMN IF NOT EXISTS "lastReminderSentAt" timestamp;
 --> statement-breakpoint
-ALTER TABLE "beenvoice_invoice" ADD CONSTRAINT IF NOT EXISTS "beenvoice_invoice_publicToken_unique" UNIQUE("publicToken");
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_invoice_publicToken_unique'
+  ) THEN
+    ALTER TABLE "beenvoice_invoice" ADD CONSTRAINT "beenvoice_invoice_publicToken_unique" UNIQUE("publicToken");
+  END IF;
+END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "invoice_public_token_idx" ON "beenvoice_invoice" USING btree ("publicToken");
 --> statement-breakpoint
@@ -23,9 +29,21 @@ CREATE TABLE IF NOT EXISTS "beenvoice_invoice_payment" (
 	"createdAt" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "beenvoice_invoice_payment" ADD CONSTRAINT "beenvoice_invoice_payment_invoiceId_beenvoice_invoice_id_fk" FOREIGN KEY ("invoiceId") REFERENCES "public"."beenvoice_invoice"("id") ON DELETE cascade ON UPDATE no action;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_invoice_payment_invoiceId_beenvoice_invoice_id_fk'
+  ) THEN
+    ALTER TABLE "beenvoice_invoice_payment" ADD CONSTRAINT "beenvoice_invoice_payment_invoiceId_beenvoice_invoice_id_fk" FOREIGN KEY ("invoiceId") REFERENCES "public"."beenvoice_invoice"("id") ON DELETE cascade ON UPDATE no action;
+  END IF;
+END $$;
 --> statement-breakpoint
-ALTER TABLE "beenvoice_invoice_payment" ADD CONSTRAINT "beenvoice_invoice_payment_createdById_beenvoice_user_id_fk" FOREIGN KEY ("createdById") REFERENCES "public"."beenvoice_user"("id") ON DELETE no action ON UPDATE no action;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_invoice_payment_createdById_beenvoice_user_id_fk'
+  ) THEN
+    ALTER TABLE "beenvoice_invoice_payment" ADD CONSTRAINT "beenvoice_invoice_payment_createdById_beenvoice_user_id_fk" FOREIGN KEY ("createdById") REFERENCES "public"."beenvoice_user"("id") ON DELETE no action ON UPDATE no action;
+  END IF;
+END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "invoice_payment_invoice_id_idx" ON "beenvoice_invoice_payment" USING btree ("invoiceId");
 --> statement-breakpoint
@@ -52,11 +70,29 @@ CREATE TABLE IF NOT EXISTS "beenvoice_recurring_invoice" (
 	"updatedAt" timestamp
 );
 --> statement-breakpoint
-ALTER TABLE "beenvoice_recurring_invoice" ADD CONSTRAINT "beenvoice_recurring_invoice_clientId_beenvoice_client_id_fk" FOREIGN KEY ("clientId") REFERENCES "public"."beenvoice_client"("id") ON DELETE no action ON UPDATE no action;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_recurring_invoice_clientId_beenvoice_client_id_fk'
+  ) THEN
+    ALTER TABLE "beenvoice_recurring_invoice" ADD CONSTRAINT "beenvoice_recurring_invoice_clientId_beenvoice_client_id_fk" FOREIGN KEY ("clientId") REFERENCES "public"."beenvoice_client"("id") ON DELETE no action ON UPDATE no action;
+  END IF;
+END $$;
 --> statement-breakpoint
-ALTER TABLE "beenvoice_recurring_invoice" ADD CONSTRAINT "beenvoice_recurring_invoice_businessId_beenvoice_business_id_fk" FOREIGN KEY ("businessId") REFERENCES "public"."beenvoice_business"("id") ON DELETE no action ON UPDATE no action;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_recurring_invoice_businessId_beenvoice_business_id_fk'
+  ) THEN
+    ALTER TABLE "beenvoice_recurring_invoice" ADD CONSTRAINT "beenvoice_recurring_invoice_businessId_beenvoice_business_id_fk" FOREIGN KEY ("businessId") REFERENCES "public"."beenvoice_business"("id") ON DELETE no action ON UPDATE no action;
+  END IF;
+END $$;
 --> statement-breakpoint
-ALTER TABLE "beenvoice_recurring_invoice" ADD CONSTRAINT "beenvoice_recurring_invoice_createdById_beenvoice_user_id_fk" FOREIGN KEY ("createdById") REFERENCES "public"."beenvoice_user"("id") ON DELETE no action ON UPDATE no action;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_recurring_invoice_createdById_beenvoice_user_id_fk'
+  ) THEN
+    ALTER TABLE "beenvoice_recurring_invoice" ADD CONSTRAINT "beenvoice_recurring_invoice_createdById_beenvoice_user_id_fk" FOREIGN KEY ("createdById") REFERENCES "public"."beenvoice_user"("id") ON DELETE no action ON UPDATE no action;
+  END IF;
+END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "recurring_invoice_created_by_idx" ON "beenvoice_recurring_invoice" USING btree ("createdById");
 --> statement-breakpoint
@@ -78,6 +114,12 @@ CREATE TABLE IF NOT EXISTS "beenvoice_recurring_invoice_item" (
 	"createdAt" timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "beenvoice_recurring_invoice_item" ADD CONSTRAINT "beenvoice_recurring_invoice_item_recurringInvoiceId_beenvoice_recurring_invoice_id_fk" FOREIGN KEY ("recurringInvoiceId") REFERENCES "public"."beenvoice_recurring_invoice"("id") ON DELETE cascade ON UPDATE no action;
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'beenvoice_recurring_invoice_item_recurringInvoiceId_beenvoice_recurring_invoice_id_fk'
+  ) THEN
+    ALTER TABLE "beenvoice_recurring_invoice_item" ADD CONSTRAINT "beenvoice_recurring_invoice_item_recurringInvoiceId_beenvoice_recurring_invoice_id_fk" FOREIGN KEY ("recurringInvoiceId") REFERENCES "public"."beenvoice_recurring_invoice"("id") ON DELETE cascade ON UPDATE no action;
+  END IF;
+END $$;
 --> statement-breakpoint
 CREATE INDEX IF NOT EXISTS "recurring_invoice_item_recurring_id_idx" ON "beenvoice_recurring_invoice_item" USING btree ("recurringInvoiceId");
