@@ -11,15 +11,7 @@ import { toast } from "sonner";
 import { Logo } from "~/components/branding/logo";
 import { LegalModal } from "~/components/ui/legal-modal";
 import { env } from "~/env";
-import {
-  Mail,
-  Lock,
-  ArrowRight,
-  Users,
-  FileText,
-  TrendingUp,
-  Shield,
-} from "lucide-react";
+import { Mail, Lock, ArrowRight, Shield } from "lucide-react";
 
 interface SignInFormProps {
   allowRegistration: boolean;
@@ -39,10 +31,7 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await authClient.signIn.email({
-      email,
-      password,
-    });
+    const { error } = await authClient.signIn.email({ email, password });
 
     setLoading(false);
 
@@ -62,7 +51,6 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
         providerId: "authentik",
         callbackURL: callbackUrl,
       });
-      // The signIn.sso method will automatically redirect to the SSO provider
     } catch (error) {
       console.error("[SSO Error]", error);
       setLoading(false);
@@ -71,222 +59,127 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      {/* Blob Background */}
       <div className="pointer-events-none fixed inset-0 -z-10 flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
         <div className="animate-blob h-[800px] w-[800px] rounded-full bg-neutral-400/30 blur-3xl dark:bg-neutral-500/20"></div>
       </div>
 
-      <Card className="md:bg-background/80 md:border-border/50 mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:rounded-3xl md:border md:backdrop-blur-xl">
-        <CardContent className="grid h-full p-0 md:grid-cols-2">
-          {/* Hero Section - Hidden on mobile */}
-          <div className="bg-primary/5 border-border/50 relative hidden border-r md:flex md:flex-col md:justify-center md:p-12">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <Logo size="xl" />
-                <div className="space-y-3">
-                  <h1 className="font-heading text-3xl font-bold lg:text-4xl">
-                    Welcome back to your
-                    <span className="text-primary italic">
-                      {" "}
-                      invoicing workspace
-                    </span>
-                  </h1>
-                  <p className="text-muted-foreground text-lg">
-                    Continue managing your clients and creating professional
-                    invoices that get you paid faster.
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid gap-6">
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-xl p-3">
-                    <Users className="text-primary h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-foreground font-semibold">
-                      Client Management
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      Organize and track all your clients in one place
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-xl p-3">
-                    <FileText className="text-primary h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-foreground font-semibold">
-                      Professional Invoices
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      Beautiful templates that get you paid faster
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-4">
-                  <div className="bg-primary/10 rounded-xl p-3">
-                    <TrendingUp className="text-primary h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-foreground font-semibold">
-                      Payment Tracking
-                    </h3>
-                    <p className="text-muted-foreground text-sm">
-                      Monitor your income with real-time insights
-                    </p>
-                  </div>
-                </div>
+      <Card className="mx-auto w-full max-w-md border-border/50 bg-background/80 backdrop-blur-xl">
+        <CardContent className="p-8">
+          <div className="space-y-6">
+            <div className="space-y-2">
+              <Logo size="lg" />
+              <div>
+                <h1 className="font-heading text-2xl font-bold">Welcome back</h1>
+                <p className="text-muted-foreground text-sm">Sign in to your account</p>
               </div>
             </div>
-          </div>
 
-          {/* Sign In Form */}
-          <div className="flex flex-col justify-center p-6 md:p-12">
-            <div className="mx-auto w-full max-w-sm space-y-6">
-              {/* Mobile Logo */}
-              <div className="flex justify-center md:hidden">
-                <Logo size="lg" />
+            {signupDisabled && (
+              <div className="border-border bg-muted/50 text-muted-foreground rounded-lg border px-3 py-2 text-sm">
+                New account registration is currently disabled.
               </div>
+            )}
 
-              <div className="space-y-2 text-center md:text-left">
-                <h1 className="font-heading text-3xl font-bold">Sign In</h1>
-                <p className="text-muted-foreground">
-                  Enter your credentials to access your account
-                </p>
-              </div>
-
-              {signupDisabled && (
-                <div className="border-border bg-muted/50 text-muted-foreground rounded-lg border px-3 py-2 text-sm">
-                  New account registration is currently disabled.
-                </div>
-              )}
-
-              {authentikEnabled && (
-                <div className="space-y-4">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    className="relative h-11 w-full rounded-xl"
-                    onClick={handleSocialSignIn}
-                    disabled={loading}
-                  >
-                    <Shield className="mr-2 h-4 w-4" />
-                    Sign in with Authentik
-                  </Button>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <span className="border-border/50 w-full border-t" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                      <span className="bg-background text-muted-foreground px-2">
-                        Or continue with
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address</Label>
-                  <div className="relative">
-                    <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      autoFocus
-                      className="bg-background/50 border-border/60 focus:bg-background h-11 pl-10 transition-all"
-                      placeholder="m@example.com"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password">Password</Label>
-                    <a
-                      href="/auth/forgot-password"
-                      className="text-primary text-sm hover:underline"
-                    >
-                      Forgot password?
-                    </a>
-                  </div>
-                  <div className="relative">
-                    <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      className="bg-background/50 border-border/60 focus:bg-background h-11 pl-10 transition-all"
-                      placeholder="Enter your password"
-                    />
-                  </div>
-                </div>
-
+            {authentikEnabled && (
+              <div className="space-y-4">
                 <Button
-                  type="submit"
-                  className="shadow-primary/20 hover:shadow-primary/30 h-11 w-full rounded-xl text-base shadow-lg"
+                  variant="outline"
+                  type="button"
+                  className="h-10 w-full"
+                  onClick={handleSocialSignIn}
                   disabled={loading}
                 >
-                  {loading ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="border-primary-foreground/30 border-t-primary-foreground h-4 w-4 animate-spin rounded-full border-2"></div>
-                      <span>Signing in...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <span>Sign In</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </div>
-                  )}
+                  <Shield className="mr-2 h-4 w-4" />
+                  Sign in with Authentik
                 </Button>
-              </form>
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="border-border/50 w-full border-t" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-background text-muted-foreground px-2">or</span>
+                  </div>
+                </div>
+              </div>
+            )}
 
-              {allowRegistration && (
-                <div className="text-center text-sm">
-                  Don&apos;t have an account?{" "}
-                  <a
-                    href="/auth/register"
-                    className="text-primary font-medium hover:underline"
-                  >
-                    Sign up
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <div className="relative">
+                  <Mail className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    autoFocus
+                    className="h-10 pl-10"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <a href="/auth/forgot-password" className="text-muted-foreground text-xs hover:underline">
+                    Forgot password?
                   </a>
                 </div>
-              )}
-
-              <div className="text-muted-foreground text-center text-xs leading-relaxed">
-                By signing in, you agree to our{" "}
-                <LegalModal
-                  type="terms"
-                  trigger={
-                    <span className="text-primary inline cursor-pointer hover:underline">
-                      Terms of Service
-                    </span>
-                  }
-                />{" "}
-                and{" "}
-                <LegalModal
-                  type="privacy"
-                  trigger={
-                    <span className="text-primary inline cursor-pointer hover:underline">
-                      Privacy Policy
-                    </span>
-                  }
-                />
-                .
+                <div className="relative">
+                  <Lock className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 h-4 w-4 -translate-y-1/2" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="h-10 pl-10"
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
-            </div>
+
+              <Button type="submit" className="h-10 w-full" disabled={loading}>
+                {loading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="border-primary-foreground/30 border-t-primary-foreground h-4 w-4 animate-spin rounded-full border-2" />
+                    <span>Signing in…</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <span>Sign In</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            {allowRegistration && (
+              <p className="text-muted-foreground text-center text-sm">
+                Don&apos;t have an account?{" "}
+                <a href="/auth/register" className="text-foreground font-medium hover:underline">
+                  Sign up
+                </a>
+              </p>
+            )}
+
+            <p className="text-muted-foreground text-center text-xs">
+              By signing in you agree to our{" "}
+              <LegalModal
+                type="terms"
+                trigger={<span className="text-foreground cursor-pointer hover:underline">Terms</span>}
+              />{" "}
+              and{" "}
+              <LegalModal
+                type="privacy"
+                trigger={<span className="text-foreground cursor-pointer hover:underline">Privacy Policy</span>}
+              />
+              .
+            </p>
           </div>
         </CardContent>
       </Card>
