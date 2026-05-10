@@ -12,6 +12,13 @@ const authentikEnabled = Boolean(
 );
 const signupsDisabled = process.env.DISABLE_SIGNUPS === "true";
 
+// Derive the authentik origin from the issuer URL so the OAuth callback is
+// automatically trusted without needing a separate AUTHENTIK_ORIGIN env var.
+const authentikOrigin =
+  authentikEnabled && process.env.AUTHENTIK_ISSUER
+    ? new URL(process.env.AUTHENTIK_ISSUER).origin
+    : null;
+
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "pg",
@@ -20,11 +27,11 @@ export const auth = betterAuth({
       session: schema.sessions,
       account: schema.accounts,
       verification: schema.verificationTokens,
-      ssoProvider: schema.ssoProviders,
     },
   }),
   trustedOrigins: [
     "https://beenvoice.soconnor.dev",
+    ...(authentikOrigin ? [authentikOrigin] : []),
     ...(process.env.AUTHENTIK_ORIGIN ? [process.env.AUTHENTIK_ORIGIN] : []),
   ],
   ...(authentikEnabled && {

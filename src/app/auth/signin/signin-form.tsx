@@ -77,7 +77,7 @@ export function SignInForm({ allowRegistration }: SignInFormProps) {
         <div className="animate-blob h-[800px] w-[800px] rounded-full bg-neutral-400/30 blur-3xl dark:bg-neutral-500/20"></div>
       </div>
 
-      <Card className="md:bg-background/80 md:border-border/50 mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:rounded-3xl md:border md:shadow-2xl md:backdrop-blur-xl">
+      <Card className="md:bg-background/80 md:border-border/50 mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:rounded-3xl md:border md:backdrop-blur-xl">
         <CardContent className="grid h-full p-0 md:grid-cols-2">
           {/* Hero Section - Hidden on mobile */}
           <div className="bg-primary/5 border-border/50 relative hidden border-r md:flex md:flex-col md:justify-center md:p-12">

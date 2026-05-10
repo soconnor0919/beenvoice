@@ -48,7 +48,7 @@ function RegisterForm() {
 
   return (
     <div className="bg-background flex min-h-screen items-center justify-center">
-      <Card className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border md:shadow-lg">
+      <Card className="mx-auto h-screen w-full overflow-hidden border-0 shadow-none md:h-auto md:max-w-6xl md:border">
         <CardContent className="grid h-full p-0 md:grid-cols-2">
           {/* Hero Section - Hidden on mobile */}
           <div className="bg-muted relative hidden md:flex md:flex-col md:justify-center md:p-12">
