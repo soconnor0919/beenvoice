@@ -57,6 +57,13 @@
       "when": 1777339000000,
       "tag": "0007_invoice_email_message",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1747526400000,
+      "tag": "0008_payments_recurring_public_links",
+      "breakpoints": true
     }
   ]
 }
