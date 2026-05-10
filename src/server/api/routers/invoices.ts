@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import {
   invoices,
@@ -129,6 +129,40 @@ export const invoicesRouter = createTRPCRouter({
         cause: error,
       });
     }
+  }),
+
+  getLineItemHistory: protectedProcedure.query(async ({ ctx }) => {
+    const userInvoices = await ctx.db
+      .select({ id: invoices.id })
+      .from(invoices)
+      .where(eq(invoices.createdById, ctx.session.user.id));
+
+    if (userInvoices.length === 0) return [];
+
+    const invoiceIds = userInvoices.map((i) => i.id);
+    const rows = await ctx.db
+      .select({
+        description: invoiceItems.description,
+        hours: invoiceItems.hours,
+        rate: invoiceItems.rate,
+        createdAt: invoiceItems.createdAt,
+      })
+      .from(invoiceItems)
+      .where(inArray(invoiceItems.invoiceId, invoiceIds))
+      .orderBy(desc(invoiceItems.createdAt))
+      .limit(500);
+
+    // Deduplicate by description, keeping most recent occurrence
+    const seen = new Set<string>();
+    return rows
+      .filter((r) => {
+        const key = r.description.toLowerCase();
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      })
+      .slice(0, 200)
+      .map(({ description, hours, rate }) => ({ description, hours, rate }));
   }),
 
   getCurrentOpen: protectedProcedure.query(async ({ ctx }) => {

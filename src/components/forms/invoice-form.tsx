@@ -51,6 +51,7 @@ import {
 } from "~/components/ui/dialog";
 import { STATUS_OPTIONS } from "./invoice/types";
 import type { InvoiceFormData, InvoiceItem } from "./invoice/types";
+import type { ParsedLineItem } from "~/lib/parse-line-item";
 
 import { CountUp } from "~/components/ui/count-up";
 
@@ -289,6 +290,22 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
           hours: 1,
           rate: prev.defaultHourlyRate ?? 0,
           amount: prev.defaultHourlyRate ?? 0,
+        },
+      ],
+    }));
+  };
+  const addItemWithValues = (parsed: ParsedLineItem) => {
+    setFormData((prev) => ({
+      ...prev,
+      items: [
+        ...prev.items,
+        {
+          id: crypto.randomUUID(),
+          date: new Date(),
+          description: parsed.description,
+          hours: parsed.hours ?? 1,
+          rate: parsed.rate ?? prev.defaultHourlyRate ?? 0,
+          amount: (parsed.hours ?? 1) * (parsed.rate ?? prev.defaultHourlyRate ?? 0),
         },
       ],
     }));
@@ -787,6 +804,7 @@ export default function InvoiceForm({ invoiceId }: InvoiceFormProps) {
                   onAddItem={addItem}
                   onRemoveItem={removeItem}
                   onUpdateItem={updateItem}
+                  onAddItemWithValues={addItemWithValues}
                 />
               </CardContent>
             </Card>

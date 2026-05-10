@@ -1,7 +1,8 @@
 "use client";
 
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, Zap } from "lucide-react";
 import * as React from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "~/components/ui/button";
 import { DatePicker } from "~/components/ui/date-picker";
@@ -9,6 +10,11 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { NumberInput } from "~/components/ui/number-input";
 import { cn } from "~/lib/utils";
+import { parseLineItem, type ParsedLineItem } from "~/lib/parse-line-item";
+import {
+  useLineItemSuggestions,
+  type LineItemSuggestion,
+} from "~/hooks/use-line-item-suggestions";
 
 interface InvoiceItem {
   id: string;
@@ -28,6 +34,7 @@ interface InvoiceLineItemsProps {
     field: string,
     value: string | number | Date,
   ) => void;
+  onAddItemWithValues?: (parsed: ParsedLineItem) => void;
   className?: string;
 }
 
@@ -41,10 +48,101 @@ interface LineItemRowProps {
     field: string,
     value: string | number | Date,
   ) => void;
+  suggestions: LineItemSuggestion[];
+  onSelectSuggestion: (index: number, suggestion: LineItemSuggestion) => void;
+  onDescriptionChange: (index: number, value: string) => void;
+}
+
+interface DescriptionAutocompleteProps {
+  value: string;
+  onChange: (value: string) => void;
+  onSelect: (suggestion: LineItemSuggestion) => void;
+  suggestions: LineItemSuggestion[];
+  placeholder?: string;
+  className?: string;
+}
+
+function DescriptionAutocomplete({
+  value,
+  onChange,
+  onSelect,
+  suggestions,
+  placeholder,
+  className,
+}: DescriptionAutocompleteProps) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const showDropdown = open && suggestions.length > 0;
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (!showDropdown) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      const s = suggestions[activeIndex];
+      if (s) { onSelect(s); setOpen(false); }
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
+  }
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <Input
+        value={value}
+        onChange={(e) => { onChange(e.target.value); setOpen(true); setActiveIndex(-1); }}
+        onFocus={() => setOpen(true)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        className={className}
+      />
+      {showDropdown && (
+        <div className="bg-popover text-popover-foreground border-border absolute top-full left-0 z-50 mt-1 w-full overflow-hidden rounded-md border shadow-md">
+          {suggestions.map((s, i) => (
+            <button
+              key={s.description}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onSelect(s);
+                setOpen(false);
+              }}
+              className={cn(
+                "hover:bg-accent hover:text-accent-foreground flex w-full items-center justify-between px-3 py-2 text-left text-sm",
+                i === activeIndex && "bg-accent text-accent-foreground",
+              )}
+            >
+              <span className="truncate font-medium">{s.description}</span>
+              <span className="text-muted-foreground ml-3 shrink-0 font-mono text-xs">
+                {s.hours}h · ${s.rate}/hr
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
-  ({ item, index, canRemove, onRemove, onUpdate }, ref) => {
+  ({ item, index, canRemove, onRemove, onUpdate, suggestions, onSelectSuggestion, onDescriptionChange }, ref) => {
     return (
       <div
         ref={ref}
@@ -60,9 +158,11 @@ const LineItemCard = React.forwardRef<HTMLDivElement, LineItemRowProps>(
           inputClassName="h-9"
         />
 
-        <Input
+        <DescriptionAutocomplete
           value={item.description}
-          onChange={(e) => onUpdate(index, "description", e.target.value)}
+          onChange={(v) => onDescriptionChange(index, v)}
+          onSelect={(s) => onSelectSuggestion(index, s)}
+          suggestions={suggestions}
           placeholder="Describe the work performed..."
           className="h-9 w-full text-sm font-medium"
         />
@@ -114,6 +214,9 @@ function MobileLineItem({
   canRemove,
   onRemove,
   onUpdate,
+  suggestions,
+  onSelectSuggestion,
+  onDescriptionChange,
 }: LineItemRowProps) {
   return (
     <motion.div
@@ -129,9 +232,11 @@ function MobileLineItem({
         {/* Description */}
         <div className="space-y-1">
           <Label className="text-muted-foreground text-xs">Description</Label>
-          <Input
+          <DescriptionAutocomplete
             value={item.description}
-            onChange={(e) => onUpdate(index, "description", e.target.value)}
+            onChange={(v) => onDescriptionChange(index, v)}
+            onSelect={(s) => onSelectSuggestion(index, s)}
+            suggestions={suggestions}
             placeholder="Describe the work performed..."
             className="pl-3 text-sm"
           />
@@ -208,14 +313,61 @@ function MobileLineItem({
   );
 }
 
+function NLQuickAdd({ onAdd }: { onAdd: (parsed: ParsedLineItem) => void }) {
+  const [value, setValue] = useState("");
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && value.trim()) {
+      e.preventDefault();
+      onAdd(parseLineItem(value));
+      setValue("");
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-2">
+      <Zap className="text-muted-foreground h-4 w-4 shrink-0" />
+      <Input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder='Quick add: "3hrs web design @120" — press Enter'
+        className="h-8 border-dashed text-sm"
+      />
+    </div>
+  );
+}
+
 export function InvoiceLineItems({
   items,
   onAddItem,
   onRemoveItem,
   onUpdateItem,
+  onAddItemWithValues,
   className,
 }: InvoiceLineItemsProps) {
   const canRemoveItems = items.length > 1;
+  const { search } = useLineItemSuggestions();
+  const [queriedIndex, setQueriedIndex] = useState<number | null>(null);
+  const [suggestions, setSuggestions] = useState<LineItemSuggestion[]>([]);
+
+  function handleDescriptionChange(index: number, value: string) {
+    onUpdateItem(index, "description", value);
+    setQueriedIndex(index);
+    setSuggestions(search(value));
+  }
+
+  function handleSelectSuggestion(index: number, s: LineItemSuggestion) {
+    onUpdateItem(index, "description", s.description);
+    onUpdateItem(index, "hours", s.hours);
+    onUpdateItem(index, "rate", s.rate);
+    setSuggestions([]);
+    setQueriedIndex(null);
+  }
+
+  function getSuggestionsForIndex(index: number): LineItemSuggestion[] {
+    return queriedIndex === index ? suggestions : [];
+  }
 
   return (
     <div className={cn("space-y-2", className)}>
@@ -246,6 +398,9 @@ export function InvoiceLineItems({
                   canRemove={canRemoveItems}
                   onRemove={onRemoveItem}
                   onUpdate={onUpdateItem}
+                  suggestions={getSuggestionsForIndex(index)}
+                  onSelectSuggestion={handleSelectSuggestion}
+                  onDescriptionChange={handleDescriptionChange}
                 />
               </motion.div>
 
@@ -256,9 +411,15 @@ export function InvoiceLineItems({
                 canRemove={canRemoveItems}
                 onRemove={onRemoveItem}
                 onUpdate={onUpdateItem}
+                suggestions={getSuggestionsForIndex(index)}
+                onSelectSuggestion={handleSelectSuggestion}
+                onDescriptionChange={handleDescriptionChange}
               />
             </React.Fragment>
           ))}
+          {onAddItemWithValues && (
+            <NLQuickAdd onAdd={onAddItemWithValues} />
+          )}
         </div>
       </AnimatePresence>
 
