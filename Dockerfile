@@ -16,7 +16,7 @@ ENV NODE_ENV=production \
     BETTER_AUTH_URL=http://localhost:3000 \
     AUTH_SECRET=docker-build-placeholder-secret-do-not-use \
     DATABASE_URL=postgres://postgres:postgres@localhost:5432/postgres
-RUN bun run build && bun build src/server/db/migrate.ts --target=bun --outfile=migrate.js
+RUN bun run build
 
 FROM base AS release
 ENV NODE_ENV=production \
@@ -26,11 +26,13 @@ ENV NODE_ENV=production \
 COPY --from=build /usr/src/app/.next/standalone ./
 COPY --from=build /usr/src/app/.next/static ./.next/static
 COPY --from=build /usr/src/app/public ./public
-COPY --from=build /usr/src/app/migrate.js ./migrate.js
+COPY --from=install /usr/src/app/node_modules node_modules
+COPY --from=build /usr/src/app/package.json ./package.json
+COPY --from=build /usr/src/app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=build /usr/src/app/drizzle ./drizzle
 
-RUN chmod -R a+rX drizzle migrate.js public
+RUN chmod -R a+rX drizzle public
 
 USER bun
 EXPOSE 3000
-CMD ["sh", "-c", "bun migrate.js && bun server.js"]
+CMD ["sh", "-c", "bun run db:migrate && bun server.js"]
