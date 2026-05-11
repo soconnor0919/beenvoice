@@ -7,6 +7,5 @@ import { genericOAuthClient } from "better-auth/client/plugins";
  * Auth client configuration
  */
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_APP_URL,
   plugins: [genericOAuthClient()],
 });
