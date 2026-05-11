@@ -30,9 +30,10 @@ COPY --from=install /usr/src/app/node_modules node_modules
 COPY --from=build /usr/src/app/package.json ./package.json
 COPY --from=build /usr/src/app/drizzle.config.ts ./drizzle.config.ts
 COPY --from=build /usr/src/app/drizzle ./drizzle
+COPY --from=build /usr/src/app/src/server/db/migrate.ts ./migrate.ts
 
-RUN chmod -R a+rX drizzle public
+RUN chmod -R a+rX drizzle public migrate.ts
 
 USER bun
 EXPOSE 3000
-CMD ["sh", "-c", "bun run db:migrate && bun server.js"]
+CMD ["sh", "-c", "bun migrate.ts && bun server.js"]
